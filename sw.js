@@ -1,4 +1,4 @@
-const CACHE = 'studyhub-v6';
+const CACHE = 'studyhub-v7';
 const APPS = ['highlights','praxa','cartographer','journal','habits','terminal','chess','poker','spanish','vaya','two-selves','poietism','doomsday',
   'animal-book','animal-essay','poietism-pamphlet','poietism-paper','poietism-naming',
   'koin','koin-welcome','koin-pamphlet','koin-essential','koin-teaching','koin-kids',

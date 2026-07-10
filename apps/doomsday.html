@@ -1,348 +1,123 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>Doomsday Practice</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doomsday</title>
 <style>
-body {
-  font-family: Arial;
-  background-color: #f0f0f0;
-  margin: 20px;
-}
-h1 {
-  color: navy;
-}
-.box {
-  background-color: white;
-  border: 1px solid gray;
-  padding: 15px;
-  margin-bottom: 15px;
-  width: 600px;
-}
-button {
-  padding: 8px;
-  margin: 3px;
-  font-size: 14px;
-}
-.dayBtn {
-  width: 90px;
-}
-table {
-  border-collapse: collapse;
-}
-td, th {
-  border: 1px solid gray;
-  padding: 5px;
-}
-#result {
-  font-size: 18px;
-  font-weight: bold;
-}
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#4bd07f;--red:#ff6b6b;--rule:#352c22}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;padding:calc(env(safe-area-inset-top) + 18px) 16px 50px}
+.wrap{max-width:560px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.back{color:var(--dim);text-decoration:none;font-size:.9rem}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2em;margin:6px 0 2px}
+.sub{color:var(--dim);font-size:.9em;margin-bottom:14px}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tabs button{flex:1;background:var(--panel);border:1px solid var(--rule);color:var(--dim);padding:9px;border-radius:10px;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--gold);color:#1a1509;border-color:var(--gold)}
+.page{display:none}.page.on{display:block}
+.stats{display:flex;gap:8px;margin-bottom:14px}
+.stat{flex:1;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:9px;text-align:center}
+.stat .n{font-size:1.5em;font-weight:800;color:var(--gold);line-height:1}.stat .l{font-size:.62em;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.qcard{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:26px 18px;text-align:center;margin-bottom:14px}
+.date{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.3em;font-weight:700;letter-spacing:-.5px}
+.qhint{color:var(--faint);font-size:.85em;margin-top:6px}
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.days button{background:var(--panel);border:1px solid var(--rule);color:var(--ink);padding:13px 4px;border-radius:12px;font-weight:700;font-size:.95em;cursor:pointer;transition:.1s}
+.days button:active{transform:scale(.95)}
+.days button.right{background:var(--green);border-color:var(--green);color:#0e2a14}
+.days button.wrong{background:var(--red);border-color:var(--red);color:#fff}
+.reveal{background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:14px 16px;margin-top:14px;font-size:.92em;line-height:1.6;display:none}
+.reveal.on{display:block}
+.reveal b{color:var(--gold)}
+.next{width:100%;background:var(--gold);color:#1a1509;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:1em;margin-top:12px;cursor:pointer;display:none}
+.next.on{display:block}
+.learn h2{color:var(--gold);font-size:1.05em;margin:18px 0 8px}
+.learn p,.learn li{color:#ddd3bf;font-size:.94em;line-height:1.6}
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.9em}
+.tbl td{padding:6px 8px;border-bottom:1px solid var(--rule)}.tbl td:first-child{color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;margin:10px 0}
+code{background:#0e0b07;padding:1px 6px;border-radius:5px;color:var(--green);font-family:ui-monospace,Menlo,monospace}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../index.html">‹ hub</a></div>
+  <h1>Doomsday</h1>
+  <div class="sub">Compute any date's day of the week in your head — Conway's method, drilled.</div>
+  <div class="tabs"><button class="on" data-p="practice">Practice</button><button data-p="learn">Learn the method</button></div>
 
-<h1>Doomsday Day of the Week Practice</h1>
-<p>By: Charlie Fairchild</p>
+  <div class="page on" id="p-practice">
+    <div class="stats">
+      <div class="stat"><div class="n" id="streak">0</div><div class="l">streak</div></div>
+      <div class="stat"><div class="n" id="best">0</div><div class="l">best</div></div>
+      <div class="stat"><div class="n" id="acc">—</div><div class="l">accuracy</div></div>
+    </div>
+    <div class="qcard"><div class="date" id="date">—</div><div class="qhint" id="hint">What day of the week?</div></div>
+    <div class="days" id="days"></div>
+    <div class="reveal" id="reveal"></div>
+    <button class="next" id="next">Next date →</button>
+  </div>
 
-<p>
-<button onclick="showTab('practice')">Practice</button>
-<button onclick="showTab('chart')">Date Chart</button>
-<button onclick="showTab('help')">How To</button>
-<button onclick="downloadPage()">Download this app</button>
-</p>
-
-<!-- PRACTICE -->
-<div id="practice" class="box">
-  <h2>Practice</h2>
-  <p>What day of the week was this date?</p>
-  <p>
-    Mode:
-    <select id="mode" onchange="newQ()">
-      <option value="full">Date -> Day</option>
-      <option value="anchor">Month -> Doomsday Date</option>
-      <option value="year">Year -> Doomsday</option>
-    </select>
-    Years: <input type="number" id="y1" value="1900" size="4"> to <input type="number" id="y2" value="2099" size="4">
-    <button onclick="newQ()">New Question</button>
-  </p>
-
-  <p id="question" style="font-size:24px;"></p>
-
-  <div id="buttons"></div>
-
-  <p id="result"></p>
-
-  <button onclick="showWork()">Show Work</button>
-  <button onclick="giveUp()">Give Up</button>
-
-  <p id="work" style="background-color:#ffffcc; padding:10px; display:none;"></p>
-
-  <hr>
-  <p>Score: <span id="right">0</span> right out of <span id="total">0</span></p>
-  <p>Streak: <span id="streak">0</span></p>
+  <div class="page" id="p-learn">
+    <div class="learn">
+      <p>The trick: every year has one weekday — its <b>Doomsday</b> — that a handful of easy dates always land on. Learn those dates, find the year's Doomsday, then count from the nearest one.</p>
+      <h2>1 · The memorable Doomsday dates</h2>
+      <p>These <em>all</em> fall on the year's Doomsday:</p>
+      <table class="tbl">
+        <tr><td>Even months</td><td><b>4/4, 6/6, 8/8, 10/10, 12/12</b></td></tr>
+        <tr><td>Odd months</td><td><b>5/9, 9/5, 7/11, 11/7</b> — "9-to-5 at 7-Eleven"</td></tr>
+        <tr><td>March</td><td>the <b>last day of February</b> (2/28, or 2/29 in a leap year), and <b>March 7</b></td></tr>
+        <tr><td>January</td><td><b>1/3</b> (common year) or <b>1/4</b> (leap year)</td></tr>
+      </table>
+      <h2>2 · Find the year's Doomsday</h2>
+      <p>Anchor per century (the Doomsday of the "00" year):</p>
+      <table class="tbl">
+        <tr><td>1800s</td><td>Friday</td></tr><tr><td>1900s</td><td>Wednesday</td></tr>
+        <tr><td>2000s</td><td><b>Tuesday</b></td></tr><tr><td>2100s</td><td>Sunday</td></tr>
+      </table>
+      <p>For year <code>YY</code> in the 2000s: take <code>YY + (YY ÷ 4, drop remainder)</code>, add the anchor (Tuesday = 2), then mod 7. That weekday is this year's Doomsday.</p>
+      <div class="card">Example — <b>2025</b>: 25 + 6 = 31; +2 = 33; 33 mod 7 = 5 → <b>Friday</b>. So 4/4, 6/6, 12/12 of 2025 are all Fridays.</div>
+      <h2>3 · Count to your date</h2>
+      <p>Find the memorable Doomsday nearest your date, then step by weeks and days. Oct 10 is a Doomsday, so Oct 13 is Doomsday + 3.</p>
+      <p style="color:var(--dim);margin-top:8px">Practice a few dozen and it's automatic. Hit <b>Practice</b> and go.</p>
+    </div>
+  </div>
 </div>
-
-<!-- CHART -->
-<div id="chart" class="box" style="display:none;">
-  <h2>Date Chart</h2>
-  <p>Pick a month to see all the dates and how far they are from doomsday.</p>
-  <p>
-    Month:
-    <select id="chartMonth" onchange="makeChart()"></select>
-    <input type="checkbox" id="chartLeap" onchange="makeChart()"> leap year
-  </p>
-  <table id="chartTable"></table>
-</div>
-
-<!-- HELP -->
-<div id="help" class="box" style="display:none;">
-  <h2>How To Do It</h2>
-  <p>Every year has a "doomsday" which is a day of the week. Some dates in each month always
-  land on that day. If you know those dates you can count to the day you want.</p>
-
-  <p>Steps:</p>
-  <ol>
-    <li>Get the century day. 1900s = Wednesday, 2000s = Tuesday, 1800s = Friday, 1700s = Sunday.</li>
-    <li>Take the last 2 digits of the year (call it y). Do (y + (y divided by 4, no remainder) + century day) and take the remainder when you divide by 7.</li>
-    <li>That number is the doomsday. 0=Sunday, 1=Monday, ... 6=Saturday.</li>
-    <li>Find the doomsday date for the month (see chart). Count days from there to your date.</li>
-  </ol>
-
-  <p>The doomsday dates to memorize:</p>
-  <ul>
-    <li>Jan 3 (or Jan 4 on leap years)</li>
-    <li>Feb 28 (or 29 on leap years)</li>
-    <li>March 14</li>
-    <li>4/4, 6/6, 8/8, 10/10, 12/12</li>
-    <li>5/9, 9/5, 7/11, 11/7 (think "9 to 5 at the 7 eleven")</li>
-  </ul>
-</div>
-
 <script>
-
-var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-var daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
-
-// the doomsday date for each month (jan and feb change on leap years)
-function getAnchor(m, leap) {
-  if (m == 1) { if (leap) return 4; else return 3; }
-  if (m == 2) { if (leap) return 29; else return 28; }
-  var arr = [0,0,0,14,4,9,6,11,8,5,10,7,12];
-  return arr[m];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function load(){ try{return JSON.parse(localStorage.getItem('sh_doomsday'))||{streak:0,best:0,right:0,total:0}}catch(e){return {streak:0,best:0,right:0,total:0}} }
+function save(s){ localStorage.setItem('sh_doomsday',JSON.stringify(s)); }
+let S=load(), cur=null, answered=false;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on')); document.getElementById('p-'+b.dataset.p).classList.add('on'); });
+document.getElementById('days').innerHTML=SHORT.map((d,i)=>'<button data-d="'+i+'">'+d+'</button>').join('');
+document.querySelectorAll('.days button').forEach(b=>b.onclick=()=>guess(+b.dataset.d));
+document.getElementById('next').onclick=newQ;
+function ddOfYear(y){ const anchorByMod={2:5,3:3,0:2,1:0}; const c=Math.floor(y/100); const a=anchorByMod[((c%4)+4)%4]; const yy=y%100; return ((a+yy+Math.floor(yy/4))%7+7)%7; }
+function renderStats(){ document.getElementById('streak').textContent=S.streak; document.getElementById('best').textContent=S.best;
+  document.getElementById('acc').textContent = S.total? Math.round(S.right/S.total*100)+'%':'—'; }
+function newQ(){ answered=false;
+  const y=1900+Math.floor(Math.random()*200), m=Math.floor(Math.random()*12), day=1+Math.floor(Math.random()*28);
+  const dt=new Date(y,m,day); cur={dt,dow:dt.getDay(),y};
+  document.getElementById('date').textContent=dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('hint').textContent='What day of the week?';
+  document.querySelectorAll('.days button').forEach(b=>{b.className='';b.disabled=false;});
+  document.getElementById('reveal').classList.remove('on'); document.getElementById('next').classList.remove('on'); renderStats(); }
+function guess(d){ if(answered) return; answered=true;
+  const correct=cur.dow; S.total++;
+  document.querySelectorAll('.days button').forEach(b=>{ const bd=+b.dataset.d; b.disabled=true; if(bd===correct)b.classList.add('right'); else if(bd===d)b.classList.add('wrong'); });
+  if(d===correct){ S.right++; S.streak++; if(S.streak>S.best)S.best=S.streak; } else { S.streak=0; }
+  save(S);
+  const dd=ddOfYear(cur.y);
+  document.getElementById('reveal').innerHTML=(d===correct?'✅ <b>'+DAYS[correct]+'</b> — nice.':'❌ It was <b>'+DAYS[correct]+'</b>.')+
+    '<br><span style="color:var(--dim)">'+cur.y+"&rsquo;s Doomsday is <b>"+DAYS[dd]+'</b> — so 4/4, 6/6, 12/12 that year are '+DAYS[dd]+'s. Count from the nearest.</span>';
+  document.getElementById('reveal').classList.add('on'); document.getElementById('next').classList.add('on'); renderStats();
 }
-
-function isLeap(y) {
-  if (y % 400 == 0) return true;
-  if (y % 100 == 0) return false;
-  if (y % 4 == 0) return true;
-  return false;
-}
-
-function centuryDay(y) {
-  var c = Math.floor(y / 100);
-  return (5 * (c % 4) + 2) % 7;
-}
-
-function doomsday(y) {
-  var yy = y % 100;
-  return (yy + Math.floor(yy / 4) + centuryDay(y)) % 7;
-}
-
-function getDay(y, m, d) {
-  var anchor = getAnchor(m, isLeap(y));
-  var dd = doomsday(y);
-  var ans = (dd + (d - anchor)) % 7;
-  while (ans < 0) ans = ans + 7;
-  return ans;
-}
-
-// global stuff for current question
-var qType = "";
-var qy = 0;
-var qm = 0;
-var qd = 0;
-var qAnswer = 0;
-var answered = false;
-
-var rightCount = 0;
-var totalCount = 0;
-var streakCount = 0;
-
-// lets you save this whole page as an html file
-function downloadPage() {
-  var html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-  var blob = new Blob([html], {type: "text/html"});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url;
-  a.download = "doomsday.html";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function showTab(name) {
-  document.getElementById("practice").style.display = "none";
-  document.getElementById("chart").style.display = "none";
-  document.getElementById("help").style.display = "none";
-  document.getElementById(name).style.display = "block";
-}
-
-function newQ() {
-  answered = false;
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("work").style.display = "none";
-  document.getElementById("work").innerHTML = "";
-
-  var mode = document.getElementById("mode").value;
-  qType = mode;
-  var y1 = parseInt(document.getElementById("y1").value);
-  var y2 = parseInt(document.getElementById("y2").value);
-  if (isNaN(y1)) y1 = 1900;
-  if (isNaN(y2)) y2 = 2099;
-  if (y2 < y1) { var t = y1; y1 = y2; y2 = t; }
-
-  qy = y1 + Math.floor(Math.random() * (y2 - y1 + 1));
-
-  var html = "";
-
-  if (mode == "full") {
-    qm = 1 + Math.floor(Math.random() * 12);
-    var max = daysInMonth[qm - 1];
-    if (qm == 2 && isLeap(qy)) max = 29;
-    qd = 1 + Math.floor(Math.random() * max);
-    qAnswer = getDay(qy, qm, qd);
-    document.getElementById("question").innerHTML = months[qm - 1] + " " + qd + ", " + qy;
-    // day buttons
-    for (var i = 0; i < 7; i++) {
-      html = html + '<button class="dayBtn" onclick="checkDay(' + i + ')">' + days[i] + '</button>';
-    }
-  }
-  else if (mode == "anchor") {
-    qm = 1 + Math.floor(Math.random() * 12);
-    qAnswer = getAnchor(qm, isLeap(qy));
-    document.getElementById("question").innerHTML = months[qm - 1] + " " + qy + " - which date is doomsday?";
-    // make some number choices
-    var choices = [qAnswer];
-    while (choices.length < 6) {
-      var n = 1 + Math.floor(Math.random() * daysInMonth[qm - 1]);
-      if (choices.indexOf(n) == -1) choices.push(n);
-    }
-    choices.sort(function(a,b){return a-b;});
-    for (var j = 0; j < choices.length; j++) {
-      html = html + '<button onclick="checkDay(' + choices[j] + ')">' + choices[j] + '</button>';
-    }
-  }
-  else {
-    qAnswer = doomsday(qy);
-    document.getElementById("question").innerHTML = "Year " + qy + " - what is the doomsday?";
-    for (var k = 0; k < 7; k++) {
-      html = html + '<button class="dayBtn" onclick="checkDay(' + k + ')">' + days[k] + '</button>';
-    }
-  }
-
-  document.getElementById("buttons").innerHTML = html;
-}
-
-function checkDay(val) {
-  if (answered) return;
-  answered = true;
-  totalCount = totalCount + 1;
-
-  if (val == qAnswer) {
-    rightCount = rightCount + 1;
-    streakCount = streakCount + 1;
-    document.getElementById("result").innerHTML = "Correct!";
-    document.getElementById("result").style.color = "green";
-  } else {
-    streakCount = 0;
-    var ans;
-    if (qType == "anchor") ans = qAnswer;
-    else ans = days[qAnswer];
-    document.getElementById("result").innerHTML = "Wrong. The answer is " + ans;
-    document.getElementById("result").style.color = "red";
-  }
-
-  document.getElementById("right").innerHTML = rightCount;
-  document.getElementById("total").innerHTML = totalCount;
-  document.getElementById("streak").innerHTML = streakCount;
-}
-
-function giveUp() {
-  if (answered) { newQ(); return; }
-  answered = true;
-  totalCount = totalCount + 1;
-  streakCount = 0;
-  var ans;
-  if (qType == "anchor") ans = qAnswer;
-  else ans = days[qAnswer];
-  document.getElementById("result").innerHTML = "The answer is " + ans;
-  document.getElementById("result").style.color = "black";
-  document.getElementById("total").innerHTML = totalCount;
-  document.getElementById("streak").innerHTML = streakCount;
-}
-
-function showWork() {
-  var w = document.getElementById("work");
-  if (w.style.display == "block") { w.style.display = "none"; return; }
-
-  var text = "";
-  var c = centuryDay(qy);
-  var yy = qy % 100;
-  var dd = doomsday(qy);
-
-  if (qType == "year" || qType == "full") {
-    text = text + "Century day for " + Math.floor(qy/100) + "00s = " + days[c] + "<br>";
-    text = text + "Last 2 digits = " + yy + ", divided by 4 = " + Math.floor(yy/4) + "<br>";
-    text = text + "(" + yy + " + " + Math.floor(yy/4) + " + " + c + ") mod 7 = " + dd + " = " + days[dd] + "<br>";
-  }
-  if (qType == "anchor" || qType == "full") {
-    var a = getAnchor(qm, isLeap(qy));
-    text = text + months[qm-1] + " doomsday date is the " + a + "<br>";
-  }
-  if (qType == "full") {
-    var a2 = getAnchor(qm, isLeap(qy));
-    text = text + "Count from the " + a2 + " to the " + qd + ", then mod 7 = " + days[qAnswer] + "<br>";
-  }
-
-  w.innerHTML = text;
-  w.style.display = "block";
-}
-
-// chart tab
-function setupChart() {
-  var sel = document.getElementById("chartMonth");
-  var h = "";
-  for (var i = 0; i < 12; i++) {
-    h = h + '<option value="' + (i+1) + '">' + months[i] + '</option>';
-  }
-  sel.innerHTML = h;
-}
-
-function makeChart() {
-  var m = parseInt(document.getElementById("chartMonth").value);
-  var leap = document.getElementById("chartLeap").checked;
-  var max = daysInMonth[m-1];
-  if (m == 2 && leap) max = 29;
-  var anchor = getAnchor(m, leap);
-
-  var html = "<tr><th>Date</th><th>Days from doomsday</th></tr>";
-  for (var d = 1; d <= max; d++) {
-    var off = (d - anchor) % 7;
-    while (off < 0) off = off + 7;
-    var note = "";
-    if (off == 0) note = " (this IS a doomsday)";
-    html = html + "<tr><td>" + months[m-1] + " " + d + "</td><td>" + off + note + "</td></tr>";
-  }
-  document.getElementById("chartTable").innerHTML = html;
-}
-
-// start
-setupChart();
-makeChart();
 newQ();
-
 </script>
-
 </body>
 </html>
