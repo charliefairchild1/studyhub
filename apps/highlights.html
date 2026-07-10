@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Highlights — the 2-minute tour</title>
+<style>
+:root{--bg:#14110c;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--blue:#6fa8d9;--rule:#352c22}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;overflow:hidden}
+.deck{display:flex;height:100vh;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+.deck::-webkit-scrollbar{display:none}
+.card{min-width:100vw;height:100vh;scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(env(safe-area-inset-top) + 60px) 30px calc(env(safe-area-inset-bottom) + 90px);position:relative}
+.card .n{color:var(--faint);font-size:.9rem;letter-spacing:3px;font-weight:700}
+.tag{align-self:flex-start;font-size:.66rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:12px;margin:14px 0 12px}
+.tag.off{background:#0f2418;color:var(--green);border:1px solid #1e5c38}
+.tag.live{background:#132a44;color:var(--blue);border:1px solid #245080}
+.tag.dep{background:#2a2412;color:var(--gold);border:1px solid #5a4a1c}
+.card h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.6rem;line-height:1.05;letter-spacing:-.5px}
+.card .blurb{color:var(--dim);font-size:1.15rem;line-height:1.5;margin-top:14px;max-width:520px}
+.card .open{align-self:flex-start;margin-top:26px;background:var(--gold);color:#1a1509;text-decoration:none;font-weight:800;
+  padding:12px 22px;border-radius:12px;font-size:1rem}
+.card.intro h2{font-size:3.2rem}.card.intro .a{color:var(--gold)}
+.card.end h2{color:var(--gold)}
+.hint{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 44px);left:0;right:0;text-align:center;color:var(--faint);font-size:.85rem;pointer-events:none}
+.dots{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 20px);left:0;right:0;display:flex;gap:6px;justify-content:center}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--rule)}.dots i.on{background:var(--gold);width:18px;border-radius:3px}
+.back{position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:16px;color:var(--dim);text-decoration:none;font-size:.9rem;z-index:5}
+.nav{position:fixed;top:0;bottom:0;width:22%;z-index:4}
+.nav.l{left:0}.nav.r{right:0}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ Menu</a>
+<div class="deck" id="deck"></div>
+<div class="nav l" onclick="go(-1)"></div><div class="nav r" onclick="go(1)"></div>
+<div class="hint" id="hint">swipe →</div>
+<div class="dots" id="dots"></div>
+<script>
+function pepBase(){ return (localStorage.getItem('pepbase')||'http://localhost:8000').replace(/\/$/,''); }
+// [tag, title, blurb, kind, target]  kind: off=bundled sibling, live=PEP route, dep=full url, none
+const CARDS=[
+ ['','The <span class="a">Study</span>','Everything built from one idea — a two-minute tour of the highlights. Swipe through.','intro',''],
+ ['live','PEP &amp; PTO','The whole thing rests on two ideas: a mind is a <em>prediction engine</em>, and the good is turning potential into making rather than waste. Every app below is that idea, applied.','live','/pep'],
+ ['off','The Animal That Bets','A full book on the origin of the human mind — the one animal that gambles, and why reason is the gambler&rsquo;s tool.','off','animal-book'],
+ ['off','Poietism','The philosophy in a 20-page field guide: becoming, the self, the seeming, the ethic, the absurd — Nietzsche to Heraclitus.','off','poietism-pamphlet'],
+ ['live','The Seeming','A working answer to the hardest question — why there&rsquo;s something it&rsquo;s <em>like</em> to be you — built from the same primitives as everything else.','live','/axona/seeming'],
+ ['off','Koin','An economics of friendship: money tracks who <em>holds</em>, not who <em>lifted</em>. Koin is the ledger that could tell them apart.','off','koin'],
+ ['off','Chess · Vantage','Learn chess through the lens — influence heatmaps, transformation-vs-dissipation eval, predict-the-move, and a playable engine.','off','chess'],
+ ['off','Poker','Texas Hold&rsquo;em as PEP/PTO — live equity, an EV coach, a read-the-range trainer, and a bot to play.','off','poker'],
+ ['off','Spanish','A one-month sprint to conversational Spanish — spaced-repetition vocab, a conjugation trainer, cognates, and dictation.','off','spanish'],
+ ['off','The Transformation Map','Invest by reading the world: score where potential is converting fastest, then find what realizes it. PTO applied to markets.','off','transformation-map'],
+ ['live','Strata Paper','A real, tested quant investing system — S&amp;P core plus a PTO factor tilt, honestly paper-traded before a dollar is risked.','live','/strata/paper'],
+ ['live','The Village','Six minds — humans, an alien, a child, an elder — on a shared substrate, gossiping, trading, and mingling on their own.','live','/village'],
+ ['live','Nous','A mind built from all six primitives — originality by residual, opacity as the seeming, an autonomous inner loop. Talk to it.','live','/nous'],
+ ['dep','Lemma','A classroom-warmup app real teachers use — deployed, live on the web, with accounts and analytics.','dep','https://lemma-2b0h.onrender.com'],
+ ['off','130+ visualizations','A whole math playground — cellular automata, reaction-diffusion, neural fields, sandpiles — every one a face of the same framework.','off','life'],
+ ['','…and 460 more','This was the highlight reel. The full catalog holds every surface we&rsquo;ve built — search it from the menu.','end',''],
+];
+const deck=document.getElementById('deck');
+deck.innerHTML=CARDS.map(([tag,title,blurb,kind,t])=>{
+  let btn='';
+  if(kind==='off') btn='<a class="open" href="'+t+'.html">Open →</a>';
+  else if(kind==='live') btn='<a class="open" href="'+pepBase()+t+'" target="_blank" rel="noopener">Open live →</a>';
+  else if(kind==='dep') btn='<a class="open" href="'+t+'" target="_blank" rel="noopener">Open →</a>';
+  const tagHtml = tag? '<span class="tag '+tag+'">'+({off:'runs offline',live:'live in PEP app',dep:'deployed'}[tag])+'</span>':'';
+  return '<div class="card '+(kind==='intro'?'intro':kind==='end'?'end':'')+'"><div class="n">'+(kind==='intro'||kind==='end'?'':'')+'</div>'+tagHtml+'<h2>'+title+'</h2><div class="blurb">'+blurb+'</div>'+btn+'</div>';
+}).join('');
+const dots=document.getElementById('dots');
+dots.innerHTML=CARDS.map((_,i)=>'<i'+(i===0?' class="on"':'')+'></i>').join('');
+function go(d){ deck.scrollBy({left:d*window.innerWidth,behavior:'smooth'}); }
+let t=null;
+deck.addEventListener('scroll',()=>{ if(t)cancelAnimationFrame(t); t=requestAnimationFrame(()=>{
+  const i=Math.round(deck.scrollLeft/window.innerWidth);
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+  document.getElementById('hint').style.opacity = i===0?'1':'0';
+});});
+</script>
+</body>
+</html>
