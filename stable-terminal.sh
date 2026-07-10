@@ -1,39 +1,45 @@
 #!/bin/zsh
-# ── Permanent phone terminal over Tailscale ───────────────────────────────
-# Gives a STABLE https URL you paste into the Terminal app once, forever.
-# One-time prerequisites (see the steps your assistant gave you):
-#   1. Install Tailscale on this Mac AND your iPhone; log both into the same account.
-#   2. In the Tailscale admin console → Settings → enable HTTPS certificates + MagicDNS.
-# After that, just run this script whenever you want the terminal available.
+# ── Permanent phone terminal over Tailscale (userspace, no sudo) ──────────
+# Publishes a live terminal at a STABLE https URL you paste into the Terminal
+# app once, forever:  https://study-mac.<your-tailnet>.ts.net
+# Prereqs (already done once): tailscale CLI installed, logged in on Mac + phone,
+# and HTTPS Certificates enabled in the Tailscale admin console.
+# Just run this after a reboot (or add it to login items) to bring it back.
 
-TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale
-command -v tailscale >/dev/null 2>&1 && TS=tailscale
-command -v ttyd >/dev/null 2>&1 || { echo "Installing ttyd…"; brew install ttyd; }
-
+SOCK=/tmp/tailscaled.sock
 PORT=7681
+ts(){ /opt/homebrew/bin/tailscale --socket=$SOCK "$@"; }
+
+# 1. userspace tailscaled (no root/kernel-extension needed)
+if ! pgrep -f "tailscaled --tun=userspace" >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/tailscale"
+  nohup /opt/homebrew/bin/tailscaled --tun=userspace-networking --socket=$SOCK \
+        --statedir="$HOME/.config/tailscale" >/tmp/tailscaled.log 2>&1 &
+  sleep 3
+fi
+ts up --hostname=study-mac >/dev/null 2>&1 || true   # already authenticated → no-op
+
+# 2. stable password (generated + saved once)
 PASSFILE="$HOME/.study_term_pass"
-[ -f "$PASSFILE" ] || openssl rand -hex 5 > "$PASSFILE"    # stable password, saved once
+[ -f "$PASSFILE" ] || openssl rand -hex 5 > "$PASSFILE"
 PASS=$(cat "$PASSFILE")
 
-echo "starting terminal on :$PORT …"
-pkill -f "ttyd -p $PORT" 2>/dev/null; sleep 1
-ttyd -p "$PORT" -W -c "user:$PASS" zsh -l >/tmp/ttyd.log 2>&1 &
-TTYD=$!
+# 3. the terminal itself
+pgrep -f "ttyd -p $PORT" >/dev/null 2>&1 || \
+  nohup /opt/homebrew/bin/ttyd -p $PORT -W -c "user:$PASS" zsh -l >/tmp/ttyd.log 2>&1 &
 sleep 1
 
-# expose it over the tailnet with HTTPS (stable hostname)
-"$TS" serve --bg "$PORT" 2>/tmp/tsserve.log
-sleep 1
-URL=$("$TS" serve status 2>/dev/null | grep -Eo 'https://[^ ]+' | head -1)
+# 4. publish it over the tailnet with HTTPS
+ts serve --bg $PORT >/tmp/serve.log 2>&1
+sleep 2
+URL=$(ts serve status 2>/dev/null | grep -Eo 'https://[^ ]+' | head -1)
 
 echo
 echo "=================================================================="
-echo "  📱 PERMANENT URL :  ${URL:-'(check: '"$TS"' serve status)'}"
+echo "  📱 PERMANENT URL :  ${URL:-https://study-mac.<tailnet>.ts.net}"
 echo "     LOGIN         :  user"
-echo "     PASSWORD      :  $PASS   (stable — same every time)"
+echo "     PASSWORD      :  $PASS   (stable)"
 echo
-echo "  Paste that URL into the Terminal app once. It never changes."
-echo "  Leave this window open (or run again after a reboot)."
-echo "  Stop sharing:  $TS serve --https=443 off   &&  pkill -f 'ttyd -p $PORT'"
+echo "  Paste the URL into the Terminal app once — it never changes."
+echo "  Stop:  tailscale --socket=$SOCK serve --https=443 off ; pkill -f 'ttyd -p $PORT'"
 echo "=================================================================="
-wait $TTYD
