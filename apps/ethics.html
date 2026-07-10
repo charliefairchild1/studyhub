@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Ethics Arena</title>
+<meta name="theme-color" content="#14110c">
+<style>
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--rule:#352c22;
+  --util:#7fae8b;--deon:#6fa8d9;--virt:#d9a441;--just:#b98fd9}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;line-height:1.5;
+  padding:calc(env(safe-area-inset-top) + 56px) 16px calc(env(safe-area-inset-bottom) + 40px)}
+.wrap{max-width:640px;margin:0 auto}
+.eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2em;font-weight:600;line-height:1.1}
+h1 em{font-style:italic;color:var(--gold)}
+.lede{color:var(--dim);margin:12px 0 20px;font-size:1.02em}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:20px}
+.btn{background:var(--gold);color:#1a1206;border:none;border-radius:12px;padding:14px 20px;font:700 1.02em/1 inherit;cursor:pointer;width:100%}
+.btn:active{transform:translateY(1px)}
+.ghost{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:12px;padding:12px 18px;font:600 .95em/1 inherit;cursor:pointer}
+/* progress */
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.prog .bar{flex:1;height:6px;background:#0e0b07;border-radius:4px;overflow:hidden}
+.prog .bar>i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .4s ease}
+.prog .n{font-family:ui-monospace,monospace;font-size:.78em;color:var(--faint);white-space:nowrap}
+/* scenario */
+.tag{display:inline-block;font-family:ui-monospace,monospace;font-size:.7em;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--rule);border-radius:20px;padding:4px 10px;margin-bottom:12px}
+.scene{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.32em;line-height:1.4;margin-bottom:6px}
+.detail{color:var(--dim);margin:10px 0 18px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--panel2);border:1px solid var(--rule);border-radius:13px;padding:15px 16px;text-align:left;cursor:pointer;
+  color:var(--ink);font:inherit;font-size:1.02em;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gold)}
+.opt:active{background:#2c2218}
+.opt .oh{font-weight:600;display:flex;gap:9px;align-items:flex-start}
+.opt .ok{color:var(--faint);font-family:ui-monospace,monospace;font-size:.9em;margin-top:1px}
+/* reflection */
+.reflect{margin-top:18px;padding:15px 16px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
+  animation:fade .35s ease}
+.reflect .rl{font-family:ui-monospace,monospace;font-size:.68em;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.reflect .rt{color:var(--ink);font-style:italic}
+.reflect .lean{margin-top:10px;font-size:.85em;color:var(--dim)}
+.reflect .lean b{color:var(--gold);font-weight:600}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.next{margin-top:16px}
+/* result */
+.fingerprint{text-align:center;margin:6px 0 20px}
+.fingerprint .big{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.9em;color:var(--gold);line-height:1.15}
+.fingerprint .who{color:var(--dim);margin-top:8px;font-style:italic}
+.bars{margin:20px 0}
+.brow{margin-bottom:14px}
+.brow .bl{display:flex;justify-content:space-between;font-size:.9em;margin-bottom:5px}
+.brow .bl .nm{font-weight:600}.brow .bl .pc{color:var(--faint);font-family:ui-monospace,monospace}
+.track{height:9px;background:#0e0b07;border-radius:5px;overflow:hidden}
+.track>i{display:block;height:100%;border-radius:5px;width:0;transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.summary{color:var(--dim);margin:16px 0;font-size:1.02em}
+.summary b{color:var(--ink);font-weight:600}
+.actions{display:flex;gap:10px;margin-top:22px}
+.actions .btn{flex:1}
+.foot{color:var(--faint);font-size:.82em;text-align:center;margin-top:26px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translateX(-50%) translateY(20px);
+  background:#2c2218;border:1px solid var(--gold);color:var(--gold);padding:11px 18px;border-radius:24px;font-size:.9em;font-weight:600;
+  opacity:0;pointer-events:none;transition:.3s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%)}
+a.hubback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.88);
+  color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;
+  text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)}
+</style></head>
+<body>
+<a href="../index.html" class="hubback">&lsaquo; Hub</a>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- frameworks ---------- */
+const FW={
+  util:{name:'Consequences',long:'Utilitarian',color:'var(--util)',
+    blurb:'You weigh outcomes. The right act is the one that produces the most good for the most people — suffering counts, everyone counts equally.',
+    who:'Kindred spirit: John Stuart Mill & Peter Singer'},
+  deon:{name:'Duty',long:'Deontological',color:'var(--deon)',
+    blurb:'You honor rules, rights, and promises. Some lines cannot be crossed even for a good result — a person is never merely a means to an end.',
+    who:'Kindred spirit: Immanuel Kant'},
+  virt:{name:'Character',long:'Virtue',color:'var(--virt)',
+    blurb:'You ask what a good person would do. Ethics lives in courage, honesty, loyalty and compassion — in who you become, not just what you tally.',
+    who:'Kindred spirit: Aristotle'},
+  just:{name:'Fairness',long:'Contractarian',color:'var(--just)',
+    blurb:'You reach for fairness and consent. Rules are just when we could all agree to them without knowing which position we would land in.',
+    who:'Kindred spirit: John Rawls'}
+};
+const ORDER=['util','deon','virt','just'];
+
+/* ---------- scenarios ---------- */
+/* each option: text, key hint, weights across frameworks, and a reflection */
+const SCENES=[
+ {tag:'The Trolley',
+  scene:'A runaway trolley speeds toward five workers who cannot escape. You stand at a lever. Pull it and the trolley diverts to a side track — where one worker stands.',
+  detail:'Five lives, or one, and your hand on the lever.',
+  opts:[
+   {t:'Pull the lever — one death is better than five.',w:{util:3,just:1},
+    r:'You let the arithmetic decide: five lives outweigh one. Classic consequentialism — the outcome is what carries the moral weight.'},
+   {t:'Do nothing — I will not choose to kill anyone.',w:{deon:3,virt:1},
+    r:'You refuse to make yourself the author of a death, even to prevent more. There is a moral difference, you feel, between killing and letting die.'}
+  ]},
+ {tag:'The Footbridge',
+  scene:'Same trolley, five workers. This time you stand on a footbridge beside a large stranger. Only his body, shoved onto the tracks, is heavy enough to stop the trolley in time.',
+  detail:'The math is identical — one dies, five live. Your hands would do it.',
+  opts:[
+   {t:'Push him — the outcome is the same as the lever.',w:{util:3},
+    r:'You stay consistent to the numbers even when it means using your own hands. Few people can — the body recoils where the calculus does not.'},
+   {t:'Never. I will not use a man as a mere object.',w:{deon:3,virt:1},
+    r:'Here the person is not a bystander to the plan — he *is* the plan. To treat him as a tool, you feel, violates something the arithmetic cannot touch.'}
+  ]},
+ {tag:'The Murderer at the Door',
+  scene:'A friend hides in your home. A man arrives, knife drawn, asking where she is. He believes your every word.',
+  detail:'Kant said even here you must not lie. Do you?',
+  opts:[
+   {t:'Lie without hesitation — her life comes first.',w:{util:2,virt:2},
+    r:'You bend the rule to protect a life. Compassion and consequence overrule an abstract duty to truth.'},
+   {t:'Refuse to lie, but block the door and stall.',w:{deon:2,virt:2},
+    r:'You keep your integrity *and* act — refusing the lie while still standing between predator and prey. A virtue-ethics tightrope.'},
+   {t:'Tell the truth. A lie is wrong, whatever follows.',w:{deon:3},
+    r:'An absolutist stand. The moral law binds regardless of outcome — a hard, principled, and rare position.'}
+  ]},
+ {tag:'The Dying Wish',
+  scene:'Your closest friend dies and, on his deathbed, makes you swear to give his fortune to a lavish casino he loved. No one else knows of the promise. A childrens hospital nearby is desperate for funds.',
+  detail:'A secret promise to the dead, or lives saved with the money.',
+  opts:[
+   {t:'Keep the promise. I gave my word.',w:{deon:3,virt:1},
+    r:'A promise does not dissolve because no one is watching. Fidelity, to you, is not conditional on being seen.'},
+   {t:'Give it to the hospital — the living need it more.',w:{util:3},
+    r:'You judge that a vow to the dead cannot outweigh real suffering among the living. The good the money can do is the good that matters.'}
+  ]},
+ {tag:'The Lifeboat',
+  scene:'A lifeboat is sinking under too many survivors. It will float if one person goes overboard. The weakest, gravely injured, will likely die soon regardless.',
+  detail:'Everyone drowns, or one goes into the sea.',
+  opts:[
+   {t:'Sacrifice the dying — most survive.',w:{util:3},
+    r:'A grim utilitarian call: maximize lives saved, even by choosing who is lost.'},
+   {t:'Draw lots — everyone takes an equal chance.',w:{just:3,virt:1},
+    r:'If someone must die, you insist it be by a rule all could accept in advance. Fairness over raw efficiency.'},
+   {t:'Volunteer myself before I choose anyone else.',w:{virt:3,deon:1},
+    r:'You will not weigh other lives on a scale — so you place your own on it first. The ethics of character, at its costliest.'}
+  ]},
+ {tag:'Heinz and the Druggist',
+  scene:'A druggist has the only cure for your dying spouse but charges ten times what it cost to make, far beyond what you can pay or borrow. He refuses every plea. Tonight you could break in and take it.',
+  detail:'Steal the cure, or respect the law and property.',
+  opts:[
+   {t:'Steal it — a life outweighs a price tag.',w:{util:2,virt:2},
+    r:'You place a human life above property and law. Love and consequence pull you over the legal line.'},
+   {t:'Do not steal — the law and his rights stand.',w:{deon:2,just:1},
+    r:'You hold the rule even at terrible cost. Rights and lawful property, to you, are not suspended by desperation.'}
+  ]},
+ {tag:'The Whistle',
+  scene:'You discover your employer is quietly poisoning a towns water to save money. Leaking the files breaks the confidentiality you signed and will end your career; staying silent protects your family income.',
+  detail:'A signed promise of silence, against a town kept in the dark.',
+  opts:[
+   {t:'Leak everything — the public has a right to know.',w:{just:2,util:1,virt:1},
+    r:'You judge that no contract can bind you to conceal serious harm. Fairness to the many overrides loyalty to the firm.'},
+   {t:'Report internally and up the chain first.',w:{deon:2,just:1},
+    r:'You honor process and your word while still refusing to be complicit — working the legitimate channels before the nuclear option.'},
+   {t:'Stay silent — I have my family to protect.',w:{virt:1,deon:1},
+    r:'You weigh a nearer duty — to those who depend on you — over a diffuse public. A deeply human, and deeply contested, choice.'}
+  ]},
+ {tag:'The Veil of Ignorance',
+  scene:'You are asked to design the rules of a society — but you will be born into it not knowing whether you land rich or poor, gifted or struggling, powerful or powerless.',
+  detail:'How much inequality do you allow, blind to your own place in it?',
+  opts:[
+   {t:'Guarantee a strong floor — protect the worst-off most.',w:{just:3},
+    r:'Rawls exactly: not knowing your fate, you insulate the bottom, because it might be you. Justice as fairness.'},
+   {t:'Reward effort and talent — accept some inequality for more total prosperity.',w:{util:2,just:1},
+    r:'You bet on incentives to grow the whole pie, trusting that a bigger total lifts even the lowest. A more consequentialist justice.'},
+   {t:'Enshrine equal rights and liberties above all else.',w:{deon:2,just:1},
+    r:'You anchor the society in inviolable rights first, letting outcomes fall where they may beneath that floor.'}
+  ]},
+ {tag:'Your Child or Two Strangers',
+  scene:'A flood is rising. You can reach only one door in time: behind one is your own child; behind the other, two children you have never met.',
+  detail:'Impartiality says two over one. Your heart says otherwise.',
+  opts:[
+   {t:'Save my child — some bonds are not up for calculation.',w:{virt:3,deon:1},
+    r:'You honor a special obligation that pure impartiality ignores. Love, loyalty, the particular over the abstract.'},
+   {t:'Save the two — every child counts the same.',w:{util:3,just:1},
+    r:'You hold the hardest line in ethics: strict impartiality, even against your own blood. Almost no one can — you did.'}
+  ]},
+ {tag:'The Experience Machine',
+  scene:'A machine can give you a lifetime of flawless, blissful experience — indistinguishable from reality — but none of it will be real. Loved ones, triumphs, meaning: all simulated. You would never know.',
+  detail:'Nozicks question: is a felt-perfect life enough?',
+  opts:[
+   {t:'Plug in — if it feels perfect, that is all happiness is.',w:{util:2},
+    r:'You take pleasure and satisfaction as the final measure. If the experience is complete, you ask, what is missing?'},
+   {t:'Refuse — I want a real life, not a beautiful lie.',w:{virt:3,deon:1},
+    r:'You value authenticity, effort, and truth over mere feeling. A good life, you insist, must actually *be* lived, not just seem to be.'}
+  ]}
+];
+
+/* ---------- state ---------- */
+let idx=0, score={util:0,deon:0,virt:0,just:0}, answered=false;
+const app=document.getElementById('app');
+
+function intro(){
+  app.innerHTML=`
+    <div class="eyebrow">Philosophy · applied ethics</div>
+    <h1>The Ethics <em>Arena</em></h1>
+    <p class="lede">Ten dilemmas that have troubled philosophers for centuries. There are no right answers — only revealing ones. Choose honestly, and at the end see the shape of your own moral compass.</p>
+    <div class="card">
+      <p style="color:var(--dim);margin-bottom:16px">You'll be scored across four great traditions of moral thought:</p>
+      <div id="fwlist"></div>
+      <button class="btn" style="margin-top:20px" onclick="start()">Enter the Arena</button>
+    </div>
+    <p class="foot">Your choices stay on this device. Replay anytime — most people surprise themselves.</p>`;
+  document.getElementById('fwlist').innerHTML=ORDER.map(k=>{
+    const f=FW[k];
+    return `<div style="display:flex;gap:11px;align-items:baseline;margin-bottom:11px">
+      <span style="width:9px;height:9px;border-radius:50%;background:${f.color};flex-shrink:0;transform:translateY(1px)"></span>
+      <div><b style="color:var(--ink)">${f.long}</b> <span style="color:var(--faint)">· ${f.name}</span><br>
+      <span style="color:var(--dim);font-size:.9em">${f.blurb.split('.')[0]}.</span></div></div>`;
+  }).join('');
+}
+
+function start(){ idx=0; score={util:0,deon:0,virt:0,just:0}; render(); }
+
+function render(){
+  answered=false;
+  const s=SCENES[idx];
+  const pct=Math.round(idx/SCENES.length*100);
+  app.innerHTML=`
+    <div class="prog"><div class="bar"><i style="width:${pct}%"></i></div><div class="n">${idx+1} / ${SCENES.length}</div></div>
+    <div class="card">
+      <span class="tag">${s.tag}</span>
+      <div class="scene">${s.scene}</div>
+      <div class="detail">${s.detail}</div>
+      <div class="opts" id="opts"></div>
+      <div id="after"></div>
+    </div>`;
+  const keys=['A','B','C','D'];
+  document.getElementById('opts').innerHTML=s.opts.map((o,i)=>
+    `<button class="opt" onclick="choose(${i})"><span class="oh"><span class="ok">${keys[i]}</span><span>${o.t}</span></span></button>`).join('');
+}
+
+function choose(i){
+  if(answered) return; answered=true;
+  const s=SCENES[idx], o=s.opts[i];
+  for(const k in o.w) score[k]+=o.w[k];
+  // lock options, highlight pick
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.style.pointerEvents='none';
+    if(j===i){ b.style.borderColor='var(--gold)'; b.style.background='#2c2218'; }
+    else { b.style.opacity='.45'; }
+  });
+  // dominant framework of this choice
+  const lead=Object.keys(o.w).sort((a,b)=>o.w[b]-o.w[a])[0];
+  const after=document.getElementById('after');
+  after.innerHTML=`
+    <div class="reflect">
+      <div class="rl">What that reveals</div>
+      <div class="rt">${o.r}</div>
+      <div class="lean">Leans toward <b>${FW[lead].long}</b> · ${FW[lead].name}</div>
+    </div>
+    <div class="next"><button class="btn" onclick="advance()">${idx<SCENES.length-1?'Next dilemma &rsaquo;':'See your compass &rsaquo;'}</button></div>`;
+  after.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function advance(){ idx++; if(idx>=SCENES.length) result(); else { render(); window.scrollTo(0,0);} }
+
+function result(){
+  const total=ORDER.reduce((a,k)=>a+score[k],0)||1;
+  const pcts={}; ORDER.forEach(k=>pcts[k]=Math.round(score[k]/total*100));
+  const ranked=[...ORDER].sort((a,b)=>score[b]-score[a]);
+  const top=ranked[0], second=ranked[1];
+  const title=profileTitle(top,second);
+  window.scrollTo(0,0);
+  app.innerHTML=`
+    <div class="eyebrow">Your result</div>
+    <div class="fingerprint">
+      <div class="big">${title}</div>
+      <div class="who">${FW[top].who}</div>
+    </div>
+    <div class="card">
+      <div class="bars" id="bars"></div>
+      <div class="summary" id="summary"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="start()">Play again</button>
+      <button class="ghost" onclick="copyResult('${title.replace(/'/g,'')}',${JSON.stringify(pcts).replace(/"/g,'&quot;')})">Share</button>
+    </div>
+    <p class="foot">The frameworks aren't rivals so much as different lenses — most thoughtful people carry all four, and reach for different ones on different days.</p>`;
+  document.getElementById('bars').innerHTML=ranked.map(k=>{
+    const f=FW[k];
+    return `<div class="brow"><div class="bl"><span class="nm" style="color:${f.color}">${f.long}</span><span class="pc">${pcts[k]}%</span></div>
+      <div class="track"><i data-w="${pcts[k]}" style="background:${f.color}"></i></div></div>`;
+  }).join('');
+  document.getElementById('summary').innerHTML=
+    `Your compass points hardest toward <b style="color:${FW[top].color}">${FW[top].long.toLowerCase()}</b> thinking, with a strong pull toward <b style="color:${FW[second].color}">${FW[second].long.toLowerCase()}</b>. ${FW[top].blurb}`;
+  // animate bars
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.track>i').forEach(i=>i.style.width=i.dataset.w+'%');
+  }));
+}
+
+function profileTitle(a,b){
+  const M={
+    util:{util:'The Pure Utilitarian',deon:'The Principled Pragmatist',virt:'The Compassionate Calculator',just:'The Fair-Minded Reformer'},
+    deon:{util:'The Reluctant Rule-Bender',deon:'The Steadfast Deontologist',virt:'The Honorable Idealist',just:'The Rights Defender'},
+    virt:{util:'The Warm Consequentialist',deon:'The Person of Honor',virt:'The Virtue Ethicist',just:'The Just and Loyal'},
+    just:{util:'The Pragmatic Egalitarian',deon:'The Constitutionalist',virt:'The Fair-Hearted',just:'The Champion of Fairness'}
+  };
+  return (M[a]&&M[a][b])||'The Balanced Mind';
+}
+
+function copyResult(title,pcts){
+  const line='My Ethics Arena result: '+title+' — '+
+    ORDER.map(k=>FW[k].long+' '+pcts[k]+'%').join(' · ');
+  const done=()=>toast('Result copied ✓');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(line).then(done,()=>toast(line)); }
+  else toast('Copy: '+title);
+}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1900); }
+
+intro();
+</script>
+</body></html>

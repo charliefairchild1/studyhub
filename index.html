@@ -124,7 +124,7 @@ h1{text-shadow:0 0 30px rgba(217,164,65,.15)}
   <div class="steps" id="isteps">
     <div class="st"><div class="em">✦</div><h2>The <span class="a">Study</span></h2><p>Everything we've built — one idea, hundreds of surfaces. Your hub.</p></div>
     <div class="st"><div class="em">🧠</div><h2>One framework</h2><p><b>PEP + PTO.</b> A mind is a prediction engine; the good is turning potential into <em>making</em> rather than waste. Every app here is that idea, applied.</p></div>
-    <div class="st"><div class="em">🧭</div><h2>Explore, or follow a path</h2><p>Roam <b>55 apps</b> freely — games, language, philosophy, math, investing, tools — or follow a guided learning path.</p></div>
+    <div class="st"><div class="em">🧭</div><h2>Explore, or follow a path</h2><p>Roam <b>59 apps</b> freely — games, language, philosophy, math, investing, tools — or follow a guided learning path.</p></div>
     <div class="st"><div class="em">🏆</div><h2>Level up as you learn</h2><p>Earn <b>XP</b>, keep a <b>🔥 streak</b>, complete <b>quests</b>, and unlock <b>achievements</b>. Curiosity, rewarded.</p></div>
     <div class="st"><div class="em">📲</div><h2>Yours, offline</h2><p>It lives on your phone and works with no connection. Let's go.</p></div>
   </div>
@@ -209,7 +209,7 @@ const CATS=[
  ['Daily','📓',[['journal','📓','Journal','reflect + a PTO check-in'],['habits','✅','Habits','build streaks that stick']]],
  ['Games','🎮',[['chess','♟️','Chess','influence maps, PTO eval, play the engine'],['poker','🂡','Poker','equity, EV coach, range trainer, a bot']]],
  ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
- ['Mind','🧠',[['two-selves','🧠','Two Selves','conscious vs. subconscious'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
+ ['Mind','🧠',[['two-selves','🧠','Two Selves','conscious vs. subconscious'],['ethics','🎭','Ethics Arena','moral dilemmas — find your framework'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
  ['Writing','✍️',[['animal-book','📖','The Animal That Bets','the book'],['animal-essay','📝','…the Essay','the short version'],['poietism-pamphlet','📜','Poietism Field Guide','20+ pages'],['poietism-paper','📄','Poietism Paper','the core essay'],['poietism-naming','🔤','Naming Poietism','how the name was chosen']]],
  ['Economics','⚖️',[['koin','⚖️','Koin','give-take economics'],['koin-welcome','👋','Welcome','a gentle intro'],['koin-essential','✦','Essentials','in brief'],['koin-kids','🧒','For Kids','the friendliest'],['koin-teaching','📖','Teaching','how to explain it'],['koin-pamphlet','📜','Manifesto','custody vs. contribution']]],
  ['Investing','📈',[['transformation-map','🌐','Transformation Map','invest by trajectory'],['portfolio-planner','📊','Portfolio Planner','core + satellite'],['spacex-pto','🛰️','SpaceX · PTO','valuation scenarios'],['spacex-invest','🚀','SpaceX Plan','DCA projection']]],
@@ -218,7 +218,7 @@ const CATS=[
 ];
 const APP={}; CATS.forEach(([cat,ci,items])=>items.forEach(it=>APP[it[0]]={icon:it[1],name:it[2],cat}));
 const TRACKS=[
- ['philosophy','🧠','The Philosophy','From the two selves to the whole worldview.',['two-selves','poietism','animal-essay','poietism-paper','poietism-pamphlet','animal-book','poietism-naming']],
+ ['philosophy','🧠','The Philosophy','From the two selves to the whole worldview.',['two-selves','ethics','poietism','animal-essay','poietism-paper','poietism-pamphlet','animal-book','poietism-naming']],
  ['koin','⚖️','Economics of Friendship','Understand Koin, from friendly intro to manifesto.',['koin-welcome','koin','koin-essential','koin-kids','koin-teaching','koin-pamphlet']],
  ['games','🎮','Master the Games','Chess and poker through the PEP/PTO lens.',['chess','poker']],
  ['spanish','🇪🇸','Learn Spanish','The one-month sprint to conversation.',['spanish']],
@@ -234,11 +234,12 @@ const ACHS=[
  ['streak3','🔥','On Fire','3-day streak', s=>streakOf(s)>=3],
  ['streak7','💎','Devoted','7-day streak', s=>streakOf(s)>=7],
  ['games','🎮','Gamer','Open both games', s=>s.opened&&s.opened.chess&&s.opened.poker],
+ ['ethicist','🎭','Ethicist','Enter the Ethics Arena', s=>s.opened&&s.opened.ethics],
  ['philo','🧠','Philosopher','Finish the Philosophy path', s=>trackDone(s,'philosophy')],
  ['econ','⚖️','Economist','Finish the Koin path', s=>trackDone(s,'koin')],
  ['math15','🔬','Mathematician','Explore 15 math demos', s=>Object.keys(s.opened||{}).filter(id=>APP[id]&&APP[id].cat==='Math').length>=15],
  ['lv5','⭐','Rising','Reach level 5', s=>levelInfo(s.xp||0).level>=5],
- ['all','👑','Completionist','Explore all 55 apps', s=>seenCount(s)>=Object.keys(APP).length],
+ ['all','👑','Completionist','Explore all 59 apps', s=>seenCount(s)>=Object.keys(APP).length],
 ];
 
 /* ---------- state ---------- */
