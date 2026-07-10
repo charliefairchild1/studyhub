@@ -25,5 +25,7 @@ PASSFILE="$HOME/.study_term_pass"
 [ -f "$PASSFILE" ] || /usr/bin/openssl rand -hex 5 > "$PASSFILE"
 PASS=$(cat "$PASSFILE")
 
-# 4. run the terminal in the foreground (launchd KeepAlive restarts it if it dies)
-exec $TTYD -p $PORT -W -c "user:$PASS" zsh -l
+# 4. run the terminal attached to a persistent tmux session, so disconnecting
+#    (app backgrounded, network blip) resumes the SAME session on reconnect —
+#    your claude session keeps running. Foreground so launchd supervises it.
+exec $TTYD -p $PORT -W -c "user:$PASS" /opt/homebrew/bin/tmux new-session -A -s phone
