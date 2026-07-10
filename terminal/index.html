@@ -66,6 +66,12 @@ $('go').onclick=()=>{ const u=$('url').value.trim(); if(!/^https?:\/\//.test(u))
 syncBtn();
 // auto-connect if we already have a URL
 const saved=localStorage.getItem('term_url'); if(saved) connect(saved);
+// iOS kills the terminal's connection when the app is backgrounded — when we come
+// back, reload the iframe so it reconnects into your (persistent) tmux session.
+function refreshIfConnected(){ if($('frame').style.display==='block' && localStorage.getItem('term_url')) reloadFrame(); }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshIfConnected(); });
+window.addEventListener('pageshow',e=>{ if(e.persisted) refreshIfConnected(); });
+window.addEventListener('focus',refreshIfConnected);
 </script>
 </body>
 </html>
