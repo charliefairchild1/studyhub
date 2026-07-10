@@ -13,133 +13,351 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <style>
-:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--rule:#352c22}
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--blue:#6fa8d9;--purp:#b98fd9;--rule:#352c22}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;
-  padding:calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 48px)}
+  padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 90px)}
 .wrap{max-width:680px;margin:0 auto}
-h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.2em;letter-spacing:-.5px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.5em}
 h1 .a{color:var(--gold)}
-.tag{color:var(--dim);font-size:.95em;margin-top:3px}
-.stats{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 6px}
-.stat{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:8px 12px;flex:1;min-width:96px;text-align:center}
-.stat .n{font-size:1.5em;font-weight:800;color:var(--gold);line-height:1}
-.stat .l{color:var(--dim);font-size:.68em;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
-#install{background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;font-size:.85em;color:var(--dim);display:none;margin:14px 0}
-#install b{color:var(--gold)}
-.sec{margin:26px 0 10px;color:var(--faint);font-size:.74em;text-transform:uppercase;letter-spacing:2px;font-weight:700;display:flex;align-items:center;gap:8px}
-.sec .ln{flex:1;height:1px;background:var(--rule)}
-.grp{color:var(--green);font-size:.82em;font-weight:700;margin:16px 0 6px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
-a.tile{display:flex;flex-direction:column;gap:5px;background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink);transition:transform .08s,border-color .15s}
-a.tile:active{transform:scale(.97)}a.tile:hover{border-color:var(--gold)}
-a.tile .ic{font-size:1.6em;line-height:1}
-a.tile .nm{font-weight:700;font-size:1em}
-a.tile .ds{color:var(--dim);font-size:.76em;line-height:1.35}
-a.mtile{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:11px 6px;text-decoration:none;color:var(--ink);text-align:center;font-size:.78em}
-a.mtile:active{transform:scale(.96)}a.mtile:hover{border-color:var(--gold)}
-a.mtile .ic{font-size:1.3em}
-.catbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 12px}
-.catbar input{flex:1;min-width:160px;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit}
-.catnote{color:var(--faint);font-size:.78em;margin-bottom:10px}
-details.cg{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:8px;overflow:hidden}
-details.cg summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
-details.cg summary::-webkit-details-marker{display:none}
-details.cg summary .ct{margin-left:auto;color:var(--gold);font-size:.8em;background:#241c0d;border:1px solid #4a3a1c;border-radius:10px;padding:1px 8px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:16px}
+/* profile */
+.prof{display:flex;align-items:center;gap:14px;margin:12px 0}
+.ring{--p:0;width:64px;height:64px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--gold) calc(var(--p)*1%),#2a201b 0);display:flex;align-items:center;justify-content:center}
+.ring .in{width:52px;height:52px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ring .lv{font-size:1.2em;font-weight:800;color:var(--gold)}.ring .lb{font-size:.55em;color:var(--dim);letter-spacing:1px}
+.pmeta{flex:1}
+.pbar{height:8px;background:#0e0b07;border-radius:5px;overflow:hidden;margin:6px 0 4px}.pbar>i{display:block;height:100%;background:var(--gold)}
+.pmeta .xp{font-size:.8em;color:var(--dim)}
+.streak{text-align:center}.streak .n{font-size:1.5em;font-weight:800;color:#ff9a3c;line-height:1}.streak .l{font-size:.62em;color:var(--dim)}
+/* tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:#100c08e6;backdrop-filter:blur(10px);border-top:1px solid var(--rule);padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);z-index:20}
+.tabs button{flex:1;background:none;border:none;color:var(--faint);font-size:.68em;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px}
+.tabs button .i{font-size:1.35em}
+.tabs button.on{color:var(--gold)}
+.sec{margin:20px 0 8px;color:var(--faint);font-size:.72em;text-transform:uppercase;letter-spacing:2px;font-weight:700}
+/* quests */
+.quest{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.quest:last-child{border:none}
+.quest .qi{font-size:1.4em}
+.quest .qt{flex:1}.quest .qn{font-weight:700;font-size:.95em}.quest .qp{color:var(--dim);font-size:.78em}
+.quest .qx{color:var(--gold);font-weight:800;font-size:.85em}
+.quest.done .qn{color:var(--green)}.quest.done .qx{color:var(--green)}
+.qbar{height:5px;background:#0e0b07;border-radius:3px;overflow:hidden;margin-top:4px;max-width:160px}.qbar>i{display:block;height:100%;background:var(--green)}
+/* tracks */
+.track{background:var(--panel);border:1px solid var(--rule);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.track summary{list-style:none;cursor:pointer;padding:14px;display:flex;align-items:center;gap:12px}
+.track summary::-webkit-details-marker{display:none}
+.track .tic{font-size:1.6em}
+.track .tt{flex:1}.track .tn{font-weight:700}.track .td{color:var(--dim);font-size:.78em}
+.track .tpct{color:var(--gold);font-size:.8em;font-weight:800;min-width:42px;text-align:right}
+.tbar{height:5px;background:#0e0b07;border-radius:3px;overflow:hidden;margin-top:5px}.tbar>i{display:block;height:100%;background:var(--gold)}
+.steps{padding:0 14px 12px}
+.steps a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:.9em}
+.steps a:active{background:var(--panel2)}
+.steps a .num{width:22px;height:22px;border-radius:50%;background:#2a201b;display:flex;align-items:center;justify-content:center;font-size:.72em;color:var(--dim);flex-shrink:0}
+.steps a.done .num{background:var(--green);color:#0e2a14}
+.steps a .stn{flex:1}.steps a .sti{font-size:1.1em}
+/* explore */
+.catbtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cb{background:var(--panel2);border:1px solid var(--rule);color:var(--dim);padding:6px 11px;border-radius:16px;font-size:.8em;font-weight:600;cursor:pointer}
+.cb.on{background:var(--gold);color:#1a1509;border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+a.tile{display:flex;flex-direction:column;gap:5px;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:13px;text-decoration:none;color:var(--ink);position:relative}
+a.tile:active{transform:scale(.97)}
+a.tile .ic{font-size:1.5em;line-height:1}a.tile .nm{font-weight:700;font-size:.95em}a.tile .ds{color:var(--dim);font-size:.74em;line-height:1.3}
+a.tile.seen::after{content:'✓';position:absolute;top:9px;right:11px;color:var(--green);font-size:.85em;font-weight:800}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px}
+a.mtile{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--panel);border:1px solid var(--rule);border-radius:11px;padding:10px 5px;text-decoration:none;color:var(--ink);text-align:center;font-size:.74em;position:relative}
+a.mtile .ic{font-size:1.2em}
+a.mtile.seen{border-color:#2e5a3e}
+/* achievements */
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
+.badge{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:12px 8px;text-align:center;opacity:.4}
+.badge.on{opacity:1;border-color:var(--gold)}
+.badge .bi{font-size:1.7em}.badge .bn{font-size:.72em;font-weight:700;margin-top:3px}.badge .bd{font-size:.64em;color:var(--dim);margin-top:2px}
+.flash{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%);background:var(--gold);color:#1a1509;font-weight:800;padding:10px 18px;border-radius:14px;font-size:.9em;z-index:40;box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}
+.flash.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.muted{color:var(--dim);font-size:.85em}
+details.more{background:var(--panel);border:1px solid var(--rule);border-radius:14px;margin-top:10px}
+details.more>summary{cursor:pointer;padding:14px;font-weight:700;list-style:none}
+details.more>summary::-webkit-details-marker{display:none}
+.catbar input{width:100%;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit;margin-bottom:8px}
+.cg{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin:8px 14px}
+.cg summary{cursor:pointer;padding:11px 13px;font-weight:700;list-style:none;display:flex;gap:8px}.cg summary::-webkit-details-marker{display:none}
+.cg summary .ct{margin-left:auto;color:var(--gold);font-size:.8em}
 .cat-list{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:0 10px 12px}
-@media(max-width:520px){.cat-list{grid-template-columns:1fr}}
-.cat-list a{color:var(--ink);text-decoration:none;font-size:.84em;padding:6px 8px;border-radius:8px;display:flex;flex-direction:column}
-.cat-list a:hover{background:var(--panel2)}
-.cat-list a .pp{color:var(--faint);font-size:.72em;font-family:ui-monospace,Menlo,monospace}
-.muted{color:var(--dim)}
-.foot{color:var(--faint);font-size:.8em;margin-top:26px;line-height:1.6;border-top:1px solid var(--rule);padding-top:16px}
-.foot b{color:var(--dim)}.foot a{color:var(--gold)}
+.cat-list a{color:var(--ink);text-decoration:none;font-size:.82em;padding:5px 7px;border-radius:8px}
+.cat-list a:active{background:var(--panel2)}.cat-list a .pp{display:block;color:var(--faint);font-size:.7em;font-family:ui-monospace,monospace}
+.page{display:none}.page.on{display:block}
+/* aurora + polish */
+body::before{content:'';position:fixed;inset:-45% -15% auto -15%;height:75%;z-index:-1;
+  background:conic-gradient(from 180deg at 50% 50%,#d9a44120,#7fae8b1c,#b98fd91c,#6fa8d91c,#d9a44120);
+  filter:blur(75px);opacity:.55;animation:spin 46s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+a.tile{transition:transform .12s,border-color .15s,box-shadow .2s}
+a.tile:active{transform:scale(.96)}
+a.tile:hover{box-shadow:0 8px 28px rgba(217,164,65,.13)}
+.ring{box-shadow:0 0 34px rgba(217,164,65,.22)}
+h1{text-shadow:0 0 30px rgba(217,164,65,.15)}
+/* intro onboarding */
+.intro{position:fixed;inset:0;z-index:60;background:#0c0a06;overflow:hidden}
+.intro.hide{display:none}
+.intro .aur{position:absolute;inset:-30%;background:conic-gradient(from 0deg,#d9a441,#7fae8b,#b98fd9,#6fa8d9,#d9a441);filter:blur(95px);opacity:.4;animation:spin 22s linear infinite}
+.intro .steps{position:absolute;inset:0;display:flex;transition:transform .5s cubic-bezier(.6,.05,.2,1)}
+.intro .st{min-width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 34px 160px;gap:16px}
+.intro .em{font-size:4em;filter:drop-shadow(0 0 26px rgba(217,164,65,.5));animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-11px)}}
+.intro h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.4em;line-height:1.05;letter-spacing:-.5px}
+.intro h2 .a{color:#d9a441}
+.intro p{color:#c8b892;font-size:1.15em;line-height:1.5;max-width:400px}
+.intro .ctl{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 34px);left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:16px}
+.intro .dots{display:flex;gap:7px}.intro .dots i{width:7px;height:7px;border-radius:50%;background:#5f5340;transition:.3s}.intro .dots i.on{background:#d9a441;width:20px;border-radius:4px}
+.intro .go{background:#d9a441;color:#1a1509;border:none;font-weight:800;font-size:1.05em;padding:14px 42px;border-radius:14px;cursor:pointer;box-shadow:0 6px 30px rgba(217,164,65,.4)}
+.intro .skip{position:absolute;top:calc(env(safe-area-inset-top) + 16px);right:20px;color:#8a7c5f;background:none;border:none;font-size:.9em;cursor:pointer;z-index:2}
 </style>
 </head>
 <body>
+<div class="intro hide" id="intro">
+  <div class="aur"></div>
+  <button class="skip" onclick="endIntro()">Skip</button>
+  <div class="steps" id="isteps">
+    <div class="st"><div class="em">✦</div><h2>The <span class="a">Study</span></h2><p>Everything we've built — one idea, hundreds of surfaces. Your hub.</p></div>
+    <div class="st"><div class="em">🧠</div><h2>One framework</h2><p><b>PEP + PTO.</b> A mind is a prediction engine; the good is turning potential into <em>making</em> rather than waste. Every app here is that idea, applied.</p></div>
+    <div class="st"><div class="em">🧭</div><h2>Explore, or follow a path</h2><p>Roam <b>55 apps</b> freely — games, language, philosophy, math, investing, tools — or follow a guided learning path.</p></div>
+    <div class="st"><div class="em">🏆</div><h2>Level up as you learn</h2><p>Earn <b>XP</b>, keep a <b>🔥 streak</b>, complete <b>quests</b>, and unlock <b>achievements</b>. Curiosity, rewarded.</p></div>
+    <div class="st"><div class="em">📲</div><h2>Yours, offline</h2><p>It lives on your phone and works with no connection. Let's go.</p></div>
+  </div>
+  <div class="ctl"><div class="dots" id="idots"></div><button class="go" id="igo" onclick="nextIntro()">Next</button></div>
+</div>
+<div class="flash" id="flash"></div>
 <div class="wrap">
-  <h1>The <span class="a">Study</span></h1>
-  <div class="tag">Everything we've built — one framework (PEP · PTO), hundreds of surfaces.</div>
-
-  <div class="stats">
-    <div class="stat"><div class="n">460+</div><div class="l">live routes</div></div>
-    <div class="stat"><div class="n">33</div><div class="l">offline apps</div></div>
-    <div class="stat"><div class="n">19</div><div class="l">products</div></div>
-    <div class="stat"><div class="n">130+</div><div class="l">visualizations</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h1>The <span class="a">Study</span></h1>
+    <div class="streak"><div class="n" id="streak">0</div><div class="l">🔥 day streak</div></div>
   </div>
 
-  <div id="install">Add me to your home screen: tap <b>Share</b> ⬆︎ then <b>Add to Home Screen</b> — I run fullscreen and work offline.</div>
+  <!-- ===== HOME ===== -->
+  <div class="page on" id="p-home">
+    <div class="card prof">
+      <div class="ring" id="ring"><div class="in"><div class="lv" id="lv">1</div><div class="lb">LEVEL</div></div></div>
+      <div class="pmeta">
+        <div style="font-weight:700" id="rank">Curious Beginner</div>
+        <div class="pbar"><i id="pbar" style="width:0%"></i></div>
+        <div class="xp" id="xptext">0 XP</div>
+      </div>
+    </div>
 
-  <a class="tile" href="apps/highlights.html" style="display:flex;flex-direction:row;align-items:center;gap:14px;margin:14px 0 0;background:linear-gradient(90deg,#2a2010,#1c1712);border-color:#4a3a1c">
-    <div style="font-size:2em">✨</div><div><div class="nm">Highlights — the 2-minute tour</div><div class="ds">The greatest hits, swipeable — the fastest way to show someone what we've built.</div></div>
-  </a>
+    <div class="sec">Today's quests</div>
+    <div class="card" id="quests"></div>
 
-  <div class="sec"><span>Runs on your phone · offline</span><span class="ln"></span></div>
-  <div id="bundled"></div>
+    <div class="sec">Continue &amp; explore — learning paths</div>
+    <div id="tracks"></div>
 
-  <div class="sec"><span>The full catalog · 460+ surfaces</span><span class="ln"></span></div>
-  <div class="catbar">
-    <input id="csearch" placeholder="search everything — law, ising, seeming, gustar…" autocomplete="off">
+    <div class="sec">Everything else</div>
+    <a class="tile" href="apps/highlights.html" data-app="highlights" style="flex-direction:row;align-items:center;gap:12px;background:linear-gradient(90deg,#2a2010,#1c1712);border-color:#4a3a1c;margin-bottom:8px">
+      <div style="font-size:1.7em">✨</div><div><div class="nm">Highlights — 2-min tour</div><div class="ds">The greatest hits, swipeable.</div></div></a>
+    <details class="more"><summary>🗂 The full catalog · 460+ live routes</summary>
+      <div style="padding:0 14px 6px">
+        <div class="catbar"><input id="csearch" placeholder="search everything — law, ising, seeming…" autocomplete="off"></div>
+        <div class="muted" style="margin-bottom:8px">Live in the PEP app. Server: <input id="pepbase" style="width:190px;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:3px 7px;font:inherit;font-size:.85em"></div>
+      </div>
+      <div id="catalog"></div>
+    </details>
   </div>
-  <div class="catnote">These live in the <b>PEP app</b>. They open when the server is running (on your Mac, or wherever you deploy it). Set the address here: <input id="pepbase" style="width:200px;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:4px 8px;font:inherit;font-size:.85em"></div>
-  <div id="catalog"><p class="muted">Loading the catalog…</p></div>
 
-  <div class="sec"><span>Deployed &amp; shareable</span><span class="ln"></span></div>
-  <div class="grid">
-    <a class="tile" href="https://lemma-2b0h.onrender.com" target="_blank" rel="noopener"><div class="ic">🎓</div><div class="nm">Lemma</div><div class="ds">Teacher classroom warmups — live on the web.</div></a>
-    <a class="tile" href="https://charliefairchild1.github.io/studyhub/" target="_blank" rel="noopener"><div class="ic">📱</div><div class="nm">This app</div><div class="ds">The Study — installable, updates over the air.</div></a>
+  <!-- ===== EXPLORE ===== -->
+  <div class="page" id="p-explore">
+    <div class="sec">Explore — pick anything</div>
+    <div class="catbtns" id="catbtns"></div>
+    <div id="explore"></div>
   </div>
 
-  <div class="foot">
-    <b>How to show it off:</b> the offline apps run anywhere, right here on your phone. For the full 460-route catalog, run the PEP app (<code>uv run pep serve</code>) on your Mac and it all opens live. Built entirely on <b>PEP</b> (the predicting mind) and <b>PTO</b> (potential → transformation → output).
+  <!-- ===== ACHIEVEMENTS ===== -->
+  <div class="page" id="p-you">
+    <div class="card prof" style="margin-top:12px">
+      <div class="ring" id="ring2"><div class="in"><div class="lv" id="lv2">1</div><div class="lb">LEVEL</div></div></div>
+      <div class="pmeta"><div style="font-weight:700" id="rank2">Curious Beginner</div><div class="xp" id="stats2"></div></div>
+    </div>
+    <div class="sec">Achievements</div>
+    <div class="ach" id="ach"></div>
+    <div class="sec">Stats</div>
+    <div class="card muted" id="stats"></div>
+    <div style="margin-top:14px;display:flex;gap:8px"><button class="cb" onclick="replayIntro()">▶ Replay intro</button><button class="cb" onclick="if(confirm('Reset all your progress?')){localStorage.removeItem('sh_game');location.reload();}">Reset progress</button></div>
   </div>
+</div>
+
+<div class="tabs">
+  <button data-page="home" class="on"><span class="i">🏠</span>Home</button>
+  <button data-page="explore"><span class="i">🧭</span>Explore</button>
+  <button data-page="you"><span class="i">🏆</span>You</button>
 </div>
 
 <script>
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
-(function(){ const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  const standalone=window.navigator.standalone===true || window.matchMedia('(display-mode: standalone)').matches;
-  if(isIOS && !standalone) document.getElementById('install').style.display='block'; })();
+const $=id=>document.getElementById(id);
+function todayKey(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
 
-// ---- bundled (offline) apps ----
-const BUNDLED=[
- ['Games',[['chess','♟️','Chess','Vantage — influence maps, PTO eval, predict-the-move, play the engine.'],['poker','🂡','Poker',"Hold'em via PEP/PTO — equity, EV coach, range trainer, a bot."]]],
- ['Language',[['spanish','🇪🇸','Spanish','30-day sprint — SRS, verbs, cognates, grammar, dictation.'],['vaya','🗣️','Vaya','A constructed PEP-native language (an experiment).']]],
- ['Mind &amp; consciousness',[['two-selves','🧠','Two Selves','The rider &amp; the animal — conscious vs. subconscious.'],['poietism','📚','Poietism','Study the philosophy — thinkers, ideas, the arbitrary border.'],['doomsday','📅','Doomsday','Day-of-week mental math, drilled.']]],
- ['Writing &amp; philosophy',[['animal-book','📖','The Animal That Bets','The book — origin of the betting mind.'],['animal-essay','📝','…the Essay','The original short version.'],['poietism-pamphlet','📜','Poietism — Field Guide','The whole philosophy, 20+ pages.'],['poietism-paper','📄','Poietism — Paper','The shareable core essay.'],['poietism-naming','🔤','Naming Poietism','How the name was chosen.']]],
- ['Koin · economy',[['koin','⚖️','Koin','Give-take economics on PEP+PTO.'],['koin-welcome','👋','Welcome','A gentle intro to Koin.'],['koin-pamphlet','📜','Koin Manifesto','Money tracks custody, not contribution.'],['koin-essential','✦','Koin Essentials','The idea in brief.'],['koin-teaching','📖','Teaching Koin','How to explain it.'],['koin-kids','🧒','Koin for Kids','The friendliest version.']]],
- ['Investing',[['transformation-map','🌐','Transformation Map','Where the world is going — PTO-scored.'],['portfolio-planner','📊','Portfolio Planner','Core + satellite, projected.'],['spacex-invest','🚀','SpaceX Plan','DCA projection.'],['spacex-pto','🛰️','SpaceX · PTO','Valuation scenarios.']]],
+/* ---------- registry ---------- */
+const CATS=[
+ ['Games','🎮',[['chess','♟️','Chess','influence maps, PTO eval, play the engine'],['poker','🂡','Poker','equity, EV coach, range trainer, a bot']]],
+ ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
+ ['Mind','🧠',[['two-selves','🧠','Two Selves','conscious vs. subconscious'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
+ ['Writing','✍️',[['animal-book','📖','The Animal That Bets','the book'],['animal-essay','📝','…the Essay','the short version'],['poietism-pamphlet','📜','Poietism Field Guide','20+ pages'],['poietism-paper','📄','Poietism Paper','the core essay'],['poietism-naming','🔤','Naming Poietism','how the name was chosen']]],
+ ['Economics','⚖️',[['koin','⚖️','Koin','give-take economics'],['koin-welcome','👋','Welcome','a gentle intro'],['koin-essential','✦','Essentials','in brief'],['koin-kids','🧒','For Kids','the friendliest'],['koin-teaching','📖','Teaching','how to explain it'],['koin-pamphlet','📜','Manifesto','custody vs. contribution']]],
+ ['Investing','📈',[['transformation-map','🌐','Transformation Map','invest by trajectory'],['portfolio-planner','📊','Portfolio Planner','core + satellite'],['spacex-pto','🛰️','SpaceX · PTO','valuation scenarios'],['spacex-invest','🚀','SpaceX Plan','DCA projection']]],
+ ['Tools','🛠️',[['praxa','⌨️','Praxa','a local, keyless terminal AI coding agent']]],
+ ['Math','🔬',[['life','◼︎','Life'],['evolution','🧬','Evolution'],['voronoi','🕸️','Voronoi'],['math-neural','🔀','Neural'],['math-spreading','💫','Spreading'],['math-predictor','🎯','Predictor'],['math-kuramoto','🌀','Kuramoto'],['math-reaction','🐆','Reaction'],['math-sandpile','⛰️','Sandpile'],['math-percolation','💧','Percolation'],['math-galton','🔔','Galton'],['math-globe','🌍','Globe'],['math-language-evolution','🗨️','Language'],['math-annealing','🔥','Annealing'],['math-bayes','📊','Bayes'],['math-entropy','🌡️','Entropy'],['math-diffusion','🌫️','Diffusion'],['math-network','🔗','Network'],['math-gradient','📉','Gradient'],['math-fourier','〰️','Fourier'],['math-epidemic','🦠','Epidemic'],['math-pendulum','⚖️','Pendulum'],['math-attractor','🦋','Attractor'],['math-cycles','🔁','Cycles'],['math-markov','⛓️','Markov'],['math-mcmc','🎲','MCMC'],['math-gp','📈','GP'],['math-novelty','✨','Novelty'],['math-haze','🌁','Haze'],['math-modulation','🎚️','Modulation'],['hex','⬡','Hex']]],
 ];
-const MATH=[['life','◼︎','Life'],['evolution','🧬','Evolution'],['voronoi','🕸️','Voronoi'],['math-neural','🔀','Neural'],['math-spreading','💫','Spreading'],['math-predictor','🎯','Predictor'],['math-kuramoto','🌀','Kuramoto'],['math-reaction','🐆','Reaction'],['math-sandpile','⛰️','Sandpile'],['math-percolation','💧','Percolation'],['math-galton','🔔','Galton'],['math-globe','🌍','Globe'],['math-language-evolution','🗨️','Language'],['math-annealing','🔥','Annealing'],['math-bayes','📊','Bayes'],['math-entropy','🌡️','Entropy'],['math-diffusion','🌫️','Diffusion'],['math-network','🔗','Network'],['math-gradient','📉','Gradient'],['math-fourier','〰️','Fourier'],['math-epidemic','🦠','Epidemic'],['math-pendulum','⚖️','Pendulum'],['math-attractor','🦋','Attractor'],['math-cycles','🔁','Cycles'],['math-markov','⛓️','Markov'],['math-mcmc','🎲','MCMC'],['math-gp','📈','GP'],['math-novelty','✨','Novelty'],['math-haze','🌁','Haze'],['math-modulation','🎚️','Modulation'],['hex','⬡','Hex']];
-document.getElementById('bundled').innerHTML = BUNDLED.map(([g,items])=>
-  '<div class="grp">'+g+'</div><div class="grid">'+items.map(([f,ic,nm,ds])=>
-    '<a class="tile" href="apps/'+f+'.html"><div class="ic">'+ic+'</div><div class="nm">'+nm+'</div><div class="ds">'+ds+'</div></a>').join('')+'</div>'
-).join('') + '<div class="grp">Math playground &amp; puzzles</div><div class="mgrid">'+
-  MATH.map(([f,ic,nm])=>'<a class="mtile" href="apps/'+f+'.html"><div class="ic">'+ic+'</div>'+nm+'</a>').join('')+'</div>';
+const APP={}; CATS.forEach(([cat,ci,items])=>items.forEach(it=>APP[it[0]]={icon:it[1],name:it[2],cat}));
+const TRACKS=[
+ ['philosophy','🧠','The Philosophy','From the two selves to the whole worldview.',['two-selves','poietism','animal-essay','poietism-paper','poietism-pamphlet','animal-book','poietism-naming']],
+ ['koin','⚖️','Economics of Friendship','Understand Koin, from friendly intro to manifesto.',['koin-welcome','koin','koin-essential','koin-kids','koin-teaching','koin-pamphlet']],
+ ['games','🎮','Master the Games','Chess and poker through the PEP/PTO lens.',['chess','poker']],
+ ['spanish','🇪🇸','Learn Spanish','The one-month sprint to conversation.',['spanish']],
+ ['investing','📈','Invest by Trajectory','From reading the world to a real plan.',['transformation-map','portfolio-planner','spacex-pto','spacex-invest']],
+ ['math','🔬','Math Foundations','A guided path through the playground.',['math-predictor','math-spreading','math-neural','math-bayes','math-entropy','math-diffusion','math-reaction','life','evolution','math-network']],
+];
+const RANKS=[[1,'Curious Beginner'],[3,'Apprentice'],[5,'Student'],[8,'Scholar'],[12,'Adept'],[16,'Polymath'],[22,'Master'],[30,'Sage']];
+const ACHS=[
+ ['first','🐣','First Steps','Open your first app', s=>seenCount(s)>=1],
+ ['explore10','🧭','Explorer','Explore 10 apps', s=>seenCount(s)>=10],
+ ['explore25','📚','Scholar','Explore 25 apps', s=>seenCount(s)>=25],
+ ['poly','🌌','Polymath','One app in every area', s=>new Set(Object.keys(s.opened||{}).map(id=>APP[id]&&APP[id].cat)).size>=7],
+ ['streak3','🔥','On Fire','3-day streak', s=>streakOf(s)>=3],
+ ['streak7','💎','Devoted','7-day streak', s=>streakOf(s)>=7],
+ ['games','🎮','Gamer','Open both games', s=>s.opened&&s.opened.chess&&s.opened.poker],
+ ['philo','🧠','Philosopher','Finish the Philosophy path', s=>trackDone(s,'philosophy')],
+ ['econ','⚖️','Economist','Finish the Koin path', s=>trackDone(s,'koin')],
+ ['math15','🔬','Mathematician','Explore 15 math demos', s=>Object.keys(s.opened||{}).filter(id=>APP[id]&&APP[id].cat==='Math').length>=15],
+ ['lv5','⭐','Rising','Reach level 5', s=>levelInfo(s.xp||0).level>=5],
+ ['all','👑','Completionist','Explore all 55 apps', s=>seenCount(s)>=Object.keys(APP).length],
+];
 
-// ---- full catalog (460+ routes) ----
-let ROUTES=[];
-const pepIn=document.getElementById('pepbase');
-pepIn.value=localStorage.getItem('pepbase')||'http://localhost:8000';
-pepIn.addEventListener('change',()=>{ localStorage.setItem('pepbase',pepIn.value.trim()); renderCatalog(); });
-function pepBase(){ return (pepIn.value||'http://localhost:8000').trim().replace(/\/$/,''); }
-const ORDER=['LAVAS suite','Axona — mind & consciousness','Koin — economy','Substrate — philosophy','PEP — framework & applications','Math playground','Lemma — classroom','Writing','Apps & experiments'];
-function esc(s){return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-function renderCatalog(){
-  if(!ROUTES.length){ document.getElementById('catalog').innerHTML='<p class="muted">Catalog loads when online. It lists the 460+ routes in the PEP app.</p>'; return; }
-  const q=(document.getElementById('csearch').value||'').toLowerCase().trim();
-  const groups={};
-  ROUTES.forEach(r=>{ if(q && !((r.title+' '+r.path).toLowerCase().includes(q))) return; (groups[r.group]=groups[r.group]||[]).push(r); });
-  const keys=Object.keys(groups).sort((a,b)=>(ORDER.indexOf(a)+99*(ORDER.indexOf(a)<0))-(ORDER.indexOf(b)+99*(ORDER.indexOf(b)<0)));
-  const base=pepBase();
-  document.getElementById('catalog').innerHTML = keys.length ? keys.map(g=>
-    '<details class="cg"'+(q?' open':'')+'><summary>'+esc(g)+'<span class="ct">'+groups[g].length+'</span></summary><div class="cat-list">'+
-    groups[g].map(r=>'<a href="'+base+esc(r.path)+'" target="_blank" rel="noopener">'+esc(r.title)+'<span class="pp">'+esc(r.path)+'</span></a>').join('')+
-    '</div></details>').join('') : '<p class="muted">No matches for &ldquo;'+esc(q)+'&rdquo;.</p>';
+/* ---------- state ---------- */
+function load(){ try{return JSON.parse(localStorage.getItem('sh_game'))||{}}catch(e){return {}} }
+function save(s){ localStorage.setItem('sh_game', JSON.stringify(s)); }
+function seenCount(s){ return Object.keys(s.opened||{}).length; }
+function streakOf(s){ const days=new Set(s.days||[]); let n=0,d=new Date(); for(;;){ const k=new Date(d.getTime()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); if(days.has(k)){n++; d.setDate(d.getDate()-1);} else break; } return n; }
+function trackDone(s,tid){ const t=TRACKS.find(x=>x[0]===tid); return t && t[4].every(id=>s.opened&&s.opened[id]); }
+function levelInfo(xp){ let L=1; while(50*(L+1)*L<=xp) L++; const cur=50*L*(L-1), next=50*(L+1)*L; return {level:L,cur,next,pct:Math.round((xp-cur)/(next-cur)*100)}; }
+function rankFor(L){ let r=RANKS[0][1]; RANKS.forEach(([lv,nm])=>{ if(L>=lv) r=nm; }); return r; }
+let PEND=[];
+function recordOpen(id){
+  const s=load(); s.opened=s.opened||{}; s.days=s.days||[]; s.xp=s.xp||0; s.claimed=s.claimed||{}; s.ach=s.ach||[];
+  const tk=todayKey(); const first=!s.opened[id];
+  const o=s.opened[id]||{c:0,last:''}; const sameDay=o.last===tk;
+  o.c++; o.last=tk; s.opened[id]=o;
+  if(!s.days.includes(tk)) s.days.push(tk);
+  let gain=0;
+  if(first){ gain+=20; PEND.push('+20 XP · '+((APP[id]&&APP[id].name)||id)+' unlocked!'); }
+  else if(!sameDay){ gain+=6; PEND.push('+6 XP · practice'); }
+  // quests
+  s.quests=s.quests||{}; const q=s.quests[tk]||{opens:0,news:0,shown:false}; q.opens++; if(first)q.news++;
+  const before={a:q.opens>=1&&!q.q1, b:q.opens>=3&&!q.q2, c:q.news>=1&&!q.q3};
+  if(q.opens>=1&&!q.q1){ q.q1=1; gain+=10; PEND.push('Quest ✓ Show up  +10'); }
+  if(q.opens>=3&&!q.q2){ q.q2=1; gain+=25; PEND.push('Quest ✓ Practice  +25'); }
+  if(q.news>=1&&!q.q3){ q.q3=1; gain+=30; PEND.push('Quest ✓ Discover  +30'); }
+  s.quests[tk]=q;
+  const preL=levelInfo(s.xp).level;
+  s.xp+=gain;
+  const postL=levelInfo(s.xp).level;
+  if(postL>preL) PEND.push('⬆️ Level '+postL+'! '+rankFor(postL));
+  // achievements
+  ACHS.forEach(a=>{ if(!s.ach.includes(a[0]) && a[4](s)){ s.ach.push(a[0]); PEND.push('🏆 '+a[2]); } });
+  localStorage.setItem('sh_pend', JSON.stringify(PEND));
+  save(s);
 }
-document.getElementById('csearch').addEventListener('input',renderCatalog);
-fetch('routes.json').then(r=>r.json()).then(d=>{ ROUTES=d; renderCatalog(); }).catch(()=>renderCatalog());
+// intercept app opens
+document.addEventListener('click', e=>{ const a=e.target.closest('a[data-app]'); if(!a) return;
+  e.preventDefault(); recordOpen(a.dataset.app); location.href=a.getAttribute('href'); });
+
+/* ---------- render ---------- */
+function renderHome(){
+  const s=load(); const xp=s.xp||0; const li=levelInfo(xp);
+  $('streak').textContent=streakOf(s);
+  [['ring','lv','pbar','xptext','rank'],['ring2','lv2',null,'stats2','rank2']].forEach(()=>{});
+  $('ring').style.setProperty('--p',li.pct); $('lv').textContent=li.level; $('pbar').style.width=li.pct+'%';
+  $('xptext').textContent=xp+' XP · '+(li.next-xp)+' to level '+(li.level+1);
+  $('rank').textContent=rankFor(li.level);
+  // quests
+  const tk=todayKey(); const q=(s.quests&&s.quests[tk])||{opens:0,news:0};
+  const QL=[['🌅','Show up','study anything today',1,q.opens,q.q1,10],['🎯','Practice','open 3 apps today',3,q.opens,q.q2,25],['🧭','Discover','open something new',1,q.news,q.q3,30]];
+  $('quests').innerHTML=QL.map(([i,n,d,goal,have,done,xpv])=>
+    '<div class="quest '+(done?'done':'')+'"><div class="qi">'+i+'</div><div class="qt"><div class="qn">'+n+(done?' ✓':'')+'</div><div class="qp">'+d+'</div><div class="qbar"><i style="width:'+Math.min(100,have/goal*100)+'%"></i></div></div><div class="qx">+'+xpv+'</div></div>').join('');
+  // tracks
+  $('tracks').innerHTML=TRACKS.map(([id,ic,nm,ds,steps])=>{
+    const done=steps.filter(x=>s.opened&&s.opened[x]).length; const pct=Math.round(done/steps.length*100);
+    return '<details class="track"><summary><div class="tic">'+ic+'</div><div class="tt"><div class="tn">'+nm+'</div><div class="td">'+ds+'</div><div class="tbar"><i style="width:'+pct+'%"></i></div></div><div class="tpct">'+done+'/'+steps.length+'</div></summary><div class="steps">'+
+      steps.map((x,i)=>{ const a=APP[x]||{icon:'•',name:x}; const dn=s.opened&&s.opened[x];
+        return '<a href="apps/'+x+'.html" data-app="'+x+'" class="'+(dn?'done':'')+'"><span class="num">'+(dn?'✓':(i+1))+'</span><span class="sti">'+a.icon+'</span><span class="stn">'+a.name+'</span></a>'; }).join('')+
+      '</div></details>';
+  }).join('');
+  $('lv2').textContent=li.level; $('ring2').style.setProperty('--p',li.pct); $('rank2').textContent=rankFor(li.level);
+  $('stats2').textContent=xp+' XP · '+seenCount(s)+'/'+Object.keys(APP).length+' apps explored';
+  // achievements + stats
+  $('ach').innerHTML=ACHS.map(a=>{ const on=(s.ach||[]).includes(a[0]);
+    return '<div class="badge '+(on?'on':'')+'"><div class="bi">'+a[1]+'</div><div class="bn">'+a[2]+'</div><div class="bd">'+a[3]+'</div></div>'; }).join('');
+  $('stats').innerHTML='Apps explored: <b style="color:var(--ink)">'+seenCount(s)+'</b> of '+Object.keys(APP).length+'<br>Total XP: <b style="color:var(--ink)">'+xp+'</b><br>Best streak kept: <b style="color:var(--ink)">'+streakOf(s)+'</b> days<br>Achievements: <b style="color:var(--ink)">'+(s.ach||[]).length+'</b>/'+ACHS.length;
+}
+/* explore */
+let curCat='All';
+function renderExplore(){
+  const s=load();
+  $('catbtns').innerHTML=['All',...CATS.map(c=>c[0])].map(c=>'<span class="cb '+(c===curCat?'on':'')+'" data-cat="'+c+'">'+c+'</span>').join('');
+  $('catbtns').querySelectorAll('.cb').forEach(b=>b.onclick=()=>{curCat=b.dataset.cat;renderExplore();});
+  let html='';
+  CATS.forEach(([cat,ci,items])=>{
+    if(curCat!=='All'&&curCat!==cat) return;
+    html+='<div class="sec">'+ci+' '+cat+'</div>';
+    if(cat==='Math'){ html+='<div class="mgrid">'+items.map(([id,ic,nm])=>'<a class="mtile '+(s.opened&&s.opened[id]?'seen':'')+'" href="apps/'+id+'.html" data-app="'+id+'"><div class="ic">'+ic+'</div>'+nm+'</a>').join('')+'</div>'; }
+    else { html+='<div class="grid">'+items.map(([id,ic,nm,ds])=>'<a class="tile '+(s.opened&&s.opened[id]?'seen':'')+'" href="apps/'+id+'.html" data-app="'+id+'"><div class="ic">'+ic+'</div><div class="nm">'+nm+'</div>'+(ds?'<div class="ds">'+ds+'</div>':'')+'</a>').join('')+'</div>'; }
+  });
+  $('explore').innerHTML=html;
+}
+/* tabs */
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  $('p-'+b.dataset.page).classList.add('on');
+  if(b.dataset.page==='explore') renderExplore();
+  if(b.dataset.page==='you') renderHome();
+  window.scrollTo(0,0);
+});
+/* flash pending rewards */
+function showFlash(){
+  let pend=[]; try{pend=JSON.parse(localStorage.getItem('sh_pend'))||[]}catch(e){}
+  localStorage.removeItem('sh_pend'); if(!pend.length) return;
+  let i=0; const f=$('flash');
+  (function next(){ if(i>=pend.length) return; f.textContent=pend[i++]; f.classList.add('show');
+    setTimeout(()=>{ f.classList.remove('show'); setTimeout(next,250); }, 1400); })();
+}
+/* catalog (unchanged, live PEP) */
+let ROUTES=[]; const ORDER=['LAVAS suite','Axona — mind & consciousness','Koin — economy','Substrate — philosophy','PEP — framework & applications','Math playground','Lemma — classroom','Writing','Apps & experiments'];
+function pepBase(){ const v=$('pepbase'); return (v.value||'http://localhost:8000').trim().replace(/\/$/,''); }
+function esc(s){return(s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function renderCatalog(){ if(!ROUTES.length){ $('catalog').innerHTML='<p class="muted" style="padding:0 14px 12px">Loads online — 460+ routes in the PEP app.</p>'; return; }
+  const q=($('csearch').value||'').toLowerCase().trim(); const g={};
+  ROUTES.forEach(r=>{ if(q&&!((r.title+' '+r.path).toLowerCase().includes(q))) return; (g[r.group]=g[r.group]||[]).push(r); });
+  const keys=Object.keys(g).sort((a,b)=>(ORDER.indexOf(a)+99*(ORDER.indexOf(a)<0))-(ORDER.indexOf(b)+99*(ORDER.indexOf(b)<0)));
+  const base=pepBase();
+  $('catalog').innerHTML=keys.length?keys.map(gr=>'<details class="cg"'+(q?' open':'')+'><summary>'+esc(gr)+'<span class="ct">'+g[gr].length+'</span></summary><div class="cat-list">'+g[gr].map(r=>'<a href="'+base+esc(r.path)+'" target="_blank" rel="noopener">'+esc(r.title)+'<span class="pp">'+esc(r.path)+'</span></a>').join('')+'</div></details>').join(''):'<p class="muted" style="padding:0 14px">No matches.</p>';
+}
+$('pepbase').value=localStorage.getItem('pepbase')||'http://localhost:8000';
+$('pepbase').addEventListener('change',()=>{localStorage.setItem('pepbase',$('pepbase').value.trim());renderCatalog();});
+$('csearch').addEventListener('input',renderCatalog);
+fetch('routes.json').then(r=>r.json()).then(d=>{ROUTES=d;renderCatalog();}).catch(()=>renderCatalog());
+
+/* intro onboarding */
+let istep=0; const ISTEPS=5;
+function showIntro(){ if(localStorage.getItem('sh_intro')) return; $('intro').classList.remove('hide');
+  $('idots').innerHTML=Array.from({length:ISTEPS},(_,i)=>'<i'+(i===0?' class="on"':'')+'></i>').join(''); updateIntro(); }
+function updateIntro(){ $('isteps').style.transform='translateX(-'+(istep*100)+'vw)'; [...$('idots').children].forEach((d,i)=>d.classList.toggle('on',i===istep)); $('igo').textContent=istep>=ISTEPS-1?'Enter →':'Next'; }
+function nextIntro(){ if(istep>=ISTEPS-1){ endIntro(); return; } istep++; updateIntro(); }
+function endIntro(){ localStorage.setItem('sh_intro','1'); $('intro').classList.add('hide'); }
+function replayIntro(){ istep=0; localStorage.removeItem('sh_intro'); showIntro(); }
+
+renderHome(); showIntro(); showFlash();
 </script>
 </body>
 </html>

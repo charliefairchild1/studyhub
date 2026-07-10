@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Praxa</title>
+<style>
+:root{--bg:#0a0d0a;--ink:#d6f5d6;--dim:#6f8c6f;--green:#4bd07f;--gold:#d9a441;--rule:#1c2a1c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 50% -20%,#0f1a0f,#0a0d0a 60%);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;min-height:100vh;padding:calc(env(safe-area-inset-top) + 40px) 20px 60px}
+.wrap{max-width:640px;margin:0 auto}
+.back{color:var(--dim);text-decoration:none;font-size:.85rem}
+h1{font-size:3em;letter-spacing:-1px;margin:18px 0 4px;color:var(--green);text-shadow:0 0 24px rgba(75,208,127,.4)}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--green);vertical-align:-2px;animation:blink 1.1s steps(1) infinite;box-shadow:0 0 12px var(--green)}
+@keyframes blink{50%{opacity:0}}
+.sub{color:var(--dim);font-size:1.05rem;line-height:1.5;margin-bottom:24px}
+.term{background:#060806;border:1px solid var(--rule);border-radius:12px;padding:16px 18px;font-size:.9rem;line-height:1.7;margin:16px 0;overflow-x:auto}
+.term .p{color:var(--green)}.term .c{color:#e6e6c8}.term .o{color:var(--dim)}
+.card{background:#0c110c;border:1px solid var(--rule);border-radius:14px;padding:16px 18px;margin:12px 0}
+.card h2{color:var(--gold);font-size:1rem;margin-bottom:8px;font-family:ui-sans-serif,system-ui,sans-serif}
+.card p{font-family:ui-sans-serif,system-ui,sans-serif;color:#cfe6cf;font-size:.92rem;line-height:1.55}
+.card p b{color:#fff}
+.tag{display:inline-block;background:#0f2418;border:1px solid #1e5c38;color:var(--green);border-radius:20px;padding:3px 11px;font-size:.72rem;margin-bottom:10px;font-family:ui-sans-serif,system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">‹ hub</a>
+  <div class="tag">local · keyless · yours</div>
+  <h1>praxa<span class="cursor"></span></h1>
+  <div class="sub">A terminal AI coding agent that runs on your own machine — built to do what Claude Code does, with no API key and no data leaving your box.</div>
+
+  <div class="term">
+    <div><span class="p">~/anything $</span> <span class="c">praxa</span></div>
+    <div class="o">▸ indexing repo via PEP spreading-activation…</div>
+    <div class="o">▸ context selected: 7 files, 2 tests</div>
+    <div><span class="p">praxa ›</span> <span class="c">add a rate limiter to the API</span></div>
+    <div class="o">▸ editing api/limits.py … running tests … ✓ 12 passed</div>
+  </div>
+
+  <div class="card"><h2>What makes it different</h2>
+    <p>Its moat is <b>PEP spreading-activation context selection</b> — instead of dumping your whole repo at a model, Praxa radiates activation from your request through a weighted graph of your code and pulls in <em>only</em> what matters. Cheaper, sharper, and it runs against a small local model.</p></div>
+
+  <div class="card"><h2>How to launch it</h2>
+    <p>It's a terminal tool, so it lives in your shell, not this page. From anywhere:</p>
+    <div class="term" style="margin-top:10px"><span class="p">$</span> <span class="c">praxa</span></div>
+    <p style="margin-top:8px;color:var(--dim);font-size:.85rem">(Launcher installed at <b>~/.local/bin/praxa</b>; engine in <b>pep.agent</b>. Verified on qwen2.5:7b.)</p></div>
+
+  <div class="card"><h2>Status</h2>
+    <p><b>M1 shipped.</b> The core loop — index, select context, edit, run — works. Next up: sharper multi-file edits, a plan/verify pass, and a tighter memory of what it changed. This page is the front door; the agent itself lives in your terminal.</p></div>
+</div>
+</body>
+</html>
