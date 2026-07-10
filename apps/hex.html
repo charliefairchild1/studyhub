@@ -1,0 +1,958 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<title>Hex Surplus Solver — Watch the Algorithm Think</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #14141d;
+  --surface2: #1a1a26;
+  --text: #e8e6e0;
+  --dim: #8b8a83;
+  --accent: #d4af37;
+  --accent2: #67e8f9;
+  --black-stone: #1e1e2a;
+  --white-stone: #f5f3ed;
+  --p1-side: #67e8f9;
+  --p2-side: #f06292;
+  --flow-p1: rgba(103, 232, 249, 0.4);
+  --flow-p2: rgba(240, 98, 146, 0.4);
+  --rule: #26252e;
+  --quote: #a78bfa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+.eyebrow {
+  font-family: 'SF Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  color: #f5f3ed;
+}
+h1 em { font-style: italic; color: var(--accent); }
+.sub {
+  font-size: 18px;
+  color: var(--dim);
+  font-style: italic;
+  margin-bottom: 32px;
+}
+.joke-box {
+  background: linear-gradient(135deg, #1f1a0a 0%, #1a1a26 100%);
+  border-left: 3px solid var(--accent);
+  padding: 22px 26px;
+  margin: 28px 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.joke-box .q {
+  color: var(--accent2);
+  font-style: normal;
+  font-family: 'SF Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+.joke-box em { color: var(--text); font-style: italic; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  margin-top: 24px;
+}
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 24px;
+}
+.panel h2 {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--accent);
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.controls label {
+  font-size: 13px;
+  color: var(--dim);
+  font-family: 'SF Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.controls select, .controls button {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: 'SF Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+}
+.controls button:hover {
+  border-color: var(--accent);
+  background: #1a1a26;
+}
+.controls button.primary {
+  background: var(--accent);
+  color: #0a0a0f;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+.controls button.primary:hover {
+  background: #e9c248;
+}
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--surface2);
+  border-radius: 10px;
+  min-height: 400px;
+}
+#board {
+  display: block;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.stat {
+  background: var(--surface2);
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+}
+.stat .label {
+  font-size: 11px;
+  color: var(--dim);
+  font-family: 'SF Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.stat .value {
+  font-size: 22px;
+  font-family: 'Georgia', serif;
+  font-weight: 400;
+  color: var(--accent);
+}
+.stat .value.negative { color: var(--p2-side); }
+.stat .value.positive { color: var(--p1-side); }
+.stat .value.zero { color: var(--dim); }
+
+#surplus-chart {
+  width: 100%;
+  height: 140px;
+  background: var(--surface2);
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.move-log {
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: 'SF Mono', monospace;
+  font-size: 13px;
+}
+.move-log .move {
+  padding: 4px 0;
+  border-bottom: 1px solid #1f1f2a;
+  display: flex;
+  justify-content: space-between;
+}
+.move-log .move:last-child { border-bottom: none; }
+.move-log .move .who { color: var(--dim); width: 60px; }
+.move-log .move .who.black { color: var(--accent2); }
+.move-log .move .who.white { color: var(--p2-side); }
+.move-log .move .coord { color: var(--text); flex: 1; text-align: center; }
+.move-log .move .surplus {
+  color: var(--accent);
+  width: 50px;
+  text-align: right;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--dim);
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+}
+
+.section-title {
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 20px 0 10px;
+}
+
+.info-text {
+  font-size: 14px;
+  color: var(--dim);
+  line-height: 1.6;
+  margin: 12px 0;
+}
+.info-text strong { color: var(--text); }
+
+.winner-banner {
+  background: linear-gradient(135deg, #1a3a2a 0%, #1a1a26 100%);
+  border-left: 3px solid #4ade80;
+  padding: 14px 20px;
+  margin-top: 16px;
+  border-radius: 0 8px 8px 0;
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  color: #4ade80;
+  display: none;
+}
+.winner-banner.show { display: block; }
+.winner-banner.white-wins {
+  border-left-color: var(--p2-side);
+  color: var(--p2-side);
+  background: linear-gradient(135deg, #3a1a2a 0%, #1a1a26 100%);
+}
+
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-align: center;
+}
+</style>
+</head><body>
+
+<div class="wrap">
+
+  <div class="eyebrow">Hex Surplus Solver · v1.0</div>
+  <h1>Watch the algorithm <em>think</em></h1>
+  <p class="sub">A live demonstration of the path-count surplus strategy on Hex.</p>
+
+  <div class="joke-box">
+    <span class="q">The Hex chicken joke (refined version)</span>
+    Why did the chicken cross the road? <br><br>
+    Because it <em>correctly computed that its path-count surplus exceeded the opponent's blocking capacity, demonstrating an intuitive grasp of bidirectional adversarial path-counting on a symmetric substrate, a problem class which game theorists are still trying to formalize.</em>
+    <br><br>
+    The chicken has had it figured out the whole time. Now you can watch its algorithm.
+  </div>
+
+  <div class="layout">
+
+    <div class="panel">
+      <h2>The Hex board</h2>
+
+      <div class="controls">
+        <label>Size:</label>
+        <select id="size">
+          <option value="4">4×4</option>
+          <option value="5">5×5</option>
+          <option value="6">6×6</option>
+          <option value="7" selected>7×7</option>
+          <option value="9">9×9</option>
+          <option value="11">11×11</option>
+        </select>
+
+        <label>P1 strategy:</label>
+        <select id="p1-strat">
+          <option value="surplus" selected>Surplus (greedy)</option>
+          <option value="lookahead2">Surplus + 2-ply lookahead</option>
+        </select>
+
+        <label>P2 strategy:</label>
+        <select id="p2-strat">
+          <option value="surplus" selected>Surplus (minimize)</option>
+          <option value="random">Random</option>
+          <option value="block">Greedy block</option>
+        </select>
+
+        <button id="step-btn">Step</button>
+        <button id="play-btn" class="primary">Auto-play</button>
+        <button id="reset-btn">Reset</button>
+      </div>
+
+      <div id="board-container">
+        <svg id="board"></svg>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--p1-side)"></div>Player 1 (BLACK) sides — top & bottom</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--p2-side)"></div>Player 2 (WHITE) sides — left & right</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--black-stone)"></div>BLACK stone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--white-stone)"></div>WHITE stone</div>
+      </div>
+
+      <div id="winner-banner" class="winner-banner"></div>
+    </div>
+
+    <div class="panel">
+      <h2>What the algorithm sees</h2>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">P1 flow</div>
+          <div class="value" id="stat-p1">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">P2 flow</div>
+          <div class="value" id="stat-p2">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Surplus</div>
+          <div class="value" id="stat-surplus">0</div>
+        </div>
+      </div>
+
+      <div class="section-title">Surplus over time</div>
+      <canvas id="surplus-chart"></canvas>
+
+      <div class="section-title">Move log</div>
+      <div class="move-log" id="move-log">
+        <div style="color:var(--dim);font-style:italic">No moves yet. Click "Auto-play" to watch the algorithm play.</div>
+      </div>
+
+      <div class="section-title">Notes</div>
+      <p class="info-text"><strong>What you're seeing:</strong> at each turn, the algorithm computes max-flow for both players — how many independent paths each could still build. The surplus is the difference. Player 1 plays the move that maximizes it; Player 2 plays the move that minimizes it.</p>
+      <p class="info-text"><strong>The invariant:</strong> if the surplus stays positive after every Player 1 move, the chain inevitably completes and Player 1 wins. This is the constructive form of Nash's strategy-stealing argument.</p>
+      <p class="info-text"><strong>The chicken connection:</strong> exactly the same math — count available paths, count opponent's blocks, commit when surplus is positive — used in real biological hardware to cross roads.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Hex Surplus Solver · Built as an empirical test of constructive strategy-stealing.
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// Hex Surplus Solver — JavaScript implementation
+// ============================================================
+
+const EMPTY = 0, BLACK = 1, WHITE = 2;
+
+class HexBoard {
+  constructor(size) {
+    this.size = size;
+    this.cells = Array.from({length: size}, () => Array(size).fill(EMPTY));
+  }
+  copy() {
+    const b = new HexBoard(this.size);
+    b.cells = this.cells.map(row => row.slice());
+    return b;
+  }
+  neighbors(r, c) {
+    const deltas = [[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0]];
+    const out = [];
+    for (const [dr,dc] of deltas) {
+      const nr = r+dr, nc = c+dc;
+      if (nr>=0 && nr<this.size && nc>=0 && nc<this.size) out.push([nr,nc]);
+    }
+    return out;
+  }
+  *emptyCells() {
+    for (let r=0; r<this.size; r++)
+      for (let c=0; c<this.size; c++)
+        if (this.cells[r][c] === EMPTY) yield [r,c];
+  }
+  isWinner(player) {
+    let starts, isGoal;
+    if (player === BLACK) {
+      starts = [];
+      for (let c=0; c<this.size; c++)
+        if (this.cells[0][c] === BLACK) starts.push([0,c]);
+      isGoal = (r,c) => r === this.size-1;
+    } else {
+      starts = [];
+      for (let r=0; r<this.size; r++)
+        if (this.cells[r][0] === WHITE) starts.push([r,0]);
+      isGoal = (r,c) => c === this.size-1;
+    }
+    const visited = new Set();
+    const key = (r,c) => `${r},${c}`;
+    const queue = [...starts];
+    for (const [r,c] of starts) visited.add(key(r,c));
+    while (queue.length) {
+      const [r,c] = queue.shift();
+      if (isGoal(r,c)) return true;
+      for (const [nr,nc] of this.neighbors(r,c)) {
+        if (!visited.has(key(nr,nc)) && this.cells[nr][nc] === player) {
+          visited.add(key(nr,nc));
+          queue.push([nr,nc]);
+        }
+      }
+    }
+    return false;
+  }
+}
+
+// ============================================================
+// Max-flow (Edmonds-Karp with vertex capacities)
+// ============================================================
+
+function maxFlow(board, player) {
+  const n = board.size;
+  const other = player === BLACK ? WHITE : BLACK;
+  const SOURCE = 0, SINK = 1;
+  const inNode = (r,c) => 2 + 2*(r*n+c);
+  const outNode = (r,c) => 3 + 2*(r*n+c);
+  const INF = 1e9;
+
+  // Build capacity graph (sparse)
+  const cap = new Map();
+  const setCap = (u, v, c) => {
+    if (!cap.has(u)) cap.set(u, new Map());
+    if (!cap.has(v)) cap.set(v, new Map());
+    cap.get(u).set(v, (cap.get(u).get(v) || 0) + c);
+    if (!cap.get(v).has(u)) cap.get(v).set(u, 0);
+  };
+
+  for (let r=0; r<n; r++) for (let c=0; c<n; c++) {
+    if (board.cells[r][c] === other) continue;
+    setCap(inNode(r,c), outNode(r,c), 1);
+    for (const [nr,nc] of board.neighbors(r,c)) {
+      if (board.cells[nr][nc] !== other) {
+        setCap(outNode(r,c), inNode(nr,nc), INF);
+      }
+    }
+  }
+
+  if (player === BLACK) {
+    for (let c=0; c<n; c++) {
+      if (board.cells[0][c] !== other) setCap(SOURCE, inNode(0,c), INF);
+      if (board.cells[n-1][c] !== other) setCap(outNode(n-1,c), SINK, INF);
+    }
+  } else {
+    for (let r=0; r<n; r++) {
+      if (board.cells[r][0] !== other) setCap(SOURCE, inNode(r,0), INF);
+      if (board.cells[r][n-1] !== other) setCap(outNode(r,n-1), SINK, INF);
+    }
+  }
+
+  const flow = new Map();
+  const getFlow = (u,v) => (flow.get(u)?.get(v)) || 0;
+  const addFlow = (u,v,x) => {
+    if (!flow.has(u)) flow.set(u, new Map());
+    if (!flow.has(v)) flow.set(v, new Map());
+    flow.get(u).set(v, getFlow(u,v) + x);
+    flow.get(v).set(u, getFlow(v,u) - x);
+  };
+  const residual = (u,v) => ((cap.get(u)?.get(v)) || 0) - getFlow(u,v);
+
+  const bfs = () => {
+    const parent = new Map();
+    parent.set(SOURCE, null);
+    const queue = [SOURCE];
+    while (queue.length) {
+      const u = queue.shift();
+      if (u === SINK) return parent;
+      const edges = cap.get(u);
+      if (!edges) continue;
+      for (const v of edges.keys()) {
+        if (!parent.has(v) && residual(u,v) > 0) {
+          parent.set(v, u);
+          queue.push(v);
+        }
+      }
+    }
+    return null;
+  };
+
+  let totalFlow = 0;
+  while (true) {
+    const parent = bfs();
+    if (!parent || !parent.has(SINK)) break;
+    let bottleneck = Infinity;
+    let cur = SINK;
+    while (parent.get(cur) !== null) {
+      bottleneck = Math.min(bottleneck, residual(parent.get(cur), cur));
+      cur = parent.get(cur);
+    }
+    cur = SINK;
+    while (parent.get(cur) !== null) {
+      addFlow(parent.get(cur), cur, bottleneck);
+      cur = parent.get(cur);
+    }
+    totalFlow += bottleneck;
+  }
+  return totalFlow;
+}
+
+function computeSurplus(board) {
+  return maxFlow(board, BLACK) - maxFlow(board, WHITE);
+}
+
+// ============================================================
+// Move selection strategies
+// ============================================================
+
+function bestMoveSurplus(board, player) {
+  let best = null, bestVal = null;
+  for (const [r,c] of board.emptyCells()) {
+    board.cells[r][c] = player;
+    if (board.isWinner(player)) {
+      board.cells[r][c] = EMPTY;
+      return [r,c];
+    }
+    const s = computeSurplus(board);
+    board.cells[r][c] = EMPTY;
+    if (player === BLACK) {
+      if (bestVal === null || s > bestVal) { bestVal = s; best = [r,c]; }
+    } else {
+      if (bestVal === null || s < bestVal) { bestVal = s; best = [r,c]; }
+    }
+  }
+  return best;
+}
+
+function bestMoveLookahead(board, player, depth) {
+  if (depth === 0) return [null, computeSurplus(board)];
+  let best = null, bestVal = null;
+  const opponent = player === BLACK ? WHITE : BLACK;
+  const isMax = player === BLACK;
+
+  // Move ordering: center-first
+  const n = board.size;
+  const cells = [...board.emptyCells()];
+  cells.sort((a,b) =>
+    (Math.abs(a[0]-n/2)+Math.abs(a[1]-n/2)) -
+    (Math.abs(b[0]-n/2)+Math.abs(b[1]-n/2)));
+
+  for (const [r,c] of cells) {
+    board.cells[r][c] = player;
+    if (board.isWinner(player)) {
+      board.cells[r][c] = EMPTY;
+      return [[r,c], isMax ? 1e6 : -1e6];
+    }
+    let score;
+    if (depth > 1) {
+      [, score] = bestMoveLookahead(board, opponent, depth-1);
+    } else {
+      score = computeSurplus(board);
+    }
+    board.cells[r][c] = EMPTY;
+    if (isMax) {
+      if (bestVal === null || score > bestVal) { bestVal = score; best = [r,c]; }
+    } else {
+      if (bestVal === null || score < bestVal) { bestVal = score; best = [r,c]; }
+    }
+  }
+  return [best, bestVal];
+}
+
+function randomMove(board) {
+  const empties = [...board.emptyCells()];
+  if (!empties.length) return null;
+  return empties[Math.floor(Math.random()*empties.length)];
+}
+
+function greedyBlockMove(board, player) {
+  let best = null, bestVal = null;
+  const opponent = player === BLACK ? WHITE : BLACK;
+  for (const [r,c] of board.emptyCells()) {
+    board.cells[r][c] = player;
+    if (board.isWinner(player)) {
+      board.cells[r][c] = EMPTY;
+      return [r,c];
+    }
+    const oppFlow = maxFlow(board, opponent);
+    board.cells[r][c] = EMPTY;
+    if (bestVal === null || oppFlow < bestVal) {
+      bestVal = oppFlow;
+      best = [r,c];
+    }
+  }
+  return best;
+}
+
+function pickMove(board, player) {
+  const strat = player === BLACK ?
+    document.getElementById('p1-strat').value :
+    document.getElementById('p2-strat').value;
+  if (strat === 'surplus') return bestMoveSurplus(board, player);
+  if (strat === 'lookahead2') return bestMoveLookahead(board, player, 2)[0];
+  if (strat === 'random') return randomMove(board);
+  if (strat === 'block') return greedyBlockMove(board, player);
+  return bestMoveSurplus(board, player);
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+
+let game = {
+  board: null,
+  currentPlayer: BLACK,
+  moves: [],
+  surplusHistory: [],
+  finished: false,
+  autoPlayInterval: null,
+};
+
+function newGame(size) {
+  if (game.autoPlayInterval) {
+    clearInterval(game.autoPlayInterval);
+    game.autoPlayInterval = null;
+  }
+  document.getElementById('play-btn').textContent = 'Auto-play';
+  game = {
+    board: new HexBoard(size),
+    currentPlayer: BLACK,
+    moves: [],
+    surplusHistory: [0],
+    finished: false,
+    autoPlayInterval: null,
+  };
+  render();
+  updateStats();
+  updateMoveLog();
+  drawSurplusChart();
+  document.getElementById('winner-banner').classList.remove('show');
+}
+
+function render() {
+  const svg = document.getElementById('board');
+  const n = game.board.size;
+  const HEX_SIZE = n <= 5 ? 32 : (n <= 7 ? 28 : (n <= 9 ? 22 : 18));
+  const HEX_W = HEX_SIZE * Math.sqrt(3);
+  const HEX_H = HEX_SIZE * 2;
+  const ROW_OFFSET = HEX_W / 2;
+  const VERT = HEX_SIZE * 1.5;
+
+  const totalWidth = HEX_W * n + ROW_OFFSET * (n-1) + 80;
+  const totalHeight = VERT * (n-1) + HEX_H + 60;
+
+  svg.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`);
+  svg.setAttribute('width', Math.min(700, totalWidth));
+  svg.style.height = 'auto';
+
+  // Build SVG
+  let html = '';
+
+  // Draw side indicators
+  // Top (P1) and bottom (P1)
+  const topY = 25;
+  const bottomY = totalHeight - 25;
+  html += `<text x="${totalWidth/2}" y="20" text-anchor="middle" fill="var(--p1-side)" font-family="SF Mono,monospace" font-size="11" letter-spacing="2">─── PLAYER 1 (BLACK) ───</text>`;
+  html += `<text x="${totalWidth/2}" y="${totalHeight-5}" text-anchor="middle" fill="var(--p1-side)" font-family="SF Mono,monospace" font-size="11" letter-spacing="2">─── PLAYER 1 (BLACK) ───</text>`;
+
+  // Cells
+  for (let r=0; r<n; r++) {
+    for (let c=0; c<n; c++) {
+      const x = 40 + ROW_OFFSET * r + HEX_W * c;
+      const y = 30 + VERT * r + HEX_SIZE;
+      const cellState = game.board.cells[r][c];
+
+      let fill = 'transparent';
+      if (cellState === BLACK) fill = 'var(--black-stone)';
+      else if (cellState === WHITE) fill = 'var(--white-stone)';
+
+      // Side coloring for empty cells
+      let strokeColor = 'var(--rule)';
+      let strokeWidth = 1;
+      if (cellState === EMPTY) {
+        if (r === 0 || r === n-1) {
+          strokeColor = 'var(--p1-side)';
+          strokeWidth = 2;
+        }
+        if (c === 0 || c === n-1) {
+          if (r === 0 || r === n-1) {
+            // Corner - both
+            strokeColor = '#a78bfa';
+          } else {
+            strokeColor = 'var(--p2-side)';
+            strokeWidth = 2;
+          }
+        }
+      }
+
+      // Hex points
+      const points = [];
+      for (let i=0; i<6; i++) {
+        const angle = Math.PI/3 * i + Math.PI/6;
+        const px = x + HEX_SIZE * Math.cos(angle);
+        const py = y + HEX_SIZE * Math.sin(angle);
+        points.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+      }
+
+      html += `<polygon points="${points.join(' ')}" fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+
+      // Stone circle for played cells
+      if (cellState !== EMPTY) {
+        const stoneColor = cellState === BLACK ? '#2a2a35' : '#f5f3ed';
+        const strokeC = cellState === BLACK ? 'var(--accent2)' : 'var(--p2-side)';
+        html += `<circle cx="${x}" cy="${y}" r="${HEX_SIZE*0.6}" fill="${stoneColor}" stroke="${strokeC}" stroke-width="1.5" />`;
+      }
+
+      // Highlight last move
+      if (game.moves.length > 0) {
+        const [lr, lc, lp] = game.moves[game.moves.length-1];
+        if (lr === r && lc === c) {
+          html += `<circle cx="${x}" cy="${y}" r="${HEX_SIZE*0.85}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="3 3" />`;
+        }
+      }
+    }
+  }
+
+  svg.innerHTML = html;
+}
+
+function updateStats() {
+  const p1Flow = maxFlow(game.board, BLACK);
+  const p2Flow = maxFlow(game.board, WHITE);
+  const surplus = p1Flow - p2Flow;
+  document.getElementById('stat-p1').textContent = p1Flow;
+  document.getElementById('stat-p2').textContent = p2Flow;
+  const surplusEl = document.getElementById('stat-surplus');
+  surplusEl.textContent = (surplus > 0 ? '+' : '') + surplus;
+  surplusEl.classList.remove('positive', 'negative', 'zero');
+  if (surplus > 0) surplusEl.classList.add('positive');
+  else if (surplus < 0) surplusEl.classList.add('negative');
+  else surplusEl.classList.add('zero');
+}
+
+function updateMoveLog() {
+  const log = document.getElementById('move-log');
+  if (!game.moves.length) {
+    log.innerHTML = '<div style="color:var(--dim);font-style:italic">No moves yet. Click "Auto-play" to watch the algorithm play.</div>';
+    return;
+  }
+  let html = '';
+  for (let i = 0; i < game.moves.length; i++) {
+    const [r, c, p] = game.moves[i];
+    const surplus = game.surplusHistory[i+1];
+    const whoClass = p === BLACK ? 'black' : 'white';
+    const whoName = p === BLACK ? 'BLACK' : 'WHITE';
+    const sStr = surplus > 0 ? '+'+surplus : ''+surplus;
+    html += `<div class="move"><span class="who ${whoClass}">${whoName}</span><span class="coord">(${r},${c})</span><span class="surplus">${sStr}</span></div>`;
+  }
+  log.innerHTML = html;
+  log.scrollTop = log.scrollHeight;
+}
+
+function drawSurplusChart() {
+  const canvas = document.getElementById('surplus-chart');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  const W = rect.width;
+  const H = rect.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(0,0,W,H);
+
+  // Zero line
+  ctx.strokeStyle = '#3a3a45';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  ctx.moveTo(0, H/2);
+  ctx.lineTo(W, H/2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (game.surplusHistory.length < 2) {
+    ctx.fillStyle = '#8b8a83';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Surplus = 0 (no moves yet)', W/2, H/2 - 5);
+    return;
+  }
+
+  // Find range
+  let maxAbs = Math.max(2, ...game.surplusHistory.map(s => Math.abs(s)));
+  const scale = (H/2 - 20) / maxAbs;
+
+  // Plot line
+  ctx.strokeStyle = '#d4af37';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < game.surplusHistory.length; i++) {
+    const x = (i / (game.surplusHistory.length - 1)) * (W - 20) + 10;
+    const y = H/2 - game.surplusHistory[i] * scale;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Plot points colored by who moved
+  for (let i = 0; i < game.surplusHistory.length; i++) {
+    const x = (i / Math.max(1, game.surplusHistory.length - 1)) * (W - 20) + 10;
+    const y = H/2 - game.surplusHistory[i] * scale;
+    let color = '#d4af37';
+    if (i > 0) {
+      const player = game.moves[i-1][2];
+      color = player === BLACK ? '#67e8f9' : '#f06292';
+    }
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Labels
+  ctx.fillStyle = '#8b8a83';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('+' + maxAbs.toFixed(0), 3, 12);
+  ctx.fillText('0', 3, H/2 + 3);
+  ctx.fillText('-' + maxAbs.toFixed(0), 3, H - 4);
+}
+
+function makeMove() {
+  if (game.finished) return;
+
+  const move = pickMove(game.board, game.currentPlayer);
+  if (!move) {
+    game.finished = true;
+    return;
+  }
+
+  const [r, c] = move;
+  game.board.cells[r][c] = game.currentPlayer;
+  game.moves.push([r, c, game.currentPlayer]);
+  const surplus = computeSurplus(game.board);
+  game.surplusHistory.push(surplus);
+
+  // Check winner
+  let winnerText = '';
+  if (game.board.isWinner(BLACK)) {
+    game.finished = true;
+    winnerText = '✓ Player 1 (BLACK) wins! Constructive strategy-stealing confirmed for this game.';
+  } else if (game.board.isWinner(WHITE)) {
+    game.finished = true;
+    winnerText = '✗ Player 2 (WHITE) wins. The surplus strategy was insufficient here.';
+  }
+
+  if (game.finished) {
+    const banner = document.getElementById('winner-banner');
+    banner.textContent = winnerText;
+    banner.classList.add('show');
+    if (game.board.isWinner(WHITE)) banner.classList.add('white-wins');
+    else banner.classList.remove('white-wins');
+    if (game.autoPlayInterval) {
+      clearInterval(game.autoPlayInterval);
+      game.autoPlayInterval = null;
+      document.getElementById('play-btn').textContent = 'Auto-play';
+    }
+  }
+
+  game.currentPlayer = game.currentPlayer === BLACK ? WHITE : BLACK;
+
+  render();
+  updateStats();
+  updateMoveLog();
+  drawSurplusChart();
+}
+
+// ============================================================
+// Event handlers
+// ============================================================
+
+document.getElementById('size').addEventListener('change', (e) => {
+  newGame(parseInt(e.target.value));
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  const size = parseInt(document.getElementById('size').value);
+  newGame(size);
+});
+
+document.getElementById('step-btn').addEventListener('click', makeMove);
+
+document.getElementById('play-btn').addEventListener('click', () => {
+  if (game.autoPlayInterval) {
+    clearInterval(game.autoPlayInterval);
+    game.autoPlayInterval = null;
+    document.getElementById('play-btn').textContent = 'Auto-play';
+  } else {
+    document.getElementById('play-btn').textContent = 'Pause';
+    const delay = game.board.size <= 5 ? 500 : (game.board.size <= 7 ? 600 : 800);
+    game.autoPlayInterval = setInterval(() => {
+      if (game.finished) {
+        clearInterval(game.autoPlayInterval);
+        game.autoPlayInterval = null;
+        document.getElementById('play-btn').textContent = 'Auto-play';
+      } else {
+        makeMove();
+      }
+    }, delay);
+  }
+});
+
+// Initialize
+newGame(7);
+window.addEventListener('resize', drawSurplusChart);
+</script>
+
+</body></html>

@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Language Evolution — PEP Math Playground</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #tree-container { position: fixed; top: 44px; left: 0; right: 340px; bottom: 0;
+                    background: radial-gradient(ellipse at center, #1a2238 0%, #0a0d14 70%);
+                    cursor: grab; overflow: hidden; }
+  #tree-container:active { cursor: grabbing; }
+  #tree-canvas { position: absolute; inset: 0; }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 340px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 14px; }
+  #panel label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; }
+  #panel label b { color: var(--text); font-size: 11px; }
+  #panel input[type=range] { width: 100%; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+
+  #word-detail { background: var(--surface2); border-radius: 6px; padding: 10px 12px;
+                 font-size: 11px; min-height: 80px; line-height: 1.6; }
+  #word-detail.empty { color: var(--dim); font-style: italic; }
+  #word-detail .word { color: var(--accent); font-weight: bold; font-size: 14px; }
+  #word-detail .meaning { color: var(--accent2); }
+  #word-detail .ety { color: var(--dim); font-size: 10px; margin-top: 6px; }
+
+  #event-log { background: var(--surface2); border-radius: 6px; padding: 8px 12px;
+               font-size: 10px; color: var(--dim); max-height: 140px; overflow-y: auto;
+               line-height: 1.6; }
+  .evt-shift { color: var(--warn); }
+  .evt-speciate { color: var(--accent); }
+  .evt-borrow { color: var(--accent2); }
+  .evt-loss { color: var(--danger); }
+
+  #legend { background: var(--surface2); border-radius: 6px; padding: 10px 12px;
+            font-size: 10px; color: var(--dim); line-height: 1.7; }
+  #legend .lang-row { display: flex; align-items: center; gap: 6px; }
+  #legend .lang-swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  @media (max-width: 900px) {
+    #tree-container { right: 0; bottom: 280px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 280px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Language Evolution</span>
+  <span class="tag">PEP · words as nodes, sound shifts as state modulation</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="globe.html">Evolution Globe</a>
+  </span>
+</nav>
+
+<div id="tree-container">
+  <canvas id="tree-canvas"></canvas>
+</div>
+
+<div id="panel">
+  <h3>Mode</h3>
+  <div class="ctrl" style="display:flex;gap:4px;flex-wrap:wrap">
+    <button id="mode-tree" class="primary" onclick="setMode('tree')" style="flex:1">🌳 Family tree</button>
+    <button id="mode-path" onclick="setMode('path')" style="flex:1">⏱ Single path</button>
+    <button id="mode-sim" onclick="setMode('sim')" style="flex:1">🎲 Free sim</button>
+  </div>
+
+  <div id="tree-controls">
+    <h3>How to read</h3>
+    <div class="ctrl">
+      <label style="color:var(--dim);font-size:10px;line-height:1.6">
+        <b style="color:var(--text)">Click any language</b> to highlight its lineage from the root. <b style="color:var(--text)">Pick a meaning below</b> to see how that word evolves along each branch. Year slider shows the state at a given year.
+      </label>
+    </div>
+    <div class="ctrl" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:10px;color:var(--dim);line-height:1.7;border-left:2px solid #fbbf24">
+      <b style="color:#fbbf24">Why are some languages "disconnected"?</b><br>
+      Seven different language <b>families</b> are shown. Each family has its own root (marked ›) and no demonstrated common ancestor to the others. Indo-European is the biggest; Uralic (Finnish, Hungarian) is a separate family that ended up geographically inside Europe; Sinitic, Austronesian, Semitic, Turkic, and Japonic are all linguistically independent. Their separation is the historical fact, not a rendering bug.
+    </div>
+    <div class="ctrl" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:10px;color:var(--dim);line-height:1.7;border-left:2px solid #84cc16;margin-top:6px">
+      <b style="color:#84cc16">Label styles when you pick a meaning</b><br>
+      <b>Solid green</b> — the word is attested/recorded directly for that language.<br>
+      <b>Faded italic with ~</b> — the word is <i>inherited</i> from the nearest ancestor that has a record. Useful as a plausibility estimate when specific vocab is missing.
+    </div>
+    <div class="ctrl">
+      <label><b>Highlight meaning</b></label>
+      <select id="meaning-select" onchange="drawMainTree()"
+        style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px">
+        <option value="">— none —</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <button onclick="fitTree()">⤢ Fit tree</button>
+      <button onclick="resetTreeView()">Reset zoom</button>
+      <label style="font-size:10px;color:var(--dim);display:block;margin-top:6px">
+        <input type="checkbox" id="show-borrowings" checked onchange="treeShowBorrowings=this.checked; drawMainTree()">
+        Show cross-family borrowings (green dashed arrows)
+      </label>
+    </div>
+    <div id="tree-selected" class="pep-note" style="display:none;background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.6;border-left:3px solid var(--accent);margin-top:10px"></div>
+
+    <h3>Compound words</h3>
+    <div class="ctrl" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:10px;color:var(--dim);line-height:1.7;border-left:2px solid #67e8f9">
+      <b style="color:#67e8f9">How words actually form</b><br>
+      High-frequency pairs get lexicalized — "break + fast" → "breakfast", "good + bye" (God be with you) → "goodbye", "you + me" → "us". Pick two meanings and a base language below to see how the compound is built, then apply sound shifts to see it erode into a single unrecognizable unit. This is PEP's weighted-graph + opacity primitives applied to the lexicon.
+    </div>
+    <div class="ctrl">
+      <label><b>Meaning A</b></label>
+      <select id="cmp-a" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px"></select>
+    </div>
+    <div class="ctrl">
+      <label><b>Meaning B</b></label>
+      <select id="cmp-b" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px"></select>
+    </div>
+    <div class="ctrl">
+      <label><b>Base language</b></label>
+      <select id="cmp-lang" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px"></select>
+    </div>
+    <div class="ctrl" style="display:flex;gap:4px">
+      <button onclick="compoundForm()" class="primary" style="flex:1">Compound!</button>
+      <button onclick="compoundErode()" style="flex:1">⏵ Erode 1 gen</button>
+      <button onclick="compoundErodeMany()" style="flex:1">+10 gens</button>
+    </div>
+    <div class="ctrl" style="display:flex;gap:4px;flex-wrap:wrap">
+      <button onclick="compoundPreset('lord')" style="font-size:10px;padding:4px 8px">lord (hlaf-weard)</button>
+      <button onclick="compoundPreset('breakfast')" style="font-size:10px;padding:4px 8px">breakfast</button>
+      <button onclick="compoundPreset('goodbye')" style="font-size:10px;padding:4px 8px">goodbye</button>
+      <button onclick="compoundPreset('daisy')" style="font-size:10px;padding:4px 8px">daisy</button>
+    </div>
+    <div id="cmp-result" style="background:var(--surface2);border-radius:6px;padding:12px;font-size:11px;line-height:1.8;min-height:60px;color:var(--dim)">
+      Pick two meanings and hit Compound.
+    </div>
+  </div>
+
+  <div id="path-controls">
+    <h3>Trajectory</h3>
+    <div class="ctrl">
+      <label><b>From</b></label>
+      <select id="from-select" onchange="updateTargetOptions()"
+        style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px">
+        <option value="pie">Proto-Indo-European (~4500 BCE)</option>
+        <option value="latin">Classical Latin (~100 CE)</option>
+        <option value="middle-english">Middle English (~1300 CE)</option>
+      </select>
+      <div style="font-size:9px;color:var(--dim);margin-top:4px">6 trajectories across 3 starting points. More coming.</div>
+      <label style="margin-top:8px"><b>To</b></label>
+      <select id="to-select" onchange="applyTrajectory()"
+        style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px">
+      </select>
+    </div>
+
+    <h3>Year</h3>
+    <div class="ctrl">
+      <input id="year-slider" type="range" style="width:100%">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:2px">
+        <span id="year-start">—</span>
+        <span id="year-now" style="color:var(--accent);font-weight:bold;font-size:11px">—</span>
+        <span id="year-end">—</span>
+      </div>
+    </div>
+    <div class="ctrl" style="display:flex;gap:4px">
+      <button onclick="stepYearMilestone(-1)">⟵ Prev milestone</button>
+      <button onclick="stepYearMilestone(1)">Next milestone ⟶</button>
+    </div>
+    <div class="ctrl">
+      <button onclick="fitView(); draw()">⤢ Fit all</button>
+      <button onclick="viewK=1;viewTx=0;viewTy=0;draw()">Reset zoom</button>
+    </div>
+
+    <h3>Era notes</h3>
+    <div id="era-notes" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.6;color:var(--dim);min-height:60px">
+      Pick a trajectory and drag the year slider.
+    </div>
+  </div>
+
+  <div id="sim-controls" style="display:none">
+  <h3>Starting point</h3>
+  <div class="ctrl">
+    <select id="preset-select" onchange="applyPreset(this.value)"
+      style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px">
+      <option value="pie">Proto-Indo-European (~5000 BCE)</option>
+      <option value="latin">Latin → Romance languages</option>
+      <option value="germanic">Proto-Germanic → English tree</option>
+      <option value="english-gvs">Middle → Modern English (Great Vowel Shift)</option>
+      <option value="pama-nyungan">Pama-Nyungan (Australian)</option>
+      <option value="polynesian">Proto-Polynesian</option>
+      <option value="artificial">Artificial — start from scratch</option>
+    </select>
+  </div>
+  </div>
+
+  <div id="sim-help" style="display:none">
+    <h3>How it works</h3>
+    <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:10px;color:var(--dim);line-height:1.6;margin-bottom:14px">
+      <b style="color:var(--text)">Pick a starting language above,</b> then press <b style="color:var(--accent)">▶ Play</b> (or Step). Each generation, eligible words undergo <b>one real phonological rule</b> — intervocalic voicing, lenition, palatalization before front vowels, etc. <b style="color:var(--warn)">Click any word</b> to see which rule produced it and <i>why</i> (articulatory reason).<br><br>
+      Words that accumulate enough drift spawn <b>daughter languages</b> (new colors). Neighboring languages sometimes <b>borrow</b> each other's words (dashed green lines). Watch for real historical patterns: Grimm's Law, Great Vowel Shift, palatalization, final devoicing.
+    </div>
+  </div>
+
+  <div id="sim-pressures" style="display:none">
+  <h3>Pressures</h3>
+  <div class="ctrl">
+    <label><b>Change rate</b> <span id="shift-val" style="float:right">0.20</span></label>
+    <input id="shift-slider" type="range" min="0" max="1" step="0.05" value="0.20">
+    <label style="margin-top:4px;color:var(--dim);font-size:9px">
+      how likely each word is to undergo a phonological shift per generation
+    </label>
+  </div>
+  <div class="ctrl">
+    <label><b>Contact / borrowing</b> <span id="borrow-val" style="float:right">0.15</span></label>
+    <input id="borrow-slider" type="range" min="0" max="1" step="0.05" value="0.15">
+    <label style="margin-top:4px;color:var(--dim);font-size:9px">
+      frequency of cross-language borrowing
+    </label>
+  </div>
+  <details style="margin-top:6px;font-size:10px">
+    <summary style="color:var(--dim);cursor:pointer;padding:4px 0">Advanced knobs</summary>
+    <div class="ctrl" style="margin-top:8px">
+      <label><b>Speciation threshold</b> <span id="spec-val" style="float:right">0.35</span></label>
+      <input id="spec-slider" type="range" min="0" max="1" step="0.05" value="0.35">
+      <label style="color:var(--dim);font-size:9px">phonological distance that triggers a daughter language</label>
+    </div>
+    <div class="ctrl">
+      <label><b>Word-loss rate</b> <span id="loss-val" style="float:right">0.04</span></label>
+      <input id="loss-slider" type="range" min="0" max="0.3" step="0.01" value="0.04">
+      <label style="color:var(--dim);font-size:9px">fraction of words that fall out of use each generation</label>
+    </div>
+  </details>
+  </div>
+
+  <div id="sim-simulation" style="display:none">
+
+  <h3>Simulation</h3>
+  <div class="ctrl">
+    <button onclick="stepGen()">Step 1 gen</button>
+    <button id="play-btn" class="primary" onclick="togglePlay()">▶ Play</button>
+    <button onclick="stepMany(10)">+10 gens</button>
+    <button onclick="stepMany(50)">+50 gens</button>
+    <button onclick="resetSim()" class="danger">Reset</button>
+  </div>
+  <div class="ctrl">
+    <button onclick="fitView(); draw()">⤢ Fit all</button>
+    <button onclick="viewK = 1; viewTx = 0; viewTy = 0; draw()">Reset zoom</button>
+  </div>
+  <div class="ctrl">
+    <button onclick="triggerMajorShift()">⚡ Great Vowel Shift</button>
+    <button onclick="contact()">✉ Language contact event</button>
+  </div>
+  </div>
+
+  <h3>Tree</h3>
+  <div class="stat-row"><span class="label">Generation</span><span class="value" id="stat-gen">0</span></div>
+  <div class="stat-row"><span class="label">Living words</span><span class="value" id="stat-alive">0</span></div>
+  <div class="stat-row"><span class="label">Languages</span><span class="value" id="stat-langs">0</span></div>
+  <div class="stat-row"><span class="label">Lost words</span><span class="value" id="stat-lost">0</span></div>
+
+  <h3>Languages present</h3>
+  <div id="legend"></div>
+
+  <h3>Selected word</h3>
+  <div id="word-detail" class="empty">Click a word node on the tree.</div>
+
+  <h3>Recent changes</h3>
+  <div id="event-log"></div>
+</div>
+
+<script>
+// ═════════════════════════════════════════════════════════════════════
+// Canvas & view
+// ═════════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('tree-canvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+let viewTx = 0, viewTy = 0, viewK = 1;
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { resize(); fitView(); draw(); });
+
+// Compute the bounding box of all word nodes and set the view transform
+// so everything fits with some padding. Keeps the user zoomed out enough
+// on initial load to see all starting words without panning.
+function fitView() {
+  if (words.length === 0) return;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const w of words) {
+    if (w.x < minX) minX = w.x;
+    if (w.x > maxX) maxX = w.x;
+    if (w.y < minY) minY = w.y;
+    if (w.y > maxY) maxY = w.y;
+  }
+  // Include the meaning column labels at y=30
+  minY = Math.min(minY, 20);
+  // Padding
+  const padX = 40, padY = 40;
+  const bw = (maxX - minX) + padX * 2;
+  const bh = (maxY - minY) + padY * 2;
+  const scaleX = W / bw;
+  const scaleY = H / bh;
+  viewK = Math.max(0.2, Math.min(2.0, Math.min(scaleX, scaleY)));
+  // Center the content
+  viewTx = (W / 2) - ((minX + maxX) / 2) * viewK;
+  viewTy = (H / 2) - ((minY + maxY) / 2) * viewK;
+}
+
+// Auto-fit if the tree has grown beyond the current visible area.
+// Called each generation; only re-fits when needed to avoid jarring jumps.
+function autoExpand() {
+  if (words.length === 0) return;
+  let maxY = -Infinity;
+  for (const w of words) if (w.y > maxY) maxY = w.y;
+  // Compute screen-space position of the bottom of the tree
+  const screenBottom = maxY * viewK + viewTy;
+  // If the bottom is below visible area (with small buffer), re-fit
+  if (screenBottom > H - 20) {
+    fitView();
+  }
+}
+
+// Pan and zoom on canvas (native, no D3 to keep it light)
+let panStart = null;
+let _rafPending = false;
+
+// RAF-coalesced redraw: if called multiple times per frame, only the last
+// call actually hits the canvas. Eliminates mousemove-flood lag.
+function requestRedraw() {
+  if (_rafPending) return;
+  _rafPending = true;
+  requestAnimationFrame(() => {
+    _rafPending = false;
+    redrawForMode();
+  });
+}
+function redrawForMode() {
+  if (mode === 'tree') drawMainTree();
+  else draw();
+}
+
+canvas.addEventListener('mousedown', e => {
+  panStart = [e.clientX, e.clientY, viewTx, viewTy];
+});
+window.addEventListener('mousemove', e => {
+  if (!panStart) return;
+  viewTx = panStart[2] + (e.clientX - panStart[0]);
+  viewTy = panStart[3] + (e.clientY - panStart[1]);
+  requestRedraw();
+});
+window.addEventListener('mouseup', () => panStart = null);
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const wx = (mx - viewTx) / viewK;
+  const wy = (my - viewTy) / viewK;
+  viewK = Math.max(0.2, Math.min(4, viewK * factor));
+  viewTx = mx - wx * viewK;
+  viewTy = my - wy * viewK;
+  requestRedraw();
+}, { passive: false });
+canvas.addEventListener('click', e => {
+  if (panStart) {
+    const [sx, sy] = panStart;
+    if (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4) return;
+  }
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left - viewTx) / viewK;
+  const my = (e.clientY - rect.top - viewTy) / viewK;
+  let closest = null, closestDist = 20;
+  for (const w of words) {
+    if (!w.alive) continue;
+    const dx = w.x - mx, dy = w.y - my;
+    const d = Math.hypot(dx, dy);
+    if (d < closestDist) { closestDist = d; closest = w; }
+  }
+  selectWord(closest);
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// Phonology model — very simplified
+// ═════════════════════════════════════════════════════════════════════
+const CONSONANTS = ['p','t','k','b','d','g','m','n','s','l','r','h','v','w','y','f','z','sh','ch','th'];
+const VOWELS = ['a','e','i','o','u','ai','au','ei','ou'];
+
+function randChoice(arr, rng) { return arr[Math.floor((rng || Math.random)() * arr.length)]; }
+
+// Phoneme-distance table (very rough). Similar sounds are close (p ↔ b ↔ f).
+const PHONE_GROUPS = [
+  ['p','b','f','v'], ['t','d','s','z','th'], ['k','g','h','ch'],
+  ['m','n'], ['l','r','w','y'],
+  ['a','e','i','o','u','ai','au','ei','ou','sh'],
+];
+function phoneGroup(p) {
+  for (let i = 0; i < PHONE_GROUPS.length; i++) {
+    if (PHONE_GROUPS[i].includes(p)) return i;
+  }
+  return -1;
+}
+function phoneDistance(a, b) {
+  if (a === b) return 0;
+  const ga = phoneGroup(a), gb = phoneGroup(b);
+  if (ga === gb && ga >= 0) return 0.3;  // same family
+  return 1.0;  // different families
+}
+
+function randomWordForm(rng) {
+  const syllables = 1 + Math.floor((rng || Math.random)() * 2);
+  let w = '';
+  for (let i = 0; i < syllables; i++) {
+    w += randChoice(CONSONANTS, rng) + randChoice(VOWELS, rng);
+  }
+  return w;
+}
+
+function phonologicalDistance(a, b) {
+  // Compare shared-prefix alignment, sum distances
+  const phonesA = tokenizePhonemes(a);
+  const phonesB = tokenizePhonemes(b);
+  const minLen = Math.min(phonesA.length, phonesB.length);
+  const maxLen = Math.max(phonesA.length, phonesB.length);
+  let d = 0;
+  for (let i = 0; i < minLen; i++) d += phoneDistance(phonesA[i], phonesB[i]);
+  d += (maxLen - minLen) * 0.5;
+  return d / Math.max(1, maxLen);
+}
+
+function tokenizePhonemes(word) {
+  // Greedy — check 2-letter phonemes first (sh, ch, th, ai, au, ei, ou)
+  const bigrams = ['sh','ch','th','ai','au','ei','ou'];
+  const out = [];
+  let i = 0;
+  while (i < word.length) {
+    const two = word.slice(i, i+2);
+    if (bigrams.includes(two)) { out.push(two); i += 2; }
+    else { out.push(word[i]); i++; }
+  }
+  return out;
+}
+
+// Apply a sound shift — e.g. p→f, t→th, k→h (Grimm's law pattern)
+function applySoundShift(word, shiftMap) {
+  const phones = tokenizePhonemes(word);
+  return phones.map(p => shiftMap[p] || p).join('');
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Named phonological rules — real shifts linguists actually observe.
+// Each rule: { id, name, reason, applies(phones, i), transform(phones, i) }
+// Reasons are the actual phonetic/articulatory motivation.
+// ═════════════════════════════════════════════════════════════════════
+const VOWEL_SET = new Set(['a','e','i','o','u','ai','au','ei','ou']);
+const FRONT_VOWELS = new Set(['e','i','ei']);
+const VOICED_STOP = { p: 'b', t: 'd', k: 'g' };
+const VOICELESS_FRICATIVE = { p: 'f', t: 'th', k: 'h', b: 'v', d: 'th', g: 'h' };
+const PALATAL = { k: 'ch', g: 'y', t: 'ch' };
+const DEVOICE = { b: 'p', d: 't', g: 'k', v: 'f', z: 's' };
+const VOWEL_RAISE = { a: 'e', e: 'i', o: 'u', ai: 'ei', au: 'ou' };
+
+function isVowel(p) { return VOWEL_SET.has(p); }
+
+const RULES = [
+  {
+    id: 'intervocalic-voicing',
+    name: 'Intervocalic voicing',
+    reason: 'between vowels, voiceless stops pick up voicing from the surrounding vowels (less articulatory effort)',
+    applies(phones, i) {
+      return VOICED_STOP[phones[i]] && i > 0 && i < phones.length - 1
+        && isVowel(phones[i-1]) && isVowel(phones[i+1]);
+    },
+    transform(phones, i) { phones[i] = VOICED_STOP[phones[i]]; return phones; },
+  },
+  {
+    id: 'lenition',
+    name: 'Lenition (stop → fricative)',
+    reason: "consonants weaken when not stressed; the tongue stops making full contact (Grimm's Law for Germanic)",
+    applies(phones, i) {
+      return VOICELESS_FRICATIVE[phones[i]] && (i === 0 || !isVowel(phones[i-1]) || i === phones.length - 1);
+    },
+    transform(phones, i) { phones[i] = VOICELESS_FRICATIVE[phones[i]]; return phones; },
+  },
+  {
+    id: 'palatalization',
+    name: 'Palatalization before front vowels',
+    reason: 'before /i/ or /e/, the tongue moves forward — /k/ becomes /ch/, /g/ becomes /y/ (Latin → Italian, Old → Modern English)',
+    applies(phones, i) {
+      return PALATAL[phones[i]] && i < phones.length - 1 && FRONT_VOWELS.has(phones[i+1]);
+    },
+    transform(phones, i) { phones[i] = PALATAL[phones[i]]; return phones; },
+  },
+  {
+    id: 'final-devoicing',
+    name: 'Final devoicing',
+    reason: 'at the end of a word the vocal folds relax first — voicing is lost (German, Russian, Dutch)',
+    applies(phones, i) {
+      return i === phones.length - 1 && DEVOICE[phones[i]];
+    },
+    transform(phones, i) { phones[i] = DEVOICE[phones[i]]; return phones; },
+  },
+  {
+    id: 'vowel-raising',
+    name: 'Vowel raising',
+    reason: 'long vowels shift upward in the mouth (Great Vowel Shift in English; ongoing in California English)',
+    applies(phones, i) {
+      return VOWEL_RAISE[phones[i]];
+    },
+    transform(phones, i) { phones[i] = VOWEL_RAISE[phones[i]]; return phones; },
+  },
+  {
+    id: 'cluster-simplification',
+    name: 'Cluster simplification',
+    reason: 'difficult consonant clusters are hard to articulate quickly; the tongue drops one (Latin "pt" → Italian "tt"; English "knight" lost /k/)',
+    applies(phones, i) {
+      return !isVowel(phones[i]) && i < phones.length - 1 && !isVowel(phones[i+1]);
+    },
+    transform(phones, i) { phones.splice(i, 1); return phones; },
+  },
+  {
+    id: 'final-vowel-loss',
+    name: 'Final vowel loss',
+    reason: 'unstressed final vowels erode over time (Latin → French: "luna" → "lune" → "lu[n]")',
+    applies(phones, i) {
+      return i === phones.length - 1 && isVowel(phones[i]) && phones.length > 2;
+    },
+    transform(phones, i) { phones.splice(i, 1); return phones; },
+  },
+  {
+    id: 'aspiration-h-loss',
+    name: 'Loss of /h/',
+    reason: '/h/ is phonetically light; many languages lose it entirely (Latin → Spanish/French)',
+    applies(phones, i) {
+      return phones[i] === 'h' && i > 0;
+    },
+    transform(phones, i) { phones.splice(i, 1); return phones; },
+  },
+];
+
+// Given a word, find one applicable rule. Returns {rule, index} or null.
+function findApplicableRule(word, rng, preferredRuleId) {
+  const phones = tokenizePhonemes(word);
+  // Collect all (rule, index) pairs where a rule applies
+  const candidates = [];
+  for (const rule of RULES) {
+    if (preferredRuleId && rule.id !== preferredRuleId) continue;
+    for (let i = 0; i < phones.length; i++) {
+      if (rule.applies(phones, i)) candidates.push({ rule, index: i });
+    }
+  }
+  if (candidates.length === 0) return null;
+  return candidates[Math.floor(rng() * candidates.length)];
+}
+
+function applyRule(word, ruleAndIndex) {
+  const phones = tokenizePhonemes(word);
+  return ruleAndIndex.rule.transform(phones, ruleAndIndex.index).join('');
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Words, languages
+// ═════════════════════════════════════════════════════════════════════
+// Each word: { id, form, meaning, language, parent, born, alive, x, y }
+// Each language: { id, name, color, ancestor, splitGen }
+let words = [];
+let languages = [];
+let nextWordId = 1, nextLangId = 1;
+let generation = 0;
+let stats = { lost: 0, total: 0 };
+let eventLog = [];
+
+// Expanded Swadesh-style core — 40 meanings most languages have words for.
+const CORE_MEANINGS = [
+  // nature
+  'water', 'fire', 'sun', 'moon', 'star', 'sky',
+  'tree', 'stone', 'sea', 'earth',
+  // people
+  'man', 'woman', 'child', 'mother', 'father',
+  // body
+  'eye', 'ear', 'hand', 'foot', 'heart', 'head', 'blood',
+  // actions
+  'eat', 'drink', 'go', 'see', 'hear', 'sleep', 'know', 'say',
+  // time/space
+  'day', 'night', 'road',
+  // quality
+  'big', 'small', 'red', 'white',
+  // number
+  'one', 'two', 'three',
+];
+
+const LANG_COLORS = [
+  '#4fc3f7', '#81c784', '#ffb74d', '#ba68c8', '#f06292',
+  '#67e8f9', '#fbbf24', '#ef4444', '#38bdf8', '#5eead4',
+  '#e879f9', '#a78bfa', '#f97316', '#84cc16', '#60a5fa',
+];
+
+function makeLanguage(name, ancestorId = null) {
+  const lang = {
+    id: nextLangId++,
+    name,
+    color: LANG_COLORS[(nextLangId - 1) % LANG_COLORS.length],
+    ancestor: ancestorId,
+    splitGen: generation,
+  };
+  languages.push(lang);
+  return lang;
+}
+
+function makeWord(form, meaning, language, parent = null) {
+  const w = {
+    id: nextWordId++,
+    form,
+    meaning,
+    language: language.id,
+    languageColor: language.color,
+    parent: parent ? parent.id : null,
+    born: generation,
+    alive: true,
+    x: 0, y: 0,
+  };
+  words.push(w);
+  stats.total++;
+  return w;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Initial seeding per preset
+// ═════════════════════════════════════════════════════════════════════
+const PRESETS = {
+  pie: { name: 'Proto-Indo-European', vocab: {
+    water: 'wodr', fire: 'pehwr', sun: 'sewel', moon: 'mehns', star: 'hster', sky: 'dyeus',
+    tree: 'dreu', stone: 'hekmon', sea: 'mori', earth: 'dheghom',
+    man: 'hner', woman: 'gwenh', child: 'putlos', mother: 'mehter', father: 'phter',
+    eye: 'hoks', ear: 'aus', hand: 'ghesr', foot: 'ped', heart: 'kerd', head: 'kaput', blood: 'kreuh',
+    eat: 'hed', drink: 'peh', go: 'gweh', see: 'weid', hear: 'kleu', sleep: 'swep', know: 'gneh', say: 'wekw',
+    day: 'diwes', night: 'nokwt', road: 'pent',
+    big: 'megh', small: 'leg', red: 'reudh', white: 'leuk',
+    one: 'oinos', two: 'dwoh', three: 'treyes',
+  } },
+  latin: { name: 'Latin', vocab: {
+    water: 'aqua', fire: 'ignis', sun: 'sol', moon: 'luna', star: 'stella', sky: 'caelum',
+    tree: 'arbor', stone: 'lapis', sea: 'mare', earth: 'terra',
+    man: 'vir', woman: 'femina', child: 'puer', mother: 'mater', father: 'pater',
+    eye: 'oculus', ear: 'auris', hand: 'manus', foot: 'pes', heart: 'cor', head: 'caput', blood: 'sanguis',
+    eat: 'edere', drink: 'bibere', go: 'ire', see: 'videre', hear: 'audire', sleep: 'dormire', know: 'scire', say: 'dicere',
+    day: 'dies', night: 'nox', road: 'via',
+    big: 'magnus', small: 'parvus', red: 'ruber', white: 'albus',
+    one: 'unus', two: 'duo', three: 'tres',
+  } },
+  germanic: { name: 'Proto-Germanic', vocab: {
+    water: 'wator', fire: 'fuir', sun: 'sunno', moon: 'menon', star: 'sternon', sky: 'himin',
+    tree: 'trewa', stone: 'stainaz', sea: 'saiwiz', earth: 'erdo',
+    man: 'mannaz', woman: 'kwenon', child: 'kindaz', mother: 'moder', father: 'fader',
+    eye: 'augo', ear: 'auso', hand: 'handuz', foot: 'fot', heart: 'herton', head: 'haubidan', blood: 'blodan',
+    eat: 'etan', drink: 'drinkan', go: 'gangan', see: 'sehwan', hear: 'hauzijan', sleep: 'swefan', know: 'kunnan', say: 'sagjan',
+    day: 'dagaz', night: 'nahts', road: 'wegaz',
+    big: 'grotaz', small: 'lutilaz', red: 'raudaz', white: 'hwitaz',
+    one: 'ainaz', two: 'twai', three: 'thriz',
+  } },
+  'english-gvs': { name: 'Middle English', vocab: {
+    water: 'water', fire: 'fir', sun: 'sunne', moon: 'mone', star: 'sterre', sky: 'heven',
+    tree: 'tree', stone: 'stan', sea: 'se', earth: 'erthe',
+    man: 'man', woman: 'wif', child: 'child', mother: 'moder', father: 'fader',
+    eye: 'eye', ear: 'ere', hand: 'hond', foot: 'fot', heart: 'herte', head: 'hed', blood: 'blod',
+    eat: 'eten', drink: 'drinken', go: 'gon', see: 'seen', hear: 'heren', sleep: 'slepen', know: 'knowen', say: 'seyen',
+    day: 'day', night: 'night', road: 'wey',
+    big: 'mikel', small: 'smal', red: 'red', white: 'whit',
+    one: 'oon', two: 'two', three: 'thre',
+  } },
+  'pama-nyungan': { name: 'Proto-Pama-Nyungan', vocab: {
+    water: 'kamu', fire: 'wuril', sun: 'kari', moon: 'kira', star: 'nyambi', sky: 'thirri',
+    tree: 'marra', stone: 'thara', sea: 'ngamba', earth: 'parna',
+    man: 'wati', woman: 'kungka', child: 'tjitji', mother: 'ngama', father: 'mama',
+    eye: 'kuru', ear: 'pina', hand: 'mara', foot: 'tjina', heart: 'kuntu', head: 'kata', blood: 'yawurru',
+    eat: 'nga', drink: 'nga', go: 'ya', see: 'nya', hear: 'kurlpa', sleep: 'kuru', know: 'pala', say: 'wangka',
+    day: 'tjulpun', night: 'munga', road: 'yitu',
+    big: 'pulka', small: 'kutjupa', red: 'yalpa', white: 'pirta',
+    one: 'kutjarra', two: 'pula', three: 'maran',
+  } },
+  polynesian: { name: 'Proto-Polynesian', vocab: {
+    water: 'wai', fire: 'afi', sun: 'laa', moon: 'marama', star: 'fetuu', sky: 'lani',
+    tree: 'laakau', stone: 'maka', sea: 'tahi', earth: 'fonua',
+    man: 'tangata', woman: 'fafine', child: 'tama', mother: 'tinana', father: 'tamana',
+    eye: 'mata', ear: 'talinga', hand: 'lima', foot: 'waae', heart: 'mafu', head: 'ulu', blood: 'toto',
+    eat: 'kai', drink: 'inu', go: 'fano', see: 'kite', hear: 'rongo', sleep: 'moe', know: 'iloa', say: 'pati',
+    day: 'aso', night: 'po', road: 'ala',
+    big: 'lahi', small: 'iki', red: 'kula', white: 'tea',
+    one: 'tahi', two: 'rua', three: 'tolu',
+  } },
+  artificial: { name: 'Conlang-01', vocab: null },
+};
+
+function resetSim() {
+  words = []; languages = []; nextWordId = 1; nextLangId = 1;
+  generation = 0; stats = { lost: 0, total: 0 }; eventLog = [];
+  selectedWord = null;
+  const preset = PRESETS[currentPreset];
+  const rootLang = makeLanguage(preset.name);
+  const vocab = preset.vocab || Object.fromEntries(
+    CORE_MEANINGS.map(m => [m, randomWordForm()])
+  );
+  const rootY = 40;
+  CORE_MEANINGS.forEach((meaning, i) => {
+    const form = vocab[meaning] || randomWordForm();
+    const w = makeWord(form, meaning, rootLang);
+    w.x = (W/2 / viewK) - (CORE_MEANINGS.length * 22) + i * 44;
+    w.y = rootY;
+  });
+  logEvent('shift', `Seeded ${preset.name} with ${CORE_MEANINGS.length} core words.`);
+  layoutTree();
+  fitView();
+  updateStats();
+  draw();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Generation step
+// ═════════════════════════════════════════════════════════════════════
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function stepGen() {
+  generation++;
+  const shiftRate = parseFloat(document.getElementById('shift-slider').value);
+  const borrowRate = parseFloat(document.getElementById('borrow-slider').value);
+  const specThreshold = parseFloat(document.getElementById('spec-slider').value);
+  const lossRate = parseFloat(document.getElementById('loss-slider').value);
+  const rng = Math.random;
+
+  // For each living word, possibly mutate → create child word
+  const alive = words.filter(w => w.alive);
+  const newWords = [];
+
+  for (const w of alive) {
+    // Word loss
+    if (rng() < lossRate) {
+      w.alive = false;
+      w.diedGen = generation;
+      stats.lost++;
+      if (eventLog.length < 80 && rng() < 0.3) {
+        logEvent('loss', `"${w.form}" (${w.meaning}) fell out of use — replaced or forgotten.`);
+      }
+      continue;
+    }
+
+    // Phonological shift: find an applicable rule and apply it
+    if (rng() < shiftRate) {
+      const hit = findApplicableRule(w.form, rng);
+      if (!hit) continue;  // no rule applies — word is phonologically "stable" this turn
+      const newForm = applyRule(w.form, hit);
+      if (newForm === w.form || newForm.length === 0) continue;
+
+      const lang = languages.find(l => l.id === w.language);
+      // Speciation: if phonological distance from original is big, daughter lang
+      const dist = phonologicalDistance(w.form, newForm);
+      const childLang = dist > specThreshold ? (() => {
+        const sibling = languages.find(l => l.ancestor === lang.id && generation - l.splitGen < 3);
+        if (sibling) return sibling;
+        const daughter = makeLanguage(`${lang.name}-${generation}`, lang.id);
+        logEvent('speciate', `New language "${daughter.name}" branches from ${lang.name} — accumulated sound shifts crossed threshold.`);
+        return daughter;
+      })() : lang;
+
+      w.alive = false;
+      w.diedGen = generation;
+      const child = makeWord(newForm, w.meaning, childLang, w);
+      child.ruleId = hit.rule.id;
+      child.ruleName = hit.rule.name;
+      child.ruleReason = hit.rule.reason;
+      newWords.push(child);
+
+      if (eventLog.length < 80 && rng() < 0.35) {
+        logEvent('shift', `<b>${w.form}</b> → <b>${newForm}</b> <i>(${w.meaning}, ${lang.name})</i> — ${hit.rule.name}`);
+      }
+    }
+  }
+
+  // Borrowing between languages: pick random pairs, copy one word
+  if (languages.length > 1 && rng() < borrowRate * 3) {
+    const pair = [randChoice(languages, rng), randChoice(languages, rng)];
+    if (pair[0].id !== pair[1].id) {
+      const sourceWords = words.filter(w => w.alive && w.language === pair[0].id);
+      if (sourceWords.length > 0) {
+        const src = randChoice(sourceWords, rng);
+        // Only borrow if target lang doesn't already have this meaning
+        const existing = words.find(w => w.alive && w.language === pair[1].id && w.meaning === src.meaning);
+        if (!existing) {
+          const borrowed = makeWord(src.form, src.meaning, pair[1], src);
+          borrowed.borrowed = true;
+          newWords.push(borrowed);
+          if (eventLog.length < 80 && rng() < 0.4) {
+            logEvent('borrow', `"${src.form}" borrowed from ${pair[0].name} → ${pair[1].name}`);
+          }
+        }
+      }
+    }
+  }
+
+  layoutTree();
+  autoExpand();
+  updateStats();
+  draw();
+}
+
+function stepMany(n) {
+  for (let i = 0; i < n; i++) stepGen();
+}
+
+let playTimer = null;
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (playTimer) {
+    clearInterval(playTimer); playTimer = null; btn.textContent = '▶ Play';
+  } else {
+    playTimer = setInterval(stepGen, 350);
+    btn.textContent = '■ Pause';
+  }
+}
+
+// Great Vowel Shift — apply a specific sound shift across all words in the current most-populous language
+function triggerMajorShift() {
+  const langCounts = {};
+  words.filter(w => w.alive).forEach(w => { langCounts[w.language] = (langCounts[w.language] || 0) + 1; });
+  const topLang = parseInt(Object.entries(langCounts).sort((a,b) => b[1] - a[1])[0][0]);
+  const targetLang = languages.find(l => l.id === topLang);
+  const daughter = makeLanguage(`${targetLang.name}+GVS`, targetLang.id);
+  // Vowel shift map — GVS-style: long vowels shift up, some become diphthongs
+  const shiftMap = { a: 'e', e: 'i', i: 'ai', o: 'u', u: 'au', ai: 'ei', au: 'ou' };
+  const targetWords = words.filter(w => w.alive && w.language === targetLang.id);
+  for (const w of targetWords) {
+    const newForm = applySoundShift(w.form, shiftMap);
+    w.alive = false;
+    w.diedGen = generation;
+    makeWord(newForm, w.meaning, daughter, w);
+  }
+  generation++;
+  logEvent('shift', `Great Vowel Shift applied to ${targetLang.name} → ${daughter.name} (${targetWords.length} words)`);
+  layoutTree();
+  updateStats();
+  draw();
+}
+
+function contact() {
+  if (languages.length < 2) { logEvent('borrow', 'Need at least 2 languages for a contact event.'); return; }
+  // Heavy borrowing round
+  const pair = [languages[Math.floor(Math.random()*languages.length)],
+                languages[Math.floor(Math.random()*languages.length)]];
+  if (pair[0].id === pair[1].id) return;
+  const sourceWords = words.filter(w => w.alive && w.language === pair[0].id);
+  const targetMeanings = new Set(words.filter(w => w.alive && w.language === pair[1].id).map(w => w.meaning));
+  let borrowed = 0;
+  for (const src of sourceWords) {
+    if (targetMeanings.has(src.meaning)) continue;
+    const b = makeWord(src.form, src.meaning, pair[1], src);
+    b.borrowed = true;
+    borrowed++;
+  }
+  generation++;
+  logEvent('borrow', `Language contact: ${pair[0].name} → ${pair[1].name}, ${borrowed} words borrowed`);
+  layoutTree();
+  updateStats();
+  draw();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Layout — tree by meaning (columns) and generation (rows)
+// ═════════════════════════════════════════════════════════════════════
+function layoutTree() {
+  // Group by meaning → columns. Within column, plot by generation (y).
+  const colSpacing = 70;
+  const rowSpacing = 40;
+  const baseY = 60;
+  // Map meaning → column index
+  const meanings = CORE_MEANINGS;
+  const meaningX = {};
+  meanings.forEach((m, i) => {
+    meaningX[m] = (i + 1) * colSpacing;
+  });
+
+  for (const w of words) {
+    const baseX = meaningX[w.meaning] || 0;
+    // Slight horizontal offset by language id so multiple languages don't overlap
+    const langOffset = ((w.language - 1) % 5) * 12 - 24;
+    w.x = baseX + langOffset;
+    w.y = baseY + (w.born) * rowSpacing;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Drawing
+// ═════════════════════════════════════════════════════════════════════
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(viewTx, viewTy);
+  ctx.scale(viewK, viewK);
+
+  // Meaning column labels
+  const meanings = CORE_MEANINGS;
+  ctx.font = '10px SF Mono, monospace';
+  ctx.textAlign = 'center';
+  meanings.forEach((m, i) => {
+    const x = (i + 1) * 70;
+    ctx.fillStyle = 'rgba(180,200,230,0.35)';
+    ctx.fillText(m, x, 30);
+    // Vertical dashed line
+    ctx.strokeStyle = 'rgba(100,120,150,0.08)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(x, 40); ctx.lineTo(x, 40 + (generation + 2) * 40); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Edges (parent → child)
+  for (const w of words) {
+    if (!w.parent) continue;
+    const parent = words.find(x => x.id === w.parent);
+    if (!parent) continue;
+    ctx.beginPath();
+    ctx.moveTo(parent.x, parent.y);
+    ctx.bezierCurveTo(
+      parent.x, (parent.y + w.y) / 2,
+      w.x, (parent.y + w.y) / 2,
+      w.x, w.y
+    );
+    ctx.strokeStyle = w.borrowed ? 'rgba(129,199,132,0.5)'
+                                  : (w.alive ? 'rgba(170,190,220,0.55)' : 'rgba(130,140,160,0.2)');
+    ctx.lineWidth = w.borrowed ? 1.5 : 1;
+    if (w.borrowed) ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    if (w.borrowed) ctx.setLineDash([]);
+  }
+
+  // Nodes (words)
+  for (const w of words) {
+    const alpha = w.alive ? 1.0 : 0.25;
+    ctx.beginPath();
+    ctx.arc(w.x, w.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = w.languageColor;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+    ctx.strokeStyle = (w === selectedWord) ? '#fbbf24' : 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = (w === selectedWord) ? 2 : 0.6;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    // Label — zoom-dependent visibility
+    if (viewK > 0.7) {
+      ctx.fillStyle = `rgba(226,230,237,${alpha * 0.85})`;
+      ctx.font = '9px SF Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(w.form, w.x + 9, w.y + 3);
+    }
+  }
+
+  // Selected halo
+  if (selectedWord && selectedWord.alive) {
+    ctx.beginPath();
+    ctx.arc(selectedWord.x, selectedWord.y, 12 + Math.sin(Date.now() / 250) * 2, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Selection & detail
+// ═════════════════════════════════════════════════════════════════════
+let selectedWord = null;
+function selectWord(w) {
+  selectedWord = w;
+  const box = document.getElementById('word-detail');
+  if (!w) {
+    box.classList.add('empty');
+    box.textContent = 'Click a word node on the tree.';
+    draw();
+    return;
+  }
+  box.classList.remove('empty');
+  const lang = languages.find(l => l.id === w.language);
+  // Build etymology chain
+  const chain = [];
+  let cur = w;
+  while (cur) {
+    chain.push(cur);
+    cur = cur.parent ? words.find(x => x.id === cur.parent) : null;
+  }
+  chain.reverse();
+  const etyLine = chain.map(c => {
+    const l = languages.find(x => x.id === c.language);
+    const rule = c.ruleName ? ` <span style="color:var(--warn);font-size:9px" title="${c.ruleReason}">[${c.ruleName}]</span>` : '';
+    return `<span style="color:${l.color}">${c.form}</span>${rule}`;
+  }).join(' <span style="color:var(--dim)">→</span> ');
+
+  // "Why is this word what it is?" explain the most recent rule
+  let whyBlock = '';
+  if (w.ruleName) {
+    whyBlock = `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,183,77,0.08);border-left:2px solid var(--warn);font-size:10px;line-height:1.5">
+      <b style="color:var(--warn)">Why this form?</b><br>
+      Most recent shift: <b>${w.ruleName}</b><br>
+      <span style="color:var(--dim)">${w.ruleReason}</span>
+    </div>`;
+  } else if (w.borrowed) {
+    whyBlock = `<div style="margin-top:8px;padding:8px 10px;background:rgba(129,199,132,0.08);border-left:2px solid var(--accent2);font-size:10px;line-height:1.5">
+      <b style="color:var(--accent2)">Why this form?</b><br>
+      Borrowed from another language — speakers picked it up through contact and kept the source form.
+    </div>`;
+  } else if (w.parent === null) {
+    whyBlock = `<div style="margin-top:8px;padding:8px 10px;background:rgba(79,195,247,0.08);border-left:2px solid var(--accent);font-size:10px;line-height:1.5">
+      <b style="color:var(--accent)">Proto-root</b><br>
+      This word is part of the original seed vocabulary — no ancestor visible in this simulation.
+    </div>`;
+  }
+
+  box.innerHTML = `
+    <span class="word">${w.form}</span>
+    <span style="color:var(--dim);font-size:10px">· "${w.meaning}"</span><br>
+    <span style="color:${lang.color};font-size:10px">${lang.name}</span>
+    <span style="color:var(--dim);font-size:10px">· born gen ${w.born}${w.alive ? '' : ', died gen ' + w.diedGen}${w.borrowed ? ' · borrowed' : ''}</span>
+    ${whyBlock}
+    <div class="ety"><b>Etymology</b> (hover rule labels for full reason):<br>${etyLine}</div>
+  `;
+  draw();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Stats, legend, events
+// ═════════════════════════════════════════════════════════════════════
+function updateStats() {
+  const alive = words.filter(w => w.alive);
+  document.getElementById('stat-gen').textContent = generation;
+  document.getElementById('stat-alive').textContent = alive.length;
+  document.getElementById('stat-langs').textContent = new Set(alive.map(w => w.language)).size;
+  document.getElementById('stat-lost').textContent = stats.lost;
+  drawLegend();
+}
+
+function drawLegend() {
+  const el = document.getElementById('legend');
+  const langCounts = {};
+  words.filter(w => w.alive).forEach(w => { langCounts[w.language] = (langCounts[w.language] || 0) + 1; });
+  const sorted = Object.entries(langCounts).sort((a,b) => b[1] - a[1]);
+  el.innerHTML = sorted.map(([lid, cnt]) => {
+    const l = languages.find(x => x.id === parseInt(lid));
+    return `<div class="lang-row">
+      <span class="lang-swatch" style="background:${l.color}"></span>
+      <span style="flex:1;color:${l.color}">${l.name}</span>
+      <span style="color:var(--dim)">${cnt} words</span>
+    </div>`;
+  }).join('');
+}
+
+function logEvent(kind, msg) {
+  eventLog.unshift({ kind, msg, gen: generation });
+  if (eventLog.length > 50) eventLog.pop();
+  const el = document.getElementById('event-log');
+  el.innerHTML = eventLog.map(e => `<div class="evt-${e.kind}">g${e.gen}: ${e.msg}</div>`).join('');
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Sliders + boot
+// ═════════════════════════════════════════════════════════════════════
+['shift','borrow','spec','loss'].forEach(k => {
+  const input = document.getElementById(k + '-slider');
+  const out = document.getElementById(k + '-val');
+  input.addEventListener('input', () => out.textContent = parseFloat(input.value).toFixed(2));
+});
+
+let currentPreset = 'pie';
+function applyPreset(key) {
+  currentPreset = key;
+  resetSim();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Historical trajectories — pre-compiled from real linguistic data
+// ═════════════════════════════════════════════════════════════════════
+const TRAJECTORIES = {
+  'pie-english': {
+    label: 'Proto-Indo-European → Modern English',
+    milestones: [
+      { year: -4500, label: 'Proto-Indo-European', notes: 'Reconstructed proto-language of most European + Indian languages. Before Grimm\'s Law shifts the stop system.', vocab: {
+        water:'wodr', fire:'pehwr', sun:'sewel', moon:'mehns', star:'hster', sky:'dyeus',
+        tree:'dreu', stone:'hekmon', sea:'mori', earth:'dheghom',
+        man:'hner', woman:'gwenh', child:'putlos', mother:'mehter', father:'phter',
+        eye:'hoks', ear:'haus', hand:'ghesr', foot:'ped', heart:'kerd', head:'kaput', blood:'kreuh',
+        eat:'hed', drink:'peh', go:'gweh', see:'weid', hear:'kleu', sleep:'swep', know:'gneh', say:'wekw',
+        day:'diwes', night:'nokwt', road:'pent',
+        big:'megh', small:'leg', red:'reudh', white:'leuk',
+        one:'oinos', two:'dwoh', three:'treyes',
+      }},
+      { year: -500, label: 'Proto-Germanic', notes: "Grimm's Law: voiceless stops become fricatives (p→f, t→th, k→h); voiced stops devoice; aspirated stops lose aspiration. A major structural overhaul of the consonant system.", vocab: {
+        water:'wator', fire:'funon', sun:'sunno', moon:'menon', star:'sternon', sky:'himin',
+        tree:'trewa', stone:'stainaz', sea:'saiwiz', earth:'erdo',
+        man:'mannaz', woman:'kwenon', child:'kindaz', mother:'moder', father:'fader',
+        eye:'augo', ear:'auso', hand:'handuz', foot:'fot', heart:'herton', head:'haubidan', blood:'blodan',
+        eat:'etan', drink:'drinkan', go:'gangan', see:'sehwan', hear:'hauzijan', sleep:'swefan', know:'kunnan', say:'sagjan',
+        day:'dagaz', night:'nahts', road:'wegaz',
+        big:'grotaz', small:'lutilaz', red:'raudaz', white:'hwitaz',
+        one:'ainaz', two:'twai', three:'thriz',
+      }},
+      { year: 200, label: 'Northwest Germanic', notes: "After Proto-Germanic splits. The Anglo-Frisian and Norse branches will soon diverge. Continent/island contact.", vocab: {
+        water:'watar', fire:'fuir', sun:'sunno', moon:'meno', star:'sterron', sky:'himin',
+        tree:'triu', stone:'stain', sea:'saiwi', earth:'erda',
+        man:'mann', woman:'kwena', child:'kind', mother:'moder', father:'fader',
+        eye:'augo', ear:'auso', hand:'handu', foot:'fot', heart:'hertan', head:'haubud', blood:'blod',
+        eat:'etan', drink:'drinkan', go:'gangan', see:'sehwan', hear:'hauzjan', sleep:'swefan', know:'kunnan', say:'sagjan',
+        day:'dag', night:'naht', road:'weg',
+        big:'grot', small:'lutil', red:'raud', white:'hwit',
+        one:'ain', two:'twa', three:'thrij',
+      }},
+      { year: 500, label: 'Anglo-Saxon migration', notes: "Angles, Saxons, and Jutes cross to Britain (~450-600 CE). Early Old English begins forming — still very close to continental Germanic.", vocab: {
+        water:'wæter', fire:'fyr', sun:'sunne', moon:'mona', star:'steorra', sky:'heofon',
+        tree:'treo', stone:'stan', sea:'sæ', earth:'eorthe',
+        man:'mann', woman:'wif', child:'cild', mother:'modor', father:'fæder',
+        eye:'eage', ear:'eare', hand:'hand', foot:'fot', heart:'heorte', head:'heafod', blood:'blod',
+        eat:'etan', drink:'drincan', go:'gan', see:'seon', hear:'hieran', sleep:'slæpan', know:'cnawan', say:'secgan',
+        day:'dæg', night:'niht', road:'weg',
+        big:'micel', small:'smæl', red:'read', white:'hwit',
+        one:'an', two:'twa', three:'threo',
+      }},
+      { year: 900, label: 'Old English (Alfredian)', notes: 'Peak Old English. Language of Beowulf. King Alfred translates Latin works into English. Full case system still intact. Uses thorn (þ) and eth (ð).', vocab: {
+        water:'wæter', fire:'fyr', sun:'sunne', moon:'mona', star:'steorra', sky:'heofon',
+        tree:'treo', stone:'stan', sea:'sæ', earth:'eorthe',
+        man:'mann', woman:'wif', child:'cild', mother:'modor', father:'fæder',
+        eye:'eage', ear:'eare', hand:'hand', foot:'fot', heart:'heorte', head:'heafod', blood:'blod',
+        eat:'etan', drink:'drincan', go:'gan', see:'seon', hear:'hieran', sleep:'slæpan', know:'cnawan', say:'secgan',
+        day:'dæg', night:'niht', road:'weg',
+        big:'micel', small:'smæl', red:'read', white:'hwit',
+        one:'an', two:'twa', three:'threo',
+      }},
+      { year: 1100, label: 'Early Middle English', notes: "After Norman Conquest (1066). French vocabulary floods in for government, cuisine, law. Case endings collapsing rapidly. Old English 'sc' becoming 'sh'.", vocab: {
+        water:'water', fire:'fir', sun:'sunne', moon:'mone', star:'sterre', sky:'heven',
+        tree:'treo', stone:'stan', sea:'see', earth:'erthe',
+        man:'man', woman:'wimman', child:'child', mother:'moder', father:'fader',
+        eye:'eye', ear:'ere', hand:'hand', foot:'fot', heart:'herte', head:'hefd', blood:'blod',
+        eat:'eten', drink:'drinken', go:'gon', see:'sen', hear:'heren', sleep:'slepen', know:'knowen', say:'seyen',
+        day:'dai', night:'niht', road:'wey',
+        big:'mikel', small:'smal', red:'red', white:'hwit',
+        one:'oon', two:'two', three:'thre',
+      }},
+      { year: 1400, label: 'Middle English (Chaucer)', notes: "Canterbury Tales. Case system almost fully lost. French loanwords fully naturalized. Pronunciation still matches spelling — 'knight' pronounced with k + gh.", vocab: {
+        water:'water', fire:'fir', sun:'sonne', moon:'mone', star:'sterre', sky:'heven',
+        tree:'tree', stone:'stan', sea:'se', earth:'erthe',
+        man:'man', woman:'wif', child:'child', mother:'moder', father:'fader',
+        eye:'eye', ear:'ere', hand:'hond', foot:'foot', heart:'herte', head:'hed', blood:'blod',
+        eat:'eten', drink:'drinken', go:'gon', see:'seen', hear:'heren', sleep:'slepen', know:'knowen', say:'seyen',
+        day:'day', night:'night', road:'wey',
+        big:'mikel', small:'smal', red:'red', white:'whit',
+        one:'oon', two:'two', three:'thre',
+      }},
+      { year: 1600, label: 'Early Modern English (Shakespeare)', notes: "Great Vowel Shift in progress. Long vowels raised. Printing press (Caxton, 1476) begins freezing spelling. Thou/thee still in use.", vocab: {
+        water:'water', fire:'fire', sun:'sunne', moon:'moone', star:'starre', sky:'sky',
+        tree:'tree', stone:'stone', sea:'sea', earth:'earth',
+        man:'man', woman:'woman', child:'child', mother:'mother', father:'father',
+        eye:'eye', ear:'ear', hand:'hand', foot:'foot', heart:'heart', head:'head', blood:'bloud',
+        eat:'eate', drink:'drinke', go:'go', see:'see', hear:'heare', sleep:'sleepe', know:'know', say:'say',
+        day:'day', night:'night', road:'way',
+        big:'big', small:'small', red:'red', white:'white',
+        one:'one', two:'two', three:'three',
+      }},
+      { year: 1800, label: 'Modern English', notes: "Great Vowel Shift complete. Orthography frozen from the 1400s; pronunciation has continued to diverge. 'Thou' now archaic. Industrial-era standardization.", vocab: {
+        water:'water', fire:'fire', sun:'sun', moon:'moon', star:'star', sky:'sky',
+        tree:'tree', stone:'stone', sea:'sea', earth:'earth',
+        man:'man', woman:'woman', child:'child', mother:'mother', father:'father',
+        eye:'eye', ear:'ear', hand:'hand', foot:'foot', heart:'heart', head:'head', blood:'blood',
+        eat:'eat', drink:'drink', go:'go', see:'see', hear:'hear', sleep:'sleep', know:'know', say:'say',
+        day:'day', night:'night', road:'road',
+        big:'big', small:'small', red:'red', white:'white',
+        one:'one', two:'two', three:'three',
+      }},
+    ],
+  },
+  'latin-spanish': {
+    label: 'Classical Latin → Modern Spanish',
+    milestones: [
+      { year: 100, label: 'Classical Latin', notes: 'The literary Latin of Cicero and Virgil. Full inflectional system with cases; free word order.', vocab: {
+        water:'aqua', fire:'ignis', sun:'sol', moon:'luna', star:'stella', sky:'caelum',
+        tree:'arbor', stone:'lapis', sea:'mare', earth:'terra',
+        man:'vir', woman:'femina', child:'puer', mother:'mater', father:'pater',
+        eye:'oculus', ear:'auris', hand:'manus', foot:'pes', heart:'cor', head:'caput', blood:'sanguis',
+        eat:'edere', drink:'bibere', go:'ire', see:'videre', hear:'audire', sleep:'dormire', know:'scire', say:'dicere',
+        day:'dies', night:'nox', road:'via',
+        big:'magnus', small:'parvus', red:'ruber', white:'albus',
+        one:'unus', two:'duo', three:'tres',
+      }},
+      { year: 500, label: 'Vulgar Latin', notes: 'The spoken Latin of the late Empire. Cases collapsing; word order fixing; "habet" (has) replacing classical verbs.', vocab: {
+        water:'aqua', fire:'focus', sun:'soliu', moon:'luna', star:'stela', sky:'celu',
+        tree:'arbor', stone:'petra', sea:'mare', earth:'terra',
+        man:'omine', woman:'femina', child:'infantem', mother:'matre', father:'patre',
+        eye:'oclo', ear:'auricla', hand:'manu', foot:'pede', heart:'cor', head:'capum', blood:'sanguem',
+        eat:'mandicare', drink:'bibere', go:'vadere', see:'videre', hear:'audire', sleep:'dormire', know:'sapere', say:'dicere',
+        day:'die', night:'nocte', road:'via',
+        big:'grande', small:'piccino', red:'roso', white:'blanco',
+        one:'unu', two:'duo', three:'tre',
+      }},
+      { year: 1200, label: 'Old Spanish', notes: 'Cases gone; articles appear; initial /f/ becoming /h/ (silent today). El Cid is written in this.', vocab: {
+        water:'agua', fire:'fuego', sun:'sol', moon:'luna', star:'estrella', sky:'cielo',
+        tree:'arbol', stone:'piedra', sea:'mar', earth:'tierra',
+        man:'omne', woman:'fembra', child:'fijo', mother:'madre', father:'padre',
+        eye:'ojo', ear:'oreja', hand:'mano', foot:'pie', heart:'coraçon', head:'cabeça', blood:'sangre',
+        eat:'comer', drink:'beber', go:'ir', see:'veer', hear:'oir', sleep:'dormir', know:'saber', say:'dezir',
+        day:'dia', night:'noche', road:'camino',
+        big:'grand', small:'pequeno', red:'bermejo', white:'blanco',
+        one:'uno', two:'dos', three:'tres',
+      }},
+      { year: 1600, label: 'Early Modern Spanish', notes: 'Spelling and sound systems stabilize; /h/ from Latin /f/ goes silent; sibilant system simplifies. Cervantes writes in this.', vocab: {
+        water:'agua', fire:'fuego', sun:'sol', moon:'luna', star:'estrella', sky:'cielo',
+        tree:'arbol', stone:'piedra', sea:'mar', earth:'tierra',
+        man:'hombre', woman:'mujer', child:'hijo', mother:'madre', father:'padre',
+        eye:'ojo', ear:'oreja', hand:'mano', foot:'pie', heart:'corazon', head:'cabeza', blood:'sangre',
+        eat:'comer', drink:'beber', go:'ir', see:'ver', hear:'oir', sleep:'dormir', know:'saber', say:'decir',
+        day:'dia', night:'noche', road:'camino',
+        big:'grande', small:'pequeno', red:'rojo', white:'blanco',
+        one:'uno', two:'dos', three:'tres',
+      }},
+    ],
+  },
+  'latin-french': {
+    label: 'Classical Latin → Modern French',
+    milestones: [
+      { year: 100, label: 'Classical Latin', notes: 'Same starting point as Spanish. Full case system; no articles yet.', vocab: {
+        water:'aqua', fire:'ignis', sun:'sol', moon:'luna', star:'stella', sky:'caelum',
+        tree:'arbor', stone:'lapis', sea:'mare', earth:'terra',
+        man:'vir', woman:'femina', child:'puer', mother:'mater', father:'pater',
+        eye:'oculus', ear:'auris', hand:'manus', foot:'pes', heart:'cor', head:'caput', blood:'sanguis',
+        eat:'edere', drink:'bibere', go:'ire', see:'videre', hear:'audire', sleep:'dormire', know:'scire', say:'dicere',
+        day:'dies', night:'nox', road:'via',
+        big:'magnus', small:'parvus', red:'ruber', white:'albus',
+        one:'unus', two:'duo', three:'tres',
+      }},
+      { year: 900, label: 'Old French', notes: 'Vulgar Latin spoken in Gaul, with heavy Celtic substrate and Frankish superstrate. Two-case system (nominative vs. oblique).', vocab: {
+        water:'eve', fire:'feu', sun:'soleil', moon:'lune', star:'estoile', sky:'ciel',
+        tree:'arbre', stone:'pierre', sea:'mer', earth:'terre',
+        man:'hom', woman:'feme', child:'enfant', mother:'mere', father:'pere',
+        eye:'oeil', ear:'oreille', hand:'main', foot:'pie', heart:'cuer', head:'chief', blood:'sanc',
+        eat:'mangier', drink:'boire', go:'aler', see:'veoir', hear:'oir', sleep:'dormir', know:'savoir', say:'dire',
+        day:'jor', night:'nuit', road:'voie',
+        big:'grant', small:'petit', red:'rouge', white:'blanc',
+        one:'un', two:'deus', three:'treis',
+      }},
+      { year: 1400, label: 'Middle French', notes: 'Final -s consonants and nasal vowels stabilize; orthography diverges from pronunciation (start of the famous French spelling rift).', vocab: {
+        water:'eaue', fire:'feu', sun:'soleil', moon:'lune', star:'estoille', sky:'ciel',
+        tree:'arbre', stone:'pierre', sea:'mer', earth:'terre',
+        man:'homme', woman:'femme', child:'enfant', mother:'mere', father:'pere',
+        eye:'oeil', ear:'oreille', hand:'main', foot:'pied', heart:'coeur', head:'teste', blood:'sang',
+        eat:'manger', drink:'boire', go:'aller', see:'veoir', hear:'ouir', sleep:'dormir', know:'savoir', say:'dire',
+        day:'jour', night:'nuict', road:'chemin',
+        big:'grand', small:'petit', red:'rouge', white:'blanc',
+        one:'un', two:'deux', three:'trois',
+      }},
+      { year: 1800, label: 'Modern French', notes: 'Spelling frozen by the Académie française; many letters silent. Final -s gone from speech but kept on paper.', vocab: {
+        water:'eau', fire:'feu', sun:'soleil', moon:'lune', star:'etoile', sky:'ciel',
+        tree:'arbre', stone:'pierre', sea:'mer', earth:'terre',
+        man:'homme', woman:'femme', child:'enfant', mother:'mere', father:'pere',
+        eye:'oeil', ear:'oreille', hand:'main', foot:'pied', heart:'coeur', head:'tete', blood:'sang',
+        eat:'manger', drink:'boire', go:'aller', see:'voir', hear:'entendre', sleep:'dormir', know:'savoir', say:'dire',
+        day:'jour', night:'nuit', road:'chemin',
+        big:'grand', small:'petit', red:'rouge', white:'blanc',
+        one:'un', two:'deux', three:'trois',
+      }},
+    ],
+  },
+  'latin-italian': {
+    label: 'Classical Latin → Modern Italian',
+    milestones: [
+      { year: 100, label: 'Classical Latin', notes: 'Shared starting point. Italian is the Romance language closest to Latin — it retains final vowels and much of the pronunciation.', vocab: {
+        water:'aqua', fire:'ignis', sun:'sol', moon:'luna', star:'stella', sky:'caelum',
+        tree:'arbor', stone:'lapis', sea:'mare', earth:'terra',
+        man:'vir', woman:'femina', child:'puer', mother:'mater', father:'pater',
+        eye:'oculus', ear:'auris', hand:'manus', foot:'pes', heart:'cor', head:'caput', blood:'sanguis',
+        eat:'edere', drink:'bibere', go:'ire', see:'videre', hear:'audire', sleep:'dormire', know:'scire', say:'dicere',
+        day:'dies', night:'nox', road:'via',
+        big:'magnus', small:'parvus', red:'ruber', white:'albus',
+        one:'unus', two:'duo', three:'tres',
+      }},
+      { year: 500, label: 'Vulgar Latin', notes: 'Spoken Latin. Case endings collapsing; "focus" replacing "ignis" for fire; prepositions replacing cases.', vocab: {
+        water:'aqua', fire:'focu', sun:'sole', moon:'luna', star:'stella', sky:'celu',
+        tree:'arbore', stone:'petra', sea:'mare', earth:'terra',
+        man:'homo', woman:'femina', child:'infante', mother:'matre', father:'patre',
+        eye:'oclo', ear:'oricla', hand:'manu', foot:'pede', heart:'core', head:'capu', blood:'sanguine',
+        eat:'mandicare', drink:'bibere', go:'vadere', see:'videre', hear:'audire', sleep:'dormire', know:'sapere', say:'dicere',
+        day:'die', night:'nocte', road:'via',
+        big:'grande', small:'piccolo', red:'rosso', white:'blanco',
+        one:'uno', two:'duo', three:'tre',
+      }},
+      { year: 1300, label: 'Old Italian', notes: 'Dante writes the Divine Comedy. Final vowels preserved (unlike French). Double consonants emerging.', vocab: {
+        water:'acqua', fire:'fuoco', sun:'sole', moon:'luna', star:'stella', sky:'cielo',
+        tree:'arbore', stone:'pietra', sea:'mare', earth:'terra',
+        man:'uomo', woman:'femmina', child:'fanciullo', mother:'madre', father:'padre',
+        eye:'occhio', ear:'orecchio', hand:'mano', foot:'piede', heart:'cuore', head:'capo', blood:'sangue',
+        eat:'mangiare', drink:'bere', go:'andare', see:'vedere', hear:'udire', sleep:'dormire', know:'sapere', say:'dire',
+        day:'giorno', night:'notte', road:'via',
+        big:'grande', small:'piccolo', red:'rosso', white:'bianco',
+        one:'uno', two:'due', three:'tre',
+      }},
+      { year: 1900, label: 'Modern Italian', notes: 'Standard Italian based on Tuscan (Florentine). Final vowels always pronounced — Italian kept its clarity where French went silent.', vocab: {
+        water:'acqua', fire:'fuoco', sun:'sole', moon:'luna', star:'stella', sky:'cielo',
+        tree:'albero', stone:'pietra', sea:'mare', earth:'terra',
+        man:'uomo', woman:'donna', child:'bambino', mother:'madre', father:'padre',
+        eye:'occhio', ear:'orecchio', hand:'mano', foot:'piede', heart:'cuore', head:'testa', blood:'sangue',
+        eat:'mangiare', drink:'bere', go:'andare', see:'vedere', hear:'sentire', sleep:'dormire', know:'sapere', say:'dire',
+        day:'giorno', night:'notte', road:'strada',
+        big:'grande', small:'piccolo', red:'rosso', white:'bianco',
+        one:'uno', two:'due', three:'tre',
+      }},
+    ],
+  },
+  'pie-german': {
+    label: 'Proto-Indo-European → Modern German',
+    milestones: [
+      { year: -4500, label: 'Proto-Indo-European', notes: 'Same root as English, Latin, Sanskrit, Greek. Germanic and Italic branches diverge from here.', vocab: {
+        water:'wodr', fire:'pehwr', sun:'sewel', moon:'mehns', star:'hster', sky:'dyeus',
+        tree:'dreu', stone:'hekmon', sea:'mori', earth:'dheghom',
+        man:'hner', woman:'gwenh', child:'putlos', mother:'mehter', father:'phter',
+        eye:'hoks', ear:'haus', hand:'ghesr', foot:'ped', heart:'kerd', head:'kaput', blood:'kreuh',
+        eat:'hed', drink:'peh', go:'gweh', see:'weid', hear:'kleu', sleep:'swep', know:'gneh', say:'wekw',
+        day:'diwes', night:'nokwt', road:'pent',
+        big:'megh', small:'leg', red:'reudh', white:'leuk',
+        one:'oinos', two:'dwoh', three:'treyes',
+      }},
+      { year: -500, label: 'Proto-Germanic', notes: "Grimm's Law: p→f, t→th, k→h. Shared Germanic innovations shape every descendant (English, German, Dutch, Norse).", vocab: {
+        water:'wator', fire:'funon', sun:'sunno', moon:'menon', star:'sternon', sky:'himin',
+        tree:'trewa', stone:'stainaz', sea:'saiwiz', earth:'erdo',
+        man:'mannaz', woman:'kwenon', child:'kindaz', mother:'moder', father:'fader',
+        eye:'augo', ear:'auso', hand:'handuz', foot:'fot', heart:'herton', head:'haubidan', blood:'blodan',
+        eat:'etan', drink:'drinkan', go:'gangan', see:'sehwan', hear:'hauzijan', sleep:'swefan', know:'kunnan', say:'sagjan',
+        day:'dagaz', night:'nahts', road:'wegaz',
+        big:'grotaz', small:'lutilaz', red:'raudaz', white:'hwitaz',
+        one:'ainaz', two:'twai', three:'thriz',
+      }},
+      { year: 750, label: 'Old High German', notes: "The Second Germanic Consonant Shift (~500-900 CE) separates High German from the rest of Germanic: p→pf, t→ts/ss, k→ch. This is why English 'apple' but German 'Apfel'.", vocab: {
+        water:'wazzar', fire:'fiur', sun:'sunna', moon:'mano', star:'sterno', sky:'himil',
+        tree:'boum', stone:'stein', sea:'seo', earth:'erda',
+        man:'man', woman:'wib', child:'kind', mother:'muoter', father:'fater',
+        eye:'ouga', ear:'ora', hand:'hant', foot:'fuoz', heart:'herza', head:'houbit', blood:'bluot',
+        eat:'ezzan', drink:'trinkan', go:'gan', see:'sehan', hear:'horen', sleep:'slafan', know:'kunnan', say:'sagen',
+        day:'tag', night:'naht', road:'weg',
+        big:'groz', small:'luzzil', red:'rot', white:'wiz',
+        one:'ein', two:'zwei', three:'dri',
+      }},
+      { year: 1300, label: 'Middle High German', notes: "Language of the Minnesang poetry and Nibelungenlied. Hochmittelalter literary bloom. Still many dialects, no standard.", vocab: {
+        water:'wazzer', fire:'viur', sun:'sunne', moon:'mane', star:'sterne', sky:'himel',
+        tree:'boum', stone:'stein', sea:'se', earth:'erde',
+        man:'man', woman:'wip', child:'kint', mother:'muoter', father:'vater',
+        eye:'ouge', ear:'ore', hand:'hant', foot:'vuoz', heart:'herze', head:'houbt', blood:'bluot',
+        eat:'ezzen', drink:'trinken', go:'gen', see:'sehen', hear:'hoeren', sleep:'slafen', know:'kennen', say:'sagen',
+        day:'tac', night:'naht', road:'wec',
+        big:'groz', small:'klein', red:'rot', white:'wiz',
+        one:'ein', two:'zwei', three:'dri',
+      }},
+      { year: 1550, label: 'Early New High German', notes: "Luther's Bible translation (1534) standardizes German around East Central dialect. Printing press freezes orthography.", vocab: {
+        water:'Wasser', fire:'Feuer', sun:'Sonne', moon:'Mond', star:'Stern', sky:'Himmel',
+        tree:'Baum', stone:'Stein', sea:'See', earth:'Erde',
+        man:'Mann', woman:'Weib', child:'Kind', mother:'Mutter', father:'Vater',
+        eye:'Auge', ear:'Ohr', hand:'Hand', foot:'Fuss', heart:'Herz', head:'Haupt', blood:'Blut',
+        eat:'essen', drink:'trinken', go:'gehen', see:'sehen', hear:'hoeren', sleep:'schlafen', know:'kennen', say:'sagen',
+        day:'Tag', night:'Nacht', road:'Weg',
+        big:'gross', small:'klein', red:'rot', white:'weiss',
+        one:'eins', two:'zwei', three:'drei',
+      }},
+      { year: 1900, label: 'Modern German', notes: "Standard German (Hochdeutsch). 'Weib' has shifted meaning (now archaic/derogatory); 'Frau' is the normal word for woman. 'Haupt' (head) now poetic; 'Kopf' is everyday.", vocab: {
+        water:'Wasser', fire:'Feuer', sun:'Sonne', moon:'Mond', star:'Stern', sky:'Himmel',
+        tree:'Baum', stone:'Stein', sea:'Meer', earth:'Erde',
+        man:'Mann', woman:'Frau', child:'Kind', mother:'Mutter', father:'Vater',
+        eye:'Auge', ear:'Ohr', hand:'Hand', foot:'Fuss', heart:'Herz', head:'Kopf', blood:'Blut',
+        eat:'essen', drink:'trinken', go:'gehen', see:'sehen', hear:'hoeren', sleep:'schlafen', know:'wissen', say:'sagen',
+        day:'Tag', night:'Nacht', road:'Strasse',
+        big:'gross', small:'klein', red:'rot', white:'weiss',
+        one:'eins', two:'zwei', three:'drei',
+      }},
+    ],
+  },
+  'middle-modern-english': {
+    label: 'Middle English → Modern English (Great Vowel Shift focus)',
+    milestones: [
+      { year: 1300, label: 'Middle English (Chaucer)', notes: 'Long vowels still pronounced close to their spelling. "meat" rhymes with "mate"; "time" pronounced "teem-uh".', vocab: {
+        water:'water', fire:'fir', sun:'sonne', moon:'mone', star:'sterre', sky:'heven',
+        tree:'tree', stone:'stoon', sea:'see', earth:'erthe',
+        man:'man', woman:'wif', child:'child', mother:'moder', father:'fader',
+        eye:'eye', ear:'ere', hand:'hond', foot:'foot', heart:'herte', head:'hed', blood:'blod',
+        eat:'eten', drink:'drinken', go:'gon', see:'seen', hear:'heren', sleep:'slepen', know:'knowen', say:'seyen',
+        day:'day', night:'night', road:'wey',
+        big:'mikel', small:'smal', red:'red', white:'whit',
+        one:'oon', two:'two', three:'thre',
+      }},
+      { year: 1500, label: 'Late Middle / Early Modern', notes: 'Great Vowel Shift underway. Long /i:/ starts becoming /ei/; long /a:/ raising to /e:/. Printing press (1476) starts freezing spelling while speech continues to change.', vocab: {
+        water:'water', fire:'fire', sun:'sun', moon:'moone', star:'starre', sky:'sky',
+        tree:'tree', stone:'stone', sea:'sea', earth:'earth',
+        man:'man', woman:'woman', child:'child', mother:'moder', father:'father',
+        eye:'eye', ear:'ear', hand:'hand', foot:'foote', heart:'heart', head:'head', blood:'bloud',
+        eat:'eate', drink:'drinke', go:'go', see:'see', hear:'heare', sleep:'sleepe', know:'know', say:'sey',
+        day:'day', night:'night', road:'way',
+        big:'big', small:'small', red:'red', white:'white',
+        one:'one', two:'two', three:'three',
+      }},
+      { year: 1800, label: 'Modern English', notes: 'Great Vowel Shift complete. Long vowels now pronounced very differently from their spelling (compare French where spelling tracked the old pronunciation).', vocab: {
+        water:'water', fire:'fire', sun:'sun', moon:'moon', star:'star', sky:'sky',
+        tree:'tree', stone:'stone', sea:'sea', earth:'earth',
+        man:'man', woman:'woman', child:'child', mother:'mother', father:'father',
+        eye:'eye', ear:'ear', hand:'hand', foot:'foot', heart:'heart', head:'head', blood:'blood',
+        eat:'eat', drink:'drink', go:'go', see:'see', hear:'hear', sleep:'sleep', know:'know', say:'say',
+        day:'day', night:'night', road:'road',
+        big:'big', small:'small', red:'red', white:'white',
+        one:'one', two:'two', three:'three',
+      }},
+    ],
+  },
+};
+
+// Map start-lang key → list of valid target trajectories.
+// Only lists trajectories that have real data defined below.
+const TRAJECTORY_OPTIONS = {
+  pie: [
+    { value: 'pie-english', label: 'Modern English' },
+    { value: 'pie-german', label: 'Modern German' },
+  ],
+  latin: [
+    { value: 'latin-spanish', label: 'Modern Spanish' },
+    { value: 'latin-french', label: 'Modern French' },
+    { value: 'latin-italian', label: 'Modern Italian' },
+  ],
+  'middle-english': [
+    { value: 'middle-modern-english', label: 'Modern English (GVS focus)' },
+  ],
+};
+
+// ═════════════════════════════════════════════════════════════════════
+// Language family tree — phylogenetic structure
+// Each language has: id, name, parent (or null for root), born year,
+// end year (null if still alive), and optional vocab-by-meaning map.
+// Daughter languages inherit from their parent.
+// ═════════════════════════════════════════════════════════════════════
+const LANGUAGE_TREE = [
+  // Root
+  { id: 'pie', name: 'Proto-Indo-European', parent: null, born: -4500, end: -2000,
+    notes: 'Reconstructed common ancestor of most European and South Asian languages.',
+    vocab: { water:'wodr', fire:'pehwr', mother:'mehter', father:'phter', sun:'sewel', moon:'mehns',
+             star:'hster', night:'nokwt', day:'diwes', sky:'dyeus',
+             eye:'hoks', ear:'haus', hand:'ghesr', foot:'ped', heart:'kerd', head:'kaput', blood:'kreuh',
+             tooth:'dont', tongue:'dnghuh', nose:'nes', name:'hnehmn',
+             tree:'dreu', stone:'hekmon', sea:'mori', earth:'dheghom',
+             dog:'kwon', horse:'hekwos', cow:'gwous', fish:'peysk', bird:'huehuis', wolf:'wlkwos',
+             eat:'hed', drink:'peh', go:'gweh', see:'weid', hear:'kleu', know:'gneh', say:'wekw',
+             come:'gwem', die:'mer', sleep:'swep', stand:'steh', give:'deh',
+             big:'megh', small:'leg', red:'reudh', white:'leuk', black:'mel', good:'hesu',
+             three:'treyes', two:'dwoh', one:'oinos', four:'kwetwores', five:'penkwe',
+             man:'hner', woman:'gwenh', child:'putlos', king:'reks', god:'deywos',
+             I:'eg', you:'tu', this:'so', that:'to',
+             yes:'nu', no:'ne', and:'kwe' } },
+
+  // Hellenic branch
+  { id: 'hellenic', name: 'Proto-Hellenic', parent: 'pie', born: -2000, end: -800,
+    notes: 'Ancestor of all Greek dialects.',
+    vocab: { water:'hudor', fire:'pyr', mother:'mater', father:'pater', sun:'helios', night:'nux',
+             eye:'okwos', foot:'pod', heart:'kardia', three:'tres', two:'duo', one:'hen' } },
+  { id: 'ancient-greek', name: 'Ancient Greek', parent: 'hellenic', born: -800, end: 500,
+    notes: 'Homer, Plato, Aristotle. Greatest surviving classical literature.',
+    vocab: { water:'hydor', fire:'pyr', mother:'meter', father:'pater', sun:'helios', night:'nyx',
+             eye:'ophthalmos', foot:'pous', heart:'kardia', three:'tria', two:'duo', one:'heis' } },
+  { id: 'modern-greek', name: 'Modern Greek', parent: 'koine-greek', born: 1500, end: null,
+    notes: 'Continuous tradition via Koine and Medieval Greek. Katharevousa/demotic split in 19c resolved toward demotic.',
+    vocab: { water:'nero', fire:'fotia', mother:'mitera', father:'pateras', sun:'ilios', night:'nychta',
+             eye:'mati', foot:'podi', heart:'kardia', three:'tria', two:'dyo', one:'enas' } },
+
+  // Italic / Romance
+  { id: 'italic', name: 'Proto-Italic', parent: 'pie', born: -1500, end: -700,
+    notes: 'Ancestor of Latin and its minor relatives.',
+    vocab: { water:'akwa', fire:'ognis', mother:'mater', father:'pater', sun:'sol', night:'nokt' } },
+  { id: 'latin', name: 'Classical Latin', parent: 'italic', born: -700, end: 500,
+    notes: 'Official language of Rome. Source of Romance languages and most European scientific vocabulary.',
+    vocab: { water:'aqua', fire:'ignis', mother:'mater', father:'pater', sun:'sol', night:'nox',
+             day:'dies', sky:'caelum', moon:'luna', star:'stella',
+             eye:'oculus', ear:'auris', hand:'manus', foot:'pes', heart:'cor', head:'caput', blood:'sanguis',
+             tooth:'dens', tongue:'lingua', nose:'nasus', name:'nomen',
+             tree:'arbor', stone:'lapis', sea:'mare', earth:'terra',
+             dog:'canis', horse:'equus', cow:'vacca', fish:'piscis', bird:'avis', wolf:'lupus',
+             eat:'edere', drink:'bibere', go:'ire', see:'videre', hear:'audire', know:'scire', say:'dicere',
+             come:'venire', die:'mori', sleep:'dormire', stand:'stare', give:'dare',
+             big:'magnus', small:'parvus', red:'ruber', white:'albus', black:'niger', good:'bonus',
+             three:'tres', two:'duo', one:'unus', four:'quattuor', five:'quinque',
+             man:'vir', woman:'femina', child:'puer', king:'rex', god:'deus',
+             I:'ego', you:'tu', this:'hic', that:'ille' } },
+  { id: 'vulgar-latin', name: 'Vulgar Latin', parent: 'latin', born: 200, end: 900,
+    notes: 'Spoken Latin of the common people. Case system collapsing. Ancestor of all Romance languages.',
+    vocab: { water:'aqua', fire:'focu', mother:'matre', father:'patre', sun:'sole', night:'nocte',
+             moon:'luna', star:'stella', three:'tres', two:'duo', one:'uno' } },
+  { id: 'spanish', name: 'Spanish', parent: 'vulgar-latin', born: 900, end: null,
+    notes: 'Castilian became standard after the Reconquista. /f/ → silent /h/ in initial position.',
+    vocab: { water:'agua', fire:'fuego', mother:'madre', father:'padre', sun:'sol', night:'noche',
+             day:'dia', sky:'cielo', moon:'luna', star:'estrella',
+             eye:'ojo', ear:'oreja', hand:'mano', foot:'pie', heart:'corazon', head:'cabeza', blood:'sangre',
+             tooth:'diente', tongue:'lengua', nose:'nariz', name:'nombre',
+             tree:'arbol', stone:'piedra', sea:'mar', earth:'tierra',
+             dog:'perro', horse:'caballo', cow:'vaca', fish:'pez', bird:'ave', wolf:'lobo',
+             eat:'comer', drink:'beber', go:'ir', see:'ver', hear:'oir', know:'saber', say:'decir',
+             big:'grande', small:'pequeno', red:'rojo', white:'blanco', black:'negro', good:'bueno',
+             three:'tres', two:'dos', one:'uno', four:'cuatro', five:'cinco',
+             man:'hombre', woman:'mujer', child:'nino', I:'yo', you:'tu', this:'este', that:'ese' } },
+  { id: 'french', name: 'French', parent: 'vulgar-latin', born: 900, end: null,
+    notes: 'Lost most final consonants and vowels in speech — but kept them in spelling. Heavy Germanic (Frankish) substrate.',
+    vocab: { water:'eau', fire:'feu', mother:'mere', father:'pere', sun:'soleil', night:'nuit',
+             day:'jour', sky:'ciel', moon:'lune', star:'etoile',
+             eye:'oeil', ear:'oreille', hand:'main', foot:'pied', heart:'coeur', head:'tete', blood:'sang',
+             tooth:'dent', tongue:'langue', nose:'nez', name:'nom',
+             tree:'arbre', stone:'pierre', sea:'mer', earth:'terre',
+             dog:'chien', horse:'cheval', cow:'vache', fish:'poisson', bird:'oiseau', wolf:'loup',
+             eat:'manger', drink:'boire', go:'aller', see:'voir', hear:'entendre', know:'savoir', say:'dire',
+             big:'grand', small:'petit', red:'rouge', white:'blanc', black:'noir', good:'bon',
+             three:'trois', two:'deux', one:'un', four:'quatre', five:'cinq',
+             man:'homme', woman:'femme', child:'enfant', I:'je', you:'tu', this:'ceci', that:'cela' } },
+  { id: 'italian', name: 'Italian', parent: 'vulgar-latin', born: 1000, end: null,
+    notes: 'Closest to Latin. Preserves final vowels. Tuscan dialect became standard.',
+    vocab: { water:'acqua', fire:'fuoco', mother:'madre', father:'padre', sun:'sole', night:'notte',
+             day:'giorno', sky:'cielo', moon:'luna', star:'stella',
+             eye:'occhio', ear:'orecchio', hand:'mano', foot:'piede', heart:'cuore', head:'testa', blood:'sangue',
+             tooth:'dente', tongue:'lingua', nose:'naso', name:'nome',
+             tree:'albero', stone:'pietra', sea:'mare', earth:'terra',
+             dog:'cane', horse:'cavallo', cow:'vacca', fish:'pesce', bird:'uccello', wolf:'lupo',
+             eat:'mangiare', drink:'bere', go:'andare', see:'vedere', hear:'sentire', know:'sapere', say:'dire',
+             big:'grande', small:'piccolo', red:'rosso', white:'bianco', black:'nero', good:'buono',
+             three:'tre', two:'due', one:'uno', four:'quattro', five:'cinque',
+             man:'uomo', woman:'donna', child:'bambino', I:'io', you:'tu', this:'questo', that:'quello' } },
+  { id: 'portuguese', name: 'Portuguese', parent: 'vulgar-latin', born: 1100, end: null,
+    notes: 'Developed nasalized vowels. Lost intervocalic /l/ and /n/.',
+    vocab: { water:'agua', fire:'fogo', mother:'mae', father:'pai', sun:'sol', night:'noite',
+             eye:'olho', foot:'pe', heart:'coracao', three:'tres', two:'dois', one:'um' } },
+  { id: 'romanian', name: 'Romanian', parent: 'vulgar-latin', born: 1500, end: null,
+    notes: 'Isolated from other Romance by Slavic languages. Preserved case system partially. Heavy Slavic vocabulary borrowing.',
+    vocab: { water:'apa', fire:'foc', mother:'mama', father:'tata', sun:'soare', night:'noapte',
+             three:'trei', two:'doi', one:'unu' } },
+
+  // Celtic
+  { id: 'celtic', name: 'Proto-Celtic', parent: 'pie', born: -1500, end: -500,
+    notes: 'Ancestor of Gaulish, Old Irish, Brythonic. Once spanned most of Europe.',
+    vocab: { water:'udenskyo', mother:'matir', father:'atir', sun:'sonnos', three:'tris', two:'duo', one:'oinos' } },
+  { id: 'old-irish', name: 'Old Irish', parent: 'celtic', born: 500, end: 1000,
+    notes: 'Earliest substantial Celtic literature (saga cycles, monastic texts).',
+    vocab: { water:'uisce', mother:'mathir', father:'athair', sun:'grian', three:'tri', two:'da', one:'oen' } },
+  { id: 'irish', name: 'Modern Irish', parent: 'old-irish', born: 1500, end: null,
+    notes: 'Still spoken in Gaeltacht regions. Mutation grammar. Initial consonants change based on context.',
+    vocab: { water:'uisce', mother:'mathair', father:'athair', sun:'grian', three:'tri', two:'do', one:'aon' } },
+
+  // Germanic
+  { id: 'germanic', name: 'Proto-Germanic', parent: 'pie', born: -500, end: 200,
+    notes: "Grimm's Law: voiceless stops → fricatives (p→f, t→th, k→h). Shared innovation defining the whole Germanic family.",
+    vocab: { water:'wator', fire:'funon', mother:'moder', father:'fader', sun:'sunno', night:'nahts',
+             eye:'augo', foot:'fot', heart:'herton', three:'thriz', two:'twai', one:'ainaz', moon:'menon', star:'sternon' } },
+  { id: 'norse', name: 'Old Norse', parent: 'germanic', born: 800, end: 1300,
+    notes: 'Language of the Vikings. Preserved in Icelandic sagas. Gave English hundreds of words (sky, egg, they, law).',
+    vocab: { water:'vatn', fire:'eldr', mother:'mothir', father:'fathir', sun:'sol', night:'natt',
+             eye:'auga', foot:'fotr', three:'thrir', two:'tveir', one:'einn' } },
+  { id: 'icelandic', name: 'Modern Icelandic', parent: 'norse', born: 1500, end: null,
+    notes: 'Remarkably conservative. A modern speaker can read the 13th-century Icelandic sagas.',
+    vocab: { water:'vatn', fire:'eldur', mother:'modir', father:'fadir', sun:'sol', night:'nott',
+             eye:'auga', foot:'fotur', three:'thrir', two:'tveir', one:'einn' } },
+  { id: 'norwegian', name: 'Norwegian', parent: 'norse', born: 1500, end: null,
+    notes: 'Split from Old Norse via Old Norwegian. Heavy Danish influence during union; two written standards today (Bokmal, Nynorsk).',
+    vocab: { water:'vann', fire:'ild', mother:'mor', father:'far', sun:'sol', night:'natt',
+             three:'tre', two:'to', one:'en' } },
+
+  { id: 'west-germanic', name: 'West Germanic', parent: 'germanic', born: 200, end: 700,
+    notes: 'Branch leading to English, German, Dutch, Frisian.',
+    vocab: { water:'watar', mother:'moder', father:'fader', sun:'sunno', three:'thrij', two:'twa', one:'ain' } },
+  { id: 'anglo-frisian', name: 'Anglo-Frisian', parent: 'west-germanic', born: 400, end: 800,
+    notes: 'Anglo-Saxon migrants bring it to Britain ~450 CE. Frisian on the continent stays as its sister.',
+    vocab: { water:'wæter', mother:'modor', father:'fæder', sun:'sunne', three:'threo', two:'twa', one:'an' } },
+  { id: 'old-english', name: 'Old English', parent: 'anglo-frisian', born: 700, end: 1100,
+    notes: 'Language of Beowulf and King Alfred. Full case system. Runes mingling with Latin alphabet.',
+    vocab: { water:'wæter', fire:'fyr', mother:'modor', father:'fæder', sun:'sunne', night:'niht',
+             eye:'eage', foot:'fot', heart:'heorte', three:'threo', two:'twa', one:'an', moon:'mona', star:'steorra' } },
+  { id: 'middle-english', name: 'Middle English', parent: 'old-english', born: 1100, end: 1500,
+    notes: 'Norman Conquest (1066) injected French vocabulary. Case system collapses. Chaucer writes in this.',
+    vocab: { water:'water', fire:'fir', mother:'moder', father:'fader', sun:'sonne', night:'night',
+             eye:'eye', foot:'foot', heart:'herte', three:'thre', two:'two', one:'oon', moon:'mone', star:'sterre' } },
+  { id: 'modern-english', name: 'Modern English', parent: 'middle-english', born: 1500, end: null,
+    notes: 'Great Vowel Shift complete by 1700. Printing (1476) froze spelling while speech kept changing — hence our famous spelling-vs-pronunciation gap.',
+    vocab: { water:'water', fire:'fire', mother:'mother', father:'father', sun:'sun', night:'night',
+             day:'day', sky:'sky', moon:'moon', star:'star',
+             eye:'eye', ear:'ear', hand:'hand', foot:'foot', heart:'heart', head:'head', blood:'blood',
+             tooth:'tooth', tongue:'tongue', nose:'nose', name:'name',
+             tree:'tree', stone:'stone', sea:'sea', earth:'earth',
+             dog:'dog', horse:'horse', cow:'cow', fish:'fish', bird:'bird', wolf:'wolf',
+             eat:'eat', drink:'drink', go:'go', see:'see', hear:'hear', know:'know', say:'say',
+             come:'come', die:'die', sleep:'sleep', stand:'stand', give:'give',
+             big:'big', small:'small', red:'red', white:'white', black:'black', good:'good',
+             three:'three', two:'two', one:'one', four:'four', five:'five',
+             man:'man', woman:'woman', child:'child', king:'king', god:'god',
+             I:'I', you:'you', this:'this', that:'that' } },
+
+  { id: 'old-high-german', name: 'Old High German', parent: 'west-germanic', born: 500, end: 1050,
+    notes: "The Second Germanic Consonant Shift (p→pf, t→ts) split German from English. 'Apple' became 'Apfel'.",
+    vocab: { water:'wazzar', fire:'fiur', mother:'muoter', father:'fater', sun:'sunna', night:'naht',
+             eye:'ouga', foot:'fuoz', heart:'herza', three:'dri', two:'zwei', one:'ein' } },
+  { id: 'middle-high-german', name: 'Middle High German', parent: 'old-high-german', born: 1050, end: 1500,
+    notes: 'Minnesang poetry. No standard — many regional forms.',
+    vocab: { water:'wazzer', mother:'muoter', father:'vater', sun:'sunne', night:'naht',
+             three:'dri', two:'zwei', one:'ein' } },
+  { id: 'german', name: 'Modern German', parent: 'middle-high-german', born: 1500, end: null,
+    notes: "Luther's Bible (1534) standardizes German around East Central dialect.",
+    vocab: { water:'Wasser', fire:'Feuer', mother:'Mutter', father:'Vater', sun:'Sonne', night:'Nacht',
+             day:'Tag', sky:'Himmel', moon:'Mond', star:'Stern',
+             eye:'Auge', ear:'Ohr', hand:'Hand', foot:'Fuss', heart:'Herz', head:'Kopf', blood:'Blut',
+             tooth:'Zahn', tongue:'Zunge', nose:'Nase', name:'Name',
+             tree:'Baum', stone:'Stein', sea:'Meer', earth:'Erde',
+             dog:'Hund', horse:'Pferd', cow:'Kuh', fish:'Fisch', bird:'Vogel', wolf:'Wolf',
+             eat:'essen', drink:'trinken', go:'gehen', see:'sehen', hear:'hoeren', know:'wissen', say:'sagen',
+             big:'gross', small:'klein', red:'rot', white:'weiss', black:'schwarz', good:'gut',
+             three:'drei', two:'zwei', one:'eins', four:'vier', five:'fuenf',
+             man:'Mann', woman:'Frau', child:'Kind', I:'ich', you:'du', this:'dies', that:'jenes' } },
+
+  { id: 'old-dutch', name: 'Old Dutch', parent: 'west-germanic', born: 700, end: 1150,
+    notes: 'Spoken in Low Countries. Branch that becomes Dutch, Afrikaans, Flemish.',
+    vocab: { water:'watar', mother:'muoder', father:'fadar', three:'thri', two:'twe', one:'en' } },
+  { id: 'dutch', name: 'Modern Dutch', parent: 'old-dutch', born: 1500, end: null,
+    notes: 'Shares many features with English (the "most like English" continental Germanic language).',
+    vocab: { water:'water', fire:'vuur', mother:'moeder', father:'vader', sun:'zon', night:'nacht',
+             three:'drie', two:'twee', one:'een' } },
+
+  // Slavic
+  { id: 'slavic', name: 'Proto-Slavic', parent: 'pie', born: -500, end: 600,
+    notes: 'Ancestor of Russian, Polish, Czech, Ukrainian, Bulgarian, Serbo-Croatian and others.',
+    vocab: { water:'voda', mother:'mati', father:'otico', sun:'slunice', three:'tri', two:'duva', one:'jedino' } },
+  { id: 'russian', name: 'Russian', parent: 'slavic', born: 1000, end: null,
+    notes: 'Formalized by Cyril and Methodius via Old Church Slavonic. Cyrillic alphabet from Greek.',
+    vocab: { water:'voda', fire:'ogon', mother:'mat', father:'otets', sun:'solntse', night:'noch',
+             day:'den', moon:'luna', star:'zvezda', sky:'nebo',
+             eye:'glaz', ear:'ukho', hand:'ruka', foot:'noga', heart:'serdtse', head:'golova', blood:'krov',
+             tree:'derevo', stone:'kamen', sea:'more', earth:'zemlya',
+             dog:'sobaka', horse:'loshad', fish:'ryba', bird:'ptitsa', wolf:'volk',
+             eat:'yest', drink:'pit', go:'idti', see:'videt', hear:'slyshat', know:'znat', say:'govorit',
+             big:'bolshoy', small:'malenkiy', red:'krasnyy', white:'belyy', black:'chernyy', good:'khoroshiy',
+             three:'tri', two:'dva', one:'odin', four:'chetyre', five:'pyat',
+             man:'muzhchina', woman:'zhenshchina', child:'rebyonok', I:'ya', you:'ty', this:'eto', that:'to' } },
+
+  // Indo-Iranian
+  { id: 'indo-iranian', name: 'Proto-Indo-Iranian', parent: 'pie', born: -2500, end: -1500,
+    notes: 'Diverged early from PIE; migrated east to Iranian plateau and South Asia.',
+    vocab: { water:'HapHs', mother:'matar', father:'phtar', sun:'suHr', three:'trayas', two:'dva', one:'oinos' } },
+  { id: 'sanskrit', name: 'Sanskrit', parent: 'indo-iranian', born: -1500, end: 500,
+    notes: 'Language of the Vedas and classical Indian literature. Extremely conservative; ancestor of many Indian languages.',
+    vocab: { water:'apas', fire:'agni', mother:'mata', father:'pita', sun:'surya', night:'ratri',
+             eye:'aksi', foot:'pad', heart:'hrdaya', three:'tri', two:'dva', one:'eka' } },
+  { id: 'hindi', name: 'Hindi', parent: 'sanskrit', born: 1400, end: null,
+    notes: 'Evolved from Sanskrit through Prakrit and Apabhramsa. Heavy Persian/Arabic vocabulary from Mughal contact.',
+    vocab: { water:'pani', fire:'aag', mother:'maa', father:'pita', sun:'surya', night:'raat',
+             day:'din', moon:'chand', star:'taara', sky:'aasmaan',
+             eye:'aankh', ear:'kaan', hand:'haath', foot:'pair', heart:'dil', head:'sar', blood:'khoon',
+             tree:'ped', stone:'patthar', sea:'samundar', earth:'dharti',
+             dog:'kutta', horse:'ghoda', fish:'machhli', bird:'chidiya',
+             eat:'khana', drink:'peena', go:'jana', see:'dekhna', hear:'sunna', know:'janna', say:'kehna',
+             big:'bara', small:'chota', red:'laal', white:'safed', black:'kaala', good:'accha',
+             three:'teen', two:'do', one:'ek', four:'chaar', five:'paanch',
+             man:'aadmi', woman:'aurat', child:'baccha', I:'main', you:'tum' } },
+  { id: 'old-persian', name: 'Old Persian', parent: 'indo-iranian', born: -600, end: 300,
+    notes: 'Language of the Achaemenid Empire. Written in cuneiform.',
+    vocab: { water:'ap', mother:'matar', father:'pita', three:'thri', two:'duva', one:'aiva' } },
+  { id: 'persian', name: 'Modern Persian (Farsi)', parent: 'old-persian', born: 900, end: null,
+    notes: 'Continuous tradition through Middle Persian. Arabic script adopted after Islamic conquest.',
+    vocab: { water:'ab', fire:'atash', mother:'madar', father:'pedar', sun:'khorshid', night:'shab',
+             three:'se', two:'do', one:'yek' } },
+
+  // More Indo-Aryan
+  { id: 'urdu', name: 'Urdu', parent: 'sanskrit', born: 1500, end: null,
+    notes: "Sister language to Hindi. Same grammar, Arabic-Persian vocabulary, Perso-Arabic script. 'Hindustani' encompasses both.",
+    vocab: { water:'pani', fire:'aag', mother:'maa', father:'abbu', sun:'suraj', night:'raat',
+             three:'teen', two:'do', one:'ek' } },
+  { id: 'bengali', name: 'Bengali', parent: 'sanskrit', born: 1500, end: null,
+    notes: 'Seventh-most-spoken language globally. Tagore wrote in Bengali. Own script derived from Brahmi.',
+    vocab: { water:'jol', mother:'ma', father:'baba', sun:'surjo', three:'tin', two:'dui', one:'ek' } },
+
+  // More Slavic
+  { id: 'old-church-slavonic', name: 'Old Church Slavonic', parent: 'slavic', born: 900, end: 1200,
+    notes: 'Created by Cyril and Methodius for liturgy. First written Slavic. Cyrillic alphabet evolved from it.',
+    vocab: { water:'voda', mother:'mati', father:'otici', sun:'slunice', three:'tri', two:'duva', one:'jedino' } },
+  { id: 'polish', name: 'Polish', parent: 'slavic', born: 1100, end: null,
+    notes: 'West Slavic. Nasalized vowels retained (ę, ą). Latin alphabet with diacritics.',
+    vocab: { water:'woda', fire:'ogien', mother:'matka', father:'ojciec', sun:'slonce', night:'noc',
+             three:'trzy', two:'dwa', one:'jeden' } },
+  { id: 'czech', name: 'Czech', parent: 'slavic', born: 1100, end: null,
+    notes: 'West Slavic. Notorious for consonant clusters ("strč prst skrz krk" — stick a finger through the throat).',
+    vocab: { water:'voda', fire:'ohen', mother:'matka', father:'otec', sun:'slunce', night:'noc',
+             three:'tri', two:'dva', one:'jeden' } },
+  { id: 'ukrainian', name: 'Ukrainian', parent: 'slavic', born: 1100, end: null,
+    notes: 'East Slavic sister to Russian. Preserved some features Russian lost.',
+    vocab: { water:'voda', fire:'vohon', mother:'maty', father:'batko', sun:'sontse', night:'nich',
+             three:'try', two:'dva', one:'odyn' } },
+
+  // More Romance
+  { id: 'catalan', name: 'Catalan', parent: 'vulgar-latin', born: 900, end: null,
+    notes: 'Spoken in Catalonia, Valencia, Balearic Islands, Andorra. Closer to Occitan than Spanish.',
+    vocab: { water:'aigua', fire:'foc', mother:'mare', father:'pare', sun:'sol', night:'nit',
+             three:'tres', two:'dos', one:'un' } },
+
+  // More Germanic
+  { id: 'swedish', name: 'Swedish', parent: 'norse', born: 1400, end: null,
+    notes: 'Pitch accent distinguishes pairs of words. Close to Danish and Norwegian (mutually intelligible).',
+    vocab: { water:'vatten', fire:'eld', mother:'mor', father:'far', sun:'sol', night:'natt',
+             three:'tre', two:'tva', one:'ett' } },
+  { id: 'danish', name: 'Danish', parent: 'norse', born: 1400, end: null,
+    notes: 'Famous for "stød" — a glottal catch that distinguishes words. Mutually intelligible with Norwegian and Swedish on paper.',
+    vocab: { water:'vand', fire:'ild', mother:'mor', father:'far', sun:'sol', night:'nat',
+             three:'tre', two:'to', one:'en' } },
+  { id: 'yiddish', name: 'Yiddish', parent: 'middle-high-german', born: 1300, end: null,
+    notes: 'Jewish language rooted in medieval German dialects, written in Hebrew script, with Hebrew, Aramaic, and Slavic vocabulary.',
+    vocab: { water:'vaser', fire:'fayer', mother:'mame', father:'tate', sun:'zun', night:'nakht',
+             three:'dray', two:'tsvey', one:'eyns' } },
+  { id: 'afrikaans', name: 'Afrikaans', parent: 'dutch', born: 1700, end: null,
+    notes: 'Dutch spoken at the Cape of Good Hope dropped almost all inflection. Daughter language of 17c Dutch.',
+    vocab: { water:'water', fire:'vuur', mother:'ma', father:'pa', sun:'son', night:'nag',
+             three:'drie', two:'twee', one:'een' } },
+
+  // More Celtic
+  { id: 'brythonic', name: 'Brythonic', parent: 'celtic', born: -500, end: 500,
+    notes: 'Celtic of Britain (as opposed to Gaelic of Ireland). Ancestor of Welsh, Cornish, Breton.',
+    vocab: { water:'dwr', mother:'mam', father:'tad', three:'tri', two:'dau', one:'un' } },
+  { id: 'welsh', name: 'Welsh', parent: 'brythonic', born: 700, end: null,
+    notes: 'Living Celtic language of Wales. Known for initial consonant mutation and long place names (Llanfair...).',
+    vocab: { water:'dwr', fire:'tan', mother:'mam', father:'tad', sun:'haul', night:'nos',
+             three:'tri', two:'dau', one:'un' } },
+  { id: 'breton', name: 'Breton', parent: 'brythonic', born: 500, end: null,
+    notes: 'Celtic language of Brittany (NW France). Brought from Britain by refugees fleeing Anglo-Saxons.',
+    vocab: { water:'dour', fire:'tan', mother:'mamm', father:'tad', sun:'heol', night:'noz',
+             three:'tri', two:'daou', one:'unan' } },
+
+  // Hellenic extension
+  { id: 'koine-greek', name: 'Koine Greek', parent: 'ancient-greek', born: -300, end: 700,
+    notes: 'Common Greek of the Hellenistic period. Language of the New Testament. Lingua franca of the eastern Mediterranean.',
+    vocab: { water:'hydor', fire:'pyr', mother:'meter', father:'pater', sun:'helios', night:'nyx',
+             three:'tria', two:'dyo', one:'heis' } },
+
+  // Baltic (sister of Slavic)
+  { id: 'baltic', name: 'Proto-Baltic', parent: 'pie', born: -1500, end: -500,
+    notes: 'Ancestor of Lithuanian, Latvian, Old Prussian. Remarkably conservative — Lithuanian preserves many PIE features.',
+    vocab: { water:'wodens', mother:'matei', father:'tewas', three:'trias', two:'dua', one:'aino' } },
+  { id: 'lithuanian', name: 'Lithuanian', parent: 'baltic', born: 1200, end: null,
+    notes: 'Arguably the most archaic surviving Indo-European language. Retains a near-PIE sound system.',
+    vocab: { water:'vanduo', fire:'ugnis', mother:'motina', father:'tevas', sun:'saule', night:'naktis',
+             three:'trys', two:'du', one:'vienas' } },
+
+  // Extinct but reconstructible IE
+  { id: 'hittite', name: 'Hittite', parent: 'pie', born: -2000, end: -1200,
+    notes: 'Oldest-attested IE language. Anatolian branch diverged very early — preserves archaic features (laryngeals) lost elsewhere.',
+    vocab: { water:'watar', fire:'pahhur', father:'attas', three:'tri', two:'du', one:'san' } },
+
+  // ═════════════ Non-IE families (the tree is really a forest) ═════════════
+  // Uralic family
+  { id: 'proto-uralic', name: 'Proto-Uralic', parent: null, born: -5000, end: -3000,
+    notes: 'Unrelated to Indo-European. Ancestor of Finnish, Estonian, Hungarian, Sami languages.',
+    vocab: { water:'wete', fire:'tule', mother:'äit', father:'isä', sun:'päjwä', moon:'kuu', night:'yö',
+             day:'wir', sky:'taiwas', star:'täht',
+             eye:'silmä', ear:'korwa', hand:'käte', foot:'jalka', heart:'sydän', head:'pää', blood:'were',
+             tooth:'pii', tongue:'keele', nose:'nenä', name:'nime',
+             tree:'puu', stone:'kiwe', sea:'mere', earth:'mua',
+             dog:'peni', fish:'kala', bird:'lintu',
+             eat:'syö', drink:'juo', go:'men', see:'näke', hear:'kuule', know:'tuntu', say:'sano',
+             big:'suure', small:'piene', red:'punainen', white:'walge', black:'musta', good:'hüvä',
+             three:'kolmi', two:'kakte', one:'üksi', four:'neljä', five:'witte',
+             man:'mees', woman:'naise', child:'lapse', I:'mun', you:'tun', this:'tä', that:'to' } },
+  { id: 'finnish', name: 'Finnish', parent: 'proto-uralic', born: 1500, end: null,
+    notes: 'Agglutinative with 15 cases. Kalevala is the national epic. Part of the Finnic branch of Uralic.',
+    vocab: { water:'vesi', fire:'tuli', mother:'äiti', father:'isä', sun:'aurinko', night:'yö',
+             three:'kolme', two:'kaksi', one:'yksi' } },
+  { id: 'hungarian', name: 'Hungarian', parent: 'proto-uralic', born: 1000, end: null,
+    notes: 'Isolated Uralic island in a sea of Indo-European. Brought to the Carpathian basin by Magyar tribes ~900 CE.',
+    vocab: { water:'viz', fire:'tuz', mother:'anya', father:'apa', sun:'nap', night:'ejszaka',
+             three:'harom', two:'ketto', one:'egy' } },
+  { id: 'estonian', name: 'Estonian', parent: 'proto-uralic', born: 1500, end: null,
+    notes: 'Sister to Finnish. Three phonological lengths (short/long/overlong).',
+    vocab: { water:'vesi', fire:'tuli', mother:'ema', father:'isa', sun:'paike', three:'kolm', two:'kaks', one:'uks' } },
+
+  // Semitic family
+  { id: 'proto-semitic', name: 'Proto-Semitic', parent: null, born: -4500, end: -2500,
+    notes: 'Unrelated to IE. Ancestor of Hebrew, Arabic, Aramaic, Akkadian, Ethiopian Semitic languages.',
+    vocab: { water:'may', fire:'isat', mother:'imm', father:'ab', sun:'shamsh', moon:'warh', night:'layl',
+             day:'yawm', sky:'shamay', star:'kokab',
+             eye:'ayn', ear:'udhn', hand:'yad', foot:'rigl', heart:'libb', head:'rash', blood:'dam',
+             tooth:'shinn', tongue:'lishan', nose:'ʾanf', name:'shim',
+             tree:'ish', stone:'ʾabn', sea:'yam', earth:'ʾarts',
+             dog:'kalb', horse:'sus', fish:'nun', bird:'ʿof',
+             eat:'ʾakal', drink:'shatay', go:'halak', see:'raʾay', hear:'shamaʿ', know:'yadaʿ', say:'ʾamar',
+             big:'gadol', small:'zaʿir', red:'ʾadom', white:'laban', black:'shahor', good:'tob',
+             three:'thalath', two:'thnay', one:'wahad', four:'ʾarbaʿ', five:'hamsh',
+             man:'ʾish', woman:'ʾishsh', child:'yalad', I:'ʾanaku', you:'ʾanta', this:'hu', that:'halu' } },
+  { id: 'classical-arabic', name: 'Classical Arabic', parent: 'proto-semitic', born: 500, end: 1200,
+    notes: 'Language of the Quran (7c). Enormous influence across Islamic world as a literary standard.',
+    vocab: { water:'ma', fire:'nar', mother:'umm', father:'ab', sun:'shams', night:'layl',
+             three:'thalatha', two:'ithnan', one:'wahid' } },
+  { id: 'modern-arabic', name: 'Modern Standard Arabic', parent: 'classical-arabic', born: 1800, end: null,
+    notes: 'Literary and formal Arabic, based on Classical. Spoken dialects (Egyptian, Levantine, Gulf, Maghrebi) diverge substantially.',
+    vocab: { water:'ma', fire:'nar', mother:'umm', father:'ab', sun:'shams', night:'layl',
+             three:'thalatha', two:'ithnan', one:'wahid' } },
+  { id: 'biblical-hebrew', name: 'Biblical Hebrew', parent: 'proto-semitic', born: -1000, end: 200,
+    notes: 'Language of the Hebrew Bible. Revived as Modern Hebrew in late 19c — one of the only successful language revivals.',
+    vocab: { water:'mayim', fire:'esh', mother:'em', father:'av', sun:'shemesh', night:'laylah',
+             three:'shalosh', two:'shtayim', one:'ehad' } },
+  { id: 'modern-hebrew', name: 'Modern Hebrew', parent: 'biblical-hebrew', born: 1880, end: null,
+    notes: 'Revival project led by Eliezer Ben-Yehuda. Now spoken natively by millions in Israel.',
+    vocab: { water:'mayim', fire:'esh', mother:'ima', father:'aba', sun:'shemesh', night:'layla',
+             three:'shalosh', two:'shtayim', one:'ehad' } },
+
+  // Sinitic (Sino-Tibetan)
+  { id: 'proto-sinitic', name: 'Old Chinese', parent: null, born: -1200, end: 200,
+    notes: 'Language of Confucius and the Warring States era. Reconstructed from early Zhou dynasty inscriptions.',
+    vocab: { water:'mlujʔ', fire:'hmejʔ', mother:'maʔ', father:'paʔ', sun:'njit', moon:'ngwjat', night:'ljək',
+             day:'njit', sky:'theːn', star:'seːn',
+             eye:'mruk', ear:'nəʔ', hand:'nreːʔ', foot:'tsok', heart:'səm', head:'hluːʔ', blood:'hmiːk',
+             tree:'mraj', stone:'djek', sea:'hmə', earth:'thə',
+             dog:'kʷeːnʔ', horse:'mraːʔ', fish:'ŋa', bird:'tiw',
+             eat:'ljək', drink:'qhjəmʔ', go:'gaj', see:'keːnʔ', hear:'heːŋ', know:'treʔ', say:'hŋeʔ',
+             big:'daːts', small:'sewʔ', red:'ʔswaːr', white:'braːk', black:'mek', good:'kuː',
+             three:'sum', two:'nijs', one:'ʔit', four:'hljəjs', five:'ŋaːʔ',
+             man:'naːn', woman:'nraʔ', child:'tsjəʔ', I:'ŋaːjʔ', you:'njaʔ', this:'tjəʔ', that:'pjet' } },
+  { id: 'middle-chinese', name: 'Middle Chinese', parent: 'proto-sinitic', born: 500, end: 1200,
+    notes: 'Language of Tang dynasty poetry. Reconstructed from rime tables. Preserved in Sino-Japanese and Sino-Korean vocabulary.',
+    vocab: { water:'shui', mother:'muo', father:'pa', sun:'nyit', three:'sam', two:'nyi', one:'jit' } },
+  { id: 'mandarin', name: 'Mandarin Chinese', parent: 'middle-chinese', born: 1400, end: null,
+    notes: '14 centuries of tonal shifts yielded 4 tones in Standard Mandarin (Beijing-based). Written with characters inherited unchanged from Old Chinese.',
+    vocab: { water:'shui', fire:'huo', mother:'ma', father:'ba', sun:'tai-yang', night:'ye',
+             three:'san', two:'er', one:'yi' } },
+  { id: 'cantonese', name: 'Cantonese', parent: 'middle-chinese', born: 1200, end: null,
+    notes: 'Preserves Middle Chinese tones and final consonants better than Mandarin (six tones). Spoken in Hong Kong, Guangdong.',
+    vocab: { water:'seoi', mother:'mou', father:'baa', three:'saam', two:'ji', one:'jat' } },
+
+  // Austronesian
+  { id: 'proto-austronesian', name: 'Proto-Austronesian', parent: null, born: -4000, end: -2000,
+    notes: 'One of the largest language families — spans from Madagascar to Hawaii via Southeast Asia. Originated in Taiwan.',
+    vocab: { water:'danum', fire:'Sapuy', mother:'iNa', father:'amaq', sun:'qalejaw', moon:'bulaN', night:'beRŋi',
+             day:'qalejaw', sky:'laŋit', star:'bituqen',
+             eye:'maCa', ear:'Caliŋa', hand:'lima', foot:'qaqay', heart:'qaCay', head:'quluh', blood:'daRaq',
+             tooth:'ŋipen', tongue:'Sema', nose:'ijuŋ', name:'ŋajan',
+             tree:'kaSiw', stone:'batu', sea:'LawuD', earth:'daɣa',
+             dog:'asu', fish:'Sikan', bird:'manuk',
+             eat:'kaen', drink:'inum', go:'panaw', see:'kita', hear:'dəŋəR', know:'taqu', say:'cum',
+             big:'Raya', small:'kusuR', red:'kuRa', white:'puteq', black:'qitem', good:'pia',
+             three:'telu', two:'duSa', one:'esa', four:'Sepat', five:'lima',
+             man:'ma-Ruqanay', woman:'ba-bahi', child:'aNak', I:'aku', you:'iSu' } },
+  { id: 'tagalog', name: 'Tagalog', parent: 'proto-austronesian', born: 1600, end: null,
+    notes: 'Philippine language. Basis of modern Filipino. Baybayin script historically.',
+    vocab: { water:'tubig', fire:'apoy', mother:'ina', father:'ama', sun:'araw', night:'gabi',
+             three:'tatlo', two:'dalawa', one:'isa' } },
+  { id: 'malay', name: 'Malay / Indonesian', parent: 'proto-austronesian', born: 1400, end: null,
+    notes: "One of the world's most-spoken languages (as Indonesian). Very simple phonology. Heavy Sanskrit loanwords.",
+    vocab: { water:'air', fire:'api', mother:'ibu', father:'ayah', sun:'matahari', night:'malam',
+             three:'tiga', two:'dua', one:'satu' } },
+  { id: 'hawaiian', name: 'Hawaiian', parent: 'proto-austronesian', born: 1200, end: null,
+    notes: 'Polynesian language brought to the Hawaiian islands ~1200 CE. Only 8 consonants and 5 vowels — one of the smallest phoneme inventories.',
+    vocab: { water:'wai', fire:'ahi', mother:'makuahine', father:'makuakane', sun:'la', night:'po',
+             three:'ekolu', two:'elua', one:'ekahi' } },
+  { id: 'maori', name: 'Māori', parent: 'proto-austronesian', born: 1300, end: null,
+    notes: 'Polynesian language of New Zealand. Brought from tropical Polynesia ~1300 CE. Closely related to Hawaiian and Tahitian.',
+    vocab: { water:'wai', fire:'ahi', mother:'whaea', father:'papa', sun:'ra', night:'po',
+             three:'toru', two:'rua', one:'tahi' } },
+
+  // Turkic
+  { id: 'proto-turkic', name: 'Proto-Turkic', parent: null, born: -500, end: 500,
+    notes: 'Ancestor of Turkish, Azerbaijani, Uzbek, Kazakh, and the Siberian Turkic languages. Originated in Central Asia.',
+    vocab: { water:'suv', fire:'ot', mother:'ana', father:'ata', sun:'gun', moon:'ay', night:'tun',
+             day:'kun', sky:'tengri', star:'yultuz',
+             eye:'koz', ear:'kulak', hand:'el', foot:'adak', heart:'yurek', head:'bash', blood:'kan',
+             tooth:'tish', tongue:'til', nose:'burun', name:'at',
+             tree:'yigach', stone:'tash', sea:'dalay',
+             dog:'it', horse:'at', fish:'balik', bird:'kush',
+             eat:'ye', drink:'ich', go:'bar', see:'kor', hear:'eshit', know:'bil', say:'ayt',
+             big:'uluh', small:'kichik', red:'kizil', white:'ak', black:'kara', good:'yakshi',
+             three:'uc', two:'iki', one:'bir', four:'tort', five:'besh',
+             man:'er', woman:'epshi', child:'oghul', I:'ben', you:'sen', this:'bu', that:'ol' } },
+  { id: 'turkish', name: 'Turkish', parent: 'proto-turkic', born: 1000, end: null,
+    notes: 'Anatolian Turkish, official language of Turkey. Atatürk replaced Arabic script with Latin in 1928.',
+    vocab: { water:'su', fire:'ates', mother:'anne', father:'baba', sun:'gunes', night:'gece',
+             three:'uc', two:'iki', one:'bir' } },
+
+  // Japonic (isolate-like, often classified alone)
+  { id: 'old-japanese', name: 'Old Japanese', parent: null, born: 600, end: 800,
+    notes: "Language of the Nara period. Possibly related to Korean but deep relationships remain contested. Written in Chinese characters adapted as man'yōgana.",
+    vocab: { water:'midu', fire:'po', mother:'papa', father:'titi', sun:'pi', moon:'tukwiyo', night:'yo',
+             day:'pi', sky:'ame', star:'posi',
+             eye:'me', ear:'mimi', hand:'te', foot:'asi', heart:'kokoro', head:'kasira', blood:'ti',
+             tooth:'pa', tongue:'sita', nose:'pana', name:'na',
+             tree:'kwi', stone:'ipa', sea:'umi', earth:'tuti',
+             dog:'inu', horse:'uma', fish:'iwo', bird:'tori',
+             eat:'kupa', drink:'nomu', go:'yuku', see:'miru', hear:'kiku', know:'siru', say:'ipu',
+             big:'opo', small:'sukosi', red:'akasi', white:'sirosi', black:'kurosi', good:'yosi',
+             three:'mi', two:'puta', one:'pito', four:'yo', five:'itu',
+             man:'wotokwo', woman:'womina', child:'ko', I:'wa', you:'na', this:'ko', that:'ka' } },
+  { id: 'japanese', name: 'Modern Japanese', parent: 'old-japanese', born: 1200, end: null,
+    notes: 'Three scripts (hiragana, katakana, kanji). Voiceless stops voiced in many positions compared to Old Japanese.',
+    vocab: { water:'mizu', fire:'hi', mother:'haha', father:'chichi', sun:'taiyo', night:'yoru',
+             three:'san', two:'ni', one:'ichi' } },
+];
+
+// Build parent→children map
+const LANGUAGE_CHILDREN = {};
+for (const lang of LANGUAGE_TREE) {
+  if (lang.parent) {
+    if (!LANGUAGE_CHILDREN[lang.parent]) LANGUAGE_CHILDREN[lang.parent] = [];
+    LANGUAGE_CHILDREN[lang.parent].push(lang.id);
+  }
+}
+function langById(id) { return LANGUAGE_TREE.find(l => l.id === id); }
+
+// Real historical borrowings that crossed FAMILY lines — proving that even
+// "disconnected" families exchange vocabulary through contact.
+const CROSS_BORROWINGS = [
+  { from: 'classical-arabic', to: 'spanish', year: 900, meaning: 'many', word: 'algebra, alcohol, zero, sugar', note: 'From the Arabic-speaking caliphates in al-Andalus.' },
+  { from: 'classical-arabic', to: 'italian', year: 1200, meaning: 'many', word: 'coffee (qahwa), guitar, artichoke', note: 'Via Mediterranean trade and science.' },
+  { from: 'mandarin', to: 'modern-english', year: 1800, meaning: 'many', word: 'typhoon (台風), ketchup (茄汁), kowtow, tea', note: 'Via maritime contact and trade routes.' },
+  { from: 'hindi', to: 'modern-english', year: 1700, meaning: 'many', word: 'shampoo, bungalow, jungle, pajama', note: 'Via British colonial rule in India.' },
+  { from: 'japanese', to: 'modern-english', year: 1800, meaning: 'many', word: 'tycoon, karaoke, sushi, tsunami', note: 'After Perry\'s opening of Japan (1853).' },
+  { from: 'modern-arabic', to: 'french', year: 1800, meaning: 'many', word: 'sofa, magazine, admiral', note: 'Via Ottoman-era Mediterranean trade.' },
+  { from: 'mandarin', to: 'japanese', year: 700, meaning: 'many', word: '~60% of Japanese vocabulary is Sino-Japanese', note: 'Enormous Chinese cultural influence during the Tang dynasty.' },
+  { from: 'finnish', to: 'russian', year: 1100, meaning: 'northern ecology', word: 'tundra (from Finno-Ugric)', note: 'Russian picked up Finno-Ugric terms from indigenous Arctic peoples.' },
+];
+
+// Look up a word for a meaning in a language, falling back through ancestors
+// if the language's own vocab doesn't include it. Returns { word, source }
+// where source is either the language itself or an ancestor.
+function lookupVocab(lang, meaning) {
+  if (lang.vocab && lang.vocab[meaning]) {
+    return { word: lang.vocab[meaning], source: lang, inherited: false };
+  }
+  let cur = lang;
+  while (cur && cur.parent) {
+    cur = langById(cur.parent);
+    if (cur && cur.vocab && cur.vocab[meaning]) {
+      return { word: cur.vocab[meaning], source: cur, inherited: true };
+    }
+  }
+  return null;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Path mode — build a scripted trajectory of words across milestones
+// ═════════════════════════════════════════════════════════════════════
+let mode = 'tree';
+let activeTrajectory = null;
+let currentYear = null;
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('mode-path').classList.toggle('primary', m === 'path');
+  document.getElementById('mode-sim').classList.toggle('primary', m === 'sim');
+  document.getElementById('mode-tree').classList.toggle('primary', m === 'tree');
+  document.getElementById('path-controls').style.display = m === 'path' ? 'block' : 'none';
+  document.getElementById('tree-controls').style.display = m === 'tree' ? 'block' : 'none';
+  document.getElementById('sim-controls').style.display = m === 'sim' ? 'block' : 'none';
+  document.getElementById('sim-help').style.display = m === 'sim' ? 'block' : 'none';
+  document.getElementById('sim-pressures').style.display = m === 'sim' ? 'block' : 'none';
+  document.getElementById('sim-simulation').style.display = m === 'sim' ? 'block' : 'none';
+  if (m === 'tree') {
+    initTree();
+  } else if (m === 'path') {
+    updateTargetOptions();
+    applyTrajectory();
+  } else {
+    resetSim();
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Tree mode — phylogenetic language-family rendering
+// ═════════════════════════════════════════════════════════════════════
+let treeLangLayout = {};   // { langId: { x, y, width } } — pixel positions
+let treeSelectedLangId = null;
+let treeHighlightedMeaning = '';
+let treeYearCursor = 2000;
+let treeShowBorrowings = true;
+
+function initTree() {
+  // Build the list of meanings present in any language's vocab
+  const meanings = new Set();
+  for (const lang of LANGUAGE_TREE) {
+    if (lang.vocab) Object.keys(lang.vocab).forEach(m => meanings.add(m));
+  }
+  const sel = document.getElementById('meaning-select');
+  sel.innerHTML = '<option value="">— none —</option>';
+  [...meanings].sort().forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    sel.appendChild(o);
+  });
+  // Layout + fit
+  layoutTree2();
+  fitTree();
+  drawMainTree();
+}
+
+function layoutTree2() {
+  // Assign Y coordinates via depth-first traversal over the tree.
+  // Each leaf gets a unique slot; internal nodes center on their children.
+  treeLangLayout = {};
+  const roots = LANGUAGE_TREE.filter(l => !l.parent);
+  let slot = 0;
+  const SLOT_H = 40;
+
+  function traverse(langId) {
+    const children = LANGUAGE_CHILDREN[langId] || [];
+    let myY;
+    if (children.length === 0) {
+      myY = slot * SLOT_H;
+      slot++;
+    } else {
+      const childYs = children.map(c => traverse(c));
+      myY = (Math.min(...childYs) + Math.max(...childYs)) / 2;
+    }
+    const lang = langById(langId);
+    treeLangLayout[langId] = { y: myY, born: lang.born, end: lang.end || 2000 };
+    return myY;
+  }
+  for (const r of roots) traverse(r.id);
+}
+
+function yearToX(year) {
+  const minYear = -4500, maxYear = 2100;
+  return 80 + ((year - minYear) / (maxYear - minYear)) * 1800;
+}
+
+function drawMainTree() {
+  if (mode !== 'tree') return;
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(viewTx, viewTy);
+  ctx.scale(viewK, viewK);
+
+  // Year axis at top
+  ctx.font = '11px SF Mono, monospace';
+  ctx.textAlign = 'center';
+  const majorYears = [-4500, -3000, -1500, 0, 500, 1000, 1500, 2000];
+  ctx.strokeStyle = 'rgba(100,120,150,0.2)';
+  ctx.lineWidth = 0.5;
+  for (const y of majorYears) {
+    const x = yearToX(y);
+    ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 20 + Object.keys(treeLangLayout).length * 40 + 40); ctx.stroke();
+    ctx.fillStyle = 'rgba(170,190,220,0.55)';
+    ctx.fillText(formatYear(y), x, 15);
+  }
+
+  // (Year cursor removed — tree shows full history without needing to scrub.)
+
+  // Determine highlighted lineage (selected + all ancestors + all descendants)
+  const highlighted = new Set();
+  if (treeSelectedLangId) {
+    // Ancestors
+    let cur = treeSelectedLangId;
+    while (cur) {
+      highlighted.add(cur);
+      const lang = langById(cur);
+      cur = lang ? lang.parent : null;
+    }
+    // Descendants
+    const stack = [treeSelectedLangId];
+    while (stack.length) {
+      const id = stack.pop();
+      for (const c of (LANGUAGE_CHILDREN[id] || [])) { highlighted.add(c); stack.push(c); }
+    }
+  }
+
+  // Cross-family borrowings — dashed arrows between unrelated language families
+  if (treeShowBorrowings) {
+    for (const b of CROSS_BORROWINGS) {
+      const fromPos = treeLangLayout[b.from];
+      const toPos = treeLangLayout[b.to];
+      const fromLang = langById(b.from);
+      const toLang = langById(b.to);
+      if (!fromPos || !toPos || !fromLang || !toLang) continue;
+      const x1 = yearToX(b.year);
+      const y1 = fromPos.y + 40;
+      const y2 = toPos.y + 40;
+      const cx = x1 + 20;
+      ctx.strokeStyle = 'rgba(129,199,132,0.55)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.bezierCurveTo(cx, y1, cx, y2, x1, y2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Small arrowhead
+      const dx = y2 > y1 ? -3 : 3;
+      ctx.fillStyle = 'rgba(129,199,132,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(x1, y2);
+      ctx.lineTo(x1 - 4, y2 + dx);
+      ctx.lineTo(x1 + 2, y2 + dx);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // Family labels on each root (parent: null)
+  const FAMILY_NAMES = {
+    'pie': 'Indo-European',
+    'proto-uralic': 'Uralic',
+    'proto-semitic': 'Semitic / Afro-Asiatic',
+    'proto-sinitic': 'Sino-Tibetan',
+    'proto-austronesian': 'Austronesian',
+    'proto-turkic': 'Turkic',
+    'old-japanese': 'Japonic',
+  };
+  for (const lang of LANGUAGE_TREE) {
+    if (lang.parent === null && treeLangLayout[lang.id]) {
+      const pos = treeLangLayout[lang.id];
+      const x = yearToX(lang.born);
+      const y = pos.y + 40;
+      const name = FAMILY_NAMES[lang.id] || 'family';
+      ctx.font = 'bold 11px SF Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(251,191,36,0.7)';
+      ctx.fillText(name + ' ›', x - 8, y + 4);
+      // Small colored wedge to mark the family start
+      ctx.beginPath();
+      ctx.moveTo(x - 6, y - 4);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x - 6, y + 4);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(251,191,36,0.5)';
+      ctx.fill();
+    }
+  }
+
+  // Draw each language as a horizontal line from parent_end → self_end
+  for (const lang of LANGUAGE_TREE) {
+    const pos = treeLangLayout[lang.id];
+    if (!pos) continue;
+    const x1 = yearToX(lang.born);
+    const x2 = yearToX(lang.end || 2000);
+    const y = pos.y + 40;
+    const hl = treeSelectedLangId && highlighted.has(lang.id);
+    const isBeforeYearCursor = lang.born <= treeYearCursor;
+
+    // Draw parent→self connector. Two pieces:
+    // (1) if the parent ended before the child was born, draw a DASHED
+    //     horizontal bridge across the gap at the parent's Y — indicating
+    //     "implied continuity through under-reconstructed stages."
+    // (2) always draw the vertical descent at the child's birth year.
+    if (lang.parent) {
+      const parent = langById(lang.parent);
+      const parentPos = treeLangLayout[lang.parent];
+      if (parentPos && parent) {
+        const parentY = parentPos.y + 40;
+        const parentEnd = (parent.end === null) ? 2100 : parent.end;
+        if (parentEnd < lang.born) {
+          // Gap — dashed bridge
+          ctx.strokeStyle = hl ? '#fbbf24' : 'rgba(150,180,210,0.35)';
+          ctx.lineWidth = hl ? 2 : 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(yearToX(parentEnd), parentY);
+          ctx.lineTo(x1, parentY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        // Vertical descent
+        ctx.strokeStyle = hl ? '#fbbf24' : 'rgba(150,180,210,0.35)';
+        ctx.lineWidth = hl ? 2 : 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, parentY);
+        ctx.lineTo(x1, y);
+        ctx.stroke();
+      }
+    }
+
+    // Horizontal lineage line
+    ctx.strokeStyle = hl ? '#fbbf24' : 'rgba(200,220,240,0.55)';
+    ctx.lineWidth = hl ? 3 : 1.5;
+    ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+
+    // Endpoint dot
+    ctx.beginPath();
+    ctx.arc(x2, y, hl ? 5 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = hl ? '#fbbf24' : '#67e8f9';
+    ctx.fill();
+    if (lang.end === null) {
+      // Still alive — arrow continuing
+      ctx.beginPath();
+      ctx.moveTo(x2 + 2, y - 3); ctx.lineTo(x2 + 8, y); ctx.lineTo(x2 + 2, y + 3);
+      ctx.strokeStyle = hl ? '#fbbf24' : 'rgba(200,220,240,0.6)';
+      ctx.stroke();
+    }
+
+    // Language name label
+    ctx.font = hl ? 'bold 11px SF Mono, monospace' : '10px SF Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = hl ? '#fbbf24' : '#e2e6ed';
+    ctx.fillText(lang.name, x1 + 4, y - 4);
+
+    // If a meaning is highlighted, show the word — from own vocab if we have
+    // it, otherwise inherited from the nearest ancestor that has it.
+    if (treeHighlightedMeaning) {
+      const hit = lookupVocab(lang, treeHighlightedMeaning);
+      if (hit) {
+        const display = hit.inherited ? `~${hit.word}` : hit.word;
+        const labelX = (x1 + x2) / 2;
+        ctx.font = hit.inherited ? 'italic 11px SF Mono, monospace' : 'bold 11px SF Mono, monospace';
+        ctx.textAlign = 'center';
+        const tw = ctx.measureText(display).width;
+        // Background plate
+        ctx.fillStyle = 'rgba(15,19,24,0.9)';
+        ctx.fillRect(labelX - tw/2 - 3, y + 5, tw + 6, 13);
+        // Border color: solid green for own vocab, dim/dashed for inherited
+        ctx.strokeStyle = hit.inherited ? 'rgba(132,204,22,0.4)' : '#84cc16';
+        ctx.lineWidth = 0.8;
+        if (hit.inherited) ctx.setLineDash([2, 2]);
+        ctx.strokeRect(labelX - tw/2 - 3, y + 5, tw + 6, 13);
+        if (hit.inherited) ctx.setLineDash([]);
+        // Text color
+        ctx.fillStyle = hit.inherited ? 'rgba(132,204,22,0.6)' : '#84cc16';
+        ctx.fillText(display, labelX, y + 15);
+      }
+    }
+  }
+
+  ctx.restore();
+}
+
+function fitTree() {
+  if (Object.keys(treeLangLayout).length === 0) return;
+  // Compute bounds
+  let minX = yearToX(-4500), maxX = yearToX(2100);
+  let minY = 0;
+  let maxY = Math.max(...Object.values(treeLangLayout).map(p => p.y)) + 80;
+  const bw = (maxX - minX) + 120;
+  const bh = (maxY - minY) + 40;
+  const scaleX = W / bw, scaleY = H / bh;
+  viewK = Math.max(0.3, Math.min(1.5, Math.min(scaleX, scaleY)));
+  viewTx = (W / 2) - ((minX + maxX) / 2) * viewK;
+  viewTy = 20;
+  drawMainTree();
+}
+
+function resetTreeView() {
+  viewK = 1; viewTx = 0; viewTy = 0;
+  drawMainTree();
+}
+
+function onTreeYearChange() {
+  treeYearCursor = parseInt(document.getElementById('tree-year').value);
+  document.getElementById('tree-year-val').textContent = formatYear(treeYearCursor);
+  requestRedraw();
+}
+
+// In tree mode, override click handler to select a language
+const _origClickHandler = canvas.onclick;
+canvas.addEventListener('click', e => {
+  if (mode !== 'tree') return;
+  if (panStart) {
+    const [sx, sy] = panStart;
+    if (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4) return;
+  }
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left - viewTx) / viewK;
+  const my = (e.clientY - rect.top - viewTy) / viewK;
+  // Find nearest language line
+  let closest = null, closestDist = 20;
+  for (const lang of LANGUAGE_TREE) {
+    const pos = treeLangLayout[lang.id];
+    if (!pos) continue;
+    const y = pos.y + 40;
+    const x1 = yearToX(lang.born), x2 = yearToX(lang.end || 2000);
+    if (mx >= x1 - 10 && mx <= x2 + 10) {
+      const d = Math.abs(my - y);
+      if (d < closestDist) { closestDist = d; closest = lang; }
+    }
+  }
+  if (closest) {
+    treeSelectedLangId = (treeSelectedLangId === closest.id) ? null : closest.id;
+    showSelectedLang();
+    drawMainTree();
+  } else {
+    treeSelectedLangId = null;
+    showSelectedLang();
+    drawMainTree();
+  }
+});
+
+function showSelectedLang() {
+  const box = document.getElementById('tree-selected');
+  if (!treeSelectedLangId) { box.style.display = 'none'; return; }
+  const lang = langById(treeSelectedLangId);
+  if (!lang) return;
+  box.style.display = 'block';
+  const span = formatYear(lang.born) + ' → ' + (lang.end ? formatYear(lang.end) : 'present');
+  let vocabHtml = '';
+  if (lang.vocab) {
+    vocabHtml = '<div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:10px">';
+    for (const [m, w] of Object.entries(lang.vocab)) {
+      vocabHtml += `<span><span style="color:var(--dim)">${m}</span>: <b>${w}</b></span>`;
+    }
+    vocabHtml += '</div>';
+  }
+  // Ancestor chain
+  const chain = [];
+  let cur = lang;
+  while (cur) { chain.push(cur); cur = cur.parent ? langById(cur.parent) : null; }
+  chain.reverse();
+  const chainHtml = chain.map(c => `<span style="color:var(--accent)">${c.name}</span>`).join(' <span style="color:var(--dim)">→</span> ');
+  box.innerHTML = `
+    <b style="color:var(--accent);font-size:12px">${lang.name}</b><br>
+    <span style="color:var(--dim);font-size:10px">${span}</span><br>
+    <div style="margin-top:6px;font-size:10px;color:var(--text)">${lang.notes || ''}</div>
+    <div style="margin-top:8px;font-size:10px;color:var(--dim)">Lineage: ${chainHtml}</div>
+    ${vocabHtml}
+  `;
+}
+
+// Wire the meaning dropdown
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('meaning-select');
+  if (sel) sel.addEventListener('change', () => {
+    treeHighlightedMeaning = sel.value;
+    drawMainTree();
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// Compound words — lexicalization + erosion
+// ═════════════════════════════════════════════════════════════════════
+let compoundChain = [];  // list of {form, note}
+
+function initCompoundPanel() {
+  const meaningsSet = new Set();
+  for (const lang of LANGUAGE_TREE) {
+    if (lang.vocab) Object.keys(lang.vocab).forEach(m => meaningsSet.add(m));
+  }
+  const meanings = [...meaningsSet].sort();
+  const langs = LANGUAGE_TREE.filter(l => l.vocab && Object.keys(l.vocab).length > 15)
+                              .map(l => ({ id: l.id, name: l.name }))
+                              .sort((a, b) => a.name.localeCompare(b.name));
+  const selA = document.getElementById('cmp-a');
+  const selB = document.getElementById('cmp-b');
+  const selLang = document.getElementById('cmp-lang');
+  if (!selA || !selB || !selLang) return;
+  selA.innerHTML = meanings.map(m => `<option value="${m}">${m}</option>`).join('');
+  selB.innerHTML = meanings.map(m => `<option value="${m}">${m}</option>`).join('');
+  selLang.innerHTML = langs.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+  // Default pair: "you" + "I" → "us"
+  selA.value = 'I';
+  selB.value = 'you';
+  selLang.value = 'modern-english';
+}
+
+function compoundForm() {
+  const mA = document.getElementById('cmp-a').value;
+  const mB = document.getElementById('cmp-b').value;
+  const langId = document.getElementById('cmp-lang').value;
+  const lang = langById(langId);
+  if (!lang) return;
+  const hitA = lookupVocab(lang, mA);
+  const hitB = lookupVocab(lang, mB);
+  if (!hitA || !hitB) {
+    document.getElementById('cmp-result').innerHTML =
+      '<span style="color:var(--danger)">One of the words is missing in this language and its ancestors.</span>';
+    return;
+  }
+  const wA = hitA.word, wB = hitB.word;
+  // Three candidate strategies — pick the one that produces the shortest sensible result
+  const strategies = [];
+  // (a) full concatenation with boundary (like "break-fast")
+  strategies.push({
+    form: wA + '-' + wB,
+    note: `concatenation: "${wA}" + "${wB}"`,
+  });
+  // (b) tight concatenation with elision if A ends and B begins with a vowel
+  let tight = wA + wB;
+  const vowels = new Set(['a','e','i','o','u']);
+  if (vowels.has(wA.slice(-1)) && vowels.has(wB[0])) {
+    tight = wA.slice(0, -1) + wB;  // drop boundary vowel
+    strategies.push({
+      form: tight,
+      note: `tight join with vowel elision: "${wA.slice(0,-1)}${wB}" (dropped "${wA.slice(-1)}" at boundary)`,
+    });
+  } else {
+    strategies.push({
+      form: tight,
+      note: `tight concatenation: "${wA}${wB}"`,
+    });
+  }
+  // (c) blend: first half of A + second half of B
+  const halfA = wA.slice(0, Math.ceil(wA.length / 2));
+  const halfB = wB.slice(Math.floor(wB.length / 2));
+  strategies.push({
+    form: halfA + halfB,
+    note: `portmanteau: first half of "${wA}" + second half of "${wB}"`,
+  });
+
+  compoundChain = [
+    { form: wA, note: `"${mA}" in ${lang.name}${hitA.inherited ? ' (inherited from ' + hitA.source.name + ')' : ''}`, stage: 'source' },
+    { form: wB, note: `"${mB}" in ${lang.name}${hitB.inherited ? ' (inherited from ' + hitB.source.name + ')' : ''}`, stage: 'source' },
+    ...strategies.map(s => ({ ...s, stage: 'compound' })),
+  ];
+  renderCompoundChain();
+}
+
+function compoundErode() {
+  if (compoundChain.length === 0) return;
+  // Take the last form in the chain and try to apply one phonological rule
+  const last = compoundChain[compoundChain.length - 1];
+  const rng = Math.random;
+  const hit = findApplicableRule(last.form, rng);
+  if (!hit) {
+    compoundChain.push({ form: last.form, note: 'no rule applies at this stage — compound is phonologically stable', stage: 'stable' });
+    renderCompoundChain();
+    return;
+  }
+  const next = applyRule(last.form, hit);
+  compoundChain.push({ form: next, note: `${hit.rule.name} — ${hit.rule.reason}`, stage: 'shift' });
+  renderCompoundChain();
+}
+
+// Seed the chain with real historical compounds. These are documented
+// English etymologies — the panel then lets the user continue the erosion.
+function compoundPreset(kind) {
+  const presets = {
+    'lord': {
+      steps: [
+        { form: 'hlaf', note: 'Old English "hlaf" = loaf (of bread)', stage: 'source' },
+        { form: 'weard', note: 'Old English "weard" = keeper, guardian', stage: 'source' },
+        { form: 'hlaf-weard', note: 'compound: "loaf-keeper" — the head of household who provides bread', stage: 'compound' },
+        { form: 'hlafweard', note: 'tight concatenation drops the boundary', stage: 'shift' },
+        { form: 'hlaford', note: 'medial /w/ drops; Late Old English', stage: 'shift' },
+        { form: 'laverd', note: 'initial /hl/ simplifies to /l/; Middle English', stage: 'shift' },
+        { form: 'lord', note: 'final vowel lost, middle syllable crushed; Early Modern English', stage: 'shift' },
+      ],
+    },
+    'breakfast': {
+      steps: [
+        { form: 'break', note: 'to interrupt (Middle English)', stage: 'source' },
+        { form: 'fast', note: 'the fasting period overnight (Middle English)', stage: 'source' },
+        { form: 'break-fast', note: 'compound: "the breaking of fast" — the first meal', stage: 'compound' },
+        { form: 'breakfast', note: 'boundary erases; one word', stage: 'shift' },
+        { form: 'brekfəst', note: 'unstressed second syllable reduces to schwa in speech', stage: 'shift' },
+      ],
+    },
+    'goodbye': {
+      steps: [
+        { form: 'God be with ye', note: 'full phrase: "may God be with you"', stage: 'source' },
+        { form: 'Godbwye', note: 'tight elision, 16th century', stage: 'shift' },
+        { form: 'godbuy', note: 'further compression', stage: 'shift' },
+        { form: 'goodbye', note: '"God" replaced by "good" by analogy with "good day", "good night"', stage: 'shift' },
+        { form: 'bye', note: 'informal clipping — just the back end survives', stage: 'shift' },
+      ],
+    },
+    'daisy': {
+      steps: [
+        { form: 'dæg', note: 'Old English "dæg" = day', stage: 'source' },
+        { form: 'eage', note: 'Old English "eage" = eye', stage: 'source' },
+        { form: 'dægesege', note: 'compound: "day\'s eye" — because it closes at night and opens at dawn', stage: 'compound' },
+        { form: 'dayesee', note: 'Middle English form', stage: 'shift' },
+        { form: 'daisie', note: 'Late Middle English; vowels shifting', stage: 'shift' },
+        { form: 'daisy', note: 'Modern English — nobody hears "day\'s eye" anymore', stage: 'shift' },
+      ],
+    },
+  };
+  const p = presets[kind];
+  if (!p) return;
+  compoundChain = p.steps;
+  renderCompoundChain();
+}
+
+function compoundErodeMany() {
+  for (let i = 0; i < 10; i++) {
+    compoundErode();
+    const last = compoundChain[compoundChain.length - 1];
+    if (last.stage === 'stable') break;
+  }
+}
+
+function renderCompoundChain() {
+  const box = document.getElementById('cmp-result');
+  let html = '';
+  const stageColor = {
+    source: '#67e8f9',
+    compound: '#fbbf24',
+    shift: '#84cc16',
+    stable: '#a3a3a3',
+  };
+  compoundChain.forEach((entry, i) => {
+    const color = stageColor[entry.stage] || '#e2e6ed';
+    const arrow = i > 0 ? ' <span style="color:var(--dim)">↓</span> ' : '';
+    html += `${arrow}<div style="padding:3px 0">
+      <b style="color:${color};font-size:13px">${entry.form}</b>
+      <span style="color:var(--dim);font-size:10px;margin-left:8px">${entry.note}</span>
+    </div>`;
+  });
+  box.innerHTML = html;
+}
+
+function updateTargetOptions() {
+  const from = document.getElementById('from-select').value;
+  const toSelect = document.getElementById('to-select');
+  toSelect.innerHTML = '';
+  for (const opt of TRAJECTORY_OPTIONS[from] || []) {
+    const o = document.createElement('option');
+    o.value = opt.value; o.textContent = opt.label;
+    toSelect.appendChild(o);
+  }
+  applyTrajectory();
+}
+
+function applyTrajectory() {
+  const trajKey = document.getElementById('to-select').value;
+  const traj = TRAJECTORIES[trajKey];
+  if (!traj) return;
+  activeTrajectory = traj;
+
+  // Build all words upfront, one per (meaning, milestone), with parent = same meaning in previous milestone
+  words = []; languages = []; nextWordId = 1; nextLangId = 1;
+  generation = 0; stats = { lost: 0, total: 0 }; eventLog = [];
+  selectedWord = null;
+
+  const milestonesWithYears = traj.milestones;
+  const yMap = {};  // word per meaning per milestone index
+  milestonesWithYears.forEach((m, mi) => {
+    const lang = makeLanguage(m.label);
+    lang.year = m.year;
+    lang.notes = m.notes;
+    lang.mi = mi;
+    yMap[mi] = {};
+    for (const meaning of CORE_MEANINGS) {
+      const form = m.vocab[meaning];
+      if (!form) continue;
+      const parent = mi > 0 ? yMap[mi-1][meaning] : null;
+      const w = makeWord(form, meaning, lang, parent);
+      w.yearBorn = m.year;
+      w.milestoneIndex = mi;
+      yMap[mi][meaning] = w;
+    }
+  });
+
+  // Slider bounds
+  const yearStart = milestonesWithYears[0].year;
+  const yearEnd = milestonesWithYears[milestonesWithYears.length - 1].year;
+  const slider = document.getElementById('year-slider');
+  slider.min = yearStart;
+  slider.max = yearEnd;
+  slider.step = Math.max(1, Math.round((yearEnd - yearStart) / 300));
+  slider.value = yearStart;
+  currentYear = yearStart;
+  document.getElementById('year-start').textContent = formatYear(yearStart);
+  document.getElementById('year-end').textContent = formatYear(yearEnd);
+  document.getElementById('year-now').textContent = formatYear(yearStart);
+
+  slider.oninput = () => {
+    currentYear = parseInt(slider.value);
+    document.getElementById('year-now').textContent = formatYear(currentYear);
+    updateEraNotes();
+    layoutTreePath();
+    draw();
+  };
+
+  logEvent('shift', `Loaded trajectory: ${traj.label}`);
+  layoutTreePath();
+  fitView();
+  updateStats();
+  updateEraNotes();
+  draw();
+}
+
+function formatYear(y) {
+  if (y < 0) return `${Math.abs(y)} BCE`;
+  if (y === 0) return '0';
+  return `${y} CE`;
+}
+
+function layoutTreePath() {
+  // Columns by meaning, rows by milestone index. Y positions reflect actual years
+  // (scaled to fit the canvas vertically).
+  if (!activeTrajectory) return layoutTree();
+  const milestones = activeTrajectory.milestones;
+  const y0 = milestones[0].year, y1 = milestones[milestones.length - 1].year;
+  const totalYears = y1 - y0 || 1;
+  const canvasHeight = 600;  // virtual vertical space
+  const colSpacing = 70;
+  const baseX = 60;
+
+  for (const w of words) {
+    const colIdx = CORE_MEANINGS.indexOf(w.meaning);
+    w.x = baseX + colIdx * colSpacing;
+    const lang = languages.find(l => l.id === w.language);
+    const mi = lang.mi ?? 0;
+    const yearsFromStart = milestones[mi].year - y0;
+    w.y = 40 + (yearsFromStart / totalYears) * canvasHeight;
+  }
+}
+
+function stepYearMilestone(dir) {
+  if (!activeTrajectory) return;
+  const milestones = activeTrajectory.milestones;
+  // Find current milestone index
+  let idx = milestones.findIndex(m => m.year === currentYear);
+  if (idx < 0) {
+    // Find nearest
+    idx = 0;
+    for (let i = 0; i < milestones.length; i++) {
+      if (milestones[i].year <= currentYear) idx = i;
+    }
+  }
+  idx = Math.max(0, Math.min(milestones.length - 1, idx + dir));
+  const newYear = milestones[idx].year;
+  document.getElementById('year-slider').value = newYear;
+  currentYear = newYear;
+  document.getElementById('year-now').textContent = formatYear(newYear);
+  updateEraNotes();
+  layoutTreePath();
+  draw();
+}
+
+function updateEraNotes() {
+  if (!activeTrajectory) return;
+  const milestones = activeTrajectory.milestones;
+  // Find most recent milestone at or before currentYear
+  let active = milestones[0];
+  for (const m of milestones) {
+    if (m.year <= currentYear) active = m;
+  }
+  const box = document.getElementById('era-notes');
+  box.innerHTML = `<b style="color:var(--accent);font-size:12px">${formatYear(active.year)} · ${active.label}</b><br><br>${active.notes}`;
+}
+
+// Override draw to fade out words born after currentYear (path mode)
+const _origDraw = draw;
+draw = function() {
+  // Fade: in path mode, mark words after currentYear as dim
+  if (mode === 'path' && currentYear !== null) {
+    for (const w of words) {
+      w._faded = (w.yearBorn !== undefined && w.yearBorn > currentYear);
+    }
+  } else {
+    for (const w of words) w._faded = false;
+  }
+  _origDraw();
+};
+
+// Override the node drawing inside draw() by patching: easiest is to
+// re-patch draw. Redefining draw entirely:
+draw = function() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(viewTx, viewTy);
+  ctx.scale(viewK, viewK);
+
+  const meanings = CORE_MEANINGS;
+  ctx.font = '10px SF Mono, monospace';
+  ctx.textAlign = 'center';
+  meanings.forEach((m, i) => {
+    const x = 60 + i * 70;
+    ctx.fillStyle = 'rgba(180,200,230,0.45)';
+    ctx.fillText(m, x, 28);
+    ctx.strokeStyle = 'rgba(100,120,150,0.08)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(x, 40); ctx.lineTo(x, 680); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Year markers on left (path mode only)
+  if (mode === 'path' && activeTrajectory) {
+    const milestones = activeTrajectory.milestones;
+    const y0 = milestones[0].year, y1 = milestones[milestones.length - 1].year;
+    const totalYears = y1 - y0 || 1;
+    const canvasHeight = 600;
+    for (const m of milestones) {
+      const y = 40 + ((m.year - y0) / totalYears) * canvasHeight;
+      ctx.fillStyle = 'rgba(79,195,247,0.8)';
+      ctx.font = '10px SF Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(formatYear(m.year), 55, y + 3);
+      ctx.strokeStyle = 'rgba(79,195,247,0.15)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(60 + (CORE_MEANINGS.length * 70), y); ctx.stroke();
+    }
+    // Current-year line
+    if (currentYear !== null) {
+      const y = 40 + ((currentYear - y0) / totalYears) * canvasHeight;
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 3]);
+      ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(60 + (CORE_MEANINGS.length * 70) + 20, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 10px SF Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(formatYear(currentYear), 60 + (CORE_MEANINGS.length * 70) + 22, y + 3);
+    }
+  }
+
+  // Edges
+  for (const w of words) {
+    if (!w.parent) continue;
+    const parent = words.find(x => x.id === w.parent);
+    if (!parent) continue;
+    const faded = (mode === 'path' && w.yearBorn > currentYear);
+    ctx.beginPath();
+    ctx.moveTo(parent.x, parent.y);
+    ctx.bezierCurveTo(parent.x, (parent.y + w.y) / 2, w.x, (parent.y + w.y) / 2, w.x, w.y);
+    ctx.strokeStyle = w.borrowed
+      ? (faded ? 'rgba(129,199,132,0.15)' : 'rgba(129,199,132,0.5)')
+      : (faded ? 'rgba(170,190,220,0.12)' : (w.alive ? 'rgba(170,190,220,0.55)' : 'rgba(130,140,160,0.2)'));
+    ctx.lineWidth = w.borrowed ? 1.5 : 1;
+    if (w.borrowed) ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    if (w.borrowed) ctx.setLineDash([]);
+  }
+
+  // Nodes
+  for (const w of words) {
+    const faded = (mode === 'path' && w.yearBorn !== undefined && w.yearBorn > currentYear);
+    const alpha = faded ? 0.15 : (w.alive ? 1.0 : 0.25);
+    const isSel = (w === selectedWord);
+    ctx.beginPath();
+    ctx.arc(w.x, w.y, isSel ? 9 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = w.languageColor;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+    ctx.strokeStyle = isSel ? '#fbbf24' : 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = isSel ? 2 : 0.6;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    // Labels: always show when the view is zoomed out enough, OR if node is selected
+    if (viewK > 0.55 || isSel) {
+      if (isSel) {
+        // Selected: draw a prominent label with background plate so it reads well at any zoom
+        const label = `${w.form} · ${w.meaning}`;
+        ctx.font = 'bold 13px SF Mono, monospace';
+        ctx.textAlign = 'left';
+        const textW = ctx.measureText(label).width;
+        const padX = 6, padY = 4;
+        const labelX = w.x + 12;
+        const labelY = w.y - 4;
+        // Background plate
+        ctx.fillStyle = 'rgba(0,0,0,0.82)';
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.rect(labelX - padX/2, labelY - 12, textW + padX, 17);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText(label, labelX, labelY);
+      } else {
+        ctx.fillStyle = `rgba(226,230,237,${alpha * 0.9})`;
+        ctx.font = '10px SF Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(w.form, w.x + 10, w.y + 3);
+      }
+    }
+  }
+
+  // Selected halo
+  if (selectedWord && selectedWord.alive) {
+    ctx.beginPath();
+    ctx.arc(selectedWord.x, selectedWord.y, 14 + Math.sin(Date.now() / 250) * 2, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+};
+
+resize();
+updateTargetOptions();  // populate "To" dropdown
+// Wire meaning dropdown directly (DOMContentLoaded may already have fired)
+setTimeout(() => {
+  const sel = document.getElementById('meaning-select');
+  if (sel) {
+    sel.addEventListener('change', () => {
+      treeHighlightedMeaning = sel.value;
+      drawMainTree();
+    });
+  }
+  initCompoundPanel();
+}, 50);
+setMode('tree');  // default to family-tree view — branches, not parallel lines
+setInterval(() => { if (selectedWord && mode !== 'tree') draw(); }, 100);
+</script>
+</body>
+</html>

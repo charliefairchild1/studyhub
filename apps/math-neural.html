@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiny MLP — PEP Math Playground</title>
+<style>
+  :root{--bg:#0a0d14;--surface:#14181f;--surface2:#0f1318;--text:#e2e6ed;--dim:#7a8092;--accent:#ba68c8;--accent2:#81c784;--border:#1e2430}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-rows:1fr 130px;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block;cursor:crosshair}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}.row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:48px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">tiny MLP — universal approximator on 2D</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="gradient.html">∇ Gradient</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>decision boundary · click to add positives · shift+click negatives</span><b id="m-info">—</b></div>
+    <canvas id="cv"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>loss over time</span></div>
+    <canvas id="loss"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Tiny MLP</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Input → hidden → output. SGD on cross-entropy. The boundary forms by stacking simple curves until it fits the data — universal approximation in action.
+  </div>
+
+  <h3>Preset data</h3>
+  <div class="btn-row">
+    <button class="dd active" data-d="spiral">Spiral</button>
+    <button class="dd" data-d="moons">Two moons</button>
+    <button class="dd" data-d="xor">XOR</button>
+    <button class="dd" data-d="blobs">Three blobs</button>
+    <button class="dd" data-d="circles">Concentric</button>
+    <button class="dd" data-d="line">Linear</button>
+  </div>
+
+  <h3>Architecture</h3>
+  <div class="row"><label>Hidden 1</label><input id="h1" type="range" min="2" max="32" step="1" value="8"><span class="val" id="h1-v">8</span></div>
+  <div class="row"><label>Hidden 2</label><input id="h2" type="range" min="0" max="32" step="1" value="6"><span class="val" id="h2-v">6</span></div>
+  <div class="btn-row">
+    <button class="aa active" data-a="tanh">tanh</button>
+    <button class="aa" data-a="relu">ReLU</button>
+    <button class="aa" data-a="sigmoid">sigmoid</button>
+  </div>
+
+  <h3>Training</h3>
+  <div class="row"><label>Learning rate</label><input id="lr" type="range" min="0.001" max="0.5" step="0.001" value="0.05"><span class="val" id="lr-v">0.050</span></div>
+  <div class="row"><label>Steps/frame</label><input id="speed" type="range" min="1" max="50" step="1" value="10"><span class="val" id="speed-v">10</span></div>
+  <div class="row"><label>L2 weight decay</label><input id="wd" type="range" min="0" max="0.05" step="0.001" value="0"><span class="val" id="wd-v">0.000</span></div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset-w">🎲 Re-init weights</button>
+    <button id="reset-d">Clear data</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Step</span><b id="m-step">0</b></div>
+  <div class="metric"><span>Loss</span><b id="m-loss">—</b></div>
+  <div class="metric"><span>Accuracy</span><b id="m-acc">—</b></div>
+  <div class="metric"><span>Parameters</span><b id="m-params">—</b></div>
+
+  <div class="pep-note">
+    <b>PEP framing.</b> Every neuron is a tiny predictor: weighted sum
+    + nonlinearity + residual update. Stack two layers and you have
+    a universal approximator over 2D. PEP primitive 3 in the smallest
+    nontrivial form. The boundary is where the network's prediction
+    flips from class 0 to 1 — exactly where its residual switches sign.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Spiral:</b> needs at least 8-16 hidden units and tanh to separate.<br>
+    <b style="color:var(--accent2)">XOR:</b> linearly inseparable — hidden=0 fails. Hidden ≥ 2 succeeds.<br>
+    <b style="color:var(--accent2)">High LR:</b> watch the boundary spasm; loss bounces.<br>
+    <b style="color:var(--accent2)">Tiny LR:</b> stable but slow.
+  </div>
+</div>
+
+<script>
+(() => {
+  const cv = document.getElementById('cv');
+  const lossC = document.getElementById('loss');
+  const ctx = cv.getContext('2d');
+  const lctx = lossC.getContext('2d');
+  let cd, ld;
+  function rOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function rAll() { cd = rOne(cv, ctx); ld = rOne(lossC, lctx); }
+  window.addEventListener('resize', rAll);
+
+  let data = []; // {x, y, label: 0|1}
+  let preset = 'spiral';
+  const params = { h1: 8, h2: 6, lr: 0.05, wd: 0, speed: 10 };
+  let activation = 'tanh';
+  let running = true;
+  let step = 0;
+  let lossHist = [];
+
+  // Network — store as lists of [W, b]
+  let layers = [];
+  function rand() { return (Math.random() - 0.5) * 1.0; }
+  function initWeights() {
+    layers = [];
+    const sizes = [2, params.h1];
+    if (params.h2 > 0) sizes.push(params.h2);
+    sizes.push(1);
+    for (let l=0;l<sizes.length-1;l++) {
+      const inSz = sizes[l], outSz = sizes[l+1];
+      const scale = Math.sqrt(2 / inSz);
+      const W = Array.from({length:outSz}, () => Array.from({length:inSz}, () => rand()*scale));
+      const b = new Array(outSz).fill(0);
+      layers.push({W, b});
+    }
+    step = 0; lossHist = [];
+    document.getElementById('m-params').textContent = layers.reduce((s,l)=>s + l.W.length*l.W[0].length + l.b.length, 0);
+  }
+  function act(z) {
+    if (activation === 'tanh') return Math.tanh(z);
+    if (activation === 'relu') return Math.max(0, z);
+    if (activation === 'sigmoid') return 1/(1+Math.exp(-z));
+    return z;
+  }
+  function dact(z, a) {
+    if (activation === 'tanh') return 1 - a*a;
+    if (activation === 'relu') return z > 0 ? 1 : 0;
+    if (activation === 'sigmoid') return a*(1-a);
+    return 1;
+  }
+  function sigmoid(z) { return 1/(1+Math.exp(-z)); }
+
+  function forward(x, y) {
+    let h = [x, y];
+    const acts = [h];
+    const zs = [];
+    for (let l=0;l<layers.length;l++) {
+      const { W, b } = layers[l];
+      const z = new Array(W.length);
+      for (let i=0;i<W.length;i++) {
+        let s = b[i];
+        for (let j=0;j<W[0].length;j++) s += W[i][j] * h[j];
+        z[i] = s;
+      }
+      zs.push(z);
+      let nh;
+      if (l === layers.length - 1) {
+        nh = z.map(sigmoid); // output sigmoid
+      } else {
+        nh = z.map(act);
+      }
+      h = nh;
+      acts.push(h);
+    }
+    return { acts, zs, output: h[0] };
+  }
+  function trainStep() {
+    if (data.length === 0) return null;
+    const order = data.map((_,i)=>i).sort(()=>Math.random()-0.5);
+    let totalLoss = 0;
+    let correct = 0;
+    for (const idx of order) {
+      const d = data[idx];
+      const { acts, zs, output } = forward(d.x, d.y);
+      const target = d.label;
+      const o = output;
+      const eps = 1e-9;
+      const loss = -(target*Math.log(o+eps) + (1-target)*Math.log(1-o+eps));
+      totalLoss += loss;
+      if ((o > 0.5 ? 1 : 0) === target) correct++;
+      // Backprop
+      let dL_dz = [o - target]; // for sigmoid + cross-entropy this is the gradient
+      for (let l=layers.length-1;l>=0;l--) {
+        const { W, b } = layers[l];
+        const aPrev = acts[l];
+        const grads_W = W.map((row,i) => row.map((_,j) => dL_dz[i] * aPrev[j]));
+        const grads_b = dL_dz.slice();
+        // backprop through this layer's input
+        let dL_dh_prev = null;
+        if (l > 0) {
+          dL_dh_prev = new Array(W[0].length).fill(0);
+          for (let i=0;i<W.length;i++) for (let j=0;j<W[0].length;j++) {
+            dL_dh_prev[j] += dL_dz[i] * W[i][j];
+          }
+          // through activation
+          const aP = acts[l]; // hidden activations of this layer's input
+          const zP = zs[l-1]; // pre-activation feeding into this layer's input
+          dL_dz = dL_dh_prev.map((g, j) => g * dact(zP[j], aP[j]));
+        }
+        // update
+        for (let i=0;i<W.length;i++) {
+          for (let j=0;j<W[0].length;j++) {
+            W[i][j] -= params.lr * (grads_W[i][j] + params.wd*W[i][j]);
+          }
+          b[i] -= params.lr * grads_b[i];
+        }
+      }
+    }
+    const avgLoss = totalLoss/order.length;
+    step++;
+    return { loss: avgLoss, acc: correct/order.length };
+  }
+
+  function draw() {
+    const { w, h } = cd;
+    // Decision background — sample at lower resolution
+    const stride = 6;
+    for (let py=0;py<h;py+=stride) for (let px=0;px<w;px+=stride) {
+      const x = (px/w)*4 - 2;
+      const y = 2 - (py/h)*4;
+      const o = forward(x, y).output;
+      const t = (o - 0.5) * 2;
+      let r, g, b;
+      if (t > 0) {
+        r = 240; g = 130 + (1-t)*60; b = 80 + (1-t)*60;
+      } else {
+        r = 80 + (1+t)*60; g = 130 + (1+t)*60; b = 240;
+      }
+      ctx.fillStyle = `rgba(${r},${g},${b},0.35)`;
+      ctx.fillRect(px, py, stride+1, stride+1);
+    }
+    // Boundary line — sample stripe
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+    // (skipping explicit boundary tracing; the gradient image already shows it)
+
+    // Data points
+    for (const d of data) {
+      const px = ((d.x+2)/4)*w;
+      const py = (1 - (d.y+2)/4)*h;
+      ctx.fillStyle = d.label === 1 ? '#ef5350' : '#4fc3f7';
+      ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+  function drawLoss() {
+    const { w, h } = ld;
+    lctx.fillStyle = '#0a0d14'; lctx.fillRect(0,0,w,h);
+    if (lossHist.length < 2) return;
+    const minL = 0, maxL = Math.max(...lossHist, 0.7);
+    lctx.strokeStyle = '#ba68c8'; lctx.lineWidth = 1.5;
+    lctx.beginPath();
+    for (let i=0;i<lossHist.length;i++) {
+      const x = i/Math.max(300,lossHist.length) * w;
+      const y = h - lossHist[i]/maxL * (h-12) - 6;
+      if (i===0) lctx.moveTo(x,y); else lctx.lineTo(x,y);
+    }
+    lctx.stroke();
+    lctx.fillStyle = '#7a8092'; lctx.font = '9px monospace';
+    lctx.fillText('loss '+(lossHist[lossHist.length-1]||0).toFixed(3), 4, 12);
+  }
+
+  function buildData(name) {
+    data = [];
+    if (name === 'spiral') {
+      for (let cls=0;cls<2;cls++) {
+        for (let i=0;i<60;i++) {
+          const r = i/60;
+          const t = i*0.18 + cls*Math.PI;
+          const x = r*Math.cos(t)*1.6 + (Math.random()-0.5)*0.15;
+          const y = r*Math.sin(t)*1.6 + (Math.random()-0.5)*0.15;
+          data.push({x, y, label: cls});
+        }
+      }
+    } else if (name === 'moons') {
+      for (let i=0;i<60;i++) {
+        const t = i/60*Math.PI;
+        data.push({x: Math.cos(t)*1.2 - 0.4 + (Math.random()-0.5)*0.15, y: Math.sin(t)*1.2 - 0.3 + (Math.random()-0.5)*0.15, label: 0});
+        data.push({x: -Math.cos(t)*1.2 + 0.4 + (Math.random()-0.5)*0.15, y: -Math.sin(t)*1.2 + 0.3 + (Math.random()-0.5)*0.15, label: 1});
+      }
+    } else if (name === 'xor') {
+      for (let i=0;i<40;i++) {
+        for (const [cx,cy,lbl] of [[1,1,0],[-1,-1,0],[1,-1,1],[-1,1,1]]) {
+          data.push({x: cx + (Math.random()-0.5)*0.6, y: cy + (Math.random()-0.5)*0.6, label: lbl});
+        }
+      }
+    } else if (name === 'blobs') {
+      const cs = [[-1.2,-1.2,0],[1.2,-1.2,1],[0,1.3,0]];
+      for (const [cx,cy,lbl] of cs) {
+        for (let i=0;i<40;i++) {
+          data.push({x: cx + (Math.random()-0.5)*0.8, y: cy + (Math.random()-0.5)*0.8, label: lbl});
+        }
+      }
+    } else if (name === 'circles') {
+      for (let i=0;i<70;i++) {
+        const t = Math.random()*Math.PI*2;
+        data.push({x: Math.cos(t)*0.6 + (Math.random()-0.5)*0.15, y: Math.sin(t)*0.6 + (Math.random()-0.5)*0.15, label: 0});
+        data.push({x: Math.cos(t)*1.5 + (Math.random()-0.5)*0.2, y: Math.sin(t)*1.5 + (Math.random()-0.5)*0.2, label: 1});
+      }
+    } else if (name === 'line') {
+      for (let i=0;i<80;i++) {
+        const x = (Math.random()-0.5)*3.4;
+        const y = (Math.random()-0.5)*3.4;
+        data.push({x, y, label: (x+y > 0) ? 1 : 0});
+      }
+    }
+  }
+
+  function loop() {
+    if (running) {
+      let last = null;
+      for (let i=0;i<params.speed;i++) last = trainStep();
+      if (last) {
+        lossHist.push(last.loss);
+        if (lossHist.length > 600) lossHist.shift();
+        document.getElementById('m-step').textContent = step;
+        document.getElementById('m-loss').textContent = last.loss.toFixed(3);
+        document.getElementById('m-acc').textContent = (last.acc*100).toFixed(1)+'%';
+        document.getElementById('m-info').textContent = data.length + ' pts · ' + step + ' steps · loss ' + last.loss.toFixed(3);
+      }
+    }
+    draw(); drawLoss();
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.querySelectorAll('.dd').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.dd').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    preset = b.dataset.d;
+    buildData(preset);
+    initWeights();
+  }));
+  document.querySelectorAll('.aa').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.aa').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    activation = b.dataset.a;
+    initWeights();
+  }));
+  ['h1','h2','lr','speed','wd'].forEach(id => {
+    const el = document.getElementById(id);
+    const val = document.getElementById(id+'-v');
+    el.addEventListener('input', () => {
+      params[id] = parseFloat(el.value);
+      val.textContent = id==='h1'||id==='h2'||id==='speed' ? params[id]|0 : params[id].toFixed(id==='wd'||id==='lr'?3:2);
+      if (id==='h1' || id==='h2') initWeights();
+    });
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset-w').onclick = initWeights;
+  document.getElementById('reset-d').onclick = () => { data = []; initWeights(); };
+  cv.addEventListener('click', e => {
+    const r = cv.getBoundingClientRect();
+    const x = ((e.clientX-r.left)/r.width)*4 - 2;
+    const y = 2 - ((e.clientY-r.top)/r.height)*4;
+    const label = e.shiftKey ? 0 : 1;
+    data.push({x, y, label});
+  });
+
+  rAll();
+  buildData(preset);
+  initWeights();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,2312 @@
+[
+{
+"path": "/ai-self",
+"title": "Ai Self",
+"group": "Apps & experiments"
+},
+{
+"path": "/ai-self/download",
+"title": "Ai Self \u00b7 Download",
+"group": "Apps & experiments"
+},
+{
+"path": "/all",
+"title": "All",
+"group": "Apps & experiments"
+},
+{
+"path": "/apex",
+"title": "Apex",
+"group": "Apps & experiments"
+},
+{
+"path": "/apex/gymnastics",
+"title": "Apex \u00b7 Gymnastics",
+"group": "Apps & experiments"
+},
+{
+"path": "/attention",
+"title": "Attention",
+"group": "Apps & experiments"
+},
+{
+"path": "/biology",
+"title": "Biology",
+"group": "Apps & experiments"
+},
+{
+"path": "/book/applications",
+"title": "Book \u00b7 Applications",
+"group": "Apps & experiments"
+},
+{
+"path": "/books/applications",
+"title": "Books \u00b7 Applications",
+"group": "Apps & experiments"
+},
+{
+"path": "/calc-bc",
+"title": "Calc Bc",
+"group": "Apps & experiments"
+},
+{
+"path": "/career",
+"title": "Career",
+"group": "Apps & experiments"
+},
+{
+"path": "/cartographer",
+"title": "Cartographer",
+"group": "Apps & experiments"
+},
+{
+"path": "/categories",
+"title": "Categories",
+"group": "Apps & experiments"
+},
+{
+"path": "/charity",
+"title": "Charity",
+"group": "Apps & experiments"
+},
+{
+"path": "/chess",
+"title": "Chess",
+"group": "Apps & experiments"
+},
+{
+"path": "/chess/sf.js",
+"title": "Chess \u00b7 Sf.Js",
+"group": "Apps & experiments"
+},
+{
+"path": "/coherence",
+"title": "Coherence",
+"group": "Apps & experiments"
+},
+{
+"path": "/communication",
+"title": "Communication",
+"group": "Apps & experiments"
+},
+{
+"path": "/conflict",
+"title": "Conflict",
+"group": "Apps & experiments"
+},
+{
+"path": "/cooking",
+"title": "Cooking",
+"group": "Apps & experiments"
+},
+{
+"path": "/crumb",
+"title": "Crumb",
+"group": "Apps & experiments"
+},
+{
+"path": "/data-science",
+"title": "Data Science",
+"group": "Apps & experiments"
+},
+{
+"path": "/decisions",
+"title": "Decisions",
+"group": "Apps & experiments"
+},
+{
+"path": "/demos",
+"title": "Demos",
+"group": "Apps & experiments"
+},
+{
+"path": "/dialogue/coherence",
+"title": "Dialogue \u00b7 Coherence",
+"group": "Apps & experiments"
+},
+{
+"path": "/dialogue/personas",
+"title": "Dialogue \u00b7 Personas",
+"group": "Apps & experiments"
+},
+{
+"path": "/dictionary/compare",
+"title": "Dictionary \u00b7 Compare",
+"group": "Apps & experiments"
+},
+{
+"path": "/docs/oauth2-redirect",
+"title": "Docs \u00b7 Oauth2 Redirect",
+"group": "Apps & experiments"
+},
+{
+"path": "/encounter",
+"title": "Encounter",
+"group": "Apps & experiments"
+},
+{
+"path": "/everything",
+"title": "Everything",
+"group": "Apps & experiments"
+},
+{
+"path": "/exercise",
+"title": "Exercise",
+"group": "Apps & experiments"
+},
+{
+"path": "/finance",
+"title": "Finance",
+"group": "Apps & experiments"
+},
+{
+"path": "/forecast",
+"title": "Forecast",
+"group": "Apps & experiments"
+},
+{
+"path": "/forecast/icon.svg",
+"title": "Forecast \u00b7 Icon.Svg",
+"group": "Apps & experiments"
+},
+{
+"path": "/forecast/manifest.json",
+"title": "Forecast \u00b7 Manifest.Json",
+"group": "Apps & experiments"
+},
+{
+"path": "/forecast/sw.js",
+"title": "Forecast \u00b7 Sw.Js",
+"group": "Apps & experiments"
+},
+{
+"path": "/forecasting",
+"title": "Forecasting",
+"group": "Apps & experiments"
+},
+{
+"path": "/healthz",
+"title": "Healthz",
+"group": "Apps & experiments"
+},
+{
+"path": "/hollow",
+"title": "Hollow",
+"group": "Apps & experiments"
+},
+{
+"path": "/hollow/animatic",
+"title": "Hollow \u00b7 Animatic",
+"group": "Apps & experiments"
+},
+{
+"path": "/hub",
+"title": "Hub",
+"group": "Apps & experiments"
+},
+{
+"path": "/innovation",
+"title": "Innovation",
+"group": "Apps & experiments"
+},
+{
+"path": "/journalism",
+"title": "Journalism",
+"group": "Apps & experiments"
+},
+{
+"path": "/law",
+"title": "Law",
+"group": "Apps & experiments"
+},
+{
+"path": "/leadership",
+"title": "Leadership",
+"group": "Apps & experiments"
+},
+{
+"path": "/leadscore",
+"title": "Leadscore",
+"group": "Apps & experiments"
+},
+{
+"path": "/logic",
+"title": "Logic",
+"group": "Apps & experiments"
+},
+{
+"path": "/medicine",
+"title": "Medicine",
+"group": "Apps & experiments"
+},
+{
+"path": "/memories",
+"title": "Memories",
+"group": "Apps & experiments"
+},
+{
+"path": "/money",
+"title": "Money",
+"group": "Apps & experiments"
+},
+{
+"path": "/moral-luck",
+"title": "Moral Luck",
+"group": "Apps & experiments"
+},
+{
+"path": "/moral-luck/download",
+"title": "Moral Luck \u00b7 Download",
+"group": "Apps & experiments"
+},
+{
+"path": "/music",
+"title": "Music",
+"group": "Apps & experiments"
+},
+{
+"path": "/node",
+"title": "Node",
+"group": "Apps & experiments"
+},
+{
+"path": "/one-rule",
+"title": "One Rule",
+"group": "Apps & experiments"
+},
+{
+"path": "/parenting",
+"title": "Parenting",
+"group": "Apps & experiments"
+},
+{
+"path": "/passage",
+"title": "Passage",
+"group": "Apps & experiments"
+},
+{
+"path": "/paths",
+"title": "Paths",
+"group": "Apps & experiments"
+},
+{
+"path": "/plan",
+"title": "Plan",
+"group": "Apps & experiments"
+},
+{
+"path": "/poker",
+"title": "Poker",
+"group": "Apps & experiments"
+},
+{
+"path": "/praxa",
+"title": "Praxa",
+"group": "Apps & experiments"
+},
+{
+"path": "/relationships",
+"title": "Relationships",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident",
+"title": "Resident",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/brain",
+"title": "Resident \u00b7 Brain",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/essay",
+"title": "Resident \u00b7 Essay",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/memory",
+"title": "Resident \u00b7 Memory",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/reframe",
+"title": "Resident \u00b7 Reframe",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/say",
+"title": "Resident \u00b7 Say",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/stream",
+"title": "Resident \u00b7 Stream",
+"group": "Apps & experiments"
+},
+{
+"path": "/resident/testsms",
+"title": "Resident \u00b7 Testsms",
+"group": "Apps & experiments"
+},
+{
+"path": "/roadmap",
+"title": "Roadmap",
+"group": "Apps & experiments"
+},
+{
+"path": "/robot",
+"title": "Robot",
+"group": "Apps & experiments"
+},
+{
+"path": "/robot.md",
+"title": "Robot.Md",
+"group": "Apps & experiments"
+},
+{
+"path": "/robot/model",
+"title": "Robot \u00b7 Model",
+"group": "Apps & experiments"
+},
+{
+"path": "/robots.txt",
+"title": "Robots.Txt",
+"group": "Apps & experiments"
+},
+{
+"path": "/runs",
+"title": "Runs",
+"group": "Apps & experiments"
+},
+{
+"path": "/scene",
+"title": "Scene",
+"group": "Apps & experiments"
+},
+{
+"path": "/scene/bci/devices",
+"title": "Scene \u00b7 Bci \u00b7 Devices",
+"group": "Apps & experiments"
+},
+{
+"path": "/sef",
+"title": "Sef",
+"group": "Apps & experiments"
+},
+{
+"path": "/should-ai-have-a-self",
+"title": "Should Ai Have A Self",
+"group": "Apps & experiments"
+},
+{
+"path": "/sitemap.xml",
+"title": "Sitemap.Xml",
+"group": "Apps & experiments"
+},
+{
+"path": "/sleep",
+"title": "Sleep",
+"group": "Apps & experiments"
+},
+{
+"path": "/software",
+"title": "Software",
+"group": "Apps & experiments"
+},
+{
+"path": "/storytelling",
+"title": "Storytelling",
+"group": "Apps & experiments"
+},
+{
+"path": "/teams",
+"title": "Teams",
+"group": "Apps & experiments"
+},
+{
+"path": "/the-return",
+"title": "The Return",
+"group": "Apps & experiments"
+},
+{
+"path": "/the-return/animatic",
+"title": "The Return \u00b7 Animatic",
+"group": "Apps & experiments"
+},
+{
+"path": "/the-unlucky-twin",
+"title": "The Unlucky Twin",
+"group": "Apps & experiments"
+},
+{
+"path": "/trajectory-compare",
+"title": "Trajectory Compare",
+"group": "Apps & experiments"
+},
+{
+"path": "/trajectory-validate",
+"title": "Trajectory Validate",
+"group": "Apps & experiments"
+},
+{
+"path": "/v1/models",
+"title": "V1 \u00b7 Models",
+"group": "Apps & experiments"
+},
+{
+"path": "/vane",
+"title": "Vane",
+"group": "Apps & experiments"
+},
+{
+"path": "/village",
+"title": "Village",
+"group": "Apps & experiments"
+},
+{
+"path": "/axona",
+"title": "Axona",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/atria-events",
+"title": "Axona \u00b7 Atria Events",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/bci",
+"title": "Axona \u00b7 Bci",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/bci-api/samples",
+"title": "Axona \u00b7 Bci Api \u00b7 Samples",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/bci/playground",
+"title": "Axona \u00b7 Bci \u00b7 Playground",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/brain",
+"title": "Axona \u00b7 Brain",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/clinic",
+"title": "Axona \u00b7 Clinic",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/clinic-api/samples",
+"title": "Axona \u00b7 Clinic Api \u00b7 Samples",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/clinic/playground",
+"title": "Axona \u00b7 Clinic \u00b7 Playground",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/cognition",
+"title": "Axona \u00b7 Cognition",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/conscious",
+"title": "Axona \u00b7 Conscious",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/edge",
+"title": "Axona \u00b7 Edge",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/events",
+"title": "Axona \u00b7 Events",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/learn",
+"title": "Axona \u00b7 Learn",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/learn-api/concepts",
+"title": "Axona \u00b7 Learn Api \u00b7 Concepts",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/learn/playground",
+"title": "Axona \u00b7 Learn \u00b7 Playground",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/lingora-events",
+"title": "Axona \u00b7 Lingora Events",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/mechanism",
+"title": "Axona \u00b7 Mechanism",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/mind",
+"title": "Axona \u00b7 Mind",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/negotiation",
+"title": "Axona \u00b7 Negotiation",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/novelty-lab",
+"title": "Axona \u00b7 Novelty Lab",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/origin",
+"title": "Axona \u00b7 Origin",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/pep-insights",
+"title": "Axona \u00b7 Pep Insights",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/pep-state",
+"title": "Axona \u00b7 Pep State",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/reintegration",
+"title": "Axona \u00b7 Reintegration",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/seeming",
+"title": "Axona \u00b7 Seeming",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/seizure",
+"title": "Axona \u00b7 Seizure",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/understudy",
+"title": "Axona \u00b7 Understudy",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/wellness",
+"title": "Axona \u00b7 Wellness",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/wellness-api/samples",
+"title": "Axona \u00b7 Wellness Api \u00b7 Samples",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/axona/wellness/playground",
+"title": "Axona \u00b7 Wellness \u00b7 Playground",
+"group": "Axona \u2014 mind & consciousness"
+},
+{
+"path": "/koin",
+"title": "Koin",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/book",
+"title": "Koin \u00b7 Book",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/cooperation-lab",
+"title": "Koin \u00b7 Cooperation Lab",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/economist",
+"title": "Koin \u00b7 Economist",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/economy",
+"title": "Koin \u00b7 Economy",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/exchange",
+"title": "Koin \u00b7 Exchange",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/rating",
+"title": "Koin \u00b7 Rating",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/readme",
+"title": "Koin \u00b7 Readme",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/rescue",
+"title": "Koin \u00b7 Rescue",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/spheres",
+"title": "Koin \u00b7 Spheres",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/summary",
+"title": "Koin \u00b7 Summary",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/surplus",
+"title": "Koin \u00b7 Surplus",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/tldr",
+"title": "Koin \u00b7 Tldr",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/balance",
+"title": "Koin \u00b7 V1 \u00b7 Balance",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/export",
+"title": "Koin \u00b7 V1 \u00b7 Export",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/field",
+"title": "Koin \u00b7 V1 \u00b7 Field",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/matches",
+"title": "Koin \u00b7 V1 \u00b7 Matches",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/me",
+"title": "Koin \u00b7 V1 \u00b7 Me",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/v1/signals",
+"title": "Koin \u00b7 V1 \u00b7 Signals",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/verdict",
+"title": "Koin \u00b7 Verdict",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/wallet",
+"title": "Koin \u00b7 Wallet",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/koin/widget.js",
+"title": "Koin \u00b7 Widget.Js",
+"group": "Koin \u2014 economy"
+},
+{
+"path": "/atria",
+"title": "Atria",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/axona-events",
+"title": "Atria \u00b7 Axona Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/date",
+"title": "Atria \u00b7 Date",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/date-api/seeds",
+"title": "Atria \u00b7 Date Api \u00b7 Seeds",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/date/playground",
+"title": "Atria \u00b7 Date \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/events",
+"title": "Atria \u00b7 Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/found",
+"title": "Atria \u00b7 Found",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/found-api/seeds",
+"title": "Atria \u00b7 Found Api \u00b7 Seeds",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/found/playground",
+"title": "Atria \u00b7 Found \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/hire",
+"title": "Atria \u00b7 Hire",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/hire-api/rank-all",
+"title": "Atria \u00b7 Hire Api \u00b7 Rank All",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/hire-api/seeds",
+"title": "Atria \u00b7 Hire Api \u00b7 Seeds",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/hire/playground",
+"title": "Atria \u00b7 Hire \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/lingora-events",
+"title": "Atria \u00b7 Lingora Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/match",
+"title": "Atria \u00b7 Match",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/match-api/eval",
+"title": "Atria \u00b7 Match Api \u00b7 Eval",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/match/playground",
+"title": "Atria \u00b7 Match \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/matcher-lab",
+"title": "Atria \u00b7 Matcher Lab",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/pep-state",
+"title": "Atria \u00b7 Pep State",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/therapy",
+"title": "Atria \u00b7 Therapy",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/therapy-api/rank",
+"title": "Atria \u00b7 Therapy Api \u00b7 Rank",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/therapy-api/seeds",
+"title": "Atria \u00b7 Therapy Api \u00b7 Seeds",
+"group": "LAVAS suite"
+},
+{
+"path": "/atria/therapy/playground",
+"title": "Atria \u00b7 Therapy \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora",
+"title": "Lingora",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/atria-events",
+"title": "Lingora \u00b7 Atria Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/axona-events",
+"title": "Lingora \u00b7 Axona Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/events",
+"title": "Lingora \u00b7 Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/evolution-lab",
+"title": "Lingora \u00b7 Evolution Lab",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/learn",
+"title": "Lingora \u00b7 Learn",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/learn-api/vocabulary",
+"title": "Lingora \u00b7 Learn Api \u00b7 Vocabulary",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/learn/playground",
+"title": "Lingora \u00b7 Learn \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/pep-state",
+"title": "Lingora \u00b7 Pep State",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/prompt",
+"title": "Lingora \u00b7 Prompt",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/prompt/playground",
+"title": "Lingora \u00b7 Prompt \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/translate",
+"title": "Lingora \u00b7 Translate",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/translate/playground",
+"title": "Lingora \u00b7 Translate \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/voice",
+"title": "Lingora \u00b7 Voice",
+"group": "LAVAS suite"
+},
+{
+"path": "/lingora/voice/playground",
+"title": "Lingora \u00b7 Voice \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata",
+"title": "Strata",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/bonds",
+"title": "Strata \u00b7 Bonds",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/commodities",
+"title": "Strata \u00b7 Commodities",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/crypto",
+"title": "Strata \u00b7 Crypto",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/cycles-lab",
+"title": "Strata \u00b7 Cycles Lab",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/equities",
+"title": "Strata \u00b7 Equities",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/events",
+"title": "Strata \u00b7 Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/fx",
+"title": "Strata \u00b7 Fx",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/paper",
+"title": "Strata \u00b7 Paper",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/pep-state",
+"title": "Strata \u00b7 Pep State",
+"group": "LAVAS suite"
+},
+{
+"path": "/strata/predict",
+"title": "Strata \u00b7 Predict",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora",
+"title": "Vectora",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/atria-events",
+"title": "Vectora \u00b7 Atria Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/axona-events",
+"title": "Vectora \u00b7 Axona Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/benchmark",
+"title": "Vectora \u00b7 Benchmark",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/context",
+"title": "Vectora \u00b7 Context",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/context-playground",
+"title": "Vectora \u00b7 Context Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/dogfood/stats",
+"title": "Vectora \u00b7 Dogfood \u00b7 Stats",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/eval/run",
+"title": "Vectora \u00b7 Eval \u00b7 Run",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/events",
+"title": "Vectora \u00b7 Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/graph",
+"title": "Vectora \u00b7 Graph",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/graph-playground",
+"title": "Vectora \u00b7 Graph Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/graph-playground/sample",
+"title": "Vectora \u00b7 Graph Playground \u00b7 Sample",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/graph-playground/viz",
+"title": "Vectora \u00b7 Graph Playground \u00b7 Viz",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/lingora-events",
+"title": "Vectora \u00b7 Lingora Events",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/pep-state",
+"title": "Vectora \u00b7 Pep State",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/playground",
+"title": "Vectora \u00b7 Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/playground/sample",
+"title": "Vectora \u00b7 Playground \u00b7 Sample",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/retrieval",
+"title": "Vectora \u00b7 Retrieval",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/spreading-lab",
+"title": "Vectora \u00b7 Spreading Lab",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/watch",
+"title": "Vectora \u00b7 Watch",
+"group": "LAVAS suite"
+},
+{
+"path": "/vectora/watch-playground",
+"title": "Vectora \u00b7 Watch Playground",
+"group": "LAVAS suite"
+},
+{
+"path": "/lemma",
+"title": "Lemma",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/account",
+"title": "Lemma \u00b7 Account",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/arts",
+"title": "Lemma \u00b7 Arts",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/canvas",
+"title": "Lemma \u00b7 Canvas",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/canvas/setup",
+"title": "Lemma \u00b7 Canvas \u00b7 Setup",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/cs",
+"title": "Lemma \u00b7 Cs",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/demo",
+"title": "Lemma \u00b7 Demo",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/engineering",
+"title": "Lemma \u00b7 Engineering",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/english",
+"title": "Lemma \u00b7 English",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/favicon.svg",
+"title": "Lemma \u00b7 Favicon.Svg",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/forgot",
+"title": "Lemma \u00b7 Forgot",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/grade-test",
+"title": "Lemma \u00b7 Grade Test",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/handout",
+"title": "Lemma \u00b7 Handout",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/history",
+"title": "Lemma \u00b7 History",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/invite",
+"title": "Lemma \u00b7 Invite",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/join",
+"title": "Lemma \u00b7 Join",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/languages",
+"title": "Lemma \u00b7 Languages",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/login",
+"title": "Lemma \u00b7 Login",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/math",
+"title": "Lemma \u00b7 Math",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/me",
+"title": "Lemma \u00b7 Me",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/og-card.svg",
+"title": "Lemma \u00b7 Og Card.Svg",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/pilot",
+"title": "Lemma \u00b7 Pilot",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/pricing",
+"title": "Lemma \u00b7 Pricing",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/science",
+"title": "Lemma \u00b7 Science",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/sell",
+"title": "Lemma \u00b7 Sell",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/signup",
+"title": "Lemma \u00b7 Signup",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/teachers",
+"title": "Lemma \u00b7 Teachers",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/team",
+"title": "Lemma \u00b7 Team",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/testprep",
+"title": "Lemma \u00b7 Testprep",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/upgrade",
+"title": "Lemma \u00b7 Upgrade",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/lemma/verify",
+"title": "Lemma \u00b7 Verify",
+"group": "Lemma \u2014 classroom"
+},
+{
+"path": "/math",
+"title": "Math",
+"group": "Math playground"
+},
+{
+"path": "/math/3body",
+"title": "Math \u00b7 3Body",
+"group": "Math playground"
+},
+{
+"path": "/math/active-inference",
+"title": "Math \u00b7 Active Inference",
+"group": "Math playground"
+},
+{
+"path": "/math/annealing",
+"title": "Math \u00b7 Annealing",
+"group": "Math playground"
+},
+{
+"path": "/math/attractor",
+"title": "Math \u00b7 Attractor",
+"group": "Math playground"
+},
+{
+"path": "/math/auction",
+"title": "Math \u00b7 Auction",
+"group": "Math playground"
+},
+{
+"path": "/math/bayes",
+"title": "Math \u00b7 Bayes",
+"group": "Math playground"
+},
+{
+"path": "/math/bifurcation",
+"title": "Math \u00b7 Bifurcation",
+"group": "Math playground"
+},
+{
+"path": "/math/boids",
+"title": "Math \u00b7 Boids",
+"group": "Math playground"
+},
+{
+"path": "/math/cycles",
+"title": "Math \u00b7 Cycles",
+"group": "Math playground"
+},
+{
+"path": "/math/demo-nav.js",
+"title": "Math \u00b7 Demo Nav.Js",
+"group": "Math playground"
+},
+{
+"path": "/math/diffusion",
+"title": "Math \u00b7 Diffusion",
+"group": "Math playground"
+},
+{
+"path": "/math/direction-cycles",
+"title": "Math \u00b7 Direction Cycles",
+"group": "Math playground"
+},
+{
+"path": "/math/entropy",
+"title": "Math \u00b7 Entropy",
+"group": "Math playground"
+},
+{
+"path": "/math/epidemic",
+"title": "Math \u00b7 Epidemic",
+"group": "Math playground"
+},
+{
+"path": "/math/evolution",
+"title": "Math \u00b7 Evolution",
+"group": "Math playground"
+},
+{
+"path": "/math/evolution-calculus",
+"title": "Math \u00b7 Evolution Calculus",
+"group": "Math playground"
+},
+{
+"path": "/math/fourier",
+"title": "Math \u00b7 Fourier",
+"group": "Math playground"
+},
+{
+"path": "/math/galton",
+"title": "Math \u00b7 Galton",
+"group": "Math playground"
+},
+{
+"path": "/math/game",
+"title": "Math \u00b7 Game",
+"group": "Math playground"
+},
+{
+"path": "/math/globe",
+"title": "Math \u00b7 Globe",
+"group": "Math playground"
+},
+{
+"path": "/math/gp",
+"title": "Math \u00b7 Gp",
+"group": "Math playground"
+},
+{
+"path": "/math/gradient",
+"title": "Math \u00b7 Gradient",
+"group": "Math playground"
+},
+{
+"path": "/math/haze",
+"title": "Math \u00b7 Haze",
+"group": "Math playground"
+},
+{
+"path": "/math/info-bottleneck",
+"title": "Math \u00b7 Info Bottleneck",
+"group": "Math playground"
+},
+{
+"path": "/math/ising",
+"title": "Math \u00b7 Ising",
+"group": "Math playground"
+},
+{
+"path": "/math/kuramoto",
+"title": "Math \u00b7 Kuramoto",
+"group": "Math playground"
+},
+{
+"path": "/math/language-evolution",
+"title": "Math \u00b7 Language Evolution",
+"group": "Math playground"
+},
+{
+"path": "/math/life",
+"title": "Math \u00b7 Life",
+"group": "Math playground"
+},
+{
+"path": "/math/matcher",
+"title": "Math \u00b7 Matcher",
+"group": "Math playground"
+},
+{
+"path": "/math/mcmc",
+"title": "Math \u00b7 Mcmc",
+"group": "Math playground"
+},
+{
+"path": "/math/modulation",
+"title": "Math \u00b7 Modulation",
+"group": "Math playground"
+},
+{
+"path": "/math/network",
+"title": "Math \u00b7 Network",
+"group": "Math playground"
+},
+{
+"path": "/math/neural",
+"title": "Math \u00b7 Neural",
+"group": "Math playground"
+},
+{
+"path": "/math/novelty",
+"title": "Math \u00b7 Novelty",
+"group": "Math playground"
+},
+{
+"path": "/math/pca",
+"title": "Math \u00b7 Pca",
+"group": "Math playground"
+},
+{
+"path": "/math/pendulum",
+"title": "Math \u00b7 Pendulum",
+"group": "Math playground"
+},
+{
+"path": "/math/pendulum-cloud",
+"title": "Math \u00b7 Pendulum Cloud",
+"group": "Math playground"
+},
+{
+"path": "/math/percolation",
+"title": "Math \u00b7 Percolation",
+"group": "Math playground"
+},
+{
+"path": "/math/predictor",
+"title": "Math \u00b7 Predictor",
+"group": "Math playground"
+},
+{
+"path": "/math/qlearning",
+"title": "Math \u00b7 Qlearning",
+"group": "Math playground"
+},
+{
+"path": "/math/reaction",
+"title": "Math \u00b7 Reaction",
+"group": "Math playground"
+},
+{
+"path": "/math/sandpile",
+"title": "Math \u00b7 Sandpile",
+"group": "Math playground"
+},
+{
+"path": "/math/schelling",
+"title": "Math \u00b7 Schelling",
+"group": "Math playground"
+},
+{
+"path": "/math/search",
+"title": "Math \u00b7 Search",
+"group": "Math playground"
+},
+{
+"path": "/math/spatial-pd",
+"title": "Math \u00b7 Spatial Pd",
+"group": "Math playground"
+},
+{
+"path": "/math/spreading",
+"title": "Math \u00b7 Spreading",
+"group": "Math playground"
+},
+{
+"path": "/math/stochastic-resonance",
+"title": "Math \u00b7 Stochastic Resonance",
+"group": "Math playground"
+},
+{
+"path": "/math/timeline",
+"title": "Math \u00b7 Timeline",
+"group": "Math playground"
+},
+{
+"path": "/math/voronoi",
+"title": "Math \u00b7 Voronoi",
+"group": "Math playground"
+},
+{
+"path": "/math/voting",
+"title": "Math \u00b7 Voting",
+"group": "Math playground"
+},
+{
+"path": "/math/waves",
+"title": "Math \u00b7 Waves",
+"group": "Math playground"
+},
+{
+"path": "/math/wealth",
+"title": "Math \u00b7 Wealth",
+"group": "Math playground"
+},
+{
+"path": "/math/wolfram",
+"title": "Math \u00b7 Wolfram",
+"group": "Math playground"
+},
+{
+"path": "/pep",
+"title": "Pep",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/aging",
+"title": "Pep \u00b7 Aging",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/agriculture",
+"title": "Pep \u00b7 Agriculture",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/animation",
+"title": "Pep \u00b7 Animation",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/applications",
+"title": "Pep \u00b7 Applications",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/arch",
+"title": "Pep \u00b7 Arch",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/art",
+"title": "Pep \u00b7 Art",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/attention",
+"title": "Pep \u00b7 Attention",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/body",
+"title": "Pep \u00b7 Body",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book",
+"title": "Pep \u00b7 Book",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/closing",
+"title": "Pep \u00b7 Book \u00b7 Closing",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/death",
+"title": "Pep \u00b7 Book \u00b7 Death",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/empathy",
+"title": "Pep \u00b7 Book \u00b7 Empathy",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/engine",
+"title": "Pep \u00b7 Book \u00b7 Engine",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/everyone",
+"title": "Pep \u00b7 Book \u00b7 Everyone",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/fault",
+"title": "Pep \u00b7 Book \u00b7 Fault",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/freedom",
+"title": "Pep \u00b7 Book \u00b7 Freedom",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/full",
+"title": "Pep \u00b7 Book \u00b7 Full",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/grief",
+"title": "Pep \u00b7 Book \u00b7 Grief",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/inheritance",
+"title": "Pep \u00b7 Book \u00b7 Inheritance",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/nouns",
+"title": "Pep \u00b7 Book \u00b7 Nouns",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/regret",
+"title": "Pep \u00b7 Book \u00b7 Regret",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/self",
+"title": "Pep \u00b7 Book \u00b7 Self",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/book/transformation",
+"title": "Pep \u00b7 Book \u00b7 Transformation",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/boredom",
+"title": "Pep \u00b7 Boredom",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/branching",
+"title": "Pep \u00b7 Branching",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/cards",
+"title": "Pep \u00b7 Cards",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/career",
+"title": "Pep \u00b7 Career",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/charity",
+"title": "Pep \u00b7 Charity",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/chemistry",
+"title": "Pep \u00b7 Chemistry",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/cities",
+"title": "Pep \u00b7 Cities",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/climate",
+"title": "Pep \u00b7 Climate",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/communication",
+"title": "Pep \u00b7 Communication",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/community",
+"title": "Pep \u00b7 Community",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/conflict",
+"title": "Pep \u00b7 Conflict",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/consciousness",
+"title": "Pep \u00b7 Consciousness",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/cooking",
+"title": "Pep \u00b7 Cooking",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/courage",
+"title": "Pep \u00b7 Courage",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/curiosity",
+"title": "Pep \u00b7 Curiosity",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/data-science",
+"title": "Pep \u00b7 Data Science",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/decisions",
+"title": "Pep \u00b7 Decisions",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/diplomacy",
+"title": "Pep \u00b7 Diplomacy",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/ecology",
+"title": "Pep \u00b7 Ecology",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/education",
+"title": "Pep \u00b7 Education",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/exercise",
+"title": "Pep \u00b7 Exercise",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/explore",
+"title": "Pep \u00b7 Explore",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/finance",
+"title": "Pep \u00b7 Finance",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/forecasting",
+"title": "Pep \u00b7 Forecasting",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/forgiveness",
+"title": "Pep \u00b7 Forgiveness",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/games",
+"title": "Pep \u00b7 Games",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/glossary",
+"title": "Pep \u00b7 Glossary",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/honesty",
+"title": "Pep \u00b7 Honesty",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/ideas",
+"title": "Pep \u00b7 Ideas",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/identity",
+"title": "Pep \u00b7 Identity",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/innovation",
+"title": "Pep \u00b7 Innovation",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/journalism",
+"title": "Pep \u00b7 Journalism",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/language-acquisition",
+"title": "Pep \u00b7 Language Acquisition",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/law",
+"title": "Pep \u00b7 Law",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/leadership",
+"title": "Pep \u00b7 Leadership",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/logic",
+"title": "Pep \u00b7 Logic",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/loneliness",
+"title": "Pep \u00b7 Loneliness",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/math-language",
+"title": "Pep \u00b7 Math Language",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/medicine",
+"title": "Pep \u00b7 Medicine",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/migration",
+"title": "Pep \u00b7 Migration",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/money",
+"title": "Pep \u00b7 Money",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/music",
+"title": "Pep \u00b7 Music",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/parenting",
+"title": "Pep \u00b7 Parenting",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/personal",
+"title": "Pep \u00b7 Personal",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/play",
+"title": "Pep \u00b7 Play",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/protest",
+"title": "Pep \u00b7 Protest",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/quickstart",
+"title": "Pep \u00b7 Quickstart",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/regret",
+"title": "Pep \u00b7 Regret",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/relationships",
+"title": "Pep \u00b7 Relationships",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/religion",
+"title": "Pep \u00b7 Religion",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/responsibility",
+"title": "Pep \u00b7 Responsibility",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/robotics",
+"title": "Pep \u00b7 Robotics",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/sleep",
+"title": "Pep \u00b7 Sleep",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/software",
+"title": "Pep \u00b7 Software",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/sports",
+"title": "Pep \u00b7 Sports",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/storytelling",
+"title": "Pep \u00b7 Storytelling",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/teams",
+"title": "Pep \u00b7 Teams",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/therapy",
+"title": "Pep \u00b7 Therapy",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/timescales",
+"title": "Pep \u00b7 Timescales",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/trust",
+"title": "Pep \u00b7 Trust",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/values",
+"title": "Pep \u00b7 Values",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pep/why",
+"title": "Pep \u00b7 Why",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/pto",
+"title": "Pto",
+"group": "PEP \u2014 framework & applications"
+},
+{
+"path": "/substrate",
+"title": "Substrate",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/atlas",
+"title": "Substrate \u00b7 Atlas",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio",
+"title": "Substrate \u00b7 Audio",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/01-pattern-not-thing",
+"title": "Substrate \u00b7 Audio \u00b7 01 Pattern Not Thing",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/02-five-primitives-deep",
+"title": "Substrate \u00b7 Audio \u00b7 02 Five Primitives Deep",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/03-pto-grading",
+"title": "Substrate \u00b7 Audio \u00b7 03 Pto Grading",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/04-residual-is-the-only-thing",
+"title": "Substrate \u00b7 Audio \u00b7 04 Residual Is The Only Thing",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/05-opacity-and-time",
+"title": "Substrate \u00b7 Audio \u00b7 05 Opacity And Time",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/06-trust-and-joint-substrates",
+"title": "Substrate \u00b7 Audio \u00b7 06 Trust And Joint Substrates",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/07-ai-and-substrates",
+"title": "Substrate \u00b7 Audio \u00b7 07 Ai And Substrates",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/audio/08-begin-where-you-are",
+"title": "Substrate \u00b7 Audio \u00b7 08 Begin Where You Are",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/book",
+"title": "Substrate \u00b7 Book",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/book/contents",
+"title": "Substrate \u00b7 Book \u00b7 Contents",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/books",
+"title": "Substrate \u00b7 Books",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/cards",
+"title": "Substrate \u00b7 Cards",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/consciousness",
+"title": "Substrate \u00b7 Consciousness",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/convictions",
+"title": "Substrate \u00b7 Convictions",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/core",
+"title": "Substrate \u00b7 Core",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/explain",
+"title": "Substrate \u00b7 Explain",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/explain/activation",
+"title": "Substrate \u00b7 Explain \u00b7 Activation",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/explain/graph",
+"title": "Substrate \u00b7 Explain \u00b7 Graph",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/explain/opacity",
+"title": "Substrate \u00b7 Explain \u00b7 Opacity",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/explain/residual",
+"title": "Substrate \u00b7 Explain \u00b7 Residual",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math",
+"title": "Substrate \u00b7 Math",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/agent-self",
+"title": "Substrate \u00b7 Math \u00b7 Agent Self",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/carnot",
+"title": "Substrate \u00b7 Math \u00b7 Carnot",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/covariance",
+"title": "Substrate \u00b7 Math \u00b7 Covariance",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/free-energy",
+"title": "Substrate \u00b7 Math \u00b7 Free Energy",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/hebbian",
+"title": "Substrate \u00b7 Math \u00b7 Hebbian",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/koin-at-scale",
+"title": "Substrate \u00b7 Math \u00b7 Koin At Scale",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/opacity",
+"title": "Substrate \u00b7 Math \u00b7 Opacity",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/potential",
+"title": "Substrate \u00b7 Math \u00b7 Potential",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/pto",
+"title": "Substrate \u00b7 Math \u00b7 Pto",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/residual",
+"title": "Substrate \u00b7 Math \u00b7 Residual",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/self-vs-noself",
+"title": "Substrate \u00b7 Math \u00b7 Self Vs Noself",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/spaced-repetition",
+"title": "Substrate \u00b7 Math \u00b7 Spaced Repetition",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/spreading",
+"title": "Substrate \u00b7 Math \u00b7 Spreading",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/stationary-pto",
+"title": "Substrate \u00b7 Math \u00b7 Stationary Pto",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/the-closure",
+"title": "Substrate \u00b7 Math \u00b7 The Closure",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/the-self",
+"title": "Substrate \u00b7 Math \u00b7 The Self",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/math/unusual",
+"title": "Substrate \u00b7 Math \u00b7 Unusual",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/mind",
+"title": "Substrate \u00b7 Mind",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/nature",
+"title": "Substrate \u00b7 Nature",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/necessity",
+"title": "Substrate \u00b7 Necessity",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/personas",
+"title": "Substrate \u00b7 Personas",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/practice",
+"title": "Substrate \u00b7 Practice",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/prompts",
+"title": "Substrate \u00b7 Prompts",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/quotes",
+"title": "Substrate \u00b7 Quotes",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/sandbox",
+"title": "Substrate \u00b7 Sandbox",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/self",
+"title": "Substrate \u00b7 Self",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads",
+"title": "Substrate \u00b7 Threads",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/5-primitives",
+"title": "Substrate \u00b7 Threads \u00b7 5 Primitives",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/ai-and-substrates",
+"title": "Substrate \u00b7 Threads \u00b7 Ai And Substrates",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/begin-where-you-are",
+"title": "Substrate \u00b7 Threads \u00b7 Begin Where You Are",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/branching-alignment",
+"title": "Substrate \u00b7 Threads \u00b7 Branching Alignment",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/death-and-pattern",
+"title": "Substrate \u00b7 Threads \u00b7 Death And Pattern",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/direction-unknowable",
+"title": "Substrate \u00b7 Threads \u00b7 Direction Unknowable",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/f-equals-t-over-d",
+"title": "Substrate \u00b7 Threads \u00b7 F Equals T Over D",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/opacity-and-forgetting",
+"title": "Substrate \u00b7 Threads \u00b7 Opacity And Forgetting",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/residual-is-everything",
+"title": "Substrate \u00b7 Threads \u00b7 Residual Is Everything",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/threads/trust-asymmetry",
+"title": "Substrate \u00b7 Threads \u00b7 Trust Asymmetry",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video",
+"title": "Substrate \u00b7 Video",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/begin-where-you-are",
+"title": "Substrate \u00b7 Video \u00b7 Begin Where You Are",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/death-and-substrate",
+"title": "Substrate \u00b7 Video \u00b7 Death And Substrate",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/direction-unknowable",
+"title": "Substrate \u00b7 Video \u00b7 Direction Unknowable",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/five-primitives",
+"title": "Substrate \u00b7 Video \u00b7 Five Primitives",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/opacity-haze",
+"title": "Substrate \u00b7 Video \u00b7 Opacity Haze",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/pto-ratio",
+"title": "Substrate \u00b7 Video \u00b7 Pto Ratio",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/residual-learning",
+"title": "Substrate \u00b7 Video \u00b7 Residual Learning",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/spreading-activation",
+"title": "Substrate \u00b7 Video \u00b7 Spreading Activation",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/trust-as-substrate-shape",
+"title": "Substrate \u00b7 Video \u00b7 Trust As Substrate Shape",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/substrate/video/what-is-the-substrate",
+"title": "Substrate \u00b7 Video \u00b7 What Is The Substrate",
+"group": "Substrate \u2014 philosophy"
+},
+{
+"path": "/manifesto",
+"title": "Manifesto",
+"group": "Writing"
+},
+{
+"path": "/manifesto/reading",
+"title": "Manifesto \u00b7 Reading",
+"group": "Writing"
+}
+]

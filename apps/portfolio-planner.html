@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Planner — core + satellite</title>
+<style>
+:root{--bg:#0a0e17;--panel:#121a28;--panel2:#182234;--ink:#e8eef7;--dim:#8aa0bd;--faint:#5f7391;--acc:#5aa2ff;--gold:#e6b043;--green:#4bd07f;--red:#ff6b6b;--rule:#25324a;--core:#4bd07f;--tilt:#5aa2ff;--bets:#e6b043}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 70% -10%,#132038,#0a0e17 60%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding:30px 22px 90px}
+h1{font-size:1.6em;letter-spacing:-.5px}
+.sub{color:var(--dim);margin-top:6px;max-width:640px}
+.disc{background:#2a1e0c;border:1px solid #5a4a1c;color:#e6cf9b;border-radius:10px;padding:10px 14px;font-size:.84em;margin:16px 0}
+.top{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.top label{color:var(--dim);font-size:.9em}
+.top input{background:#0c1320;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:9px 11px;font:inherit;font-size:1.05em;width:120px}
+.bar{display:flex;height:26px;border-radius:8px;overflow:hidden;margin:10px 0 4px}
+.bar>span{display:flex;align-items:center;justify-content:center;font-size:.75em;font-weight:700;color:#0a0e17}
+.bucket{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.bucket .hd{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dot{width:12px;height:12px;border-radius:3px}
+.bucket h2{font-size:1.05em}
+.bucket .ex{color:var(--dim);font-size:.85em;margin:2px 0 10px}
+.bucket .ex b{color:var(--ink)}
+.row2{display:flex;gap:16px;flex-wrap:wrap}
+.sld{flex:1;min-width:180px}
+.sld .l{display:flex;justify-content:space-between;font-size:.84em;color:var(--dim);margin-bottom:3px}.sld .l b{color:var(--ink)}
+input[type=range]{width:100%}
+#core input[type=range]{accent-color:var(--core)}#tilt input[type=range]{accent-color:var(--tilt)}#bets input[type=range]{accent-color:var(--bets)}
+table{width:100%;border-collapse:collapse;margin-top:6px;font-size:.95em}
+th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left;color:var(--dim)}
+th{color:var(--faint);font-size:.76em;text-transform:uppercase;letter-spacing:.5px}
+td.val{color:var(--gold);font-weight:700}td.g{color:var(--green)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;margin-top:12px}
+.card h2{font-size:1.02em;margin-bottom:8px}
+.note{color:var(--faint);font-size:.82em;margin-top:18px;line-height:1.6;border-top:1px solid var(--rule);padding-top:14px}
+.note b{color:var(--dim)}
+.warnpct{color:var(--red);font-size:.85em;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Portfolio Planner</h1>
+  <div class="sub">The <b>core-and-satellite</b> approach: a big low-cost index core does the heavy lifting; small satellites (a tilt + high-conviction bets like SPCX) add spice without betting the farm. Set your split and see it compound.</div>
+  <div class="disc">⚠ General education, not personalized financial advice. Assumed returns are long-run guesses — real markets are lumpy and can fall for years. Keep an emergency cash cushion <em>outside</em> this, and favor a tax-advantaged account (Roth IRA) for the core.</div>
+
+  <div class="top">
+    <label>I'll invest <input type="number" id="monthly" value="300"> per month</label>
+    <span id="pctwarn" class="warnpct" style="display:none">weights don't sum to 100% — projections below normalize them.</span>
+  </div>
+  <div class="bar" id="allocbar"></div>
+
+  <div class="bucket" id="core">
+    <div class="hd"><span class="dot" style="background:var(--core)"></span><h2>Core — broad index funds</h2></div>
+    <div class="ex">The foundation. <b>VOO</b>/<b>VTI</b> (S&amp;P 500 / total US), or <b>VT</b> (whole world). Boring, cheap, historically ~10%/yr. This should be most of it.</div>
+    <div class="row2">
+      <div class="sld"><div class="l"><span>Allocation</span><b><span id="corewv"></span>%</b></div><input type="range" id="corew" min="0" max="100" step="5" value="75"></div>
+      <div class="sld"><div class="l"><span>Assumed return</span><b><span id="corerv"></span>%/yr</b></div><input type="range" id="corer" min="4" max="14" step="1" value="10"></div>
+    </div>
+  </div>
+
+  <div class="bucket" id="tilt">
+    <div class="hd"><span class="dot" style="background:var(--tilt)"></span><h2>Tilt — growth / your strategy</h2></div>
+    <div class="ex"><b>QQQ/QQQM</b> (Nasdaq-100 tech tilt) or your own <b>Strata PTO</b> blend. A modest lean toward more growth. (Strata's forward record isn't proven yet — keep it small.)</div>
+    <div class="row2">
+      <div class="sld"><div class="l"><span>Allocation</span><b><span id="tiltwv"></span>%</b></div><input type="range" id="tiltw" min="0" max="100" step="5" value="15"></div>
+      <div class="sld"><div class="l"><span>Assumed return</span><b><span id="tiltrv"></span>%/yr</b></div><input type="range" id="tiltr" min="4" max="16" step="1" value="11"></div>
+    </div>
+  </div>
+
+  <div class="bucket" id="bets">
+    <div class="hd"><span class="dot" style="background:var(--bets)"></span><h2>Conviction bets — SPCX &amp; friends</h2></div>
+    <div class="ex">High-conviction single stocks (SPCX every 2 months, etc.). Big upside, big risk &mdash; keep the <b>total</b> here modest (~10&ndash;20%) so one blowup can't sink you.</div>
+    <div class="row2">
+      <div class="sld"><div class="l"><span>Allocation</span><b><span id="betswv"></span>%</b></div><input type="range" id="betsw" min="0" max="100" step="5" value="10"></div>
+      <div class="sld"><div class="l"><span>Assumed return</span><b><span id="betsrv"></span>%/yr</b></div><input type="range" id="betsr" min="-5" max="25" step="1" value="14"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What it could become</h2>
+    <table><thead><tr><th>After</th><th>Invested</th><th>Projected value</th><th>Gain</th><th>×</th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="note" style="border:none;padding:0;margin-top:8px" id="split"></div>
+  </div>
+
+  <div class="note" id="verdict"></div>
+</div>
+
+<script>
+const HZ=[1,5,10,20,30], PER=12;
+function money(v){ if(v>=1e6) return "$"+(v/1e6).toFixed(2)+"M"; if(v>=1e3) return "$"+(v/1e3).toFixed(1)+"k"; return "$"+Math.round(v); }
+function dca(monthly, annual, years){ const n=years*PER, rp=Math.pow(1+annual/100,1/PER)-1; let v=0; for(let i=0;i<n;i++) v=v*(1+rp)+monthly; return v; }
+function g(id){return +document.getElementById(id).value;}
+function calc(){
+  const m=g('monthly');
+  let cw=g('corew'),tw=g('tiltw'),bw=g('betsw'); const sum=cw+tw+bw||1;
+  ['core','tilt','bets'].forEach(k=>document.getElementById(k+'wv').textContent=g(k+'w'));
+  ['core','tilt','bets'].forEach(k=>document.getElementById(k+'rv').textContent=g(k+'r'));
+  document.getElementById('pctwarn').style.display = (cw+tw+bw!==100)?'':'none';
+  // normalized weights
+  const wc=cw/sum, wt=tw/sum, wb=bw/sum;
+  document.getElementById('allocbar').innerHTML=
+    (wc>0?'<span style="width:'+wc*100+'%;background:var(--core)">'+Math.round(wc*100)+'% core</span>':'')+
+    (wt>0?'<span style="width:'+wt*100+'%;background:var(--tilt)">'+Math.round(wt*100)+'%</span>':'')+
+    (wb>0?'<span style="width:'+wb*100+'%;background:var(--bets)">'+Math.round(wb*100)+'%</span>':'');
+  document.getElementById('rows').innerHTML=HZ.map(y=>{
+    const v=dca(m*wc,g('corer'),y)+dca(m*wt,g('tiltr'),y)+dca(m*wb,g('betsr'),y);
+    const inv=m*PER*y; return '<tr><td>'+y+' yr'+(y>1?'s':'')+'</td><td>'+money(inv)+'</td><td class="val">'+money(v)+'</td><td class="g">+'+money(v-inv)+'</td><td>'+(v/inv).toFixed(2)+'×</td></tr>';
+  }).join('');
+  const y=20, parts=[['Core',m*wc,g('corer')],['Tilt',m*wt,g('tiltr')],['Bets',m*wb,g('betsr')]];
+  document.getElementById('split').innerHTML='<b>At 20 years, by bucket:</b> '+parts.filter(p=>p[1]>0).map(p=>p[0]+' '+money(dca(p[1],p[2],y))).join(' &middot; ');
+}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));
+calc();
+document.getElementById('verdict').innerHTML='<b>The one-liner:</b> let a cheap index core do the compounding, let SPCX and other bets be the exciting slice you can afford to be wrong about, and — if you can — do it inside a <b>Roth IRA</b> so the decades of growth come out tax-free. Boring core + patient satellites beats clever almost every time.';
+</script>
+</body>
+</html>

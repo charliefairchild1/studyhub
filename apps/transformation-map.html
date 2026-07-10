@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Transformation Map — invest where the world is going</title>
+<style>
+:root{--bg:#0a0e17;--panel:#121a28;--panel2:#182234;--ink:#e8eef7;--dim:#8aa0bd;--faint:#5f7391;--acc:#5aa2ff;--gold:#e6b043;--green:#4bd07f;--red:#ff6b6b;--purp:#b98fd9;--rule:#25324a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 75% -10%,#132038,#0a0e17 55%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding:30px 22px 90px}
+h1{font-size:1.7em;letter-spacing:-.5px}h1 .a{color:var(--acc)}
+.sub{color:var(--dim);margin-top:6px;max-width:720px}
+.method{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px 18px;margin:16px 0;font-size:.9em;color:var(--dim)}
+.method b{color:var(--ink)}.method .pto{color:var(--gold)}
+.disc{background:#2a1e0c;border:1px solid #5a4a1c;color:#e6cf9b;border-radius:10px;padding:10px 14px;font-size:.84em;margin:14px 0}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chip{background:var(--panel2);border:1px solid var(--rule);color:var(--dim);padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.85em;font-weight:600}
+.chip.on{background:var(--acc);color:#08122b;border-color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:.15s}
+.card:hover{border-color:var(--acc)}
+.chd{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.score{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.25em;flex-shrink:0}
+.chd .tit{flex:1;min-width:180px}
+.chd h2{font-size:1.15em}.chd .one{color:var(--dim);font-size:.88em}
+.curve{font-size:.72em;text-transform:uppercase;letter-spacing:1px;padding:3px 9px;border-radius:12px;font-weight:700}
+.c-early{background:#0f2418;color:var(--green);border:1px solid #1e5c38}
+.c-accel{background:#132a44;color:var(--acc);border:1px solid #245080}
+.c-mature{background:#2a2412;color:var(--gold);border:1px solid #5a4a1c}
+.ptobars{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}
+.pb{flex:1;min-width:120px}
+.pb .l{display:flex;justify-content:space-between;font-size:.74em;color:var(--faint);margin-bottom:3px}
+.track{height:7px;background:#0c1320;border-radius:4px;overflow:hidden}.track>i{display:block;height:100%}
+.detail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)}
+.card.open .detail{display:block}
+.detail p{color:var(--dim);font-size:.9em;margin-bottom:10px}
+.rz{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:.9em}
+.rz .tk{font-weight:700;color:var(--ink);min-width:78px}
+.rz .wh{color:var(--dim)}
+.etf{margin-top:10px;font-size:.85em;color:var(--dim)}.etf b{color:var(--acc2,var(--acc))}
+.risk{margin-top:10px;font-size:.85em;color:#e6b0a0}.risk b{color:var(--red)}
+.note{color:var(--faint);font-size:.82em;margin-top:20px;line-height:1.6;border-top:1px solid var(--rule);padding-top:14px}
+.note b{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The <span class="a">Transformation</span> Map</h1>
+  <div class="sub">Don't start from tickers — start from the world. Find the directions where <b>potential is converting into transformation fastest, relative to what's dissipated</b>, then find the companies that <em>realize</em> that potential. Top-down by trajectory.</div>
+
+  <div class="method">
+    <b>The PTO lens, per direction:</b>
+    <span class="pto">Potential</span> = how big the latent shift is &middot;
+    <span class="pto">Transformation</span> = how fast it's actually happening now &middot;
+    <span class="pto">Dissipation</span> = risk + how much is already priced in (a great trend bought too dear pays poorly).
+    Net score rewards high potential × transformation, penalized by dissipation. <b>Tap a card</b> for the realizers.
+  </div>
+  <div class="disc">⚠ A thinking framework, not stock picks or advice. Tickers are examples to research. The safest way to bet a <em>theme</em> (rather than one company) is usually a low-cost <b>ETF</b> — listed per direction. Valuations move; a right theme with over-loved stocks can still lose.</div>
+
+  <div class="controls">
+    <span class="chip on" data-sort="net">Sort: most transformative (net)</span>
+    <span class="chip" data-sort="early">Sort: earliest (most runway)</span>
+    <span class="chip" data-sort="cheap">Sort: least priced-in</span>
+  </div>
+
+  <div id="list"></div>
+  <div id="portfolio" style="margin-top:14px"></div>
+
+  <div class="note" id="verdict"></div>
+</div>
+
+<script>
+const CURVE={early:['c-early','Early'],accel:['c-accel','Accelerating'],mature:['c-mature','Maturing']};
+const D=[
+ {name:"Artificial intelligence & compute",one:"Machines that reason — reshaping every industry's cost of thinking.",p:96,t:92,d:78,curve:"accel",
+  desc:"The defining transformation of the decade: intelligence becoming cheap and abundant. Enormous potential, already transforming fast — but the leaders are richly priced, so much of the near-term upside is arguably paid for (that's dissipation via valuation).",
+  rz:[["NVDA","The compute picks-and-shovels — GPUs everything trains/runs on."],["TSMC","Makes the chips everyone (incl. NVDA) depends on — the true bottleneck."],["MSFT / GOOGL / META / AMZN","Hyperscalers turning AI into products + owning the data centers."],["AVGO / AMD","Custom AI silicon + networking."]],
+  etf:"Diversified: SMH / SOXX (semiconductors), or QQQ (broad big-tech).",
+  risk:"Valuations price in a lot; capex + power limits; hype cycles. Owning the trend ≠ owning the winner at a good price."},
+ {name:"Energy for the AI age (power & nuclear)",one:"AI and electrification are colliding with a grid that can't keep up.",p:82,t:76,d:44,curve:"accel",
+  desc:"The under-hyped second-order bet: AI, EVs, and reshoring all need enormous electricity, and building generation + grid takes years. Demand is inelastic and durable. Cleaner risk/reward than AI itself right now — the shovels behind the shovels.",
+  rz:[["CEG / VST","Utilities selling power straight to data centers."],["CCJ","Uranium — nuclear's fuel, supply-constrained."],["GEV / ETN / PWR","Grid, turbines, electrical build-out."],["(SMRs)","Small modular reactors — real but speculative/early."]],
+  etf:"Diversified: URA / URNM (uranium+nuclear), XLU (utilities), GRID (grid infra).",
+  risk:"Long build times, regulation, rate-sensitivity; some utility valuations have already run."},
+ {name:"Metabolic & genomic medicine",one:"GLP-1 weight-loss drugs + gene editing + AI-designed medicine.",p:88,t:84,d:55,curve:"accel",
+  desc:"Biology becoming engineerable. GLP-1s (obesity/diabetes) are one of the largest drug markets ever and adopting fast; gene editing and AI drug discovery are the longer arc. Real revenue now, not just a story.",
+  rz:[["LLY / NVO","GLP-1 leaders — enormous, fast-growing, real cash."],["ISRG","Robotic surgery — durable compounder."],["CRSP / NTLA","Gene editing — high-risk, high-optionality."],["(AI-pharma)","Drug discovery accelerants — early."]],
+  etf:"Diversified: XBI (biotech, equal-ish weight), IBB, or IHI (med devices).",
+  risk:"Patent cliffs, trial failures, pricing/regulation; single biotechs are binary."},
+ {name:"The off-planet economy (space)",one:"Cheap launch + satellite internet turning space into infrastructure.",p:80,t:70,d:66,curve:"accel",
+  desc:"Reusability collapsed the cost of orbit; Starlink turned it into recurring revenue. A genuinely new economic frontier — but few clean public pure-plays, and the leader (SpaceX) IPO'd at a huge valuation.",
+  rz:[["SPCX","SpaceX — launch near-monopoly + Starlink. Priced richly (your bet)."],["RKLB","Rocket Lab — the #2 launcher, smaller/scrappier."],["LHX / defense","Satellites, space-defense exposure."]],
+  etf:"Diversified: ARKX, UFO (space) — thin, read the holdings first.",
+  risk:"Capital-intensive, few pure-plays, key-person + valuation risk (esp. SPCX)."},
+ {name:"Automation & robotics (physical AI)",one:"AI leaving the screen — factories, warehouses, eventually humanoids.",p:80,t:58,d:56,curve:"early",
+  desc:"Software AI is here; embodied AI is the next S-curve. Industrial automation is real and compounding now; humanoids are early and hype-prone. Reshoring adds a tailwind.",
+  rz:[["ROK / ABB","Industrial automation — real revenue today."],["ISRG","Robotics in surgery (also biotech)."],["TSLA","Optimus optionality — speculative slice of the story."]],
+  etf:"Diversified: BOTZ, ROBO (robotics & automation).",
+  risk:"Humanoid timelines are hyped; automation names can be cyclical."},
+ {name:"Security & sovereignty",one:"A fragmenting world spends on defense, cyber, and supply-chain control.",p:72,t:62,d:42,curve:"accel",
+  desc:"Deglobalization is a multi-decade reversal: rising defense budgets, cyber everywhere, nations re-securing chips/energy/food. Sticky, government-backed demand — less glamorous, more durable.",
+  rz:[["LMT / RTX / NOC","Defense primes — long backlogs."],["PANW / CRWD","Cybersecurity — recurring, mission-critical."],["(chip sovereignty)","Reshoring semis (ties to TSMC/Intel builds)."]],
+  etf:"Diversified: ITA / PPA (defense), CIBR / BUG (cyber).",
+  risk:"Political/budget cycles; some defense names already re-rated; cyber can be pricey."},
+ {name:"Rebuilding the physical world",one:"Reshoring, grid, water, and infrastructure — the unglamorous rebuild.",p:66,t:56,d:40,curve:"accel",
+  desc:"A generational capex wave: factories coming home, aging grids/roads/water systems, and the build-out under every other trend on this list. Boring, cyclical, but real and policy-funded.",
+  rz:[["PWR / ETN","Electrical + infrastructure construction."],["Materials/aggregates","The literal inputs (cement, aggregates)."],["Water","Utilities + treatment (scarcity is rising)."]],
+  etf:"Diversified: PAVE (US infrastructure), or broad industrials XLI.",
+  risk:"Cyclical, capital-heavy, rate-sensitive; slow-compounding not explosive."},
+ {name:"Clean energy & electrification",one:"Solar + batteries — huge long run, brutal competition short run.",p:80,t:54,d:66,curve:"early",
+  desc:"The long arc is enormous and inevitable-ish, but the path is lumpy: fierce (often Chinese) competition commoditizes hardware, and it's rate/policy-sensitive. High potential, high dissipation — pick realizers with real moats.",
+  rz:[["FSLR","US solar with a real cost/policy moat."],["TSLA (energy)","Storage — the under-covered half of Tesla."],["Battery/storage","Grid storage enablers."]],
+  etf:"Diversified: ICLN, TAN (solar) — volatile.",
+  risk:"Commoditization, China competition, policy/rate swings — many past 'winners' cratered."},
+];
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function sc(x){const o=(load('tmap.scores',{})[x.name]||{}); return {p:o.p??x.p,t:o.t??x.t,d:o.d??x.d};}
+function setScore(name,key,val){const s=load('tmap.scores',{}); s[name]=s[name]||{}; s[name][key]=+val; store('tmap.scores',s);}
+function net(x){const s=sc(x); return Math.round((0.5*s.p+0.5*s.t)*(1-s.d/250));}
+function color(n){ return n>=62?'var(--green)':n>=54?'var(--gold)':'var(--red)'; }
+function picks(){return load('tmap.picks',[]);}
+function togglePick(name){let p=picks(); p=p.includes(name)?p.filter(x=>x!==name):p.concat([name]); store('tmap.picks',p); render();}
+let sort='net';
+const openSet=new Set();
+function render(){
+  const arr=D.map(x=>({...x,net:net(x)}));
+  if(sort==='net') arr.sort((a,b)=>b.net-a.net);
+  else if(sort==='early') arr.sort((a,b)=>({early:0,accel:1,mature:2}[a.curve]-{early:0,accel:1,mature:2}[b.curve])|| b.p-a.p);
+  else if(sort==='cheap') arr.sort((a,b)=>sc(a).d-sc(b).d);
+  const P=picks();
+  document.getElementById('list').innerHTML=arr.map(x=>{
+    const cv=CURVE[x.curve], s=sc(x), picked=P.includes(x.name), op=openSet.has(x.name);
+    const bar=(lab,v,c)=>'<div class="pb"><div class="l"><span>'+lab+'</span><span>'+v+'</span></div><div class="track"><i style="width:'+v+'%;background:'+c+'"></i></div></div>';
+    const sld=(lab,key,v,c)=>'<div class="pb"><div class="l"><span>'+lab+'</span><span>'+v+'</span></div><input type="range" min="0" max="100" value="'+v+'" data-sname="'+encodeURIComponent(x.name)+'" data-key="'+key+'" style="width:100%;accent-color:'+c+'"></div>';
+    return '<div class="card'+(op?' open':'')+'" data-name="'+encodeURIComponent(x.name)+'">'+
+      '<div class="chd"><div class="score" style="background:'+color(x.net)+'22;color:'+color(x.net)+';border:1px solid '+color(x.net)+'55">'+x.net+'</div>'+
+      '<div class="tit"><h2>'+x.name+'</h2><div class="one">'+x.one+'</div></div>'+
+      '<span class="curve '+cv[0]+'">'+cv[1]+'</span></div>'+
+      '<div class="ptobars">'+bar('Potential',s.p,'var(--green)')+bar('Transformation now',s.t,'var(--acc)')+bar('Dissipation / priced-in',s.d,'var(--red)')+'</div>'+
+      '<div class="detail"><p>'+x.desc+'</p>'+
+        x.rz.map(r=>'<div class="rz"><span class="tk">'+r[0]+'</span><span class="wh">'+r[1]+'</span></div>').join('')+
+        '<div class="etf">🧺 <b>Diversified way in:</b> '+x.etf+'</div>'+
+        '<div class="risk"><b>Dissipation / risk:</b> '+x.risk+'</div>'+
+        '<div style="margin-top:12px;border-top:1px solid var(--rule);padding-top:10px"><div style="font-size:.76em;color:var(--faint);margin-bottom:6px">YOUR call — drag to re-score (release to re-rank):</div><div class="ptobars">'+sld('Potential','p',s.p,'var(--green)')+sld('Transformation','t',s.t,'var(--acc)')+sld('Dissipation','d',s.d,'var(--red)')+'</div>'+
+        '<button class="chip'+(picked?' on':'')+'" data-pick="'+encodeURIComponent(x.name)+'" style="margin-top:12px">'+(picked?'✓ In my portfolio':'＋ Add to my portfolio')+'</button></div>'+
+      '</div></div>';
+  }).join('');
+  document.querySelectorAll('#list .card').forEach(c=>c.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; const n=decodeURIComponent(c.dataset.name); if(openSet.has(n))openSet.delete(n); else openSet.add(n); c.classList.toggle('open'); }));
+  document.querySelectorAll('#list input[type=range]').forEach(r=>r.addEventListener('change',()=>{ setScore(decodeURIComponent(r.dataset.sname), r.dataset.key, r.value); render(); }));
+  document.querySelectorAll('#list [data-pick]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); togglePick(decodeURIComponent(b.dataset.pick)); }));
+  renderPortfolio();
+}
+const ETFMAIN={"Artificial intelligence & compute":"SMH","Energy for the AI age (power & nuclear)":"URA","Metabolic & genomic medicine":"XBI","The off-planet economy (space)":"ARKX","Automation & robotics (physical AI)":"BOTZ","Security & sovereignty":"ITA","Rebuilding the physical world":"PAVE","Clean energy & electrification":"ICLN"};
+function renderPortfolio(){
+  const el=document.getElementById('portfolio'), P=picks();
+  if(!P.length){ el.innerHTML='<div class="card" style="cursor:default"><b>🧺 Build a themed portfolio.</b> <span style="color:var(--dim)">Open the directions you believe in and tap &ldquo;＋ Add to my portfolio&rdquo; — they turn into a monthly ETF allocation right here.</span></div>'; return; }
+  const chosen=D.filter(x=>P.includes(x.name)).map(x=>({...x,net:net(x)}));
+  const tot=chosen.reduce((a,x)=>a+x.net,0)||1, monthly=load('tmap.monthly',300);
+  el.innerHTML='<div class="card" style="cursor:default"><h2 style="margin-bottom:6px">🧺 Your themed portfolio</h2>'+
+    '<div style="color:var(--dim);font-size:.88em;margin-bottom:10px">Conviction-weighted by each direction&rsquo;s net score — set up recurring monthly buys of these ETFs in Robinhood.</div>'+
+    '<div style="margin-bottom:10px;color:var(--dim);font-size:.9em">Invest $<input type="number" id="tm-monthly" value="'+monthly+'" style="width:90px;background:#0c1320;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:6px 9px"> / month</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:.94em"><thead><tr><th style="text-align:left;color:var(--faint);font-size:.74em;text-transform:uppercase;padding:4px">Direction</th><th style="text-align:left;color:var(--faint);font-size:.74em">ETF</th><th style="text-align:right;color:var(--faint);font-size:.74em">Weight</th><th style="text-align:right;color:var(--faint);font-size:.74em">$/mo</th></tr></thead><tbody>'+
+    chosen.map(x=>{const w=x.net/tot; return '<tr><td style="padding:7px 4px;border-bottom:1px solid var(--rule)">'+x.name+'</td><td style="padding:7px 4px;border-bottom:1px solid var(--rule)"><b>'+ETFMAIN[x.name]+'</b></td><td style="padding:7px 4px;text-align:right;border-bottom:1px solid var(--rule)">'+Math.round(w*100)+'%</td><td style="padding:7px 4px;text-align:right;border-bottom:1px solid var(--rule);color:var(--gold);font-weight:700">$'+(monthly*w).toFixed(0)+'</td></tr>';}).join('')+
+    '</tbody></table><div class="note" style="border:none;padding:0;margin-top:10px">These ETFs are your <b>core + tilt</b>; keep a single stock like SPCX as a separate conviction slice. Research each ETF&rsquo;s holdings &amp; fees — not advice.</div></div>';
+  const mi=document.getElementById('tm-monthly'); if(mi) mi.addEventListener('change',()=>{ store('tmap.monthly',+mi.value||0); renderPortfolio(); });
+}
+document.querySelectorAll('.controls .chip').forEach(ch=>ch.addEventListener('click',()=>{
+  document.querySelectorAll('.controls .chip').forEach(c=>c.classList.remove('on')); ch.classList.add('on'); sort=ch.dataset.sort; render();
+}));
+render();
+document.getElementById('verdict').innerHTML='<b>How to actually use this:</b> pick the 2&ndash;4 directions you believe in most, and get exposure mainly through the <b>ETFs</b> (so you own the trend, not a coin-flip on one company) — then add a single stock like SPCX only where your conviction is high and you can stomach it going to zero. Notice the pattern PTO predicts: the loudest trend (AI) scores high on potential but its <em>dissipation is high because it&rsquo;s already priced in</em>, while quieter second-order plays (power for AI, infrastructure) often convert better per dollar risked. The world tells you the direction; valuation tells you the price of admission; only when both line up is it a great bet.';
+</script>
+</body>
+</html>

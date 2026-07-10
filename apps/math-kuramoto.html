@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuramoto — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#ffb74d; --accent2:#4fc3f7;
+    --warn:#ef5350; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-columns:1.3fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  .split{display:grid;grid-template-rows:1fr 1fr;gap:8px;height:100%}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">kuramoto — synchronization from coupling</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="spreading.html">⟳ Spreading</a>
+    <a href="percolation.html">▦ Percolation</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>oscillators on the unit circle · centroid = order parameter r</span><b id="m-r">r = —</b></div>
+    <canvas id="circle"></canvas>
+  </div>
+  <div class="section">
+    <div class="split">
+      <div style="display:flex;flex-direction:column">
+        <div class="section-title"><span>r(t) — order parameter over time</span></div>
+        <canvas id="rtrack"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div class="section-title"><span>phase histogram</span></div>
+        <canvas id="hist"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="panel">
+  <h2>Kuramoto</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    <code>θ̇ᵢ = ωᵢ + (K/N)&nbsp;Σⱼ sin(θⱼ−θᵢ)</code>. Each oscillator wants its own frequency ωᵢ but is pulled toward the group mean by coupling K. Below K_c they run free. Above, they phase-lock.
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Coupling K</label>
+    <input id="K" type="range" min="0" max="4" step="0.02" value="1.0">
+    <span class="val" id="K-v">1.00</span>
+  </div>
+  <div class="row">
+    <label>Freq spread σ</label>
+    <input id="sigma" type="range" min="0" max="2" step="0.05" value="0.6">
+    <span class="val" id="sigma-v">0.60</span>
+  </div>
+  <div class="row">
+    <label>N</label>
+    <input id="N" type="range" min="10" max="200" step="5" value="80">
+    <span class="val" id="N-v">80</span>
+  </div>
+  <div class="row">
+    <label>Noise</label>
+    <input id="noise" type="range" min="0" max="0.5" step="0.01" value="0">
+    <span class="val" id="noise-v">0.00</span>
+  </div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset</button>
+    <button id="sweep">▶ Sweep K 0→4</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Order parameter r</span><b id="m-r2">—</b></div>
+  <div class="metric"><span>Mean phase ψ</span><b id="m-psi">—</b></div>
+  <div class="metric"><span>K_c ≈ 2σ√(2/π)</span><b id="m-kc">—</b></div>
+  <div class="metric"><span>Regime</span><b id="m-regime">—</b></div>
+
+  <div class="pep-note">
+    <b>PEP tie-in.</b> State modulation (primitive 4) = changing K.
+    Spreading activation (primitive 2) in the phase-locked regime
+    makes the group behave as one oscillator — a single effective
+    node with huge reach. In the incoherent regime, the same graph
+    is a bag of independent agents. Same machine, two totally
+    different behaviors, via one parameter.
+    <br><br>
+    <b>Real-world:</b> fireflies syncing, pacemaker cells, clapping
+    audiences, circadian rhythms entraining to light, neural
+    avalanches, traders front-running each other into bubbles.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">K = 0:</b> oscillators drift at their own ωᵢ, uniform around circle, r ≈ 0.<br>
+    <b style="color:var(--accent2)">K → K_c:</b> watch r climb from ~0 to ~1 in a narrow band.<br>
+    <b style="color:var(--accent2)">Sweep button:</b> walks K from 0 to 4 so you can see the transition live.<br>
+    <b style="color:var(--accent2)">High σ:</b> harder to sync, K_c shifts right.
+  </div>
+</div>
+
+<script>
+(() => {
+  const circC = document.getElementById('circle');
+  const rC = document.getElementById('rtrack');
+  const hC = document.getElementById('hist');
+  const cctx = circC.getContext('2d');
+  const rctx = rC.getContext('2d');
+  const hctx = hC.getContext('2d');
+  let cd, rd, hd;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() {
+    cd = resizeOne(circC, cctx);
+    rd = resizeOne(rC, rctx);
+    hd = resizeOne(hC, hctx);
+  }
+  window.addEventListener('resize', resizeAll);
+
+  let N = 80;
+  let theta = [], omega = [];
+  let K = 1.0, sigma = 0.6, noise = 0;
+  let running = true;
+  let rHist = [];
+  let t = 0;
+
+  function randN() {
+    // Box-Muller
+    const u = Math.max(1e-9, Math.random()), v = Math.max(1e-9, Math.random());
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+
+  function reset() {
+    N = parseInt(document.getElementById('N').value);
+    theta = []; omega = [];
+    for (let i=0;i<N;i++) {
+      theta.push(Math.random()*2*Math.PI);
+      omega.push(randN() * sigma);
+    }
+    rHist = [];
+    t = 0;
+  }
+
+  function orderParameter() {
+    let sx = 0, sy = 0;
+    for (const th of theta) { sx += Math.cos(th); sy += Math.sin(th); }
+    sx /= N; sy /= N;
+    return { r: Math.sqrt(sx*sx + sy*sy), psi: Math.atan2(sy, sx) };
+  }
+
+  function step(dt) {
+    const { r, psi } = orderParameter();
+    for (let i=0;i<N;i++) {
+      const drift = omega[i] + K * r * Math.sin(psi - theta[i]);
+      const noiseTerm = noise > 0 ? randN() * Math.sqrt(dt) * noise : 0;
+      theta[i] += drift * dt + noiseTerm;
+    }
+    t += dt;
+    rHist.push(r);
+    if (rHist.length > 400) rHist.shift();
+  }
+
+  function drawCircle() {
+    const { w, h } = cd;
+    cctx.fillStyle = '#0a0d14'; cctx.fillRect(0,0,w,h);
+    const cx = w/2, cy = h/2, R = Math.min(w,h)*0.38;
+    cctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    cctx.lineWidth = 1;
+    cctx.beginPath(); cctx.arc(cx, cy, R, 0, Math.PI*2); cctx.stroke();
+    // oscillators
+    for (let i=0;i<N;i++) {
+      const x = cx + R*Math.cos(theta[i]);
+      const y = cy + R*Math.sin(theta[i]);
+      // color by ω
+      const hue = 200 + (omega[i] - (-sigma*2))/(sigma*4)*160;
+      cctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+      cctx.beginPath(); cctx.arc(x, y, 4, 0, Math.PI*2); cctx.fill();
+    }
+    // centroid
+    const { r, psi } = orderParameter();
+    const rx = cx + R*r*Math.cos(psi);
+    const ry = cy + R*r*Math.sin(psi);
+    cctx.strokeStyle = '#ffb74d';
+    cctx.lineWidth = 2;
+    cctx.beginPath(); cctx.moveTo(cx, cy); cctx.lineTo(rx, ry); cctx.stroke();
+    cctx.fillStyle = '#ffb74d';
+    cctx.beginPath(); cctx.arc(rx, ry, 6, 0, Math.PI*2); cctx.fill();
+    cctx.fillStyle = '#e2e6ed'; cctx.font='11px monospace';
+    cctx.fillText('r = '+r.toFixed(3), cx - 40, cy - R - 14);
+    // update metrics
+    document.getElementById('m-r').textContent = 'r = ' + r.toFixed(3);
+    document.getElementById('m-r2').textContent = r.toFixed(3);
+    document.getElementById('m-psi').textContent = psi.toFixed(2) + ' rad';
+    const Kc = 2 * sigma * Math.sqrt(2/Math.PI);
+    document.getElementById('m-kc').textContent = Kc.toFixed(2);
+    let regime;
+    if (K < Kc*0.8) regime = 'incoherent';
+    else if (K < Kc*1.2) regime = 'transition';
+    else regime = 'synchronized';
+    document.getElementById('m-regime').textContent = regime;
+  }
+
+  function drawRTrack() {
+    const { w, h } = rd;
+    rctx.fillStyle = '#0a0d14'; rctx.fillRect(0,0,w,h);
+    rctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    rctx.beginPath(); rctx.moveTo(0, h-4); rctx.lineTo(w, h-4); rctx.moveTo(0, 4); rctx.lineTo(w, 4); rctx.stroke();
+    rctx.fillStyle = 'rgba(255,255,255,0.3)'; rctx.font='9px monospace';
+    rctx.fillText('1', 2, 10); rctx.fillText('0', 2, h-6);
+    if (rHist.length<2) return;
+    rctx.strokeStyle = '#ffb74d';
+    rctx.lineWidth = 1.5;
+    rctx.beginPath();
+    for (let i=0;i<rHist.length;i++) {
+      const x = i/400 * w;
+      const y = h - 4 - rHist[i]*(h-8);
+      if (i===0) rctx.moveTo(x,y); else rctx.lineTo(x,y);
+    }
+    rctx.stroke();
+  }
+
+  function drawHist() {
+    const { w, h } = hd;
+    hctx.fillStyle = '#0a0d14'; hctx.fillRect(0,0,w,h);
+    const bins = 30;
+    const counts = new Array(bins).fill(0);
+    for (const th of theta) {
+      const b = Math.floor(((th % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI) * bins);
+      counts[b]++;
+    }
+    const maxC = Math.max(...counts, 1);
+    const bw = (w-20) / bins;
+    for (let i=0;i<bins;i++) {
+      const bh = counts[i]/maxC * (h-20);
+      hctx.fillStyle = '#4fc3f7';
+      hctx.fillRect(10 + i*bw, h-10-bh, bw-0.5, bh);
+    }
+    hctx.fillStyle = 'rgba(255,255,255,0.3)'; hctx.font='9px monospace';
+    hctx.fillText('0', 8, h-2); hctx.fillText('2π', w-18, h-2);
+  }
+
+  function loop() {
+    if (running) {
+      for (let k=0;k<2;k++) step(0.04);
+    }
+    drawCircle(); drawRTrack(); drawHist();
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.getElementById('K').addEventListener('input', e => {
+    K = parseFloat(e.target.value);
+    document.getElementById('K-v').textContent = K.toFixed(2);
+  });
+  document.getElementById('sigma').addEventListener('input', e => {
+    sigma = parseFloat(e.target.value);
+    document.getElementById('sigma-v').textContent = sigma.toFixed(2);
+    reset();
+  });
+  document.getElementById('N').addEventListener('input', e => {
+    document.getElementById('N-v').textContent = e.target.value;
+    reset();
+  });
+  document.getElementById('noise').addEventListener('input', e => {
+    noise = parseFloat(e.target.value);
+    document.getElementById('noise-v').textContent = noise.toFixed(2);
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('sweep').onclick = () => {
+    let k = 0;
+    const iv = setInterval(() => {
+      K = k;
+      document.getElementById('K').value = K;
+      document.getElementById('K-v').textContent = K.toFixed(2);
+      k += 0.04;
+      if (k > 4) clearInterval(iv);
+    }, 80);
+  };
+
+  resizeAll();
+  reset();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

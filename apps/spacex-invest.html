@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpaceX — biweekly investing projection</title>
+<style>
+:root{--bg:#0a0e17;--panel:#121a28;--panel2:#182234;--ink:#e8eef7;--dim:#8aa0bd;--faint:#5f7391;--acc:#5aa2ff;--gold:#e6b043;--green:#4bd07f;--red:#ff6b6b;--rule:#25324a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 70% -10%,#132038,#0a0e17 60%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding:30px 22px 90px}
+h1{font-size:1.65em;letter-spacing:-.5px}h1 .s{color:var(--acc)}
+.sub{color:var(--dim);margin-top:6px;max-width:660px}
+.disc{background:#2a1e0c;border:1px solid #5a4a1c;color:#e6cf9b;border-radius:10px;padding:10px 14px;font-size:.85em;margin:16px 0}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+@media(max-width:640px){.controls{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+.card h2{font-size:1.02em;margin-bottom:10px}
+.fld{margin:10px 0}.fld label{display:block;font-size:.86em;color:var(--dim);margin-bottom:4px}
+input[type=number]{width:100%;background:#0c1320;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:9px 11px;font:inherit;font-size:1em}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.rate-lbl{display:flex;justify-content:space-between;font-size:.86em;color:var(--dim);margin-bottom:4px}.rate-lbl b{color:var(--gold)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.presets button{background:var(--panel2);border:1px solid var(--rule);color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.85em;font-weight:600}
+.presets button:hover{border-color:var(--acc)}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.95em}
+th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left;color:var(--dim)}
+th{color:var(--faint);font-size:.78em;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+td.val{color:var(--gold);font-weight:700}td.gain{color:var(--green)}
+.chart{margin-top:8px}
+.legend{display:flex;gap:16px;font-size:.82em;color:var(--dim);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.note{color:var(--faint);font-size:.82em;margin-top:20px;line-height:1.6;border-top:1px solid var(--rule);padding-top:14px}
+.note b{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Space<span class="s">X</span> — buy every 2 weeks, then wait</h1>
+  <div class="sub">A dollar-cost-averaging projection. You put in a fixed amount every two weeks; it compounds at a growth rate you choose. See what it could become — as a <em>range of scenarios</em>, not a promise.</div>
+  <div class="disc">✅ SpaceX is public now as <b>SPCX</b> (NASDAQ) — IPO'd June 12, 2026 at $135/share, ~$1.7&nbsp;trillion valuation; ~$149 today and just added to the Nasdaq-100. You can buy it directly in Robinhood. But these are hypothetical compounding scenarios, not forecasts — and at a $1.7T starting price, the giant early gains already went to private investors.</div>
+
+  <div class="controls">
+    <div class="card">
+      <h2>Your plan</h2>
+      <div class="fld"><label>Amount every 2 weeks ($)</label><input type="number" id="amt" value="150"><div class="note" style="border:none;margin:4px 0 0;padding:0">≈ one share of SPCX (~$149 today) — change to whatever you'll actually buy.</div></div>
+      <div class="fld"><label>Starting amount now ($, optional)</label><input type="number" id="lump" value="0"></div>
+    </div>
+    <div class="card">
+      <h2>Assumed growth</h2>
+      <div class="fld"><div class="rate-lbl"><span>Annual return</span><b><span id="ratev">15</span>% / yr</b></div><input type="range" id="rate" min="-10" max="40" step="1" value="15"></div>
+      <div class="presets">
+        <button onclick="setRate(0)">Flat 0%</button>
+        <button onclick="setRate(8)">Modest 8%</button>
+        <button onclick="setRate(15)">Base 15%</button>
+        <button onclick="setRate(28)">Bull 28%</button>
+      </div>
+      <div class="note" style="border:none;margin:10px 0 0;padding:0">For scale: the S&amp;P averages ~10%/yr. SpaceX's private valuation grew ~50%/yr — but that's <em>already banked</em>; it IPO'd at $1.7&nbsp;trillion. From that base, sustained &gt;15%/yr would make it the largest company on Earth several times over. Possible across decades if it owns space + comms, but a big bet — a $1.7T company 10×-ing means $17T.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What it could become</h2>
+    <table><thead><tr><th>After</th><th>You'll have invested</th><th>Projected value</th><th>Gain</th><th>×</th></tr></thead>
+    <tbody id="rows"></tbody></table>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>The path (20 years)</h2>
+    <div class="chart" id="chart"></div>
+    <div class="legend"><span><i style="background:var(--gold)"></i>projected value</span><span><i style="background:var(--dim)"></i>total you put in</span></div>
+  </div>
+
+  <div class="note" id="verdict"></div>
+</div>
+
+<script>
+const PER=26; // purchases per year (every 2 weeks)
+const HZ=[1,2,3,5,10,15,20,30];
+function money(v){ if(v>=1e6) return "$"+(v/1e6).toFixed(2)+"M"; if(v>=1e3) return "$"+(v/1e3).toFixed(1)+"k"; return "$"+Math.round(v); }
+function setRate(r){ document.getElementById('rate').value=r; calc(); }
+function project(amt, lump, annual, years){
+  const n=Math.round(years*PER), rp=Math.pow(1+annual/100, 1/PER)-1;
+  let value=lump, invested=lump;
+  for(let i=0;i<n;i++){ value=value*(1+rp)+amt; invested+=amt; }
+  return {value, invested};
+}
+function calc(){
+  const amt=+document.getElementById('amt').value||0, lump=+document.getElementById('lump').value||0, rate=+document.getElementById('rate').value;
+  document.getElementById('ratev').textContent=rate;
+  document.getElementById('rows').innerHTML=HZ.map(y=>{ const r=project(amt,lump,rate,y); const gain=r.value-r.invested;
+    return '<tr><td>'+y+' year'+(y>1?'s':'')+'</td><td>'+money(r.invested)+'</td><td class="val">'+money(r.value)+'</td><td class="gain">'+(gain>=0?'+':'')+money(gain)+'</td><td>'+(r.invested>0?(r.value/r.invested).toFixed(2):'—')+'×</td></tr>';
+  }).join('');
+  drawChart(amt,lump,rate);
+}
+function drawChart(amt,lump,rate){
+  const W=820,H=260,PADL=52,PADB=26,PADT=10,PADR=12, maxY=20;
+  const pts=[]; for(let y=0;y<=maxY;y++) pts.push(project(amt,lump,rate,y));
+  const maxV=Math.max(...pts.map(p=>p.value),1);
+  const x=y=>PADL+(y/maxY)*(W-PADL-PADR);
+  const yy=v=>H-PADB-(v/maxV)*(H-PADT-PADB);
+  const line=(sel,col,wd)=>'<polyline fill="none" stroke="'+col+'" stroke-width="'+wd+'" points="'+pts.map((p,i)=>x(i).toFixed(1)+','+yy(p[sel]).toFixed(1)).join(' ')+'"/>';
+  let grid='';
+  for(let g=0;g<=4;g++){ const v=maxV*g/4, py=yy(v); grid+='<line x1="'+PADL+'" y1="'+py+'" x2="'+(W-PADR)+'" y2="'+py+'" stroke="#25324a" stroke-width="1"/><text x="6" y="'+(py+4)+'" fill="#5f7391" font-size="11">'+money(v)+'</text>'; }
+  [0,5,10,15,20].forEach(g=>{ grid+='<text x="'+x(g)+'" y="'+(H-8)+'" fill="#5f7391" font-size="11" text-anchor="middle">'+g+'y</text>'; });
+  document.getElementById('chart').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+grid+line('invested','#8aa0bd',2)+line('value','#e6b043',2.5)+'</svg>';
+}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));
+calc();
+document.getElementById('verdict').innerHTML='<b>Straight talk:</b> you&rsquo;re probably right that SpaceX <em>the company</em> dominates space — it already does. But it IPO&rsquo;d at $1.7&nbsp;trillion, so the market has already priced in a lot of that dominance; the explosive private-era gains went to earlier investors. &ldquo;The company keeps winning&rdquo; and &ldquo;the stock 10×s from $1.7T&rdquo; are different claims — the second needs it to become several times larger than any company in history. That can happen over decades if space becomes a huge economy and SpaceX owns it, but it&rsquo;s a decades bet, not a fast one. Buying every 2 weeks is the right way to make it: it averages your entry over time. It&rsquo;s now in the Nasdaq-100, so if you own an index fund (like QQQ) you already hold a slice. Keep it a <em>position</em>, not your whole portfolio, and size it so you&rsquo;re fine if it stumbles.';
+</script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulated Annealing — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#ef5350; --accent2:#ffb74d;
+    --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)} nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-rows:1fr 130px;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px} .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:50px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">simulated annealing — temperature as state modulation</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="gradient.html">∇ Gradient</a>
+    <a href="mcmc.html">Ⅿ MCMC</a>
+    <a href="modulation.html">◐ State mod</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>tour · red = current, faded = best so far</span><b id="m-len">length —</b></div>
+    <canvas id="tour"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>length (red) &amp; temperature (orange, log scale)</span></div>
+    <canvas id="track"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Simulated Annealing · TSP</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Propose a 2-opt swap. Always accept shorter. Accept longer with probability <code>exp(−Δ/T)</code>. Cool T over time. High T explores; low T exploits.
+  </div>
+
+  <h3>Cities</h3>
+  <div class="btn-row">
+    <button class="layout active" data-l="random">Random</button>
+    <button class="layout" data-l="grid">Grid</button>
+    <button class="layout" data-l="cluster">Clusters</button>
+    <button class="layout" data-l="circle">Circle</button>
+    <button class="layout" data-l="cross">Cross</button>
+  </div>
+  <div class="row"><label>N cities</label><input id="N" type="range" min="10" max="100" step="1" value="40"><span class="val" id="N-v">40</span></div>
+
+  <h3>Schedule</h3>
+  <div class="row"><label>T₀</label><input id="T0" type="range" min="1" max="200" step="1" value="60"><span class="val" id="T0-v">60</span></div>
+  <div class="row"><label>Cooling α</label><input id="alpha" type="range" min="0.9" max="0.9999" step="0.0001" value="0.9995"><span class="val" id="alpha-v">0.9995</span></div>
+  <div class="row"><label>Steps/frame</label><input id="speed" type="range" min="1" max="2000" step="1" value="400"><span class="val" id="speed-v">400</span></div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reshuffle + reset T</button>
+    <button id="tour-shuffle">Shuffle tour only</button>
+    <button id="reheat">Reheat to T₀</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Current length</span><b id="m-cur">—</b></div>
+  <div class="metric"><span>Best length</span><b id="m-best">—</b></div>
+  <div class="metric"><span>Temperature</span><b id="m-T">—</b></div>
+  <div class="metric"><span>Accept rate</span><b id="m-acc">—</b></div>
+  <div class="metric"><span>Total steps</span><b id="m-step">0</b></div>
+
+  <div class="pep-note">
+    <b>Temperature is state modulation.</b> T rescales the accept
+    function — the same objective, the same moves, but the optimizer's
+    <i>tolerance for dissipation</i> changes with T. High T lets the
+    system cross energy barriers (escape local minima); low T locks
+    it into whatever basin it's in. This is Axona's mood/arousal dial
+    in disguise: same options, different acceptance thresholds.
+    <br><br>
+    PTO reading: tolerating short-term dissipation (T &gt; 0) is a
+    precondition for long-term transformation. A greedy policy
+    optimizes local PTO and gets stuck; annealed policy pays
+    dissipation cost to find the better basin.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">α = 0.9999 (very slow cool):</b> usually finds the global best.<br>
+    <b style="color:var(--accent2)">α = 0.99 (fast cool):</b> often gets trapped.<br>
+    <b style="color:var(--accent2)">T₀ too low:</b> greedy, stuck.<br>
+    <b style="color:var(--accent2)">Cluster layout:</b> see how tours route between groups.
+  </div>
+</div>
+
+<script>
+(() => {
+  const tC = document.getElementById('tour');
+  const kC = document.getElementById('track');
+  const tctx = tC.getContext('2d'), kctx = kC.getContext('2d');
+  let td, kd;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() { td = resizeOne(tC, tctx); kd = resizeOne(kC, kctx); }
+  window.addEventListener('resize', resizeAll);
+
+  let N = 40, layout = 'random';
+  let cities = [], tour = [], bestTour = [], bestLen = Infinity;
+  let T = 60, T0 = 60, alpha = 0.9995;
+  let steps = 0, accepts = 0, recent = 0, recentAcc = 0;
+  let lenHist = [], THist = [];
+
+  function makeCities() {
+    N = parseInt(document.getElementById('N').value);
+    cities = [];
+    if (layout === 'random') {
+      for (let i=0;i<N;i++) cities.push({x: Math.random(), y: Math.random()});
+    } else if (layout === 'grid') {
+      const side = Math.ceil(Math.sqrt(N));
+      let i = 0;
+      outer: for (let r=0;r<side;r++) for (let c=0;c<side;c++) {
+        if (i >= N) break outer;
+        cities.push({ x: 0.1 + c*0.8/Math.max(1,side-1), y: 0.1 + r*0.8/Math.max(1,side-1) });
+        i++;
+      }
+    } else if (layout === 'cluster') {
+      const nClust = 5;
+      for (let i=0;i<N;i++) {
+        const c = i % nClust;
+        const cx = 0.2 + (c%3)*0.3, cy = 0.2 + Math.floor(c/3)*0.3;
+        cities.push({ x: cx + (Math.random()-0.5)*0.15, y: cy + (Math.random()-0.5)*0.15 });
+      }
+    } else if (layout === 'circle') {
+      for (let i=0;i<N;i++) {
+        const t = i*2*Math.PI/N;
+        cities.push({ x: 0.5 + 0.35*Math.cos(t), y: 0.5 + 0.35*Math.sin(t) });
+      }
+    } else if (layout === 'cross') {
+      for (let i=0;i<N;i++) {
+        if (i%2===0) cities.push({ x: 0.1 + i/N*0.8, y: 0.5 + (Math.random()-0.5)*0.15 });
+        else cities.push({ x: 0.5 + (Math.random()-0.5)*0.15, y: 0.1 + i/N*0.8 });
+      }
+    }
+    tour = cities.map((_,i) => i);
+    // shuffle tour
+    for (let i=tour.length-1;i>0;i--) { const j = Math.floor(Math.random()*(i+1)); [tour[i],tour[j]]=[tour[j],tour[i]]; }
+    T = parseFloat(document.getElementById('T0').value); T0 = T;
+    alpha = parseFloat(document.getElementById('alpha').value);
+    steps = 0; accepts = 0; lenHist = []; THist = [];
+    bestTour = tour.slice();
+    bestLen = tourLen(tour);
+  }
+
+  function dist(a, b) {
+    const dx = cities[a].x - cities[b].x, dy = cities[a].y - cities[b].y;
+    return Math.sqrt(dx*dx+dy*dy);
+  }
+  function tourLen(t) {
+    let s = 0;
+    for (let i=0;i<t.length;i++) s += dist(t[i], t[(i+1)%t.length]);
+    return s;
+  }
+  function step() {
+    // 2-opt: pick i<j, reverse tour[i..j]
+    const i = Math.floor(Math.random()*(N-1));
+    let j = i + 1 + Math.floor(Math.random()*(N-i-1));
+    // compute Δ cheaply
+    const a = tour[i], b = tour[(i+1)%N];
+    const c = tour[j], d = tour[(j+1)%N];
+    if (a === d || b === c) return;
+    const before = dist(a,b) + dist(c,d);
+    const after  = dist(a,c) + dist(b,d);
+    const delta = after - before;
+    let accept = false;
+    if (delta < 0) accept = true;
+    else if (Math.random() < Math.exp(-delta/Math.max(1e-9, T))) accept = true;
+    if (accept) {
+      // reverse
+      let lo = i+1, hi = j;
+      while (lo < hi) { [tour[lo], tour[hi]] = [tour[hi], tour[lo]]; lo++; hi--; }
+      accepts++;
+      const cur = tourLen(tour);
+      if (cur < bestLen) { bestLen = cur; bestTour = tour.slice(); }
+    }
+    steps++;
+    T *= alpha;
+  }
+
+  function draw() {
+    const { w, h } = td;
+    tctx.fillStyle = 'rgba(10,13,20,0.25)';
+    tctx.fillRect(0,0,w,h);
+    const pad = 20;
+    const sw = w - 2*pad, sh = h - 2*pad;
+    function map(c) { return { x: pad + c.x*sw, y: pad + c.y*sh }; }
+    // best tour faded
+    tctx.strokeStyle = 'rgba(255,183,77,0.45)';
+    tctx.lineWidth = 1;
+    tctx.beginPath();
+    for (let i=0;i<bestTour.length;i++) {
+      const p = map(cities[bestTour[i]]);
+      if (i===0) tctx.moveTo(p.x, p.y); else tctx.lineTo(p.x, p.y);
+    }
+    tctx.closePath(); tctx.stroke();
+    // current tour
+    tctx.strokeStyle = '#ef5350';
+    tctx.lineWidth = 1.8;
+    tctx.beginPath();
+    for (let i=0;i<tour.length;i++) {
+      const p = map(cities[tour[i]]);
+      if (i===0) tctx.moveTo(p.x, p.y); else tctx.lineTo(p.x, p.y);
+    }
+    tctx.closePath(); tctx.stroke();
+    // cities
+    for (const c of cities) {
+      const p = map(c);
+      tctx.fillStyle = '#e2e6ed';
+      tctx.beginPath(); tctx.arc(p.x, p.y, 3, 0, Math.PI*2); tctx.fill();
+    }
+    document.getElementById('m-len').textContent = 'length ' + tourLen(tour).toFixed(3);
+    document.getElementById('m-cur').textContent = tourLen(tour).toFixed(3);
+    document.getElementById('m-best').textContent = bestLen.toFixed(3);
+    document.getElementById('m-T').textContent = T.toExponential(2);
+    document.getElementById('m-acc').textContent = steps>0 ? ((accepts/steps)*100).toFixed(1)+'%' : '—';
+    document.getElementById('m-step').textContent = steps;
+  }
+  function drawTrack() {
+    const { w, h } = kd;
+    kctx.fillStyle = '#0a0d14'; kctx.fillRect(0,0,w,h);
+    if (lenHist.length < 2) return;
+    let minL = Infinity, maxL = 0;
+    for (const v of lenHist) { if (v<minL) minL=v; if (v>maxL) maxL=v; }
+    kctx.strokeStyle = '#ef5350';
+    kctx.lineWidth = 1.3;
+    kctx.beginPath();
+    for (let i=0;i<lenHist.length;i++) {
+      const x = i/Math.max(lenHist.length,1) * w;
+      const y = h - (lenHist[i]-minL)/(maxL-minL+1e-9) * (h-8) - 4;
+      if (i===0) kctx.moveTo(x,y); else kctx.lineTo(x,y);
+    }
+    kctx.stroke();
+    // T on log scale
+    let logMax = Math.log(T0), logMin = Math.log(1e-6);
+    kctx.strokeStyle = '#ffb74d';
+    kctx.beginPath();
+    for (let i=0;i<THist.length;i++) {
+      const x = i/Math.max(THist.length,1) * w;
+      const lt = Math.log(Math.max(1e-6, THist[i]));
+      const y = h - (lt-logMin)/(logMax-logMin+1e-9) * (h-8) - 4;
+      if (i===0) kctx.moveTo(x,y); else kctx.lineTo(x,y);
+    }
+    kctx.stroke();
+  }
+
+  let running = true;
+  function loop() {
+    if (running) {
+      const spd = parseInt(document.getElementById('speed').value);
+      for (let k=0;k<spd;k++) step();
+      lenHist.push(tourLen(tour)); if (lenHist.length > 400) lenHist.shift();
+      THist.push(T); if (THist.length > 400) THist.shift();
+    }
+    draw(); drawTrack();
+    setTimeout(loop, 50);
+  }
+
+  // controls
+  document.querySelectorAll('.layout').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.layout').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      layout = b.dataset.l;
+      makeCities();
+    });
+  });
+  document.getElementById('N').addEventListener('input', e => {
+    document.getElementById('N-v').textContent = e.target.value;
+    makeCities();
+  });
+  document.getElementById('T0').addEventListener('input', e => {
+    T0 = parseFloat(e.target.value); T = T0;
+    document.getElementById('T0-v').textContent = T0.toFixed(0);
+  });
+  document.getElementById('alpha').addEventListener('input', e => {
+    alpha = parseFloat(e.target.value);
+    document.getElementById('alpha-v').textContent = alpha.toFixed(4);
+  });
+  document.getElementById('speed').addEventListener('input', e => {
+    document.getElementById('speed-v').textContent = e.target.value;
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = makeCities;
+  document.getElementById('tour-shuffle').onclick = () => {
+    for (let i=tour.length-1;i>0;i--) { const j = Math.floor(Math.random()*(i+1)); [tour[i],tour[j]]=[tour[j],tour[i]]; }
+    steps = 0; accepts = 0; lenHist = []; THist = [];
+    bestLen = tourLen(tour); bestTour = tour.slice();
+  };
+  document.getElementById('reheat').onclick = () => { T = T0; };
+
+  resizeAll();
+  makeCities();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

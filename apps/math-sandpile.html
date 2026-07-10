@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sandpile — PEP Math Playground</title>
+<style>
+  :root{--bg:#0a0d14;--surface:#14181f;--surface2:#0f1318;--text:#e2e6ed;--dim:#7a8092;--accent:#ffb74d;--accent2:#ef5350;--border:#1e2430}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-rows:1fr 180px;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block;image-rendering:pixelated;cursor:crosshair}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}.row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:48px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">sandpile — self-organized criticality</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="percolation.html">▦ Percolation</a>
+    <a href="ising.html">🧲 Ising</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>grid · cells with 0–3 grains darker · about-to-topple bright · click to drop</span><b id="m-info">—</b></div>
+    <canvas id="grid"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>avalanche size distribution · log-log · should look linear</span><b>P(s) ~ s<sup>−τ</sup></b></div>
+    <canvas id="hist"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Sandpile</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Drop one grain. If a cell reaches 4, it gives 1 grain to each of its 4 neighbors and resets. Cascades happen. The avalanche-size distribution becomes a power law without any tuning — the system <i>self-organizes</i> to criticality.
+  </div>
+
+  <h3>Drop strategy</h3>
+  <div class="btn-row">
+    <button class="dd active" data-d="random">Random</button>
+    <button class="dd" data-d="center">Center only</button>
+    <button class="dd" data-d="line">Bottom row</button>
+    <button class="dd" data-d="click">Click only (manual)</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row"><label>Grid size</label><input id="N" type="range" min="40" max="200" step="10" value="100"><span class="val" id="N-v">100</span></div>
+  <div class="row"><label>Drop rate</label><input id="rate" type="range" min="1" max="100" step="1" value="20"><span class="val" id="rate-v">20</span></div>
+  <div class="row"><label>Topple threshold</label><input id="thr" type="range" min="3" max="8" step="1" value="4"><span class="val" id="thr-v">4</span></div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset grid</button>
+    <button id="big">Drop 1000 fast</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Grains in system</span><b id="m-grains">0</b></div>
+  <div class="metric"><span>Drops total</span><b id="m-drops">0</b></div>
+  <div class="metric"><span>Largest avalanche</span><b id="m-max">0</b></div>
+  <div class="metric"><span>Mean avalanche size</span><b id="m-mean">—</b></div>
+  <div class="metric"><span>Slope τ (least squares)</span><b id="m-tau">—</b></div>
+
+  <div class="pep-note">
+    <b>What "self-organized criticality" means.</b> Most phase-transition
+    systems need you to dial a parameter to its critical value (T_c in
+    <a href="ising.html">Ising</a>, p_c in <a href="percolation.html">percolation</a>).
+    Sandpile doesn't — it lives at criticality automatically because
+    of the slow input + threshold release dynamic. Brains, forest fires,
+    earthquakes, and stock markets all show this pattern.
+    <br><br>
+    The slope τ ≈ 1.0–1.2 in 2D. If you see something else, the
+    system hasn't equilibrated yet — let it run longer.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Click in the corner repeatedly:</b> small avalanches stay local.<br>
+    <b style="color:var(--accent2)">Drop 1000 fast:</b> the histogram appears and the slope appears around −1.1.<br>
+    <b style="color:var(--accent2)">Threshold = 6 or 8:</b> larger avalanches when they happen, but rarer; same shape.<br>
+    <b style="color:var(--accent2)">Center only:</b> watch growth rings expand from the middle.
+  </div>
+</div>
+
+<script>
+(() => {
+  const gC = document.getElementById('grid');
+  const hC = document.getElementById('hist');
+  const ctx = gC.getContext('2d');
+  const hctx = hC.getContext('2d');
+  let gd, hd;
+  function rOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function rAll() { gd = rOne(gC, ctx); hd = rOne(hC, hctx); }
+  window.addEventListener('resize', rAll);
+
+  let N = 100;
+  let cells, just_toppled;
+  let drops = 0, grains = 0;
+  let avalancheSizes = [];
+  let lastAvalanche = 0;
+  let dropMode = 'random';
+  let running = true;
+  let threshold = 4;
+
+  function reset() {
+    N = parseInt(document.getElementById('N').value);
+    cells = new Uint8Array(N*N);
+    just_toppled = new Uint8Array(N*N);
+    drops = 0; grains = 0; avalancheSizes = []; lastAvalanche = 0;
+  }
+
+  function topple() {
+    let avalancheSize = 0;
+    let unstable = [];
+    for (let i=0;i<N*N;i++) if (cells[i] >= threshold) unstable.push(i);
+    just_toppled.fill(0);
+    while (unstable.length) {
+      const i = unstable.pop();
+      if (cells[i] < threshold) continue;
+      cells[i] -= 4;
+      just_toppled[i] = 1;
+      avalancheSize++;
+      const r = i / N | 0, c = i % N;
+      // 4 neighbors; grains spilling off the grid are lost (open boundary)
+      const ns = [];
+      if (r > 0) ns.push((r-1)*N + c);
+      if (r < N-1) ns.push((r+1)*N + c);
+      if (c > 0) ns.push(r*N + c-1);
+      if (c < N-1) ns.push(r*N + c+1);
+      for (const j of ns) {
+        cells[j]++;
+        if (cells[j] >= threshold) unstable.push(j);
+      }
+    }
+    return avalancheSize;
+  }
+
+  function dropOne(idx=null) {
+    if (idx === null) {
+      if (dropMode === 'random') idx = Math.floor(Math.random()*N*N);
+      else if (dropMode === 'center') idx = Math.floor(N/2)*N + Math.floor(N/2);
+      else if (dropMode === 'line') {
+        const c = Math.floor(Math.random()*N);
+        idx = (N-1)*N + c;
+      } else return; // click mode — only manual
+    }
+    cells[idx]++;
+    drops++;
+    const a = topple();
+    if (a > 0) {
+      avalancheSizes.push(a);
+      if (a > lastAvalanche) lastAvalanche = a;
+    }
+    grains = 0;
+    for (let i=0;i<N*N;i++) grains += cells[i];
+  }
+
+  function drawGrid() {
+    const { w, h } = gd;
+    const cell = Math.min(w, h) / N;
+    const xoff = (w - cell*N)/2, yoff = (h - cell*N)/2;
+    ctx.fillStyle = '#0a0d14'; ctx.fillRect(0,0,w,h);
+    for (let r=0;r<N;r++) for (let c=0;c<N;c++) {
+      const i = r*N + c;
+      const v = cells[i];
+      let col;
+      if (just_toppled[i]) col = '#ffb74d';
+      else if (v >= threshold) col = '#ef5350';
+      else if (v === threshold-1) col = '#a47b3a';
+      else if (v === threshold-2) col = '#7d6233';
+      else if (v === threshold-3) col = '#5b4a30';
+      else col = '#2a2632';
+      ctx.fillStyle = col;
+      ctx.fillRect(xoff + c*cell, yoff + r*cell, cell+0.5, cell+0.5);
+    }
+  }
+  function drawHist() {
+    const { w, h } = hd;
+    hctx.fillStyle = '#0a0d14'; hctx.fillRect(0,0,w,h);
+    if (avalancheSizes.length < 10) {
+      hctx.fillStyle = '#7a8092'; hctx.font = '10px monospace';
+      hctx.fillText('drop more grains to see distribution...', 12, 24);
+      return;
+    }
+    // Bin by integer size
+    const binMap = new Map();
+    for (const s of avalancheSizes) binMap.set(s, (binMap.get(s)||0)+1);
+    const arr = [...binMap.entries()].sort((a,b)=>a[0]-b[0]);
+    const maxS = Math.max(...arr.map(([s])=>s));
+    const maxC = Math.max(...arr.map(([,c])=>c));
+    function lx(v) { return Math.log10(Math.max(1, v)); }
+    const lxMax = lx(maxS) || 1, lyMax = lx(maxC) || 1;
+    // axes
+    hctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    hctx.beginPath(); hctx.moveTo(36, 6); hctx.lineTo(36, h-22); hctx.lineTo(w-6, h-22); hctx.stroke();
+    hctx.fillStyle = '#7a8092'; hctx.font = '9px monospace';
+    hctx.fillText('log P(s)', 4, 14);
+    hctx.fillText('log s', w-30, h-6);
+    hctx.fillStyle = '#ffb74d';
+    for (const [s, c] of arr) {
+      const x = 36 + lx(s)/lxMax * (w-44);
+      const y = h - 22 - lx(c)/lyMax * (h-30);
+      hctx.beginPath(); hctx.arc(x, y, 2.5, 0, Math.PI*2); hctx.fill();
+    }
+    // least-squares slope
+    if (arr.length > 3) {
+      let sx=0, sy=0, sxy=0, sx2=0, n=0;
+      for (const [s,c] of arr) {
+        const xv = lx(s), yv = lx(c);
+        sx += xv; sy += yv; sxy += xv*yv; sx2 += xv*xv; n++;
+      }
+      const slope = (n*sxy - sx*sy) / Math.max(0.001, n*sx2 - sx*sx);
+      const intercept = (sy - slope*sx)/n;
+      hctx.strokeStyle = 'rgba(255,183,77,0.5)';
+      hctx.beginPath();
+      const x0 = 36, x1 = w-6;
+      const lx0 = 0, lx1 = lxMax;
+      const ly0 = h - 22 - (intercept + slope*lx0)/lyMax * (h-30);
+      const ly1 = h - 22 - (intercept + slope*lx1)/lyMax * (h-30);
+      hctx.moveTo(x0, ly0); hctx.lineTo(x1, ly1);
+      hctx.stroke();
+      document.getElementById('m-tau').textContent = (-slope).toFixed(2);
+    }
+  }
+
+  function update() {
+    document.getElementById('m-grains').textContent = grains;
+    document.getElementById('m-drops').textContent = drops;
+    document.getElementById('m-max').textContent = lastAvalanche;
+    if (avalancheSizes.length) {
+      const mean = avalancheSizes.reduce((a,b)=>a+b,0) / avalancheSizes.length;
+      document.getElementById('m-mean').textContent = mean.toFixed(1);
+    }
+    document.getElementById('m-info').textContent = N+'×'+N+' · '+drops+' drops · '+avalancheSizes.length+' avalanches';
+  }
+
+  function loop() {
+    if (running && dropMode !== 'click') {
+      const rate = parseInt(document.getElementById('rate').value);
+      for (let i=0;i<rate;i++) dropOne();
+    }
+    drawGrid(); drawHist(); update();
+    setTimeout(loop, 40);
+  }
+
+  // controls
+  document.querySelectorAll('.dd').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.dd').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    dropMode = b.dataset.d;
+  }));
+  document.getElementById('N').addEventListener('input', e => {
+    document.getElementById('N-v').textContent = e.target.value; reset();
+  });
+  document.getElementById('rate').addEventListener('input', e => {
+    document.getElementById('rate-v').textContent = e.target.value;
+  });
+  document.getElementById('thr').addEventListener('input', e => {
+    threshold = parseInt(e.target.value);
+    document.getElementById('thr-v').textContent = threshold;
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('big').onclick = () => { for (let i=0;i<1000;i++) dropOne(); };
+  gC.addEventListener('click', e => {
+    const r = gC.getBoundingClientRect();
+    const { w, h } = gd;
+    const cell = Math.min(w, h) / N;
+    const xoff = (w - cell*N)/2, yoff = (h - cell*N)/2;
+    const cx = Math.floor((e.clientX - r.left - xoff) / cell);
+    const cy = Math.floor((e.clientY - r.top - yoff) / cell);
+    if (cx >= 0 && cx < N && cy >= 0 && cy < N) {
+      dropOne(cy*N + cx);
+    }
+  });
+
+  rAll(); reset(); loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

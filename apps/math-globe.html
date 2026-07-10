@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evolution Globe — PEP Math Playground</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #globe-container { position: fixed; top: 44px; left: 0; right: 340px; bottom: 0;
+                     background: radial-gradient(ellipse at center, #1a2238 0%, #0a0d14 70%); }
+  #globe-canvas { position: absolute; inset: 0; cursor: grab; }
+  #globe-canvas:active { cursor: grabbing; }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 340px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 14px; }
+  #panel label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; }
+  #panel label b { color: var(--text); font-size: 11px; }
+  #panel input[type=range] { width: 100%; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+
+  #legend { background: var(--surface2); border-radius: 6px; padding: 10px 12px;
+            font-size: 10px; color: var(--dim); line-height: 1.7; }
+  #legend .biome-row { display: flex; align-items: center; gap: 6px; }
+  #legend .biome-swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  #species-detail { background: var(--surface2); border-radius: 6px; padding: 10px 12px;
+                    font-size: 11px; min-height: 80px; }
+  #species-detail.empty { color: var(--dim); font-style: italic; }
+
+  #event-log { background: var(--surface2); border-radius: 6px; padding: 8px 12px;
+               font-size: 10px; color: var(--dim); max-height: 140px; overflow-y: auto;
+               line-height: 1.6; }
+  #event-log .evt-new { color: var(--accent2); }
+  #event-log .evt-extinct { color: var(--danger); }
+  #event-log .evt-speciate { color: var(--accent); }
+
+  .tooltip { position: fixed; background: var(--surface); border: 1px solid var(--accent);
+             border-radius: 4px; padding: 6px 10px; font-size: 10px;
+             pointer-events: none; z-index: 50; display: none; }
+
+  @media (max-width: 900px) {
+    #globe-container { right: 0; bottom: 280px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 280px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Evolution Globe</span>
+  <span class="tag">PEP · species as nodes, environmental pressure as state modulation</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="#">Axona Insights</a>
+  </span>
+</nav>
+
+<div id="globe-container">
+  <canvas id="globe-canvas"></canvas>
+</div>
+
+<div id="panel">
+
+  <h3>Preset scenarios</h3>
+  <div class="ctrl">
+    <select id="preset-select" onchange="applyPreset(this.value)"
+      style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px">
+      <option value="">— choose a scenario —</option>
+      <optgroup label="Earth, past">
+        <option value="snowball">Snowball Earth (~700 Mya)</option>
+        <option value="cambrian">Cambrian explosion (~540 Mya)</option>
+        <option value="carboniferous">Carboniferous (~300 Mya — oxygen-rich swamp)</option>
+        <option value="permian-end">End-Permian (~252 Mya — great dying)</option>
+        <option value="cretaceous">Late Cretaceous (~75 Mya — warm, dinosaur peak)</option>
+        <option value="paleocene">PETM (~55 Mya — hothouse spike)</option>
+        <option value="iceage">Last ice age (~20 kya)</option>
+      </optgroup>
+      <optgroup label="Earth, future-ish">
+        <option value="present">Present Earth</option>
+        <option value="warming2">+2 °C (IPCC near-term)</option>
+        <option value="warming4">+4 °C (worst-case)</option>
+        <option value="runaway">Runaway greenhouse (Venus trajectory)</option>
+      </optgroup>
+      <optgroup label="Other worlds">
+        <option value="mars">Mars-like (cold, arid, thin atmosphere)</option>
+        <option value="venus">Venus-like (hothouse, thick humid)</option>
+        <option value="europa">Europa-like (deep cold, wet subsurface)</option>
+        <option value="earlyearth">Early Earth (hot, low-oxygen, damp)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <h3>Climate</h3>
+  <div class="ctrl">
+    <label><b>Global temperature</b> <span id="temp-val" style="float:right">+0.0 °C</span></label>
+    <input id="temp-slider" type="range" min="-25" max="25" step="0.5" value="0">
+    <label style="margin-top:4px;color:var(--dim);font-size:9px">
+      −25 = snowball · 0 = present · +25 = hothouse / Venus
+    </label>
+  </div>
+  <div class="ctrl">
+    <label><b>Moisture</b> <span id="wet-val" style="float:right">0.0</span></label>
+    <input id="wet-slider" type="range" min="-1" max="1" step="0.1" value="0">
+    <label style="margin-top:4px;color:var(--dim);font-size:9px">
+      negative = arid · positive = wet
+    </label>
+  </div>
+  <div class="ctrl">
+    <label><b>Local pressure intensity</b> <span id="pres-val" style="float:right">0.30</span></label>
+    <input id="pres-slider" type="range" min="0" max="1" step="0.05" value="0.3">
+    <label style="margin-top:4px;color:var(--dim);font-size:9px">
+      how aggressively fitness selects — 0 = drift only, 1 = harsh
+    </label>
+  </div>
+
+  <h3>Simulation</h3>
+  <div class="ctrl">
+    <button id="step-btn" onclick="stepGeneration()">Step 1 gen</button>
+    <button id="play-btn" class="primary" onclick="togglePlay()">▶ Play</button>
+    <button onclick="stepMany(10)">+10 gens</button>
+    <button onclick="stepMany(100)">+100 gens</button>
+    <button onclick="resetSim()" class="danger">Reset</button>
+  </div>
+  <div class="ctrl">
+    <button onclick="introduceMassExtinction()">☄ Mass extinction</button>
+    <button onclick="seedNew(10)">+10 random species</button>
+  </div>
+
+  <h3>Field</h3>
+  <div class="stat-row"><span class="label">Generation</span><span class="value" id="stat-gen">0</span></div>
+  <div class="stat-row"><span class="label">Extant species</span><span class="value" id="stat-extant">0</span></div>
+  <div class="stat-row"><span class="label">Total emerged</span><span class="value" id="stat-total">0</span></div>
+  <div class="stat-row"><span class="label">Total extinct</span><span class="value" id="stat-extinct">0</span></div>
+  <div class="stat-row"><span class="label">Avg fitness</span><span class="value" id="stat-fit">—</span></div>
+
+  <h3>Biomes (color ∝ temp × moisture)</h3>
+  <div id="legend"></div>
+
+  <h3>What dominates</h3>
+  <div id="dominant" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:11px;min-height:80px">Run a few generations to see which trait profile wins.</div>
+
+  <h3>What it would look like</h3>
+  <div id="world-look" style="background:var(--surface2);border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.6">—</div>
+
+  <h3>Selected species</h3>
+  <div id="species-detail" class="empty">Click a species node on the globe.</div>
+
+  <h3>Recent events</h3>
+  <div id="event-log"></div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+// ═════════════════════════════════════════════════════════════════════
+// Globe setup
+// ═════════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('globe-canvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  projection.fitExtent([[20, 20], [W-20, H-20]], { type: 'Sphere' });
+}
+window.addEventListener('resize', resize);
+
+const projection = d3.geoOrthographic().translate([W/2, H/2]).scale(260).clipAngle(90);
+const path = d3.geoPath(projection, ctx);
+let worldLand = null;
+let worldGraticule = d3.geoGraticule10();
+
+// Fetch TopoJSON world data
+fetch('https://unpkg.com/world-atlas@2/land-110m.json')
+  .then(r => r.json())
+  .then(data => { worldLand = topojson.feature(data, data.objects.land); draw(); })
+  .catch(() => {}); // fall back to graticule only
+
+// ═════════════════════════════════════════════════════════════════════
+// Surface styles — switch by active preset
+// ═════════════════════════════════════════════════════════════════════
+// Seeded RNG for deterministic procedural surfaces (Mars patches, etc.)
+function seededRng(seed) {
+  let s = seed;
+  return function() { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+}
+
+function drawProceduralLandmass(landmassRegions) {
+  // landmassRegions: array of {lonCenter, latCenter, lonRadius, latRadius, noise}
+  // Draw as spherical ellipsoidal blobs in lat/lon space — approximate continental shapes
+  for (const rgn of landmassRegions) {
+    const rng = seededRng(rgn.seed || 1);
+    ctx.beginPath();
+    let first = true;
+    for (let theta = 0; theta <= Math.PI * 2; theta += 0.1) {
+      const jitter = 1 + (rng() - 0.5) * (rgn.noise || 0.3);
+      const lon = rgn.lonCenter + rgn.lonRadius * Math.cos(theta) * jitter;
+      const lat = rgn.latCenter + rgn.latRadius * Math.sin(theta) * jitter;
+      // Clamp and wrap
+      const lonClamp = ((lon + 180) % 360) - 180;
+      const latClamp = Math.max(-88, Math.min(88, lat));
+      if (!isVisible(lonClamp, latClamp)) continue;
+      const pt = projection([lonClamp, latClamp]);
+      if (!pt) continue;
+      if (first) { ctx.moveTo(pt[0], pt[1]); first = false; }
+      else ctx.lineTo(pt[0], pt[1]);
+    }
+    ctx.closePath();
+    ctx.fillStyle = rgn.fill || 'rgba(120,100,80,0.55)';
+    ctx.fill();
+    ctx.strokeStyle = rgn.stroke || 'rgba(200,180,150,0.5)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+}
+
+function drawIceCracks(rng) {
+  // Great-circle cracks across ice surface
+  ctx.strokeStyle = 'rgba(180,200,230,0.4)';
+  ctx.lineWidth = 0.8;
+  for (let i = 0; i < 18; i++) {
+    const lon0 = rng() * 360 - 180;
+    const lat0 = rng() * 160 - 80;
+    const heading = rng() * Math.PI * 2;
+    ctx.beginPath();
+    let first = true;
+    for (let t = 0; t < 180; t += 4) {
+      const dist = (t * Math.PI) / 180;
+      // Great circle math — use d3.geoInterpolate approximation via small-step
+      const lon = lon0 + Math.cos(heading) * dist * 20;
+      const lat = lat0 + Math.sin(heading) * dist * 10;
+      if (lat < -88 || lat > 88) break;
+      const lonWrap = ((lon + 180) % 360) - 180;
+      if (!isVisible(lonWrap, lat)) { first = true; continue; }
+      const pt = projection([lonWrap, lat]);
+      if (!pt) { first = true; continue; }
+      if (first) { ctx.moveTo(pt[0], pt[1]); first = false; }
+      else ctx.lineTo(pt[0], pt[1]);
+    }
+    ctx.stroke();
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Habitat detection — is a (lon, lat) on land or in ocean, given the
+// active surface preset? Used when seeding species so aquatic creatures
+// land in water and terrestrial ones land on land.
+// ═════════════════════════════════════════════════════════════════════
+let ACTIVE_SURFACE = 'modern';
+function isLandAt(lon, lat) {
+  // Normalize lon to [-180, 180]
+  let L = ((lon + 180) % 360 + 360) % 360 - 180;
+  if (ACTIVE_SURFACE === 'modern') {
+    if (worldLand && typeof d3.geoContains === 'function') {
+      return d3.geoContains(worldLand, [L, lat]);
+    }
+    // fallback before TopoJSON loads: treat mid-latitude bands as land 40%
+    return false;
+  }
+  const key = ACTIVE_SURFACE === 'mars' ? 'mars-surface' : ACTIVE_SURFACE;
+  const regions = PALEOGEOGRAPHY[key];
+  if (!regions) return false;
+  for (const rgn of regions) {
+    const dlon = ((L - rgn.lonCenter + 540) % 360) - 180;
+    const dlat = lat - rgn.latCenter;
+    const nx = dlon / rgn.lonRadius;
+    const ny = dlat / rgn.latRadius;
+    if (nx*nx + ny*ny < 1) return true;
+  }
+  return false;
+}
+
+// Pre-defined paleogeography configurations. Simplified / stylized.
+const PALEOGEOGRAPHY = {
+  'rodinia': [  // ~700 Mya — Rodinia supercontinent, single landmass
+    { lonCenter: 0, latCenter: -10, lonRadius: 90, latRadius: 55, seed: 7, noise: 0.35,
+      fill: 'rgba(130,100,70,0.6)', stroke: 'rgba(200,170,130,0.5)' },
+  ],
+  'gondwana': [  // ~500 Mya — Gondwana in the south
+    { lonCenter: 20, latCenter: -40, lonRadius: 100, latRadius: 45, seed: 3, noise: 0.3,
+      fill: 'rgba(110,90,65,0.6)', stroke: 'rgba(190,165,130,0.5)' },
+  ],
+  'pangaea': [  // ~250 Mya — Pangaea
+    { lonCenter: -20, latCenter: 5, lonRadius: 110, latRadius: 70, seed: 5, noise: 0.35,
+      fill: 'rgba(120,95,70,0.6)', stroke: 'rgba(195,170,135,0.5)' },
+  ],
+  'cretaceous': [  // ~75 Mya — breakup of Pangaea, two hemispheres
+    { lonCenter: -70, latCenter: 20, lonRadius: 55, latRadius: 55, seed: 11, noise: 0.35,
+      fill: 'rgba(115,95,70,0.6)', stroke: 'rgba(195,170,135,0.5)' },
+    { lonCenter: 60, latCenter: -15, lonRadius: 65, latRadius: 55, seed: 13, noise: 0.35,
+      fill: 'rgba(115,95,70,0.6)', stroke: 'rgba(195,170,135,0.5)' },
+    { lonCenter: 100, latCenter: 45, lonRadius: 35, latRadius: 30, seed: 17, noise: 0.35,
+      fill: 'rgba(115,95,70,0.6)', stroke: 'rgba(195,170,135,0.5)' },
+  ],
+  // Mars: scattered dark patches (Tharsis, Syrtis, polar caps)
+  'mars-surface': [
+    { lonCenter: -110, latCenter: 0, lonRadius: 40, latRadius: 25, seed: 2, noise: 0.25,
+      fill: 'rgba(110,60,40,0.65)', stroke: 'rgba(180,100,70,0.5)' },  // Tharsis
+    { lonCenter: 70, latCenter: 5, lonRadius: 30, latRadius: 20, seed: 4, noise: 0.3,
+      fill: 'rgba(90,45,30,0.65)', stroke: 'rgba(150,80,55,0.5)' },  // Syrtis
+    { lonCenter: 0, latCenter: -45, lonRadius: 90, latRadius: 15, seed: 9, noise: 0.4,
+      fill: 'rgba(140,90,70,0.5)', stroke: 'rgba(200,140,110,0.4)' },  // southern highlands
+    { lonCenter: 0, latCenter: 85, lonRadius: 180, latRadius: 7, seed: 21, noise: 0.2,
+      fill: 'rgba(240,240,250,0.85)', stroke: 'rgba(255,255,255,0.8)' },  // polar cap
+    { lonCenter: 0, latCenter: -85, lonRadius: 180, latRadius: 7, seed: 22, noise: 0.2,
+      fill: 'rgba(240,240,250,0.85)', stroke: 'rgba(255,255,255,0.8)' },  // polar cap
+  ],
+};
+
+// Surface style object — overwritten by applySurfaceStyle()
+let SURFACE_STYLE = {
+  sphere: '#0f1e38',
+  graticule: 'rgba(100,120,150,0.15)',
+  biomeColor: biomeColor,
+  drawSurface: () => {
+    if (!worldLand) return;
+    ctx.beginPath(); path(worldLand);
+    ctx.strokeStyle = 'rgba(200,220,240,0.5)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(80,100,70,0.25)';
+    ctx.fill();
+  },
+};
+
+function applySurfaceStyle(mode) {
+  ACTIVE_SURFACE = mode;
+  // Default Earth-modern
+  SURFACE_STYLE = {
+    sphere: '#0f1e38',
+    graticule: 'rgba(100,120,150,0.18)',
+    biomeColor: biomeColor,
+    drawSurface: () => {
+      if (!worldLand) return;
+      ctx.beginPath(); path(worldLand);
+      ctx.strokeStyle = 'rgba(200,220,240,0.5)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(80,100,70,0.25)';
+      ctx.fill();
+    },
+  };
+  if (mode === 'rodinia' || mode === 'gondwana' || mode === 'pangaea' || mode === 'cretaceous') {
+    SURFACE_STYLE.drawSurface = () => drawProceduralLandmass(PALEOGEOGRAPHY[mode]);
+  } else if (mode === 'mars') {
+    SURFACE_STYLE.sphere = '#3a1a10';
+    SURFACE_STYLE.graticule = 'rgba(140,80,60,0.15)';
+    SURFACE_STYLE.biomeColor = (t, w) => {
+      // Mars biomes — red desert with slight variation by temperature
+      const warmth = Math.max(0, Math.min(1, (t + 20) / 50));
+      return `rgba(${140 + Math.round(warmth*40)},${60 + Math.round(warmth*20)},${40},0.35)`;
+    };
+    SURFACE_STYLE.drawSurface = () => drawProceduralLandmass(PALEOGEOGRAPHY['mars-surface']);
+  } else if (mode === 'venus') {
+    SURFACE_STYLE.sphere = '#4a3a15';
+    SURFACE_STYLE.graticule = 'rgba(180,150,90,0.1)';
+    SURFACE_STYLE.biomeColor = (t, w) => `rgba(220,180,100,0.4)`;
+    SURFACE_STYLE.drawSurface = () => {
+      // Thick sulfuric atmosphere — bands of cloud swirls
+      const rng = seededRng(42);
+      for (let i = 0; i < 8; i++) {
+        const lat = -70 + i * 20 + rng() * 5;
+        ctx.beginPath();
+        let first = true;
+        for (let lon = -180; lon <= 180; lon += 8) {
+          if (!isVisible(lon, lat)) { first = true; continue; }
+          const pt = projection([lon, lat]);
+          if (!pt) { first = true; continue; }
+          if (first) { ctx.moveTo(pt[0], pt[1]); first = false; }
+          else ctx.lineTo(pt[0], pt[1]);
+        }
+        ctx.strokeStyle = `rgba(230,200,140,${0.2 + rng()*0.2})`;
+        ctx.lineWidth = 4 + rng() * 6;
+        ctx.stroke();
+      }
+    };
+  } else if (mode === 'europa') {
+    SURFACE_STYLE.sphere = '#d8e5ee';
+    SURFACE_STYLE.graticule = 'rgba(120,140,170,0.2)';
+    SURFACE_STYLE.biomeColor = (t, w) => `rgba(210,225,240,0.35)`;
+    SURFACE_STYLE.drawSurface = () => drawIceCracks(seededRng(17));
+  } else if (mode === 'early-earth') {
+    SURFACE_STYLE.sphere = '#1a2a20';
+    SURFACE_STYLE.graticule = 'rgba(100,120,100,0.15)';
+    SURFACE_STYLE.biomeColor = biomeColor;
+    SURFACE_STYLE.drawSurface = () => drawProceduralLandmass([
+      { lonCenter: -20, latCenter: 0, lonRadius: 50, latRadius: 30, seed: 2, noise: 0.6,
+        fill: 'rgba(70,55,40,0.6)', stroke: 'rgba(120,100,70,0.5)' },
+      { lonCenter: 100, latCenter: 20, lonRadius: 35, latRadius: 25, seed: 8, noise: 0.5,
+        fill: 'rgba(75,60,45,0.6)', stroke: 'rgba(125,105,75,0.5)' },
+    ]);
+  }
+}
+
+// Drag to rotate
+let rotation = [0, -15, 0];
+let dragStart = null;
+canvas.addEventListener('mousedown', e => {
+  dragStart = [e.clientX, e.clientY, rotation.slice()];
+});
+window.addEventListener('mousemove', e => {
+  if (!dragStart) return;
+  const dx = e.clientX - dragStart[0], dy = e.clientY - dragStart[1];
+  const k = 0.5;
+  rotation = [dragStart[2][0] + dx * k, Math.max(-85, Math.min(85, dragStart[2][1] - dy * k)), 0];
+  projection.rotate(rotation);
+  draw();
+});
+window.addEventListener('mouseup', () => dragStart = null);
+// Wheel zoom
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const s = projection.scale();
+  projection.scale(Math.max(150, Math.min(1500, s * (e.deltaY < 0 ? 1.1 : 0.9))));
+  draw();
+}, { passive: false });
+// Click species
+canvas.addEventListener('click', e => {
+  if (dragStart) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  let closest = null, closestDist = 12;
+  for (const s of species) {
+    if (!s.extant) continue;
+    const pt = projection([s.lon, s.lat]);
+    if (!pt) continue;
+    const dx = pt[0] - mx, dy = pt[1] - my;
+    const d = Math.hypot(dx, dy);
+    if (d < closestDist) { closestDist = d; closest = s; }
+  }
+  selectSpecies(closest);
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// Biomes: temperature + moisture → color
+// ═════════════════════════════════════════════════════════════════════
+function biomeAt(lat, lon, tempMod, wetMod) {
+  // Base temperature: cosine of latitude, −20 at poles, +30 at equator
+  const baseTemp = 30 * Math.cos(lat * Math.PI / 180) - 20 + tempMod;
+  // Moisture: simple longitude-varying band (continental/oceanic) + slider
+  const baseWet = 0.5 + 0.3 * Math.sin(lon * Math.PI / 90) + wetMod * 0.5;
+  return { temp: baseTemp, wet: Math.max(0, Math.min(1, baseWet)) };
+}
+
+function biomeColor(temp, wet) {
+  // Cold = blue, hot = red; dry = tan, wet = green
+  const warmth = Math.max(0, Math.min(1, (temp + 20) / 50));
+  const r = Math.round(120 * warmth + 40 * (1-wet));
+  const g = Math.round(180 * wet + 60 * warmth);
+  const b = Math.round(180 * (1 - warmth));
+  return `rgba(${r},${g},${b},0.5)`;
+}
+
+function biomeName(temp, wet) {
+  if (temp < -5) return 'Ice';
+  if (temp < 5) return wet > 0.5 ? 'Taiga' : 'Tundra';
+  if (temp < 20) return wet > 0.6 ? 'Temperate forest' : 'Grassland';
+  if (temp < 28) return wet > 0.7 ? 'Tropical forest' : wet > 0.3 ? 'Savanna' : 'Desert';
+  return wet > 0.5 ? 'Rainforest' : 'Hot desert';
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Species as nodes
+// ═════════════════════════════════════════════════════════════════════
+// Each species has traits in [0, 1]: cold_tol, heat_tol, drought_tol, wet_tol
+// Fitness at location = how well traits match that location's biome
+let species = [];
+let nextId = 1;
+let generation = 0;
+let eventLog = [];
+let stats = { totalEmerged: 0, totalExtinct: 0 };
+
+function makeSpecies(lat, lon, traits, ancestorId = null, habitat = null) {
+  const s = {
+    id: nextId++,
+    lat, lon,
+    traits,
+    fitness: 0,
+    ancestorId,
+    age: 0,
+    extant: true,
+    bornGen: generation,
+    habitat: habitat || (isLandAt(lon, lat) ? 'land' : 'aquatic'),
+  };
+  species.push(s);
+  stats.totalEmerged++;
+  return s;
+}
+
+// Sample a (lat, lon) where isLandAt matches the desired habitat.
+// Retries up to `tries` times; if no match, returns the last sample anyway.
+function sampleAt(habitat, tries = 30) {
+  for (let i = 0; i < tries; i++) {
+    const lat = (Math.random() - 0.5) * 160;
+    const lon = (Math.random() - 0.5) * 360;
+    const land = isLandAt(lon, lat);
+    if (habitat === 'land' && land) return { lat, lon };
+    if (habitat === 'aquatic' && !land) return { lat, lon };
+  }
+  // Fallback: return a sample even if mismatched (rare)
+  return {
+    lat: (Math.random() - 0.5) * 160,
+    lon: (Math.random() - 0.5) * 360,
+  };
+}
+
+function traitDistance(a, b) {
+  let d = 0;
+  for (const k of ['cold_tol', 'heat_tol', 'drought_tol', 'wet_tol']) {
+    d += (a[k] - b[k]) ** 2;
+  }
+  return Math.sqrt(d);
+}
+
+function fitnessAt(traits, biome) {
+  // Temperature fitness: cold_tol matters when cold, heat_tol when hot
+  let tempFit;
+  if (biome.temp < 10) {
+    tempFit = traits.cold_tol;
+  } else if (biome.temp > 22) {
+    tempFit = traits.heat_tol;
+  } else {
+    tempFit = 0.5 * (traits.cold_tol + traits.heat_tol);
+  }
+  // Moisture fitness
+  const wetFit = biome.wet > 0.5 ? traits.wet_tol : traits.drought_tol;
+  return 0.6 * tempFit + 0.4 * wetFit;
+}
+
+function seedNew(n) {
+  // ~30% of new species are aquatic; rest are land. Aquatic species also
+  // lean higher on wet_tol / lower on drought_tol.
+  for (let i = 0; i < n; i++) {
+    const aquatic = Math.random() < 0.3;
+    const habitat = aquatic ? 'aquatic' : 'land';
+    const { lat, lon } = sampleAt(habitat);
+    const traits = aquatic ? {
+      cold_tol: Math.random() * 0.8,
+      heat_tol: Math.random(),
+      drought_tol: Math.random() * 0.3,
+      wet_tol: 0.6 + Math.random() * 0.4,
+    } : {
+      cold_tol: Math.random(),
+      heat_tol: Math.random(),
+      drought_tol: Math.random(),
+      wet_tol: Math.random(),
+    };
+    makeSpecies(lat, lon, traits, null, habitat);
+  }
+  draw();
+  updateStats();
+}
+
+function resetSim() {
+  species = []; nextId = 1; generation = 0;
+  eventLog = []; stats = { totalEmerged: 0, totalExtinct: 0 };
+  seedNew(30);
+  drawLegend();
+  logEvent('new', 'Reset simulation and seeded 30 random species.');
+}
+
+function introduceMassExtinction() {
+  const extant = species.filter(s => s.extant);
+  const killed = Math.floor(extant.length * (0.6 + Math.random() * 0.2));
+  const sorted = extant.sort(() => Math.random() - 0.5);
+  for (let i = 0; i < killed; i++) {
+    sorted[i].extant = false;
+    sorted[i].extinctAt = generation;
+    stats.totalExtinct++;
+  }
+  logEvent('extinct', `Mass extinction: ${killed} species wiped out.`);
+  draw();
+  updateStats();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Generation step
+// ═════════════════════════════════════════════════════════════════════
+function stepGeneration() {
+  generation++;
+  const tempMod = parseFloat(document.getElementById('temp-slider').value);
+  const wetMod = parseFloat(document.getElementById('wet-slider').value);
+  const pressure = parseFloat(document.getElementById('pres-slider').value);
+
+  const newSpecies = [];
+  let extantCount = 0;
+
+  for (const s of species) {
+    if (!s.extant) continue;
+    s.age++;
+    const biome = biomeAt(s.lat, s.lon, tempMod, wetMod);
+    s.fitness = fitnessAt(s.traits, biome);
+
+    // Survival: fitness below threshold * pressure → extinct
+    const survivalThreshold = 0.3 + pressure * 0.4;
+    if (s.fitness < survivalThreshold && Math.random() < pressure * 0.5) {
+      s.extant = false;
+      s.extinctAt = generation;
+      stats.totalExtinct++;
+      if (eventLog.length < 200 && Math.random() < 0.2) {
+        logEvent('extinct', `Species #${s.id} extinct (fitness ${s.fitness.toFixed(2)} in ${biomeName(biome.temp, biome.wet)})`);
+      }
+      continue;
+    }
+
+    extantCount++;
+
+    // Reproduction: high fitness reproduces; small mutation in offspring
+    if (s.fitness > 0.55 && Math.random() < s.fitness * 0.3) {
+      const childTraits = {
+        cold_tol: clamp(s.traits.cold_tol + (Math.random() - 0.5) * 0.15),
+        heat_tol: clamp(s.traits.heat_tol + (Math.random() - 0.5) * 0.15),
+        drought_tol: clamp(s.traits.drought_tol + (Math.random() - 0.5) * 0.15),
+        wet_tol: clamp(s.traits.wet_tol + (Math.random() - 0.5) * 0.15),
+      };
+      let childLat = clamp(s.lat + (Math.random() - 0.5) * 20, -85, 85);
+      let childLon = ((s.lon + (Math.random() - 0.5) * 30) + 540) % 360 - 180;
+      // Rare habitat transition (water ↔ land): 1% per offspring.
+      const childHabitat = (Math.random() < 0.01) ? (s.habitat === 'land' ? 'aquatic' : 'land') : s.habitat;
+      // If the child's sampled position is not in its habitat, resample nearby.
+      if ((childHabitat === 'land') !== isLandAt(childLon, childLat)) {
+        const sample = sampleAt(childHabitat, 12);
+        childLat = sample.lat; childLon = sample.lon;
+      }
+
+      // Speciation: if trait distance > 0.35, register as new species
+      const td = traitDistance(s.traits, childTraits);
+      if (td > 0.25) {
+        const child = makeSpecies(childLat, childLon, childTraits, s.id, childHabitat);
+        newSpecies.push(child);
+        if (eventLog.length < 200 && Math.random() < 0.25) {
+          logEvent('speciate', `New species #${child.id} from #${s.id} (trait drift ${td.toFixed(2)})`);
+        }
+      } else {
+        // Same species, expand range a bit
+        s.lat = clamp((s.lat + childLat) / 2, -85, 85);
+        s.lon = ((s.lon + childLon) / 2);
+      }
+    }
+  }
+
+  draw();
+  updateStats();
+}
+
+function clamp(x, lo = 0, hi = 1) { return Math.max(lo, Math.min(hi, x)); }
+
+function stepMany(n) {
+  for (let i = 0; i < n; i++) stepGeneration();
+}
+
+let playTimer = null;
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (playTimer) {
+    clearInterval(playTimer); playTimer = null; btn.textContent = '▶ Play';
+  } else {
+    playTimer = setInterval(stepGeneration, 120);
+    btn.textContent = '■ Pause';
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Rendering
+// ═════════════════════════════════════════════════════════════════════
+// Back-face culling: a point at [lon,lat] is visible only if its angular
+// distance from the projection's current center is ≤ 90°.
+function isVisible(lon, lat) {
+  const inv = projection.invert([W/2, H/2]);  // current screen-center in lon/lat
+  if (!inv) return false;
+  return d3.geoDistance(inv, [lon, lat]) < Math.PI / 2 - 0.01;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Sphere background — ocean color varies by world
+  ctx.beginPath(); path({ type: 'Sphere' });
+  ctx.fillStyle = SURFACE_STYLE.sphere;
+  ctx.fill();
+
+  // Biome overlay: sample a grid of lat/lon points
+  const tempMod = parseFloat(document.getElementById('temp-slider').value);
+  const wetMod = parseFloat(document.getElementById('wet-slider').value);
+  const step = 5;
+  for (let lat = -80; lat <= 80; lat += step) {
+    for (let lon = -180; lon <= 180; lon += step) {
+      if (!isVisible(lon, lat)) continue;
+      const pt = projection([lon, lat]);
+      if (!pt) continue;
+      const biome = biomeAt(lat, lon, tempMod, wetMod);
+      ctx.fillStyle = SURFACE_STYLE.biomeColor(biome.temp, biome.wet);
+      ctx.fillRect(pt[0] - 3, pt[1] - 3, 6, 6);
+    }
+  }
+
+  // Surface: continents / patches / ice / haze — delegated to per-preset drawer
+  SURFACE_STYLE.drawSurface();
+
+  // Graticule
+  ctx.beginPath(); path(worldGraticule);
+  ctx.strokeStyle = SURFACE_STYLE.graticule;
+  ctx.lineWidth = 0.4;
+  ctx.stroke();
+
+  // Species nodes — strict visibility check against the current view
+  for (const s of species) {
+    if (!s.extant) continue;
+    if (!isVisible(s.lon, s.lat)) continue;
+    const pt = projection([s.lon, s.lat]);
+    if (!pt) continue;
+
+    const r = Math.round(80 + s.traits.heat_tol * 160);
+    const g = Math.round(60 + s.traits.wet_tol * 160);
+    const b = Math.round(80 + s.traits.cold_tol * 160);
+    const size = 2 + s.fitness * 4;
+
+    ctx.beginPath();
+    ctx.arc(pt[0], pt[1], size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${g},${b},1.0)`;
+    ctx.fill();
+    ctx.strokeStyle = s === selectedSpecies ? '#fbbf24' : 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = s === selectedSpecies ? 2 : 0.6;
+    ctx.stroke();
+  }
+
+  // Selected species halo
+  if (selectedSpecies && selectedSpecies.extant && isVisible(selectedSpecies.lon, selectedSpecies.lat)) {
+    const pt = projection([selectedSpecies.lon, selectedSpecies.lat]);
+    if (pt) {
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], 12 + Math.sin(Date.now() / 250) * 2, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Procedural animal portrait — SVG assembled from traits
+// ═════════════════════════════════════════════════════════════════════
+function animalSvg(traits, habitat) {
+  const { cold_tol, heat_tol, drought_tol, wet_tol } = traits;
+  habitat = habitat || 'land';
+  // Color — same mapping as the globe node
+  const r = Math.round(80 + heat_tol * 160);
+  const g = Math.round(60 + wet_tol * 160);
+  const b = Math.round(80 + cold_tol * 160);
+  const fill = `rgb(${r},${g},${b})`;
+  const stroke = `rgb(${Math.round(r*0.4)},${Math.round(g*0.4)},${Math.round(b*0.4)})`;
+  const belly = `rgb(${Math.round(r*0.75 + 50)},${Math.round(g*0.75 + 40)},${Math.round(b*0.75 + 50)})`;
+  const highlight = `rgb(${Math.min(255, r+50)},${Math.min(255, g+50)},${Math.min(255, b+50)})`;
+  const shadow = `rgb(${Math.round(r*0.3)},${Math.round(g*0.3)},${Math.round(b*0.3)})`;
+  // Unique gradient IDs per creature (so multiple portraits on one page don't collide)
+  const gid = 'g' + Math.floor(Math.random() * 1e6);
+
+  const W = 260, H = 190;
+  const cx = W / 2, cy = H * 0.52;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;background:linear-gradient(180deg,#16213e 0%,#0e1a2e 55%,#2a1a15 100%);border-radius:6px;display:block">`;
+  // Gradients / patterns — top-lit shading on the body
+  svg += `<defs>
+    <linearGradient id="${gid}-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${highlight}"/>
+      <stop offset="55%" stop-color="${fill}"/>
+      <stop offset="100%" stop-color="${shadow}"/>
+    </linearGradient>
+    <radialGradient id="${gid}-belly" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="${belly}"/>
+      <stop offset="100%" stop-color="${fill}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="${gid}-eye" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="40%" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+  </defs>`;
+  // Ground + soft shadow
+  svg += `<ellipse cx="${cx}" cy="${H-10}" rx="${W*0.35}" ry="6" fill="rgba(0,0,0,0.35)" filter="blur(1px)"/>`;
+  svg += `<line x1="0" y1="${H-8}" x2="${W}" y2="${H-8}" stroke="rgba(140,120,80,0.25)" stroke-width="1"/>`;
+
+  // Pick a BODY PLAN. Habitat is a hard gate: aquatic species get a fish
+  // or cetacean body plan, land species get one of the terrestrial plans.
+  let plan;
+  if (habitat === 'aquatic') {
+    // Cold water → cetacean (dolphin / seal); warm water → fish; deep → squid-fish
+    const plans = [
+      { key: 'fish',    score: heat_tol * 1.1 + wet_tol * 0.6 },
+      { key: 'aquatic', score: cold_tol * 1.1 + wet_tol * 0.5 },  // dolphin/seal
+    ];
+    plan = plans.sort((a, b) => b.score - a.score)[0].key;
+  } else {
+    const plans = [
+      { key: 'arctic',     score: cold_tol * 1.3 - heat_tol * 0.5 + (wet_tol > 0.4 ? 0.2 : 0) },
+      { key: 'desert',     score: heat_tol * 1.2 + drought_tol - cold_tol * 0.8 },
+      { key: 'jungle',     score: heat_tol + wet_tol * 1.2 - drought_tol * 0.7 - cold_tol * 0.5 },
+      { key: 'subterran',  score: drought_tol * 1.3 + cold_tol * 0.4 - heat_tol * 0.4 - wet_tol * 0.3 },
+      { key: 'savanna',    score: heat_tol * 0.7 + drought_tol * 0.4 + (0.4 - Math.abs(wet_tol - 0.5)) },
+      { key: 'generalist', score: 0.4 - Math.abs(cold_tol - 0.5) - Math.abs(heat_tol - 0.5) },
+    ];
+    plan = plans.sort((a, b) => b.score - a.score)[0].key;
+  }
+
+  // Plan-specific body plans — each with gradient shading + anatomical detail
+  if (plan === 'arctic') {
+    // Polar-bear profile — heavy low-slung body, short legs, powerful snout
+    // Belly fur cascading down
+    svg += `<path d="M${cx-68},${cy+10} Q${cx-72},${cy+30} ${cx-50},${H-14} Q${cx},${H-12} ${cx+55},${H-14} Q${cx+72},${cy+25} ${cx+68},${cy+5} Q${cx+30},${cy-30} ${cx-10},${cy-28} Q${cx-50},${cy-25} ${cx-68},${cy+10} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.8"/>`;
+    // Belly highlight
+    svg += `<ellipse cx="${cx-6}" cy="${cy+20}" rx="38" ry="18" fill="url(#${gid}-belly)" opacity="0.8"/>`;
+    // Rear legs (just stubs poking down)
+    svg += `<path d="M${cx-40},${H-22} Q${cx-45},${H-10} ${cx-32},${H-9} Q${cx-26},${H-12} ${cx-30},${H-22} Z" fill="${shadow}"/>`;
+    svg += `<path d="M${cx+40},${H-22} Q${cx+32},${H-10} ${cx+40},${H-9} Q${cx+48},${H-12} ${cx+46},${H-22} Z" fill="${shadow}"/>`;
+    // Head: broad muzzle
+    svg += `<path d="M${cx+34},${cy-12} Q${cx+22},${cy-36} ${cx+42},${cy-34} Q${cx+66},${cy-30} ${cx+70},${cy-16} Q${cx+76},${cy-4} ${cx+68},${cy+2} Q${cx+50},${cy+6} ${cx+34},${cy-12} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.6"/>`;
+    // Small round ears
+    svg += `<ellipse cx="${cx+38}" cy="${cy-32}" rx="5" ry="6" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<ellipse cx="${cx+54}" cy="${cy-34}" rx="5" ry="6" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<ellipse cx="${cx+38}" cy="${cy-32}" rx="2.5" ry="3" fill="${shadow}"/>`;
+    svg += `<ellipse cx="${cx+54}" cy="${cy-34}" rx="2.5" ry="3" fill="${shadow}"/>`;
+    // Deep-set eye
+    svg += `<ellipse cx="${cx+50}" cy="${cy-18}" rx="2.5" ry="3.5" fill="${shadow}"/>`;
+    svg += `<circle cx="${cx+50}" cy="${cy-18}" r="1.2" fill="url(#${gid}-eye)"/>`;
+    // Big black nose
+    svg += `<ellipse cx="${cx+72}" cy="${cy-8}" rx="5" ry="4" fill="#1a1a1a"/>`;
+    svg += `<ellipse cx="${cx+70}" cy="${cy-10}" rx="1.5" ry="1" fill="rgba(255,255,255,0.4)"/>`;
+    // Mouth line
+    svg += `<path d="M${cx+56},${cy-2} Q${cx+62},${cy+3} ${cx+66},${cy-1}" stroke="${shadow}" stroke-width="1" fill="none"/>`;
+    // Dense fur strokes across the back
+    for (let i = 0; i < 22; i++) {
+      const t = i / 22;
+      const px = cx - 60 + t * 120;
+      const py = cy - 25 + Math.sin(t * Math.PI) * -8;
+      svg += `<path d="M${px},${py} q1,-3 ${-1 + Math.random()*2},-5" stroke="${highlight}" stroke-width="1" fill="none" opacity="0.6"/>`;
+    }
+    for (let i = 0; i < 18; i++) {
+      const t = i / 18;
+      const px = cx - 50 + t * 100;
+      const py = cy + 20 + Math.random() * 8;
+      svg += `<path d="M${px},${py} q0,3 ${-1 + Math.random()*2},5" stroke="${shadow}" stroke-width="0.8" fill="none" opacity="0.5"/>`;
+    }
+  } else if (plan === 'desert') {
+    // Fennec-fox / gazelle hybrid — very long legs, oversized ears, lean body
+    svg += `<ellipse cx="${cx}" cy="${H-10}" rx="42" ry="4" fill="rgba(0,0,0,0.35)"/>`;
+    // Slim body with gradient shading
+    svg += `<ellipse cx="${cx}" cy="${cy}" rx="40" ry="15" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    svg += `<ellipse cx="${cx}" cy="${cy+6}" rx="26" ry="7" fill="${belly}" opacity="0.6"/>`;
+    // Very long legs — slightly bent
+    [-28, -12, 12, 28].forEach((ox) => {
+      svg += `<path d="M${cx+ox},${cy+8} Q${cx+ox-1},${cy+22} ${cx+ox-2},${H-14}" stroke="url(#${gid}-body)" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      svg += `<ellipse cx="${cx+ox-2}" cy="${H-13}" rx="4" ry="2" fill="${stroke}"/>`;
+    });
+    // Long arching neck
+    svg += `<path d="M${cx+32},${cy-5} Q${cx+50},${cy-32} ${cx+58},${cy-48}" stroke="url(#${gid}-body)" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+    // Small pointed head
+    svg += `<ellipse cx="${cx+62}" cy="${cy-52}" rx="12" ry="9" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Pointed snout
+    svg += `<path d="M${cx+72},${cy-50} L${cx+82},${cy-48} L${cx+74},${cy-44} Z" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<ellipse cx="${cx+81}" cy="${cy-48}" rx="2" ry="1.5" fill="#1a1a1a"/>`;
+    // HUGE ears with inner shading
+    svg += `<path d="M${cx+52},${cy-60} Q${cx+48},${cy-82} ${cx+57},${cy-60} Z" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<path d="M${cx+53},${cy-75} Q${cx+51},${cy-68} ${cx+55},${cy-65} Z" fill="${belly}" opacity="0.5"/>`;
+    svg += `<path d="M${cx+66},${cy-58} Q${cx+72},${cy-82} ${cx+74},${cy-58} Z" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<path d="M${cx+69},${cy-73} Q${cx+68},${cy-65} ${cx+72},${cy-62} Z" fill="${belly}" opacity="0.5"/>`;
+    // Eye — alert
+    svg += `<ellipse cx="${cx+63}" cy="${cy-54}" rx="2.5" ry="2" fill="#1a1a1a"/>`;
+    svg += `<circle cx="${cx+62.5}" cy="${cy-55}" r="0.8" fill="#fff" opacity="0.7"/>`;
+    // Long whippy tail with tuft
+    svg += `<path d="M${cx-38},${cy} Q${cx-62},${cy-10} ${cx-75},${cy+12}" stroke="url(#${gid}-body)" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    svg += `<ellipse cx="${cx-75}" cy="${cy+12}" rx="6" ry="4" fill="${stroke}" transform="rotate(30 ${cx-75} ${cy+12})"/>`;
+  } else if (plan === 'jungle') {
+    // Panther / big cat — crouched, muscular, spotted, long tail
+    svg += `<ellipse cx="${cx}" cy="${H-10}" rx="60" ry="4" fill="rgba(0,0,0,0.35)"/>`;
+    // Elongated sinuous body with gradient
+    svg += `<path d="M${cx-56},${cy+5} Q${cx-50},${cy-12} ${cx-30},${cy-14} Q${cx+30},${cy-16} ${cx+55},${cy-6} Q${cx+60},${cy+4} ${cx+55},${cy+12} Q${cx+20},${cy+18} ${cx-30},${cy+18} Q${cx-55},${cy+15} ${cx-56},${cy+5} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Belly
+    svg += `<ellipse cx="${cx}" cy="${cy+12}" rx="30" ry="6" fill="${belly}" opacity="0.55"/>`;
+    // Muscular bent legs (back)
+    svg += `<path d="M${cx-28},${cy+12} Q${cx-35},${cy+25} ${cx-25},${H-14}" stroke="url(#${gid}-body)" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+    svg += `<path d="M${cx+30},${cy+12} Q${cx+22},${cy+25} ${cx+32},${H-14}" stroke="url(#${gid}-body)" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+    // Front legs (straighter)
+    svg += `<path d="M${cx-12},${cy+14} L${cx-10},${H-14}" stroke="url(#${gid}-body)" stroke-width="7" stroke-linecap="round"/>`;
+    svg += `<path d="M${cx+12},${cy+14} L${cx+14},${H-14}" stroke="url(#${gid}-body)" stroke-width="7" stroke-linecap="round"/>`;
+    // Paws
+    [-25, -10, 14, 32].forEach(ox => {
+      svg += `<ellipse cx="${cx+ox}" cy="${H-13}" rx="6" ry="3" fill="${shadow}"/>`;
+    });
+    // Head — more cat-shaped, wider at top
+    svg += `<path d="M${cx+42},${cy-8} Q${cx+35},${cy-22} ${cx+50},${cy-22} Q${cx+66},${cy-22} ${cx+70},${cy-10} Q${cx+70},${cy+4} ${cx+58},${cy+6} Q${cx+42},${cy+2} ${cx+42},${cy-8} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Rounded ears with inner shade
+    svg += `<path d="M${cx+42},${cy-22} Q${cx+40},${cy-32} ${cx+48},${cy-24} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    svg += `<path d="M${cx+60},${cy-22} Q${cx+67},${cy-32} ${cx+65},${cy-20} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    // Eyes — alert yellow-green
+    svg += `<ellipse cx="${cx+50}" cy="${cy-12}" rx="2.5" ry="3" fill="#d4e157"/>`;
+    svg += `<ellipse cx="${cx+60}" cy="${cy-12}" rx="2.5" ry="3" fill="#d4e157"/>`;
+    svg += `<rect x="${cx+49.5}" y="${cy-14}" width="1" height="4" fill="#000"/>`;
+    svg += `<rect x="${cx+59.5}" y="${cy-14}" width="1" height="4" fill="#000"/>`;
+    // Nose
+    svg += `<path d="M${cx+53},${cy-3} L${cx+57},${cy-3} L${cx+55},${cy} Z" fill="${stroke}"/>`;
+    // Whiskers
+    for (let i = 0; i < 3; i++) {
+      svg += `<line x1="${cx+56}" y1="${cy-1+i}" x2="${cx+72}" y2="${cy-4+i*3}" stroke="${stroke}" stroke-width="0.4"/>`;
+      svg += `<line x1="${cx+52}" y1="${cy-1+i}" x2="${cx+36}" y2="${cy-4+i*3}" stroke="${stroke}" stroke-width="0.4"/>`;
+    }
+    // Rosette spots
+    for (let i = 0; i < 10; i++) {
+      const sx = cx - 38 + (i * 9);
+      const sy = cy - 6 + Math.sin(i * 0.8) * 8;
+      svg += `<ellipse cx="${sx}" cy="${sy}" rx="3" ry="2" fill="${shadow}" opacity="0.6"/>`;
+      svg += `<ellipse cx="${sx}" cy="${sy}" rx="1.5" ry="1" fill="${fill}" opacity="0.3"/>`;
+    }
+    // Long curling tail
+    svg += `<path d="M${cx-55},${cy} Q${cx-80},${cy-8} ${cx-75},${cy+18} Q${cx-68},${cy+28} ${cx-78},${cy+20}"
+            stroke="url(#${gid}-body)" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  } else if (plan === 'fish') {
+    // True fish — fusiform body, gill slit, two fins + tail fluke
+    // Water shimmer background
+    svg += `<path d="M${cx-95},${H-10} Q${cx-60},${H-20} ${cx-25},${H-10}" stroke="rgba(103,232,249,0.35)" fill="none" stroke-width="1"/>`;
+    svg += `<path d="M${cx+20},${H-12} Q${cx+55},${H-22} ${cx+90},${H-10}" stroke="rgba(103,232,249,0.35)" fill="none" stroke-width="1"/>`;
+    svg += `<path d="M${cx-40},${H-4} Q${cx-10},${H-12} ${cx+20},${H-4}" stroke="rgba(103,232,249,0.25)" fill="none" stroke-width="1"/>`;
+    // Teardrop body (head thick, tail tapering)
+    svg += `<path d="M${cx-70},${cy} Q${cx-60},${cy-34} ${cx-20},${cy-32} Q${cx+30},${cy-30} ${cx+62},${cy-8} Q${cx+72},${cy+4} ${cx+62},${cy+16} Q${cx+30},${cy+32} ${cx-20},${cy+30} Q${cx-60},${cy+30} ${cx-70},${cy} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.6"/>`;
+    // Pale belly stripe
+    svg += `<path d="M${cx-30},${cy+22} Q${cx+15},${cy+28} ${cx+45},${cy+18} Q${cx+15},${cy+10} ${cx-30},${cy+22} Z" fill="${belly}" opacity="0.7"/>`;
+    // Scale texture — rows of faint arcs
+    for (let row = 0; row < 4; row++) {
+      for (let c = 0; c < 6; c++) {
+        const sx = cx - 30 + c * 14;
+        const sy = cy - 18 + row * 10;
+        svg += `<path d="M${sx-4},${sy} Q${sx},${sy-5} ${sx+4},${sy}" stroke="${shadow}" stroke-width="0.8" fill="none" opacity="0.45"/>`;
+      }
+    }
+    // Lateral line
+    svg += `<path d="M${cx-55},${cy+2} Q${cx},${cy} ${cx+55},${cy-2}" stroke="${shadow}" stroke-width="1" fill="none" opacity="0.7"/>`;
+    // Gill slit (crescent behind head)
+    svg += `<path d="M${cx+32},${cy-14} Q${cx+26},${cy} ${cx+32},${cy+14}" stroke="${shadow}" stroke-width="1.5" fill="none"/>`;
+    // Eye
+    svg += `<circle cx="${cx+48}" cy="${cy-8}" r="4" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<circle cx="${cx+48}" cy="${cy-8}" r="2" fill="#111"/>`;
+    svg += `<circle cx="${cx+47}" cy="${cy-9}" r="0.9" fill="#fff" opacity="0.8"/>`;
+    // Mouth — small open arc
+    svg += `<path d="M${cx+60},${cy+4} Q${cx+66},${cy+8} ${cx+62},${cy+14}" stroke="${stroke}" stroke-width="1.2" fill="none"/>`;
+    // Dorsal fin (top)
+    svg += `<path d="M${cx-15},${cy-30} Q${cx-5},${cy-50} ${cx+15},${cy-28} Q${cx+5},${cy-28} ${cx-15},${cy-30} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    // Second dorsal (smaller)
+    svg += `<path d="M${cx+22},${cy-22} Q${cx+28},${cy-34} ${cx+36},${cy-20} Z" fill="${shadow}" stroke="${stroke}" stroke-width="0.8" opacity="0.85"/>`;
+    // Pectoral fin (side, angled)
+    svg += `<path d="M${cx+12},${cy+18} Q${cx+22},${cy+34} ${cx+4},${cy+34} Q${cx-2},${cy+26} ${cx+12},${cy+18} Z"
+            fill="${shadow}" stroke="${stroke}" stroke-width="1" opacity="0.85"/>`;
+    // Pelvic fin (below belly)
+    svg += `<path d="M${cx-10},${cy+28} Q${cx-20},${cy+40} ${cx-28},${cy+32} Q${cx-22},${cy+26} ${cx-10},${cy+28} Z"
+            fill="${shadow}" stroke="${stroke}" stroke-width="0.8" opacity="0.8"/>`;
+    // Anal fin (behind pelvic, toward tail)
+    svg += `<path d="M${cx-42},${cy+24} Q${cx-52},${cy+36} ${cx-60},${cy+26} Q${cx-54},${cy+20} ${cx-42},${cy+24} Z"
+            fill="${shadow}" stroke="${stroke}" stroke-width="0.7" opacity="0.8"/>`;
+    // Tail peduncle + forked caudal fin
+    svg += `<path d="M${cx-68},${cy} L${cx-98},${cy-22} Q${cx-88},${cy} ${cx-98},${cy+22} L${cx-68},${cy} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.2"/>`;
+    // Tail highlight lines
+    svg += `<path d="M${cx-95},${cy-16} L${cx-78},${cy-4}" stroke="${shadow}" stroke-width="0.8" opacity="0.5"/>`;
+    svg += `<path d="M${cx-95},${cy+16} L${cx-78},${cy+4}" stroke="${shadow}" stroke-width="0.8" opacity="0.5"/>`;
+    // Bubbles trailing from head
+    svg += `<circle cx="${cx+72}" cy="${cy-20}" r="2.4" fill="none" stroke="rgba(200,230,240,0.6)" stroke-width="0.8"/>`;
+    svg += `<circle cx="${cx+82}" cy="${cy-14}" r="1.6" fill="none" stroke="rgba(200,230,240,0.5)" stroke-width="0.7"/>`;
+    svg += `<circle cx="${cx+88}" cy="${cy-24}" r="1.2" fill="none" stroke="rgba(200,230,240,0.4)" stroke-width="0.6"/>`;
+  } else if (plan === 'aquatic') {
+    // Dolphin / seal — streamlined, flippered, gradient-shaded
+    svg += `<ellipse cx="${cx}" cy="${H-6}" rx="75" ry="5" fill="rgba(0,0,0,0.35)"/>`;
+    // Streamlined torpedo body
+    svg += `<path d="M${cx-75},${cy+4} Q${cx-78},${cy-20} ${cx-30},${cy-24} Q${cx+45},${cy-22} ${cx+74},${cy-4} Q${cx+82},${cy+4} ${cx+74},${cy+14} Q${cx+40},${cy+20} ${cx-40},${cy+16} Q${cx-78},${cy+10} ${cx-75},${cy+4} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Two-tone countershading (pale belly)
+    svg += `<path d="M${cx-42},${cy+14} Q${cx},${cy+20} ${cx+42},${cy+14} Q${cx},${cy+6} ${cx-42},${cy+14} Z" fill="${belly}" opacity="0.7"/>`;
+    // Curved dorsal fin
+    svg += `<path d="M${cx-3},${cy-22} Q${cx+6},${cy-42} ${cx+18},${cy-22} Z" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    // Pectoral flipper (near side)
+    svg += `<path d="M${cx-10},${cy+12} Q${cx-25},${cy+28} ${cx-36},${cy+22} Q${cx-30},${cy+14} ${cx-10},${cy+12} Z" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    // Tail fluke (horizontal, classic dolphin)
+    svg += `<path d="M${cx-68},${cy+4} L${cx-92},${cy-10} Q${cx-85},${cy+4} ${cx-92},${cy+18} Z" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.2"/>`;
+    // Beak / rostrum
+    svg += `<path d="M${cx+70},${cy-2} L${cx+88},${cy+2} L${cx+72},${cy+8} Z" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+    // Smiling mouth line
+    svg += `<path d="M${cx+66},${cy+6} Q${cx+76},${cy+10} ${cx+82},${cy+4}" stroke="${stroke}" stroke-width="1" fill="none"/>`;
+    // Eye — side placement
+    svg += `<circle cx="${cx+56}" cy="${cy-4}" r="2.5" fill="#1a1a1a"/>`;
+    svg += `<circle cx="${cx+55}" cy="${cy-5}" r="0.8" fill="#fff" opacity="0.7"/>`;
+    // Blowhole on top
+    svg += `<ellipse cx="${cx+30}" cy="${cy-20}" rx="3" ry="1.5" fill="${shadow}"/>`;
+    // Water ripples around body
+    svg += `<path d="M${cx-70},${H-10} Q${cx-55},${H-16} ${cx-40},${H-10}" stroke="rgba(103,232,249,0.5)" fill="none" stroke-width="1.2"/>`;
+    svg += `<path d="M${cx-30},${H-8} Q${cx-10},${H-14} ${cx+10},${H-8}" stroke="rgba(103,232,249,0.4)" fill="none" stroke-width="1"/>`;
+    svg += `<path d="M${cx+30},${H-10} Q${cx+50},${H-16} ${cx+70},${H-10}" stroke="rgba(103,232,249,0.5)" fill="none" stroke-width="1.2"/>`;
+    // Bubbles
+    svg += `<circle cx="${cx+82}" cy="${cy-10}" r="2" fill="none" stroke="rgba(200,230,240,0.6)" stroke-width="0.8"/>`;
+    svg += `<circle cx="${cx+90}" cy="${cy-18}" r="1.5" fill="none" stroke="rgba(200,230,240,0.5)" stroke-width="0.6"/>`;
+  } else if (plan === 'subterran') {
+    // Mole — tubular, velvety, oversized claws, pink nose
+    svg += `<ellipse cx="${cx}" cy="${H-8}" rx="50" ry="3" fill="rgba(0,0,0,0.35)"/>`;
+    // Tubular body
+    svg += `<path d="M${cx-48},${cy+4} Q${cx-55},${cy-14} ${cx-25},${cy-15} Q${cx+35},${cy-16} ${cx+62},${cy-2} Q${cx+74},${cy+8} ${cx+58},${cy+15} Q${cx+20},${cy+22} ${cx-25},${cy+20} Q${cx-55},${cy+16} ${cx-48},${cy+4} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Underbelly slightly paler
+    svg += `<ellipse cx="${cx-5}" cy="${cy+14}" rx="35" ry="6" fill="${belly}" opacity="0.4"/>`;
+    // Massive digging paws with claws (front paws extra-big)
+    [-22, 8, 28].forEach((ox, i) => {
+      const big = (i === 0) ? 1.4 : 1;
+      svg += `<ellipse cx="${cx+ox}" cy="${H-14}" rx="${10*big}" ry="${6*big}" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+      // Pink claws (3 per paw)
+      for (let c = 0; c < 3; c++) {
+        const clx = cx + ox - 6*big + c*6*big;
+        svg += `<path d="M${clx-1.5},${H-10} L${clx},${H-2} L${clx+1.5},${H-10} Z" fill="#e0b4a4" stroke="${shadow}" stroke-width="0.5"/>`;
+      }
+    });
+    // Pointed snout ending in pink nose
+    svg += `<ellipse cx="${cx+60}" cy="${cy-2}" rx="10" ry="6" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1"/>`;
+    svg += `<ellipse cx="${cx+72}" cy="${cy-1}" rx="4" ry="3" fill="#e08899"/>`;
+    svg += `<ellipse cx="${cx+71}" cy="${cy-3}" rx="1" ry="0.6" fill="rgba(255,255,255,0.5)"/>`;
+    // Whiskers
+    for (let i = -3; i <= 3; i++) {
+      svg += `<line x1="${cx+68}" y1="${cy+i*1.5}" x2="${cx+85}" y2="${cy+i*3}" stroke="${stroke}" stroke-width="0.4"/>`;
+    }
+    // Nearly-vestigial eye
+    svg += `<circle cx="${cx+48}" cy="${cy-5}" r="0.8" fill="${shadow}"/>`;
+    // Velvety dense fur
+    for (let i = 0; i < 40; i++) {
+      const t = i / 40;
+      const px = cx - 45 + t * 100;
+      const py = cy - 14 + Math.sin(t * 8) * 5;
+      svg += `<line x1="${px}" y1="${py}" x2="${px + (Math.random()-0.5)*2}" y2="${py-3}" stroke="${highlight}" stroke-width="0.8" opacity="0.5"/>`;
+    }
+    // Small tuft tail
+    svg += `<path d="M${cx-45},${cy+6} Q${cx-54},${cy+2} ${cx-50},${cy+12}" stroke="${stroke}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  } else if (plan === 'savanna') {
+    // Zebra/horse/gazelle — upright, elegant, maned
+    svg += `<ellipse cx="${cx}" cy="${H-8}" rx="55" ry="4" fill="rgba(0,0,0,0.35)"/>`;
+    // Arched back body
+    svg += `<path d="M${cx-52},${cy-8} Q${cx-50},${cy-22} ${cx-20},${cy-24} Q${cx+35},${cy-22} ${cx+52},${cy-10} Q${cx+56},${cy+8} ${cx+50},${cy+14} Q${cx},${cy+18} ${cx-50},${cy+14} Q${cx-56},${cy+6} ${cx-52},${cy-8} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Belly
+    svg += `<ellipse cx="${cx-5}" cy="${cy+12}" rx="40" ry="5" fill="${belly}" opacity="0.5"/>`;
+    // Long slender legs
+    [-32, -12, 14, 34].forEach((ox) => {
+      svg += `<path d="M${cx+ox},${cy+10} L${cx+ox-1},${H-14}" stroke="url(#${gid}-body)" stroke-width="5" stroke-linecap="round"/>`;
+      // Hooves
+      svg += `<ellipse cx="${cx+ox-1}" cy="${H-13}" rx="4" ry="2" fill="${shadow}"/>`;
+    });
+    // Elegant curved neck
+    svg += `<path d="M${cx+40},${cy-14} Q${cx+54},${cy-30} ${cx+56},${cy-48}" stroke="url(#${gid}-body)" stroke-width="14" fill="none" stroke-linecap="round"/>`;
+    // Longer head
+    svg += `<path d="M${cx+48},${cy-52} Q${cx+44},${cy-44} ${cx+50},${cy-38} Q${cx+72},${cy-36} ${cx+74},${cy-48} Q${cx+70},${cy-55} ${cx+48},${cy-52} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Flowing mane (many strokes)
+    for (let i = 0; i < 14; i++) {
+      const t = i / 14;
+      const mx = cx + 42 + t * 14;
+      const my = cy - 28 + t * 14;
+      svg += `<path d="M${mx},${my} Q${mx-4},${my-4} ${mx-7},${my-2}" stroke="${shadow}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+    }
+    // Horns / antlers (conditional on trait balance)
+    if (heat_tol > 0.4 && drought_tol > 0.4) {
+      svg += `<path d="M${cx+52},${cy-54} Q${cx+54},${cy-62} ${cx+58},${cy-60}" stroke="${shadow}" stroke-width="2.5" fill="none"/>`;
+      svg += `<path d="M${cx+66},${cy-53} Q${cx+70},${cy-62} ${cx+72},${cy-58}" stroke="${shadow}" stroke-width="2.5" fill="none"/>`;
+    }
+    // Pointed ears
+    svg += `<path d="M${cx+52},${cy-50} L${cx+48},${cy-58} L${cx+56},${cy-52} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    svg += `<path d="M${cx+65},${cy-50} L${cx+70},${cy-58} L${cx+69},${cy-50} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    // Eye
+    svg += `<ellipse cx="${cx+62}" cy="${cy-46}" rx="2" ry="3" fill="#1a1a1a"/>`;
+    svg += `<circle cx="${cx+62}" cy="${cy-47}" r="0.6" fill="#fff" opacity="0.7"/>`;
+    // Nostril
+    svg += `<ellipse cx="${cx+70}" cy="${cy-43}" rx="1" ry="1.5" fill="${shadow}"/>`;
+    // Zebra-like stripes for red-shifted (hot) species
+    if (heat_tol > 0.55) {
+      for (let i = 0; i < 7; i++) {
+        svg += `<path d="M${cx-40+i*15},${cy-18} Q${cx-40+i*15+3},${cy+5} ${cx-40+i*15},${cy+15}" stroke="${shadow}" stroke-width="3" fill="none" opacity="0.55"/>`;
+      }
+    }
+    // Long tufted tail
+    svg += `<path d="M${cx-50},${cy-2} Q${cx-65},${cy+8} ${cx-62},${cy+20}" stroke="url(#${gid}-body)" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    svg += `<ellipse cx="${cx-62}" cy="${cy+20}" rx="5" ry="3" fill="${shadow}"/>`;
+  } else {
+    // Generalist — fox/raccoon-like: balanced body, medium everything
+    svg += `<ellipse cx="${cx}" cy="${H-8}" rx="46" ry="4" fill="rgba(0,0,0,0.35)"/>`;
+    // Compact ovoid body with gradient
+    svg += `<ellipse cx="${cx}" cy="${cy+4}" rx="46" ry="20" fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    svg += `<ellipse cx="${cx}" cy="${cy+12}" rx="30" ry="6" fill="${belly}" opacity="0.55"/>`;
+    // Medium legs
+    [-25, -10, 10, 25].forEach((ox) => {
+      svg += `<path d="M${cx+ox},${cy+16} L${cx+ox-1},${H-14}" stroke="url(#${gid}-body)" stroke-width="6" stroke-linecap="round"/>`;
+      svg += `<ellipse cx="${cx+ox-1}" cy="${H-13}" rx="5" ry="2.5" fill="${shadow}"/>`;
+    });
+    // Head with snout
+    svg += `<path d="M${cx+34},${cy-10} Q${cx+30},${cy-24} ${cx+48},${cy-24} Q${cx+66},${cy-22} ${cx+66},${cy-8} Q${cx+60},${cy+4} ${cx+38},${cy-2} Z"
+            fill="url(#${gid}-body)" stroke="${stroke}" stroke-width="1.5"/>`;
+    // Pointed ears (mid-size)
+    svg += `<path d="M${cx+34},${cy-22} L${cx+32},${cy-32} L${cx+42},${cy-22} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    svg += `<path d="M${cx+54},${cy-22} L${cx+62},${cy-32} L${cx+62},${cy-22} Z" fill="url(#${gid}-body)" stroke="${stroke}"/>`;
+    // Inner ear
+    svg += `<path d="M${cx+36},${cy-28} L${cx+34},${cy-25} L${cx+40},${cy-25} Z" fill="${belly}" opacity="0.6"/>`;
+    svg += `<path d="M${cx+56},${cy-28} L${cx+58},${cy-25} L${cx+60},${cy-25} Z" fill="${belly}" opacity="0.6"/>`;
+    // Eyes
+    svg += `<ellipse cx="${cx+46}" cy="${cy-12}" rx="2.5" ry="3" fill="#1a1a1a"/>`;
+    svg += `<ellipse cx="${cx+56}" cy="${cy-12}" rx="2.5" ry="3" fill="#1a1a1a"/>`;
+    svg += `<circle cx="${cx+46.5}" cy="${cy-13}" r="0.8" fill="#fff" opacity="0.7"/>`;
+    svg += `<circle cx="${cx+56.5}" cy="${cy-13}" r="0.8" fill="#fff" opacity="0.7"/>`;
+    // Black nose + mouth
+    svg += `<ellipse cx="${cx+62}" cy="${cy-4}" rx="3" ry="2" fill="#1a1a1a"/>`;
+    svg += `<path d="M${cx+56},${cy-1} Q${cx+60},${cy+2} ${cx+64},${cy-1}" stroke="${stroke}" stroke-width="0.8" fill="none"/>`;
+    // Whiskers
+    for (let i = -1; i <= 1; i++) {
+      svg += `<line x1="${cx+58}" y1="${cy+i*1.5}" x2="${cx+74}" y2="${cy+i*3}" stroke="${stroke}" stroke-width="0.4"/>`;
+    }
+    // Bushy tail
+    svg += `<path d="M${cx-40},${cy+4} Q${cx-60},${cy-4} ${cx-68},${cy+10}" stroke="url(#${gid}-body)" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+    svg += `<ellipse cx="${cx-66}" cy="${cy+10}" rx="6" ry="5" fill="${belly}" opacity="0.5"/>`;
+  }
+
+  // Label
+  const labels = {
+    arctic: 'arctic — round, furry, insulated',
+    desert: 'desert — long limbs, big ears, lean',
+    jungle: 'jungle — agile, spotted, long-tailed',
+    fish: 'fish — finned, gilled, laterally compressed',
+    aquatic: 'cetacean — streamlined, flippered, blowhole',
+    subterran: 'burrower — tubular, clawed, low-eyed',
+    savanna: 'savanna — upright, maned, running',
+    generalist: 'generalist — medium everything',
+  };
+  svg += `<text x="${W/2}" y="${H-2}" text-anchor="middle" fill="#eadfc8" font-family="monospace" font-size="9" opacity="0.8">${labels[plan] || plan}</text>`;
+  svg += `</svg>`;
+  return svg;
+}
+
+let selectedSpecies = null;
+function selectSpecies(s) {
+  selectedSpecies = s;
+  const box = document.getElementById('species-detail');
+  if (!s) {
+    box.classList.add('empty');
+    box.textContent = 'Click a species node on the globe.';
+  } else {
+    box.classList.remove('empty');
+    const biome = biomeAt(s.lat, s.lon,
+      parseFloat(document.getElementById('temp-slider').value),
+      parseFloat(document.getElementById('wet-slider').value));
+    let lineage = `#${s.id}`;
+    let p = s;
+    while (p.ancestorId) {
+      lineage += ` ← #${p.ancestorId}`;
+      p = species.find(x => x.id === p.ancestorId);
+      if (!p || lineage.length > 80) break;
+    }
+    box.innerHTML = `
+      <div style="margin-bottom:8px">${animalSvg(s.traits, s.habitat)}</div>
+      <b style="color:var(--accent)">Species #${s.id}</b>
+      <span style="color:var(--dim)">· born gen ${s.bornGen} · age ${s.age}</span><br>
+      <span style="color:var(--dim);font-size:10px">at lat ${s.lat.toFixed(1)}, lon ${s.lon.toFixed(1)} (${biomeName(biome.temp, biome.wet)})</span><br>
+      <div style="margin-top:6px;font-size:10px">
+        cold_tol: <b>${s.traits.cold_tol.toFixed(2)}</b> · heat_tol: <b>${s.traits.heat_tol.toFixed(2)}</b><br>
+        drought_tol: <b>${s.traits.drought_tol.toFixed(2)}</b> · wet_tol: <b>${s.traits.wet_tol.toFixed(2)}</b><br>
+        fitness here: <b style="color:${s.fitness > 0.6 ? 'var(--accent2)' : s.fitness > 0.4 ? 'var(--warn)' : 'var(--danger)'}">${s.fitness.toFixed(2)}</b>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--dim)">lineage: ${lineage}</div>`;
+  }
+  draw();
+}
+
+function updateStats() {
+  const extant = species.filter(s => s.extant);
+  document.getElementById('stat-gen').textContent = generation;
+  document.getElementById('stat-extant').textContent = extant.length;
+  document.getElementById('stat-total').textContent = stats.totalEmerged;
+  document.getElementById('stat-extinct').textContent = stats.totalExtinct;
+  const avgFit = extant.length ? (extant.reduce((a, s) => a + s.fitness, 0) / extant.length) : 0;
+  document.getElementById('stat-fit').textContent = extant.length ? avgFit.toFixed(2) : '—';
+
+  updateDominant(extant);
+  updateWorldLook();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Dominant species descriptor
+// ═════════════════════════════════════════════════════════════════════
+function traitLabel(traits) {
+  const parts = [];
+  // Temperature
+  if (traits.heat_tol > 0.75 && traits.cold_tol < 0.4) parts.push('heat-loving');
+  else if (traits.cold_tol > 0.75 && traits.heat_tol < 0.4) parts.push('cold-adapted');
+  else if (traits.heat_tol > 0.6 && traits.cold_tol > 0.6) parts.push('thermally flexible');
+  // Moisture
+  if (traits.drought_tol > 0.75 && traits.wet_tol < 0.4) parts.push('arid-tolerant');
+  else if (traits.wet_tol > 0.75 && traits.drought_tol < 0.4) parts.push('moisture-dependent');
+  else if (traits.drought_tol > 0.6 && traits.wet_tol > 0.6) parts.push('moisture-flexible');
+  if (!parts.length) parts.push('generalist');
+  return parts.join(', ');
+}
+
+function bodyPlan(traits) {
+  // Imagined body plan from traits — for vivid description
+  const heat = traits.heat_tol, cold = traits.cold_tol;
+  const dry = traits.drought_tol, wet = traits.wet_tol;
+  const plans = [];
+  if (cold > 0.7) plans.push('thick insulation, compact body');
+  if (heat > 0.7 && dry > 0.6) plans.push('long limbs, lean mass, high surface area');
+  if (wet > 0.7 && heat > 0.6) plans.push('smooth skin, aquatic or semi-aquatic');
+  if (dry > 0.7 && heat < 0.5) plans.push('burrowing, crepuscular habits');
+  if (cold > 0.7 && wet > 0.6) plans.push('dense fur, fat reserves');
+  if (!plans.length) plans.push('generalist morphology');
+  return plans[Math.floor(Math.random() * plans.length)];
+}
+
+function updateDominant(extant) {
+  const box = document.getElementById('dominant');
+  if (!extant.length) {
+    box.innerHTML = '<span style="color:var(--dim);font-style:italic">No extant species. Run the sim or reset.</span>';
+    return;
+  }
+  // Top 3 by fitness (current pressure applied)
+  const sorted = [...extant].sort((a, b) => b.fitness - a.fitness).slice(0, 3);
+  let html = '';
+  for (const s of sorted) {
+    const r = Math.round(80 + s.traits.heat_tol * 160);
+    const g = Math.round(60 + s.traits.wet_tol * 160);
+    const b = Math.round(80 + s.traits.cold_tol * 160);
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed var(--border)">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgb(${r},${g},${b});flex-shrink:0"></span>
+      <span style="flex:1"><b>#${s.id}</b> <span style="color:var(--dim)">${traitLabel(s.traits)}</span><br>
+        <span style="color:var(--dim);font-size:10px">${bodyPlan(s.traits)} · fitness ${s.fitness.toFixed(2)}</span></span>
+    </div>`;
+  }
+  box.innerHTML = html;
+}
+
+function updateWorldLook() {
+  const tempMod = parseFloat(document.getElementById('temp-slider').value);
+  const wetMod = parseFloat(document.getElementById('wet-slider').value);
+  const extant = species.filter(s => s.extant);
+
+  // Sample biomes over the globe to compute dominant
+  let hot = 0, cold = 0, wet = 0, dry = 0, ice = 0, total = 0;
+  for (let lat = -80; lat <= 80; lat += 20) {
+    for (let lon = -180; lon <= 180; lon += 30) {
+      const b = biomeAt(lat, lon, tempMod, wetMod);
+      total++;
+      if (b.temp < -5) ice++;
+      if (b.temp > 28) hot++;
+      if (b.temp < 5) cold++;
+      if (b.wet > 0.7) wet++;
+      if (b.wet < 0.3) dry++;
+    }
+  }
+  const iceFrac = ice / total, hotFrac = hot / total;
+  const wetFrac = wet / total, dryFrac = dry / total;
+
+  let picture = '';
+  if (iceFrac > 0.5) {
+    picture = 'Much of the surface is locked under ice. Liquid water exists only in narrow equatorial belts or insulated subsurface pockets. ';
+  } else if (hotFrac > 0.6) {
+    picture = 'Most of the surface is baked desert or superheated steam. Rivers where they exist run shallow and brief. ';
+  } else if (hotFrac > 0.3 && wetFrac > 0.4) {
+    picture = 'Dense humid jungle covers much of the equator; fast-evolving life in every niche. ';
+  } else if (cold / total > 0.4 && wet / total > 0.4) {
+    picture = 'Vast taiga and cold rain forests, long seasons, slow metabolism favored. ';
+  } else if (dry / total > 0.6) {
+    picture = 'Arid grasslands and deserts dominate. Life concentrates along rare rivers and coastlines. ';
+  } else {
+    picture = 'A temperate mix — forests, grasslands, polar caps, and scattered deserts. Earth-like. ';
+  }
+
+  // What kind of life dominates
+  if (extant.length === 0) {
+    picture += 'No life currently present.';
+  } else {
+    const avgCold = extant.reduce((a, s) => a + s.traits.cold_tol, 0) / extant.length;
+    const avgHeat = extant.reduce((a, s) => a + s.traits.heat_tol, 0) / extant.length;
+    const avgWet = extant.reduce((a, s) => a + s.traits.wet_tol, 0) / extant.length;
+    const avgDry = extant.reduce((a, s) => a + s.traits.drought_tol, 0) / extant.length;
+    if (avgCold > 0.65) picture += 'Life here is thick-furred, slow-moving, cold-adapted — mammoths-and-tardigrades territory. ';
+    else if (avgHeat > 0.65 && avgDry > 0.55) picture += 'Life here is lean, sun-tolerant, water-conserving — desert reptile and shrubland territory. ';
+    else if (avgHeat > 0.6 && avgWet > 0.6) picture += 'Life here is aquatic or amphibious, dense and fast-growing — swamp and reef territory. ';
+    else if (avgCold > 0.5 && avgWet > 0.5) picture += 'Life here is dense-coated, dense-forested — northern taiga and peat-bog territory. ';
+    else picture += 'Life here is generalist, medium-bodied, tolerant of variation — temperate-zone animal and plant territory. ';
+  }
+  document.getElementById('world-look').innerHTML = picture;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Preset scenarios — set sliders and seed an appropriate species pool
+// ═════════════════════════════════════════════════════════════════════
+const PRESETS = {
+  snowball:      { temp: -20, wet:  0.2, pres: 0.6,  seed: 'cold',  n: 15, surface: 'rodinia',    label: 'Snowball Earth' },
+  cambrian:      { temp:  +6, wet:  0.6, pres: 0.4,  seed: 'wet',   n: 40, surface: 'gondwana',   label: 'Cambrian explosion' },
+  carboniferous: { temp:  +8, wet:  0.8, pres: 0.3,  seed: 'wet',   n: 50, surface: 'pangaea',    label: 'Carboniferous swamp' },
+  'permian-end': { temp: +12, wet: -0.4, pres: 0.9,  seed: 'hot',   n: 20, surface: 'pangaea',    label: 'End-Permian extinction' },
+  cretaceous:    { temp:  +8, wet:  0.3, pres: 0.35, seed: 'warm',  n: 45, surface: 'cretaceous', label: 'Late Cretaceous' },
+  paleocene:     { temp: +15, wet:  0.5, pres: 0.5,  seed: 'hot',   n: 35, surface: 'modern',     label: 'PETM hothouse' },
+  iceage:        { temp:  -6, wet: -0.2, pres: 0.5,  seed: 'cold',  n: 30, surface: 'modern',     label: 'Last Ice Age' },
+  present:       { temp:   0, wet:  0.0, pres: 0.3,  seed: 'mixed', n: 30, surface: 'modern',     label: 'Present Earth' },
+  warming2:      { temp:  +2, wet:  0.1, pres: 0.35, seed: 'mixed', n: 30, surface: 'modern',     label: '+2 °C Earth' },
+  warming4:      { temp:  +4, wet: -0.1, pres: 0.5,  seed: 'mixed', n: 25, surface: 'modern',     label: '+4 °C Earth' },
+  runaway:       { temp: +18, wet: +0.6, pres: 0.9,  seed: 'hot',   n: 15, surface: 'modern',     label: 'Runaway greenhouse' },
+  mars:          { temp: -18, wet: -0.9, pres: 0.95, seed: 'extreme-cold-dry', n: 8,  surface: 'mars',        label: 'Mars-like' },
+  venus:         { temp: +23, wet: +0.8, pres: 0.95, seed: 'extreme-hot-wet',  n: 6,  surface: 'venus',       label: 'Venus-like' },
+  europa:        { temp: -24, wet: +1.0, pres: 0.95, seed: 'extreme-cold-wet', n: 5,  surface: 'europa',      label: 'Europa-like' },
+  earlyearth:    { temp: +10, wet: +0.9, pres: 0.6,  seed: 'wet',              n: 15, surface: 'early-earth', label: 'Early Earth' },
+};
+
+function seedPool(kind, n) {
+  species = []; nextId = 1;
+  stats = { totalEmerged: 0, totalExtinct: 0 };
+  const templates = {
+    cold:  () => ({ cold_tol: 0.7 + Math.random()*0.3, heat_tol: Math.random()*0.3,
+                    drought_tol: 0.3 + Math.random()*0.4, wet_tol: 0.3 + Math.random()*0.5 }),
+    hot:   () => ({ cold_tol: Math.random()*0.3, heat_tol: 0.7 + Math.random()*0.3,
+                    drought_tol: 0.3 + Math.random()*0.5, wet_tol: 0.3 + Math.random()*0.5 }),
+    warm:  () => ({ cold_tol: 0.2 + Math.random()*0.4, heat_tol: 0.5 + Math.random()*0.4,
+                    drought_tol: 0.3 + Math.random()*0.5, wet_tol: 0.3 + Math.random()*0.5 }),
+    wet:   () => ({ cold_tol: 0.2 + Math.random()*0.5, heat_tol: 0.3 + Math.random()*0.5,
+                    drought_tol: Math.random()*0.3, wet_tol: 0.7 + Math.random()*0.3 }),
+    mixed: () => ({ cold_tol: Math.random(), heat_tol: Math.random(),
+                    drought_tol: Math.random(), wet_tol: Math.random() }),
+    'extreme-cold-dry': () => ({ cold_tol: 0.85 + Math.random()*0.15, heat_tol: Math.random()*0.15,
+                                 drought_tol: 0.85 + Math.random()*0.15, wet_tol: Math.random()*0.2 }),
+    'extreme-hot-wet':  () => ({ cold_tol: Math.random()*0.2, heat_tol: 0.85 + Math.random()*0.15,
+                                 drought_tol: Math.random()*0.2, wet_tol: 0.85 + Math.random()*0.15 }),
+    'extreme-cold-wet': () => ({ cold_tol: 0.85 + Math.random()*0.15, heat_tol: Math.random()*0.15,
+                                 drought_tol: Math.random()*0.2, wet_tol: 0.85 + Math.random()*0.15 }),
+  };
+  const tpl = templates[kind] || templates.mixed;
+  // Fraction aquatic depends on world: wet worlds get more aquatic; dry / ice worlds less.
+  const aquaticShare = {
+    wet: 0.45, warm: 0.30, mixed: 0.30, cold: 0.15, hot: 0.25,
+    'extreme-cold-dry': 0.05, 'extreme-hot-wet': 0.4, 'extreme-cold-wet': 0.5,
+  }[kind] || 0.3;
+  for (let i = 0; i < n; i++) {
+    const aquatic = Math.random() < aquaticShare;
+    const habitat = aquatic ? 'aquatic' : 'land';
+    const { lat, lon } = sampleAt(habitat);
+    const traits = tpl();
+    if (aquatic) {
+      // Aquatic species bias: high wet_tol, low drought_tol
+      traits.wet_tol = Math.max(traits.wet_tol, 0.6);
+      traits.drought_tol = Math.min(traits.drought_tol, 0.3);
+    }
+    makeSpecies(lat, lon, traits, null, habitat);
+  }
+}
+
+function applyPreset(key) {
+  const p = PRESETS[key];
+  if (!p) return;
+  document.getElementById('temp-slider').value = p.temp;
+  document.getElementById('temp-val').textContent = (p.temp >= 0 ? '+' : '') + p.temp + ' °C';
+  document.getElementById('wet-slider').value = p.wet;
+  document.getElementById('wet-val').textContent = p.wet.toFixed(1);
+  document.getElementById('pres-slider').value = p.pres;
+  document.getElementById('pres-val').textContent = p.pres.toFixed(2);
+  generation = 0;
+  applySurfaceStyle(p.surface || 'modern');
+  seedPool(p.seed, p.n);
+  logEvent('new', `Loaded preset: ${p.label} (${p.n} seed species, surface: ${p.surface || 'modern'})`);
+  draw();
+  updateStats();
+}
+
+function logEvent(kind, msg) {
+  eventLog.unshift({ kind, msg, gen: generation });
+  if (eventLog.length > 50) eventLog.pop();
+  const el = document.getElementById('event-log');
+  el.innerHTML = eventLog.map(e =>
+    `<div class="evt-${e.kind}">g${e.gen}: ${e.msg}</div>`
+  ).join('');
+}
+
+function drawLegend() {
+  const el = document.getElementById('legend');
+  const biomes = [
+    { t: -10, w: 0.3, name: 'Ice / Tundra' },
+    { t: 0, w: 0.7, name: 'Taiga' },
+    { t: 15, w: 0.7, name: 'Temperate forest' },
+    { t: 20, w: 0.3, name: 'Grassland' },
+    { t: 28, w: 0.8, name: 'Rainforest' },
+    { t: 30, w: 0.2, name: 'Desert' },
+  ];
+  el.innerHTML = biomes.map(b => `
+    <div class="biome-row">
+      <span class="biome-swatch" style="background:${biomeColor(b.t, b.w)}"></span>
+      <span>${b.name}</span>
+      <span style="margin-left:auto;color:var(--dim)">${b.t}°, ${(b.w*100).toFixed(0)}% wet</span>
+    </div>
+  `).join('');
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Slider wiring
+// ═════════════════════════════════════════════════════════════════════
+document.getElementById('temp-slider').addEventListener('input', e => {
+  document.getElementById('temp-val').textContent = (e.target.value >= 0 ? '+' : '') + e.target.value + ' °C';
+  draw();
+});
+document.getElementById('wet-slider').addEventListener('input', e => {
+  document.getElementById('wet-val').textContent = parseFloat(e.target.value).toFixed(1);
+  draw();
+});
+document.getElementById('pres-slider').addEventListener('input', e => {
+  document.getElementById('pres-val').textContent = parseFloat(e.target.value).toFixed(2);
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// Boot
+// ═════════════════════════════════════════════════════════════════════
+resize();
+projection.rotate(rotation);
+resetSim();
+drawLegend();
+draw();
+
+// Animation tick for the selected-species pulsing halo
+setInterval(() => { if (selectedSpecies) draw(); }, 100);
+</script>
+</body>
+</html>

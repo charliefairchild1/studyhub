@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Predictor + Residual — PEP Math Playground</title>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #chart-container { position: fixed; top: 44px; left: 0; right: 320px; bottom: 0;
+                     background: radial-gradient(ellipse at center, #14203a 0%, #0a0d14 80%); padding: 18px; }
+  #signal-canvas, #error-canvas { position: absolute; left: 18px; right: 18px;
+                                   background: var(--surface2); border-radius: 6px; }
+  #signal-canvas { top: 18px; height: 58%; width: calc(100% - 36px); }
+  #error-canvas { bottom: 18px; height: 32%; width: calc(100% - 36px); }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 320px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 12px; }
+  #panel label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; }
+  #panel label b { color: var(--text); font-size: 11px; }
+  #panel input[type=range] { width: 100%; }
+  #panel select { width: 100%; background: var(--surface2); color: var(--text);
+                  border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px;
+                  font-family: inherit; font-size: 11px; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+
+  .pep-note { background: var(--surface2); border-radius: 6px;
+              padding: 10px 12px; font-size: 10px; color: var(--text);
+              line-height: 1.6; border-left: 2px solid var(--accent2); }
+  .pep-note b { color: var(--accent2); }
+
+  @media (max-width: 900px) {
+    #chart-container { right: 0; bottom: 320px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 320px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Predictor + Residual</span>
+  <span class="tag">the PEP learning loop, live</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="voronoi.html">⬡ Voronoi</a>
+    <a href="epidemic.html">☣ Epidemic</a>
+  </span>
+</nav>
+
+<div id="chart-container">
+  <canvas id="signal-canvas"></canvas>
+  <canvas id="error-canvas"></canvas>
+</div>
+
+<div id="panel">
+  <h3>What this is</h3>
+  <div class="pep-note">
+    A signal streams in over time. Two predictors guess the next value:
+    <b>naive</b> (persistence — predicts <i>last-seen</i>) and <b>adaptive</b>
+    (linear model with online gradient descent). The residual — <i>observed
+    minus predicted</i> — feeds back to update the adaptive model's weights.
+    Watch its error shrink while the naive predictor's stays flat. This IS
+    PEP's learning loop.
+  </div>
+
+  <h3>Signal</h3>
+  <div class="ctrl">
+    <label><b>Source</b></label>
+    <select id="signal-type">
+      <option value="sine">sine wave (periodic)</option>
+      <option value="noisy-sine" selected>noisy sine (periodic + noise)</option>
+      <option value="drift">random walk (unpredictable)</option>
+      <option value="step">step function (regime shifts)</option>
+      <option value="combo">combo: sine + slow drift + noise</option>
+      <option value="ar">AR(2) process (learnable structure)</option>
+    </select>
+  </div>
+  <div class="ctrl">
+    <label><b>Noise level</b> <span id="noise-val" style="float:right">0.10</span></label>
+    <input id="noise-slider" type="range" min="0" max="0.5" step="0.02" value="0.10" oninput="updateNoise()">
+  </div>
+
+  <h3>Adaptive predictor</h3>
+  <div class="ctrl">
+    <label><b>Learning rate η</b> <span id="lr-val" style="float:right">0.10</span></label>
+    <input id="lr-slider" type="range" min="0" max="1" step="0.02" value="0.10" oninput="updateLR()">
+    <label style="color:var(--dim);font-size:9px;margin-top:4px">
+      how aggressively weights adjust to each residual
+    </label>
+  </div>
+  <div class="ctrl">
+    <label><b>Window size</b> <span id="w-val" style="float:right">5</span></label>
+    <input id="w-slider" type="range" min="1" max="20" step="1" value="5" oninput="updateW()">
+    <label style="color:var(--dim);font-size:9px;margin-top:4px">
+      how many past values the predictor looks at
+    </label>
+  </div>
+
+  <h3>Run</h3>
+  <div class="ctrl">
+    <button onclick="stepOnce()">Step 1</button>
+    <button id="play-btn" class="primary" onclick="togglePlay()">▶ Play</button>
+    <button onclick="resetSim()" class="danger">Reset</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="stat-row"><span class="label">Tick</span><span class="value" id="stat-t">0</span></div>
+  <div class="stat-row"><span class="label">Last observed</span><span class="value" id="stat-obs">—</span></div>
+  <div class="stat-row"><span class="label">Naive prediction</span><span class="value" id="stat-naive">—</span></div>
+  <div class="stat-row"><span class="label">Adaptive prediction</span><span class="value" id="stat-adaptive">—</span></div>
+  <div class="stat-row"><span class="label">Last residual (naive)</span><span class="value" id="stat-res-naive" style="color:#ef5350">—</span></div>
+  <div class="stat-row"><span class="label">Last residual (adaptive)</span><span class="value" id="stat-res-adaptive" style="color:#81c784">—</span></div>
+  <div class="stat-row"><span class="label">MSE naive (last 50)</span><span class="value" id="stat-mse-naive">—</span></div>
+  <div class="stat-row"><span class="label">MSE adaptive (last 50)</span><span class="value" id="stat-mse-adaptive" style="color:#81c784">—</span></div>
+
+  <h3>Current weights</h3>
+  <div id="weights-view" style="font-family:'SF Mono',monospace;font-size:10px;color:var(--dim);background:var(--surface2);border-radius:6px;padding:8px 12px;line-height:1.6"></div>
+
+  <h3>PEP primitives used</h3>
+  <div class="pep-note" style="font-size:10px">
+    <b>Predictor + residual</b> — the headline. The adaptive linear model IS a predictor; the error between prediction and observation IS the residual; the weight update IS learning.<br>
+    <b>Weighted graph</b> — the window of past values is a mini-graph where each past time-step is a node weighted by how much it predicts the next one. Those weights are what get learned.<br><br>
+    <b>Why this matters:</b> every adaptive component in PEP (Vectora's retrieval relevance, Atria's matching, Axona's state-mapping, Lingora's translate-bank) uses this exact loop. Residuals are the only training signal PEP ever needs.
+  </div>
+
+  <h3>Sister demos</h3>
+  <div class="pep-note" style="font-size:10px;line-height:1.8">
+    <a href="voronoi.html" style="color:#4fc3f7">⬡ Voronoi Retrieval</a> — weighted graph<br>
+    <a href="life.html" style="color:#67e8f9">▦ Cellular Automata</a> — state modulation<br>
+    <a href="epidemic.html" style="color:#ef5350">☣ Epidemic Network</a> — spreading activation<br>
+    <a href="globe.html" style="color:#fbbf24">🌍 Evolution Globe</a> — opacity/selection<br>
+    <a href="index.html" style="color:var(--accent)">← back to math playground</a>
+  </div>
+</div>
+
+<script>
+// ═════════════════════════════════════════════════════════════════════
+// Canvases
+// ═════════════════════════════════════════════════════════════════════
+const sigCanvas = document.getElementById('signal-canvas');
+const sigCtx = sigCanvas.getContext('2d');
+const errCanvas = document.getElementById('error-canvas');
+const errCtx = errCanvas.getContext('2d');
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  [sigCanvas, errCanvas].forEach((c, i) => {
+    const ctx = c === sigCanvas ? sigCtx : errCtx;
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width * dpr;
+    c.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  });
+  draw();
+}
+window.addEventListener('resize', resize);
+
+// ═════════════════════════════════════════════════════════════════════
+// Signal generation
+// ═════════════════════════════════════════════════════════════════════
+let t = 0;
+let history = [];  // { t, observed, naive, adaptive, resNaive, resAdaptive }
+let state = { drift: 0, step: 0, ar: [0, 0] };  // per-source state
+let noise = 0.10;
+let lr = 0.10;
+let W = 5;
+let weights = Array(W).fill(0);  // adaptive linear model weights
+let lastObs = 0;
+
+function genSignal(type) {
+  const n = (Math.random() * 2 - 1) * noise;
+  let v;
+  switch (type) {
+    case 'sine':
+      v = Math.sin(t * 0.15);
+      break;
+    case 'noisy-sine':
+      v = Math.sin(t * 0.15) + n;
+      break;
+    case 'drift':
+      state.drift += (Math.random() * 2 - 1) * 0.1;
+      state.drift = Math.max(-1, Math.min(1, state.drift));
+      v = state.drift;
+      break;
+    case 'step':
+      if (Math.random() < 0.02) state.step = (Math.random() * 2 - 1);
+      v = state.step + n * 0.3;
+      break;
+    case 'combo':
+      state.drift += (Math.random() * 2 - 1) * 0.02;
+      v = Math.sin(t * 0.12) * 0.7 + state.drift + n;
+      break;
+    case 'ar':
+      // AR(2): x[t] = 0.6*x[t-1] - 0.3*x[t-2] + noise
+      const next = 0.6 * state.ar[0] - 0.3 * state.ar[1] + n * 2;
+      state.ar[1] = state.ar[0]; state.ar[0] = next;
+      v = next;
+      break;
+    default: v = 0;
+  }
+  return Math.max(-2, Math.min(2, v));
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Predictors
+// ═════════════════════════════════════════════════════════════════════
+function naivePredict() {
+  return lastObs;
+}
+function adaptivePredict() {
+  // Linear combination of last W observed values
+  const inputs = history.slice(-W).map(h => h.observed);
+  while (inputs.length < W) inputs.unshift(0);
+  let pred = 0;
+  for (let i = 0; i < W; i++) pred += weights[i] * inputs[i];
+  return pred;
+}
+
+function updateWeights(observed, inputs) {
+  const pred = inputs.reduce((s, x, i) => s + weights[i] * x, 0);
+  const residual = observed - pred;
+  // Gradient descent on squared error
+  for (let i = 0; i < W; i++) {
+    weights[i] += lr * residual * inputs[i];
+  }
+  return residual;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Step + draw
+// ═════════════════════════════════════════════════════════════════════
+function stepOnce() {
+  const type = document.getElementById('signal-type').value;
+  const observed = genSignal(type);
+
+  // Predictions BEFORE observing (predict from past)
+  const naive = naivePredict();
+  const adaptivePred = adaptivePredict();
+
+  // Now observe — compute residuals
+  const resNaive = observed - naive;
+  const resAdaptive = observed - adaptivePred;
+
+  // Update adaptive weights
+  const inputs = history.slice(-W).map(h => h.observed);
+  while (inputs.length < W) inputs.unshift(0);
+  updateWeights(observed, inputs);
+
+  history.push({ t, observed, naive, adaptive: adaptivePred, resNaive, resAdaptive });
+  if (history.length > 300) history.shift();
+
+  lastObs = observed;
+  t++;
+  updatePanel(observed, naive, adaptivePred, resNaive, resAdaptive);
+  draw();
+}
+
+function updateNoise() {
+  noise = parseFloat(document.getElementById('noise-slider').value);
+  document.getElementById('noise-val').textContent = noise.toFixed(2);
+}
+function updateLR() {
+  lr = parseFloat(document.getElementById('lr-slider').value);
+  document.getElementById('lr-val').textContent = lr.toFixed(2);
+}
+function updateW() {
+  const newW = parseInt(document.getElementById('w-slider').value);
+  document.getElementById('w-val').textContent = newW;
+  if (newW !== W) {
+    W = newW;
+    weights = Array(W).fill(0);  // reset weights when W changes
+  }
+}
+
+function resetSim() {
+  t = 0; history = []; lastObs = 0;
+  state = { drift: 0, step: 0, ar: [0, 0] };
+  weights = Array(W).fill(0);
+  updatePanel(null, null, null, null, null);
+  draw();
+}
+
+let playTimer = null;
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (playTimer) {
+    clearInterval(playTimer); playTimer = null; btn.textContent = '▶ Play';
+  } else {
+    playTimer = setInterval(stepOnce, 80);
+    btn.textContent = '■ Pause';
+  }
+}
+
+function updatePanel(obs, naive, adaptive, resN, resA) {
+  document.getElementById('stat-t').textContent = t;
+  document.getElementById('stat-obs').textContent = obs === null ? '—' : obs.toFixed(3);
+  document.getElementById('stat-naive').textContent = naive === null ? '—' : naive.toFixed(3);
+  document.getElementById('stat-adaptive').textContent = adaptive === null ? '—' : adaptive.toFixed(3);
+  document.getElementById('stat-res-naive').textContent = resN === null ? '—' : resN.toFixed(3);
+  document.getElementById('stat-res-adaptive').textContent = resA === null ? '—' : resA.toFixed(3);
+
+  // MSE over last 50
+  const last = history.slice(-50);
+  if (last.length > 0) {
+    const mseN = last.reduce((s, h) => s + h.resNaive * h.resNaive, 0) / last.length;
+    const mseA = last.reduce((s, h) => s + h.resAdaptive * h.resAdaptive, 0) / last.length;
+    document.getElementById('stat-mse-naive').textContent = mseN.toFixed(4);
+    document.getElementById('stat-mse-adaptive').textContent = mseA.toFixed(4);
+  } else {
+    document.getElementById('stat-mse-naive').textContent = '—';
+    document.getElementById('stat-mse-adaptive').textContent = '—';
+  }
+  // Weights
+  document.getElementById('weights-view').textContent =
+    'w = [' + weights.map(w => w.toFixed(3)).join(', ') + ']';
+}
+
+function draw() {
+  // Top: signal + predictions
+  const sw = sigCanvas.clientWidth, sh = sigCanvas.clientHeight;
+  sigCtx.fillStyle = 'rgba(15,19,24,0.5)';
+  sigCtx.fillRect(0, 0, sw, sh);
+  // Zero line
+  sigCtx.strokeStyle = 'rgba(120,140,160,0.2)';
+  sigCtx.lineWidth = 1;
+  sigCtx.beginPath(); sigCtx.moveTo(30, sh/2); sigCtx.lineTo(sw-10, sh/2); sigCtx.stroke();
+  sigCtx.fillStyle = 'rgba(200,215,230,0.5)';
+  sigCtx.font = '10px SF Mono, monospace';
+  sigCtx.fillText('observed', 10, 14);
+  sigCtx.fillStyle = '#ef5350';
+  sigCtx.fillText('naive pred', 80, 14);
+  sigCtx.fillStyle = '#81c784';
+  sigCtx.fillText('adaptive pred', 170, 14);
+
+  if (history.length > 1) {
+    const n = history.length;
+    const step = (sw - 40) / Math.max(50, n);
+    const toY = v => sh/2 - v * (sh/3);
+    // Observed
+    sigCtx.strokeStyle = 'rgba(200,220,240,0.75)';
+    sigCtx.lineWidth = 1.2;
+    sigCtx.beginPath();
+    history.forEach((h, i) => {
+      const x = 30 + i * step, y = toY(h.observed);
+      if (i === 0) sigCtx.moveTo(x, y); else sigCtx.lineTo(x, y);
+    });
+    sigCtx.stroke();
+    // Naive prediction
+    sigCtx.strokeStyle = '#ef5350';
+    sigCtx.lineWidth = 1;
+    sigCtx.setLineDash([3, 2]);
+    sigCtx.beginPath();
+    history.forEach((h, i) => {
+      const x = 30 + i * step, y = toY(h.naive);
+      if (i === 0) sigCtx.moveTo(x, y); else sigCtx.lineTo(x, y);
+    });
+    sigCtx.stroke();
+    sigCtx.setLineDash([]);
+    // Adaptive prediction
+    sigCtx.strokeStyle = '#81c784';
+    sigCtx.lineWidth = 1.5;
+    sigCtx.beginPath();
+    history.forEach((h, i) => {
+      const x = 30 + i * step, y = toY(h.adaptive);
+      if (i === 0) sigCtx.moveTo(x, y); else sigCtx.lineTo(x, y);
+    });
+    sigCtx.stroke();
+  }
+
+  // Bottom: residual magnitudes over time
+  const ew = errCanvas.clientWidth, eh = errCanvas.clientHeight;
+  errCtx.fillStyle = 'rgba(15,19,24,0.5)';
+  errCtx.fillRect(0, 0, ew, eh);
+  errCtx.fillStyle = 'rgba(200,215,230,0.5)';
+  errCtx.font = '10px SF Mono, monospace';
+  errCtx.fillText('residual² (prediction error squared)', 10, 14);
+  errCtx.fillStyle = '#ef5350';
+  errCtx.fillText('naive', 260, 14);
+  errCtx.fillStyle = '#81c784';
+  errCtx.fillText('adaptive', 310, 14);
+
+  if (history.length > 1) {
+    const n = history.length;
+    const step = (ew - 40) / Math.max(50, n);
+    // Y scale: pick dynamic
+    const maxRes = Math.max(0.1, ...history.map(h => Math.max(h.resNaive ** 2, h.resAdaptive ** 2)));
+    const toY = v => eh - 20 - (v / maxRes) * (eh - 30);
+    // Naive
+    errCtx.fillStyle = 'rgba(239,83,80,0.45)';
+    history.forEach((h, i) => {
+      const x = 30 + i * step;
+      const y = toY(h.resNaive ** 2);
+      errCtx.fillRect(x - 0.5, y, 1.5, eh - 20 - y);
+    });
+    // Adaptive — overlaid
+    errCtx.fillStyle = 'rgba(129,199,132,0.7)';
+    history.forEach((h, i) => {
+      const x = 30 + i * step;
+      const y = toY(h.resAdaptive ** 2);
+      errCtx.fillRect(x - 0.5, y, 1.5, eh - 20 - y);
+    });
+    // X axis
+    errCtx.strokeStyle = 'rgba(120,140,160,0.3)';
+    errCtx.beginPath(); errCtx.moveTo(30, eh - 20); errCtx.lineTo(ew - 10, eh - 20); errCtx.stroke();
+  }
+}
+
+// Boot
+resize();
+resetSim();
+</script>
+</body>
+</html>

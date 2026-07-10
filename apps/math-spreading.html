@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spreading Activation — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#4fc3f7; --accent2:#81c784;
+    --warn:#ffb74d; --danger:#ef4444; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #canvas-box{position:fixed;top:44px;left:0;right:340px;bottom:0;background:var(--surface2)}
+  #canvas{display:block;width:100%;height:100%;cursor:crosshair}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:90px}
+  .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row .val{color:var(--accent);min-width:42px;text-align:right}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .legend{font-size:10px;color:var(--dim);line-height:1.6;margin-top:10px}
+  .legend b{color:var(--text)}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .spark{width:100%;height:36px;display:block;background:var(--bg);border-radius:4px;margin-top:4px}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">spreading activation</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="voronoi.html">⬡ Voronoi</a>
+    <a href="epidemic.html">☣ Epidemic</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="canvas-box"><canvas id="canvas"></canvas></div>
+<div id="panel">
+  <h2>Spreading Activation</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    Click a node to inject activation. Watch it spread through weighted edges with decay. This is PEP primitive&nbsp;2 — the core retrieval loop behind Vectora spreading-activation search.
+  </div>
+
+  <h3>Topology</h3>
+  <div class="btn-row">
+    <button class="topo-btn active" data-topo="smallworld">Small-world</button>
+    <button class="topo-btn" data-topo="sparse">Sparse random</button>
+    <button class="topo-btn" data-topo="dense">Dense random</button>
+    <button class="topo-btn" data-topo="hub">Hub &amp; spoke</button>
+    <button class="topo-btn" data-topo="grid">Grid</button>
+    <button class="topo-btn" data-topo="clusters">Clusters</button>
+  </div>
+  <div class="btn-row">
+    <button id="reshuffle">↻ Reshuffle</button>
+    <button id="reset">Reset activation</button>
+    <button id="play" class="active">⏸ Pause</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Propagation</label>
+    <input id="prop" type="range" min="0" max="1" step="0.01" value="0.35">
+    <span class="val" id="prop-v">0.35</span>
+  </div>
+  <div class="row">
+    <label>Decay</label>
+    <input id="decay" type="range" min="0" max="0.5" step="0.005" value="0.08">
+    <span class="val" id="decay-v">0.08</span>
+  </div>
+  <div class="row">
+    <label>Noise</label>
+    <input id="noise" type="range" min="0" max="0.1" step="0.002" value="0.00">
+    <span class="val" id="noise-v">0.00</span>
+  </div>
+  <div class="row">
+    <label>Inject amt</label>
+    <input id="inject" type="range" min="0.1" max="2" step="0.05" value="1">
+    <span class="val" id="inject-v">1.00</span>
+  </div>
+
+  <h3>Field metrics</h3>
+  <div class="metric"><span>Total activation</span><b id="m-total">0.00</b></div>
+  <div class="metric"><span>Peak node</span><b id="m-peak">—</b></div>
+  <div class="metric"><span>Reached nodes</span><b id="m-reached">0</b></div>
+  <div class="metric"><span>Mean path depth</span><b id="m-depth">0</b></div>
+
+  <h3>Total activation over time</h3>
+  <canvas id="spark" class="spark"></canvas>
+
+  <div class="pep-note">
+    <b>PEP primitive 2.</b> Spreading activation is <i>search</i> — start
+    at a seed, flow outward through weighted edges, decay enforces a
+    horizon. Tighter decay = more local retrieval. Weaker decay = more
+    associative reach. The same math is dogfooded across Vectora
+    Retrieval, Atria tie-breaks, Axona cognitive-state bleed, and Lingora
+    concept constellations.
+  </div>
+
+  <h3>Try this</h3>
+  <div class="legend">
+    <b style="color:var(--accent2)">Local search:</b> decay 0.15, prop 0.2 — activation stays near the seed.<br>
+    <b style="color:var(--accent2)">Global bleed:</b> decay 0.02, prop 0.6 — activation reaches the whole graph.<br>
+    <b style="color:var(--accent2)">Hub amplification:</b> pick <i>hub &amp; spoke</i>, click a spoke — watch activation flow through the hub.<br>
+    <b style="color:var(--accent2)">Small-world magic:</b> default. A few long-range edges shortcut activation across distant clusters.
+  </div>
+</div>
+
+<script>
+(() => {
+  const cv = document.getElementById('canvas');
+  const ctx = cv.getContext('2d');
+  const spark = document.getElementById('spark');
+  const sctx = spark.getContext('2d');
+  let W=0, H=0;
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    cv.width = r.width * devicePixelRatio;
+    cv.height = r.height * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    W = r.width; H = r.height;
+    const sr = spark.getBoundingClientRect();
+    spark.width = sr.width * devicePixelRatio;
+    spark.height = sr.height * devicePixelRatio;
+    sctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  window.addEventListener('resize', () => { resize(); layout(); });
+
+  // ---- graph state ----
+  let nodes = [];   // {x,y,act,idx}
+  let edges = [];   // {a,b,w}
+  let adj = [];     // [[{to,w}, ...]]
+  let topo = 'smallworld';
+  let running = true;
+  let history = [];
+
+  const params = {
+    prop: 0.35, decay: 0.08, noise: 0.00, inject: 1.0,
+  };
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function d2(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return dx*dx+dy*dy; }
+
+  function build(topology) {
+    topo = topology;
+    nodes = [];
+    edges = [];
+    const N = topology === 'grid' ? 49 : topology === 'clusters' ? 54 : 42;
+    for (let i=0;i<N;i++) nodes.push({x:0,y:0,act:0,idx:i});
+    if (topology === 'sparse') randomEdges(0.08);
+    else if (topology === 'dense') randomEdges(0.25);
+    else if (topology === 'smallworld') smallWorld(4, 0.12);
+    else if (topology === 'hub') hubSpoke(3);
+    else if (topology === 'grid') grid(7);
+    else if (topology === 'clusters') clusters(6);
+    buildAdj();
+    layout();
+  }
+  function randomEdges(p) {
+    for (let i=0;i<nodes.length;i++) {
+      for (let j=i+1;j<nodes.length;j++) {
+        if (Math.random() < p) edges.push({a:i,b:j,w:rand(0.3,1)});
+      }
+    }
+    // ensure connected: add spanning edges
+    for (let i=1;i<nodes.length;i++) {
+      if (!edges.some(e => (e.a===i||e.b===i))) {
+        edges.push({a:i,b:Math.floor(Math.random()*i),w:rand(0.3,1)});
+      }
+    }
+  }
+  function smallWorld(k, rewire) {
+    const N = nodes.length;
+    for (let i=0;i<N;i++) {
+      for (let d=1;d<=k;d++) {
+        const j = (i+d) % N;
+        edges.push({a:i,b:j,w:rand(0.4,1)});
+      }
+    }
+    // rewire
+    for (const e of edges) {
+      if (Math.random() < rewire) {
+        e.b = Math.floor(Math.random()*N);
+        while (e.b === e.a) e.b = Math.floor(Math.random()*N);
+      }
+    }
+  }
+  function hubSpoke(nHubs) {
+    const N = nodes.length;
+    const hubs = [];
+    for (let i=0;i<nHubs;i++) hubs.push(Math.floor(i*N/nHubs));
+    for (let i=0;i<N;i++) {
+      if (hubs.includes(i)) continue;
+      const h = hubs[Math.floor(Math.random()*hubs.length)];
+      edges.push({a:i,b:h,w:rand(0.5,1)});
+    }
+    // hubs to each other
+    for (let i=0;i<hubs.length;i++) for (let j=i+1;j<hubs.length;j++)
+      edges.push({a:hubs[i],b:hubs[j],w:rand(0.7,1)});
+  }
+  function grid(side) {
+    nodes = [];
+    for (let i=0;i<side*side;i++) nodes.push({x:0,y:0,act:0,idx:i});
+    for (let r=0;r<side;r++) for (let c=0;c<side;c++) {
+      const i = r*side+c;
+      if (c<side-1) edges.push({a:i,b:i+1,w:rand(0.5,1)});
+      if (r<side-1) edges.push({a:i,b:i+side,w:rand(0.5,1)});
+    }
+  }
+  function clusters(nClust) {
+    const N = nodes.length;
+    const perClust = Math.floor(N/nClust);
+    for (let c=0;c<nClust;c++) {
+      const base = c*perClust;
+      for (let i=0;i<perClust;i++) for (let j=i+1;j<perClust;j++) {
+        if (Math.random()<0.35) edges.push({a:base+i,b:base+j,w:rand(0.5,1)});
+      }
+      // one bridge to next cluster
+      if (c<nClust-1) edges.push({a:base, b:(c+1)*perClust, w:rand(0.3,0.6)});
+    }
+  }
+  function buildAdj() {
+    adj = nodes.map(()=>[]);
+    for (const e of edges) {
+      adj[e.a].push({to:e.b,w:e.w});
+      adj[e.b].push({to:e.a,w:e.w});
+    }
+  }
+
+  function layout() {
+    if (topo === 'grid') {
+      const side = Math.round(Math.sqrt(nodes.length));
+      const pad = 40;
+      const gw = W - pad*2, gh = H - pad*2;
+      for (let r=0;r<side;r++) for (let c=0;c<side;c++) {
+        const n = nodes[r*side+c];
+        n.x = pad + c*gw/(side-1);
+        n.y = pad + r*gh/(side-1);
+      }
+      return;
+    }
+    // circle-init then force-directed iterations
+    const cx = W/2, cy = H/2, R = Math.min(W,H)*0.38;
+    for (let i=0;i<nodes.length;i++) {
+      const t = i*2*Math.PI/nodes.length;
+      nodes[i].x = cx + R*Math.cos(t);
+      nodes[i].y = cy + R*Math.sin(t);
+    }
+    for (let iter=0; iter<180; iter++) {
+      const fx = nodes.map(()=>0), fy = nodes.map(()=>0);
+      // repulsion
+      for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++) {
+        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+        const d=Math.max(1, Math.sqrt(dx*dx+dy*dy));
+        const f=1800/(d*d);
+        fx[i]+=dx/d*f; fy[i]+=dy/d*f;
+        fx[j]-=dx/d*f; fy[j]-=dy/d*f;
+      }
+      // attraction
+      for (const e of edges) {
+        const dx=nodes[e.b].x-nodes[e.a].x, dy=nodes[e.b].y-nodes[e.a].y;
+        const d=Math.max(1,Math.sqrt(dx*dx+dy*dy));
+        const f = (d-80)*0.02*e.w;
+        fx[e.a]+=dx/d*f; fy[e.a]+=dy/d*f;
+        fx[e.b]-=dx/d*f; fy[e.b]-=dy/d*f;
+      }
+      // center pull
+      for (let i=0;i<nodes.length;i++) {
+        fx[i] += (cx - nodes[i].x)*0.005;
+        fy[i] += (cy - nodes[i].y)*0.005;
+      }
+      for (let i=0;i<nodes.length;i++) {
+        nodes[i].x += Math.max(-8, Math.min(8, fx[i]));
+        nodes[i].y += Math.max(-8, Math.min(8, fy[i]));
+      }
+    }
+    // clamp to canvas
+    for (const n of nodes) {
+      n.x = Math.max(20, Math.min(W-20, n.x));
+      n.y = Math.max(20, Math.min(H-20, n.y));
+    }
+  }
+
+  function step() {
+    const next = nodes.map(n => n.act * (1 - params.decay));
+    for (let i=0;i<nodes.length;i++) {
+      for (const {to,w} of adj[i]) {
+        next[to] += nodes[i].act * w * params.prop / Math.max(1, adj[i].length);
+      }
+      if (params.noise>0) next[i] += (Math.random()-0.5)*params.noise;
+      next[i] = Math.max(0, Math.min(2, next[i]));
+    }
+    for (let i=0;i<nodes.length;i++) nodes[i].act = next[i];
+  }
+
+  function heat(v) {
+    // 0..1 -> dark blue -> cyan -> yellow -> red
+    const t = Math.max(0, Math.min(1, v));
+    const stops = [
+      [14,24,35], [40,120,180], [120,200,220], [240,220,120], [255,120,60], [255,60,60]
+    ];
+    const s = t*(stops.length-1);
+    const i = Math.min(stops.length-2, Math.floor(s));
+    const f = s-i;
+    const c0 = stops[i], c1 = stops[i+1];
+    return `rgb(${c0[0]+(c1[0]-c0[0])*f|0},${c0[1]+(c1[1]-c0[1])*f|0},${c0[2]+(c1[2]-c0[2])*f|0})`;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0a0d14';
+    ctx.fillRect(0,0,W,H);
+    // edges
+    for (const e of edges) {
+      const a = nodes[e.a], b = nodes[e.b];
+      const act = (a.act + b.act) / 2;
+      const alpha = Math.min(1, 0.08 + act*0.7);
+      ctx.strokeStyle = `rgba(100,160,220,${alpha})`;
+      ctx.lineWidth = 0.5 + e.w * (1 + act*2);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+    // nodes
+    for (const n of nodes) {
+      const r = 5 + n.act * 10;
+      ctx.fillStyle = heat(n.act);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+      ctx.fill();
+      if (n.act > 0.02) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
+
+  function drawSpark() {
+    const r = spark.getBoundingClientRect();
+    const sw = r.width, sh = r.height;
+    sctx.fillStyle = '#0a0d14';
+    sctx.fillRect(0,0,sw,sh);
+    if (history.length<2) return;
+    const maxV = Math.max(0.1, ...history);
+    sctx.strokeStyle = '#4fc3f7';
+    sctx.lineWidth = 1.5;
+    sctx.beginPath();
+    for (let i=0;i<history.length;i++) {
+      const x = i / (history.length-1) * sw;
+      const y = sh - (history[i]/maxV) * sh * 0.9 - 2;
+      if (i===0) sctx.moveTo(x,y); else sctx.lineTo(x,y);
+    }
+    sctx.stroke();
+  }
+
+  function updateMetrics() {
+    let total=0, peak=-1, peakV=0, reached=0;
+    for (const n of nodes) {
+      total += n.act;
+      if (n.act > peakV) { peakV = n.act; peak = n.idx; }
+      if (n.act > 0.02) reached++;
+    }
+    document.getElementById('m-total').textContent = total.toFixed(2);
+    document.getElementById('m-peak').textContent = peak>=0 && peakV>0.01 ? `#${peak} (${peakV.toFixed(2)})` : '—';
+    document.getElementById('m-reached').textContent = `${reached} / ${nodes.length}`;
+    // mean depth = BFS from peak — approximate via weighted reach
+    let depth = 0;
+    if (peak>=0 && peakV>0.01) {
+      const dist = new Array(nodes.length).fill(-1);
+      dist[peak]=0;
+      const q=[peak];
+      while (q.length) {
+        const u=q.shift();
+        for (const {to} of adj[u]) if (dist[to]<0) { dist[to]=dist[u]+1; q.push(to); }
+      }
+      let cnt=0, sum=0;
+      for (let i=0;i<nodes.length;i++) if (nodes[i].act>0.02 && dist[i]>=0) { sum+=dist[i]*nodes[i].act; cnt+=nodes[i].act; }
+      depth = cnt>0 ? (sum/cnt).toFixed(2) : 0;
+    }
+    document.getElementById('m-depth').textContent = depth;
+    history.push(total);
+    if (history.length > 200) history.shift();
+    drawSpark();
+  }
+
+  function loop() {
+    if (running) { step(); updateMetrics(); }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  cv.addEventListener('click', e => {
+    const r = cv.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    let best=-1, bd=1e9;
+    for (let i=0;i<nodes.length;i++) {
+      const dx=nodes[i].x-x, dy=nodes[i].y-y;
+      const d2v=dx*dx+dy*dy;
+      if (d2v<bd) { bd=d2v; best=i; }
+    }
+    if (best>=0 && bd<900) nodes[best].act = Math.min(2, nodes[best].act + params.inject);
+  });
+
+  document.querySelectorAll('.topo-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.topo-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      build(b.dataset.topo);
+      history = [];
+    });
+  });
+  document.getElementById('reshuffle').onclick = () => { build(topo); history=[]; };
+  document.getElementById('reset').onclick = () => { for (const n of nodes) n.act=0; history=[]; };
+  const playBtn = document.getElementById('play');
+  playBtn.onclick = () => {
+    running = !running;
+    playBtn.textContent = running ? '⏸ Pause' : '▶ Play';
+    playBtn.classList.toggle('active', running);
+  };
+
+  ['prop','decay','noise','inject'].forEach(k => {
+    const el = document.getElementById(k);
+    const val = document.getElementById(k+'-v');
+    el.addEventListener('input', () => {
+      params[k] = parseFloat(el.value);
+      val.textContent = params[k].toFixed(2);
+    });
+  });
+
+  resize();
+  build('smallworld');
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

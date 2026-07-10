@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaya — Study</title>
+<style>
+:root{--bg:#0c0c12;--pnl:#15151d;--ln:#ffffff18;--txt:#e6e3ec;--dim:#a49fb3;
+  --neon:#ff7bec;--neon2:#8fd3ff;--good:#77e6a0;--bad:#ff6b7b;--warn:#ffcf6b;--coin:#c9a0ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif}
+header{padding:22px 26px 10px;border-bottom:1px solid var(--ln)}
+h1{margin:0;font-size:1.5em;font-weight:800;color:var(--neon);letter-spacing:.5px}
+h1 small{color:var(--dim);font-weight:400;font-size:.6em;letter-spacing:0}
+nav{display:flex;gap:4px;padding:12px 26px 0;flex-wrap:wrap}
+nav button{background:none;border:none;color:var(--dim);padding:9px 15px;border-radius:9px 9px 0 0;
+  font:inherit;font-weight:600;cursor:pointer}
+nav button.on{color:var(--neon);background:var(--pnl);border:1px solid var(--ln);border-bottom:none}
+main{max-width:920px;margin:0 auto;padding:22px 26px 80px}
+.panel{display:none} .panel.on{display:block;animation:f .2s}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.card{background:var(--pnl);border:1px solid var(--ln);border-radius:12px;padding:18px 20px;margin:14px 0}
+.ipa{font-family:"Gentium Plus","Doulos SIL","Charis SIL",Georgia,serif}
+.big{font-size:2.2em;color:var(--neon2)}
+h2{color:var(--neon);font-size:1.15em;margin:.2em 0 .6em}
+h3{color:#ffc7f4;font-size:.9em;margin:1.1em 0 .3em;text-transform:uppercase;letter-spacing:.5px}
+table{border-collapse:collapse;width:100%;margin:.4em 0}
+th,td{border:1px solid var(--ln);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:#ff4aec18;color:#ffc7f4;font-size:.85em}
+tr:nth-child(even) td{background:#ffffff07}
+.tag{color:var(--neon2);font-weight:700}
+button.act{background:var(--neon);color:#160016;border:none;border-radius:9px;padding:9px 16px;
+  font:inherit;font-weight:700;cursor:pointer;margin:3px 4px 3px 0}
+button.act.ghost{background:none;color:var(--txt);border:1px solid var(--ln)}
+button.grade{border:none;border-radius:9px;padding:11px 0;font:inherit;font-weight:700;cursor:pointer;flex:1;color:#111}
+input,select,textarea{background:#0f0f16;color:var(--txt);border:1px solid var(--ln);border-radius:8px;
+  padding:9px 11px;font:inherit}
+textarea{width:100%;min-height:90px;resize:vertical}
+input.ipa{font-size:1.5em;width:100%}
+input.search{width:100%;font-size:1.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px}
+.sym{background:#0f0f16;border:1px solid var(--ln);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer}
+.sym:hover{border-color:var(--neon)}
+.sym .s{font-size:1.4em;color:var(--neon2)} .sym .g{font-size:.6em;color:var(--dim);line-height:1.15}
+.gloss{background:#0f0f16;border:1px solid var(--ln);border-radius:10px;padding:14px 16px;margin-top:12px}
+.seg{border-left:3px solid var(--neon);padding:2px 0 2px 12px;margin:8px 0}
+.dim{color:var(--dim)} .mut{color:var(--dim);font-size:.9em}
+.pill{display:inline-block;background:#ff4aec1a;color:#ffc7f4;border-radius:20px;padding:2px 11px;font-size:.8em;margin:2px 3px}
+.stat{display:inline-block;min-width:88px;text-align:center;margin:6px 10px 6px 0}
+.stat b{display:block;font-size:1.6em;color:var(--neon2)} .stat span{font-size:.8em;color:var(--dim)}
+.bar{height:8px;background:#0f0f16;border-radius:5px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--neon2))}
+kbd{background:#0f0f16;border:1px solid var(--ln);border-radius:5px;padding:1px 6px;font-size:.85em}
+button.say{background:#1c1c26;border:1px solid var(--ln);color:var(--neon2);border-radius:7px;padding:2px 9px;font:inherit;cursor:pointer;margin:0 3px}
+button.say:hover{border-color:var(--neon);background:#26263a}
+button.opt{display:block;width:100%;text-align:left;background:#0f0f16;border:1px solid var(--ln);color:var(--txt);border-radius:10px;padding:14px 16px;margin:8px 0;font:inherit;cursor:pointer}
+button.opt:hover{border-color:var(--neon)}
+button.opt.correct{border-color:var(--good);background:#11351f}
+button.opt.wrong{border-color:var(--bad);background:#3a1420}
+button.opt:disabled{cursor:default}
+.wchip{display:inline-block;text-align:center;margin:4px 6px;vertical-align:top;cursor:pointer}
+.wchip .v{font-size:1.35em;color:var(--neon2)} .wchip.coined .v{color:var(--coin)}
+.wchip .e{font-size:.72em;color:var(--dim)}
+.wchip:hover .v{text-decoration:underline}
+.tline{font-size:1.5em;line-height:2.2;word-spacing:.15em}
+.tw{color:var(--neon2);cursor:pointer} .tw.coined{color:var(--coin)} .tw:hover{text-decoration:underline}
+.punct{color:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vaya <small>— a language you can think in · study &amp; translation trainer v0.3</small></h1>
+</header>
+<nav id="nav"></nav>
+<main>
+  <section class="panel" id="p-learn"></section>
+  <section class="panel" id="p-metaphor"></section>
+  <section class="panel" id="p-logic"></section>
+  <section class="panel" id="p-nuance"></section>
+  <section class="panel" id="p-translate"></section>
+  <section class="panel" id="p-dict"></section>
+  <section class="panel" id="p-course"></section>
+  <section class="panel" id="p-progress"></section>
+</main>
+
+<script src="lexicon.js"></script>
+<script>
+/* ============================ VAYA FEATURE MODEL ============================ */
+const MANNER={
+  plosive:{lbl:"Plosive / stop",mode:"HELD",desc:"a bounded, complete transformation"},
+  nasal:{lbl:"Nasal",mode:"PERSISTING",desc:"resonant, ongoing stability (a 'thing')"},
+  trill:{lbl:"Trill",mode:"CYCLING",desc:"an oscillating, repeating process"},
+  tap:{lbl:"Tap / flap",mode:"PUNCTUAL",desc:"a single brief event"},
+  fricative:{lbl:"Fricative",mode:"DISSIPATIVE",desc:"turbulence, friction, waste"},
+  lateral:{lbl:"Lateral",mode:"CHANNELED",desc:"directed constructive flow"},
+  approximant:{lbl:"Approximant",mode:"SMOOTH-FLOW",desc:"a gliding transformation"},
+  affricate:{lbl:"Affricate",mode:"REGIME-CHANGE",desc:"held→released transition"},
+};
+const PLACE_ORDER=["bilabial","labiodental","dental","alveolar","postalveolar","retroflex","palatal","velar","uvular","pharyngeal","glottal"];
+const PLACE={bilabial:"the self / nearest",labiodental:"the near-personal",dental:"the concrete",
+  alveolar:"the social",postalveolar:"the relational",retroflex:"the structural",palatal:"the cognitive",
+  velar:"the systemic",uvular:"the abstract",pharyngeal:"the near-fundamental",glottal:"the world-as-such"};
+const VOICE={true:{v:"CONSTRUCTIVE (T)",d:"energy organized into vibration — it builds"},
+             false:{v:"DISSIPATIVE (D)",d:"energy scattered as noise — it wastes"}};
+const HEIGHT={close:{s:"PREDICTED",d:"tight model, certainty"},mid:{s:"PROVISIONAL",d:"a partial model"},open:{s:"RESIDUAL",d:"surprise, uncertainty"}};
+const BACK={front:{a:"POTENTIAL",d:"latent, not-yet"},central:{a:"TRANSFORMATION",d:"in-process"},back:{a:"OUTPUT",d:"realized, done"}};
+const ROUND={true:"large / intense",false:"mild / small"};
+const C={
+  "p":["bilabial","plosive",0],"b":["bilabial","plosive",1],"t":["alveolar","plosive",0],"d":["alveolar","plosive",1],
+  "ʈ":["retroflex","plosive",0],"ɖ":["retroflex","plosive",1],"c":["palatal","plosive",0],"ɟ":["palatal","plosive",1],
+  "k":["velar","plosive",0],"g":["velar","plosive",1],"ɡ":["velar","plosive",1],"q":["uvular","plosive",0],"ɢ":["uvular","plosive",1],"ʔ":["glottal","plosive",0],
+  "m":["bilabial","nasal",1],"ɱ":["labiodental","nasal",1],"n":["alveolar","nasal",1],"ɳ":["retroflex","nasal",1],"ɲ":["palatal","nasal",1],"ŋ":["velar","nasal",1],"ɴ":["uvular","nasal",1],
+  "ʙ":["bilabial","trill",1],"r":["alveolar","trill",1],"ʀ":["uvular","trill",1],"ɾ":["alveolar","tap",1],"ɽ":["retroflex","tap",1],
+  "ɸ":["bilabial","fricative",0],"β":["bilabial","fricative",1],"f":["labiodental","fricative",0],"v":["labiodental","fricative",1],
+  "θ":["dental","fricative",0],"ð":["dental","fricative",1],"s":["alveolar","fricative",0],"z":["alveolar","fricative",1],
+  "ʃ":["postalveolar","fricative",0],"ʒ":["postalveolar","fricative",1],"ʂ":["retroflex","fricative",0],"ʐ":["retroflex","fricative",1],
+  "ç":["palatal","fricative",0],"ʝ":["palatal","fricative",1],"x":["velar","fricative",0],"ɣ":["velar","fricative",1],
+  "χ":["uvular","fricative",0],"ʁ":["uvular","fricative",1],"ħ":["pharyngeal","fricative",0],"ʕ":["pharyngeal","fricative",1],"h":["glottal","fricative",0],"ɦ":["glottal","fricative",1],
+  "l":["alveolar","lateral",1],"ɭ":["retroflex","lateral",1],"ʎ":["palatal","lateral",1],"ʟ":["velar","lateral",1],
+  "ʋ":["labiodental","approximant",1],"ɹ":["alveolar","approximant",1],"ɻ":["retroflex","approximant",1],"j":["palatal","approximant",1],"ɰ":["velar","approximant",1],"w":["velar","approximant",1],
+};
+const AFFR={"t͡s":["alveolar",0],"d͡z":["alveolar",1],"t͡ʃ":["postalveolar",0],"d͡ʒ":["postalveolar",1]};
+const V={
+  "i":["close","front",0],"y":["close","front",1],"ɨ":["close","central",0],"ʉ":["close","central",1],"ɯ":["close","back",0],"u":["close","back",1],
+  "ɪ":["close","front",0],"ʊ":["close","back",1],"e":["mid","front",0],"ø":["mid","front",1],"ɘ":["mid","central",0],"ɵ":["mid","central",1],"ɤ":["mid","back",0],"o":["mid","back",1],"ə":["mid","central",0],
+  "ɛ":["mid","front",0],"œ":["mid","front",1],"ɜ":["mid","central",0],"ʌ":["mid","back",0],"ɔ":["mid","back",1],"æ":["open","front",0],"ɐ":["open","central",0],"a":["open","front",0],"ɶ":["open","front",1],"ɑ":["open","back",0],"ɒ":["open","back",1],
+};
+const TONE={"́":{t:"rising",d:"rising trajectory — a growing residual"},"̀":{t:"falling",d:"declining trajectory"},"̌":{t:"rise-fall",d:"a surge then settle"},"̂":{t:"fall-rise",d:"a dip then recover"}};
+
+/* ============================ CURATED CORE LEXICON ============================ */
+/* Closed-class + highest-frequency words keep the iconic design. Everything else auto-coins. */
+const CORE=[
+  // pronouns — deliberately distinct onsets (m / θ / g / w / ʃ / s) and vowels
+  {en:"i|me",v:"mi",pos:"pron"},{en:"you",v:"θa",pos:"pron"},{en:"he|she|it|him|her",v:"gu",pos:"pron"},
+  {en:"we|us",v:"wai",pos:"pron"},{en:"they|them",v:"ʃo",pos:"pron"},{en:"self",v:"su",pos:"pron"},
+  {en:"my|mine",v:"mir",pos:"pron"},{en:"your|yours",v:"θar",pos:"pron"},{en:"his|hers|its",v:"gur",pos:"pron"},{en:"our|ours",v:"wair",pos:"pron"},{en:"their|theirs",v:"ʃor",pos:"pron"},
+  // determiners / quantifiers
+  {en:"the",v:"le",pos:"det"},{en:"this|these",v:"ne",pos:"det"},{en:"that|those",v:"lo",pos:"det"},
+  {en:"all|whole",v:"pan",pos:"det"},{en:"some|any",v:"se",pos:"det"},{en:"no|none",v:"ʔo",pos:"det"},
+  {en:"every|each",v:"pak",pos:"det"},{en:"many|much",v:"mai",pos:"det"},{en:"few|little",v:"fu",pos:"det"},{en:"more",v:"ro",pos:"det"},{en:"most",v:"rok",pos:"det"},
+  // conjunctions / prepositions
+  {en:"and",v:"e",pos:"conj"},{en:"or",v:"od",pos:"conj"},{en:"but",v:"ma",pos:"conj"},{en:"if",v:"si",pos:"conj"},
+  {en:"because",v:"ku",pos:"conj"},{en:"so",v:"don",pos:"conj"},{en:"when",v:"kwa",pos:"conj"},{en:"while",v:"dum",pos:"conj"},{en:"than",v:"kwe",pos:"conj"},{en:"as",v:"kom",pos:"conj"},{en:"not",v:"ʔa",pos:"neg"},
+  {en:"of",v:"no",pos:"prep"},{en:"to",v:"re",pos:"prep"},{en:"in|inside",v:"en",pos:"prep"},{en:"on",v:"sup",pos:"prep"},
+  {en:"at",v:"ad",pos:"prep"},{en:"with",v:"kon",pos:"prep"},{en:"without",v:"sonko",pos:"prep"},{en:"for",v:"pur",pos:"prep"},
+  {en:"from",v:"fon",pos:"prep"},{en:"by",v:"par",pos:"prep"},{en:"about",v:"tem",pos:"prep"},{en:"under|below",v:"sub",pos:"prep"},
+  {en:"over|above",v:"sob",pos:"prep"},{en:"between",v:"entr",pos:"prep"},{en:"through",v:"tra",pos:"prep"},{en:"into",v:"enre",pos:"prep"},{en:"out",v:"for",pos:"prep"},{en:"up",v:"up",pos:"prep"},{en:"down",v:"dun",pos:"prep"},
+  // question words
+  {en:"who|whom",v:"ke",pos:"q"},{en:"what",v:"fe",pos:"q"},{en:"where",v:"lu",pos:"q"},{en:"why",v:"kaw",pos:"q"},{en:"how",v:"paw",pos:"q"},{en:"which",v:"kwal",pos:"q"},
+  // be / aux / tense
+  {en:"is|am|are|be|being|been",v:"es",pos:"v"},{en:"have|has|had",v:"hab",pos:"v"},{en:"do|does|did",v:"vo",pos:"v"},
+  {en:"will|shall",v:"fut",pos:"aux"},{en:"can|could",v:"po",pos:"aux"},{en:"would",v:"vud",pos:"aux"},{en:"should|must",v:"deb",pos:"aux"},{en:"may|might",v:"pos",pos:"aux"},
+  // core verbs
+  {en:"go|went|gone",v:"wa",pos:"v"},{en:"come|came",v:"ven",pos:"v"},{en:"see|saw|seen|look|watch",v:"ɗa",pos:"v"},
+  {en:"know|knew|known",v:"ju",pos:"v"},{en:"think|thought",v:"je",pos:"v"},{en:"want",v:"wi",pos:"v"},
+  {en:"give|gave|given",v:"gi",pos:"v"},{en:"take|took|taken",v:"ki",pos:"v"},{en:"make|made|build",v:"du",pos:"v"},
+  {en:"say|said|tell|told|speak|spoke",v:"za",pos:"v"},{en:"learn|learned",v:"jǎi",pos:"v"},
+  {en:"get|got",v:"hol",pos:"v"},{en:"find|found",v:"tov",pos:"v"},{en:"use|used",v:"uz",pos:"v"},
+  {en:"work|worked",v:"la",pos:"v"},{en:"help|helped",v:"aj",pos:"v"},{en:"love|liked|like",v:"am",pos:"v"},
+  {en:"feel|felt",v:"fol",pos:"v"},{en:"live|lived",v:"viv",pos:"v"},{en:"die|died",v:"mor",pos:"v"},
+  {en:"eat|ate|eaten",v:"ed",pos:"v"},{en:"drink|drank",v:"bev",pos:"v"},{en:"read",v:"leg",pos:"v"},{en:"write|wrote|written",v:"ski",pos:"v"},{en:"hear|heard",v:"aw",pos:"v"},
+  {en:"become|became",v:"fi",pos:"v"},{en:"seem",v:"par",pos:"v"},{en:"keep|kept|hold|held",v:"mo",pos:"v"},{en:"let",v:"les",pos:"v"},{en:"begin|began|start",v:"ko",pos:"v"},{en:"end|finish",v:"fin",pos:"v"},{en:"move|moved",v:"muv",pos:"v"},{en:"perceive",v:"ɗa",pos:"v"},{en:"transform|change|flow",v:"va",pos:"v"},{en:"predict|expect",v:"ji",pos:"v"},{en:"forget|forgot",v:"hu",pos:"v"},
+  // core nouns
+  {en:"person|people|human",v:"de",pos:"n"},{en:"man|men",v:"vir",pos:"n"},{en:"woman|women",v:"fem",pos:"n"},{en:"child|children|kid",v:"pik",pos:"n"},
+  {en:"thing|object",v:"res",pos:"n"},{en:"world",v:"mun",pos:"n"},{en:"time",v:"tem",pos:"n"},{en:"day",v:"sol",pos:"n"},{en:"night",v:"nok",pos:"n"},{en:"year",v:"an",pos:"n"},
+  {en:"water",v:"wan",pos:"n"},{en:"fire",v:"pir",pos:"n"},{en:"place",v:"plas",pos:"n"},{en:"hand",v:"mano",pos:"n"},{en:"word",v:"vok",pos:"n"},{en:"name",v:"nom",pos:"n"},{en:"way",v:"vaj",pos:"n"},{en:"life",v:"viva",pos:"n"},{en:"mind",v:"men",pos:"n"},{en:"eye|eyes",v:"oku",pos:"n"},{en:"rock|stone",v:"ŋu",pos:"n"},{en:"surprise|residual",v:"ha",pos:"n"},
+  // adjectives
+  {en:"good",v:"lá",pos:"adj"},{en:"bad|evil",v:"fà",pos:"adj"},{en:"big|large|great",v:"gan",pos:"adj"},{en:"small|tiny",v:"mik",pos:"adj"},
+  {en:"new",v:"nov",pos:"adj"},{en:"old",v:"vje",pos:"adj"},{en:"long",v:"lon",pos:"adj"},{en:"short",v:"kort",pos:"adj"},{en:"high",v:"alt",pos:"adj"},{en:"low",v:"bas",pos:"adj"},
+  {en:"true|real",v:"ver",pos:"adj"},{en:"other|different",v:"alt",pos:"adj"},{en:"same",v:"sam",pos:"adj"},{en:"right|correct",v:"rekt",pos:"adj"},{en:"important",v:"grav",pos:"adj"},{en:"happy",v:"ga",pos:"adj"},{en:"sad",v:"tri",pos:"adj"},{en:"beautiful",v:"bel",pos:"adj"},
+  // adverbs / misc
+  {en:"very",v:"tsu",pos:"adv"},{en:"only|just",v:"nur",pos:"adv"},{en:"also|too",v:"et",pos:"adv"},{en:"again",v:"bis",pos:"adv"},{en:"now",v:"nu",pos:"adv"},{en:"here",v:"hir",pos:"adv"},{en:"there",v:"lor",pos:"adv"},{en:"yes",v:"ja",pos:"adv"},{en:"well",v:"be",pos:"adv"},{en:"then",v:"tun",pos:"adv"},{en:"always",v:"sem",pos:"adv"},{en:"never",v:"ʔanke",pos:"adv"},
+  // numbers (distinct -in / -en series)
+  {en:"zero",v:"zin",pos:"num"},{en:"one",v:"win",pos:"num"},{en:"two",v:"tin",pos:"num"},{en:"three",v:"rin",pos:"num"},{en:"four",v:"pin",pos:"num"},{en:"five",v:"kin",pos:"num"},{en:"six",v:"lin",pos:"num"},{en:"seven",v:"min",pos:"num"},{en:"eight",v:"bin",pos:"num"},{en:"nine",v:"gin",pos:"num"},{en:"ten",v:"den",pos:"num"},{en:"hundred",v:"sun",pos:"num"},{en:"thousand",v:"tun",pos:"num"},
+  // logic & argument
+  {en:"implies",v:"θen",pos:"log"},{en:"therefore|thus|hence",v:"θus",pos:"log"},
+  {en:"suppose|assume|given",v:"poze",pos:"log"},{en:"exists",v:"eʃi",pos:"log"},
+  {en:"equivalent",v:"ekiv",pos:"log"},{en:"false",v:"fal",pos:"adj"},
+  {en:"contradiction",v:"kɔntʁa",pos:"log"},{en:"proof|prove",v:"pʁuf",pos:"log"},
+  {en:"premise",v:"pʁem",pos:"log"},{en:"conclusion|conclude",v:"kɔŋk",pos:"log"},
+  // math
+  {en:"equals|equal",v:"ba",pos:"math"},{en:"plus",v:"ple",pos:"math"},
+  {en:"minus|subtract",v:"mɪnu",pos:"math"},{en:"times|multiply",v:"mul",pos:"math"},
+  {en:"divide|divided",v:"div",pos:"math"},{en:"power",v:"pote",pos:"math"},
+  {en:"root",v:"ʁadi",pos:"math"},{en:"sum",v:"suma",pos:"math"},
+  {en:"greater",v:"maʁ",pos:"math"},{en:"lesser",v:"mɪnɔ",pos:"math"},
+  {en:"number",v:"num",pos:"n"},{en:"math|mathematics",v:"mate",pos:"n"},
+];
+// grammar particles used by the translator
+const G={past:"pə",future:"fʊt",plural:"mɛ",neg:"ʔa"};
+
+/* build english -> core map */
+const CORE_EN={};
+for(const w of CORE) for(const key of w.en.split("|")) CORE_EN[key]=w.v;
+
+/* ============================ AUTO-COINER ============================ */
+const G_ON=["p","b","t","d","ʈ","ɖ","c","ɟ","k","ɡ","q","m","n","ɳ","ɲ","ŋ","ɸ","β","f","v","θ","ð","s","z",
+  "ʃ","ʒ","ʂ","ʐ","ç","ʝ","x","ɣ","χ","ʁ","ħ","h","ɦ","r","ɾ","ʀ","l","ɭ","ʎ","ɹ","ɻ","ʋ","j","w","ɰ"];
+const G_VO=["a","ɑ","ɛ","e","i","ɪ","ɔ","o","u","ʊ","ə","æ","ø","œ","ɨ","ʉ","ɯ","ʌ","ɤ","y","ɒ","ɐ"];
+const G_CO=["","n","ŋ","ɲ","s","ʃ","l","ɭ","r","ʁ","k","t","m","p","ç","x"];
+function _hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function _nxt(h){return (Math.imul(h,2654435761)^(h>>>15))>>>0;}
+function _form(seed){
+  // flowing open syllables: 1–3 of CV, no clusters
+  const r=seed%10, nsyl=r===0?1:(r>=8?3:2);
+  let h=_nxt(seed),w="";
+  for(let i=0;i<nsyl;i++){ w+=G_ON[h%G_ON.length]; h=_nxt(h); w+=G_VO[h%G_VO.length]; h=_nxt(h); }
+  return w;
+}
+const CKEY="vaya-coined-v1";
+function coinStore(){try{return JSON.parse(localStorage.getItem(CKEY))||{};}catch(e){return {};}}
+function saveCoin(s){localStorage.setItem(CKEY,JSON.stringify(s));}
+let _taken=null;
+function takenSet(){
+  if(_taken) return _taken;
+  _taken=new Set(Object.values(CORE_EN)); Object.values(coinStore()).forEach(v=>_taken.add(v));
+  return _taken;
+}
+function coin(en){
+  en=en.toLowerCase();
+  if(CORE_EN[en]) return CORE_EN[en];
+  const store=coinStore();
+  if(store[en]) return store[en];
+  const taken=takenSet();
+  let seed=_hash(en), form=_form(seed), tries=0;
+  while(taken.has(form)&&tries<60){ seed=(seed+0x9e3779b1)>>>0; form=_form(seed); tries++; }
+  store[en]=form; taken.add(form); saveCoin(store);
+  return form;
+}
+function isCoined(en){ return !CORE_EN[en.toLowerCase()]; }
+
+/* ============================ SOUND — Web Audio formant synth ============================ */
+let _AC=null;
+function AC(){_AC=_AC||new (window.AudioContext||window.webkitAudioContext)();return _AC;}
+function _noise(ctx,dur){const n=ctx.createBufferSource(),b=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*dur),ctx.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;n.buffer=b;return n;}
+function _formants(c){let f1={close:300,mid:500,open:820}[c.height];let f2={front:2200,central:1550,back:900}[c.back];if(c.round){f2*=0.82;f1*=0.92;}return [f1,f2,c.back==="back"?2500:2800];}
+function _placeFreq(p){return {bilabial:700,labiodental:1100,dental:1700,alveolar:2600,postalveolar:2100,retroflex:1800,palatal:2900,velar:1500,uvular:1150,pharyngeal:900,glottal:1000}[p]||1600;}
+function _bank(src,amp,ctx,specs){specs.forEach(([f,g,q])=>{const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f;bp.Q.value=q;const gg=ctx.createGain();gg.gain.value=g;src.connect(bp);bp.connect(gg);gg.connect(amp);});}
+function _vowel(ctx,out,c,marks,t,basef){
+  const long=marks.includes("ː"),dur=long?0.5:0.34;
+  basef=(basef||140)*(1+(Math.random()-0.5)*0.03);        // per-syllable pitch jitter
+  const o=ctx.createOscillator();o.type="sawtooth";
+  let s=basef,e=basef*0.94;                                // default gentle down-drift
+  if(marks.includes("́")){s=basef*0.85;e=basef*1.3;} else if(marks.includes("̀")){s=basef*1.28;e=basef*0.8;} else if(marks.includes("̌")){s=basef*0.9;e=basef*0.9;}
+  o.frequency.setValueAtTime(s,t);o.frequency.linearRampToValueAtTime(e,t+dur);
+  if(marks.includes("̌"))o.frequency.setValueAtTime(basef*1.3,t+dur*0.5);
+  const vib=ctx.createOscillator();vib.type="sine";vib.frequency.value=5.2+Math.random();  // vibrato
+  const vg=ctx.createGain();vg.gain.value=basef*0.03;vib.connect(vg);vg.connect(o.frequency);vib.start(t);vib.stop(t+dur);
+  const amp=ctx.createGain();amp.gain.setValueAtTime(0,t);amp.gain.linearRampToValueAtTime(0.9,t+0.06);amp.gain.setValueAtTime(0.9,Math.max(t+0.07,t+dur-0.09));amp.gain.linearRampToValueAtTime(0,t+dur);
+  const [f1,f2,f3]=_formants(c);
+  _bank(o,amp,ctx,[[f1,1.0,4.5],[f2,0.65,5.5],[f3,0.28,6.5]]);
+  const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2600;    // warm glottal body
+  const dg=ctx.createGain();dg.gain.value=0.28;o.connect(lp);lp.connect(dg);dg.connect(amp);
+  const n=_noise(ctx,dur),hp=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=2200;  // breath
+  const ng=ctx.createGain();ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(0.045,t+0.06);ng.gain.linearRampToValueAtTime(0,t+dur);
+  n.connect(hp);hp.connect(ng);ng.connect(amp);n.start(t);n.stop(t+dur);
+  amp.connect(out);o.start(t);o.stop(t+dur+0.02);return t+dur-0.03;   // slight overlap = legato
+}
+function _cons(ctx,out,c,t){
+  const pf=_placeFreq(c.place),m=c.manner;
+  if(m==="plosive"||m==="affricate"){
+    const clo=0.05;
+    if(c.voiced){const o=ctx.createOscillator();o.type="sine";o.frequency.value=105;const g=ctx.createGain();g.gain.value=0.14;o.connect(g);g.connect(out);o.start(t);o.stop(t+clo);}
+    const bt=t+clo,bd=m==="affricate"?0.13:0.025,n=_noise(ctx,bd);const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=pf;bp.Q.value=3;
+    const g=ctx.createGain();g.gain.setValueAtTime(c.voiced?0.32:0.5,bt);g.gain.exponentialRampToValueAtTime(0.001,bt+bd);
+    n.connect(bp);bp.connect(g);g.connect(out);n.start(bt);n.stop(bt+bd);return bt+bd+0.02;
+  }
+  if(m==="fricative"){
+    const dur=0.15,n=_noise(ctx,dur),bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=pf;bp.Q.value=2.4;
+    const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(c.voiced?0.26:0.42,t+0.03);g.gain.setValueAtTime(c.voiced?0.26:0.42,t+dur-0.03);g.gain.linearRampToValueAtTime(0,t+dur);
+    n.connect(bp);bp.connect(g);g.connect(out);n.start(t);n.stop(t+dur);
+    if(c.voiced){const o=ctx.createOscillator();o.type="sawtooth";o.frequency.value=115;const og=ctx.createGain();og.gain.value=0.09;o.connect(og);og.connect(out);o.start(t);o.stop(t+dur);}
+    return t+dur+0.02;
+  }
+  const dur=m==="tap"?0.06:0.14;const o=ctx.createOscillator();o.type="sawtooth";o.frequency.value=118;
+  const amp=ctx.createGain();amp.gain.setValueAtTime(0,t);amp.gain.linearRampToValueAtTime(0.55,t+0.02);amp.gain.setValueAtTime(0.55,t+dur-0.03);amp.gain.linearRampToValueAtTime(0,t+dur);
+  const f1=m==="nasal"?260:420;_bank(o,amp,ctx,[[f1,1,5],[pf,0.6,5]]);
+  const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2600;const dg=ctx.createGain();dg.gain.value=0.22;o.connect(lp);lp.connect(dg);dg.connect(amp);
+  if(m==="trill"){const lfo=ctx.createOscillator();lfo.frequency.value=27;const lg=ctx.createGain();lg.gain.value=0.3;lfo.connect(lg);lg.connect(amp.gain);lfo.start(t);lfo.stop(t+dur);}
+  amp.connect(out);o.start(t);o.stop(t+dur+0.03);return t+dur+0.02;
+}
+function _fsynth(word){   /* fallback formant synth if Web Speech is unavailable */
+  const ctx=AC();if(ctx.state==="suspended")ctx.resume();
+  const out=ctx.createGain();out.gain.value=0.5;
+  const warm=ctx.createBiquadFilter();warm.type="lowpass";warm.frequency.value=3300;warm.Q.value=0.4;
+  out.connect(warm);warm.connect(ctx.destination);
+  const segs=seglist(word);const nV=segs.filter(s=>classify(s.sym).kind==="V").length||1;
+  let t=ctx.currentTime+0.06,vi=0;const p0=158,pE=118;
+  for(const {sym,marks} of segs){const c=classify(sym);
+    if(c.kind==="V"){const frac=nV>1?vi/(nV-1):0;t=_vowel(ctx,out,c,marks,t,p0+(pE-p0)*frac);vi++;}
+    else if(c.kind==="C")t=_cons(ctx,out,c,t);}
+}
+/* ---- real speech via the browser's built-in neural voices (local, keyless) ---- */
+const RESP={
+  "p":"p","b":"b","t":"t","d":"d","ʈ":"t","ɖ":"d","c":"ky","ɟ":"gy","k":"k","g":"g","ɡ":"g","q":"k","ɢ":"g","ʔ":"","ɓ":"b","ɗ":"d","ʄ":"j","ɠ":"g","ʛ":"g",
+  "m":"m","ɱ":"m","n":"n","ɳ":"n","ɲ":"ny","ŋ":"ng","ɴ":"ng","ʙ":"br","r":"r","ʀ":"r","ɾ":"r","ɽ":"r",
+  "ɸ":"f","β":"v","f":"f","v":"v","θ":"th","ð":"th","s":"s","z":"z","ʃ":"sh","ʒ":"zh","ʂ":"sh","ʐ":"zh",
+  "ç":"h","ʝ":"y","x":"kh","ɣ":"g","χ":"kh","ʁ":"r","ħ":"h","ʕ":"h","h":"h","ɦ":"h",
+  "l":"l","ɭ":"l","ʎ":"ly","ʟ":"l","ʋ":"v","ɹ":"r","ɻ":"r","j":"y","ɰ":"w","w":"w",
+  "t͡s":"ts","d͡z":"dz","t͡ʃ":"ch","d͡ʒ":"j",
+  "i":"ee","y":"ew","ɨ":"i","ʉ":"u","ɯ":"u","u":"oo","ɪ":"i","ʊ":"uu","e":"e","ø":"er","ɘ":"uh","ɵ":"uh","ɤ":"uh","o":"oh","ə":"uh","ɛ":"e","œ":"er","ɜ":"ur","ʌ":"uh","ɔ":"aw","æ":"a","ɐ":"uh","a":"ah","ɶ":"ah","ɑ":"ah","ɒ":"aw"
+};
+function respell(word){
+  let out="";for(const {sym} of seglist(word)) out+=(RESP[sym]!==undefined?RESP[sym]:sym);
+  return out.replace(/-/g," ").replace(/\s+/g," ").trim();
+}
+// guaranteed word-like spellings for common short words (else voices spell them out)
+const SAY_FIX={e:"eh",le:"leh",ne:"neh",lo:"loh",od:"odd",ma:"mah",si:"see",ku:"koo",no:"noh",re:"reh",
+  de:"deh",be:"beh",et:"et",vo:"voh",po:"poh",es:"ess",en:"en",ad:"add",up:"up",wa:"wah",ju:"joo",je:"yeh",
+  wi:"wee",do:"doh",gi:"gee",ki:"kee",mo:"moh",ko:"koh",la:"lah",am:"am",fi:"fee",ha:"hah",ga:"gah",nu:"noo",
+  an:"an",ta:"tah",hu:"hoo",va:"vah",ji:"yee",du:"doo",fa:"fah",za:"zah",mi:"mee",su:"soo",gu:"goo",fe:"feh",
+  ke:"keh",lu:"loo",fu:"foo",se:"seh",ro:"roh",so:"soh",mu:"moo",
+  ple:"pleh",aj:"eye",vaj:"vye",vje:"vyeh",kwe:"kweh",ba:"bah",ne:"neh",fe:"feh"};
+function speechify(word){
+  let s=SAY_FIX[word];
+  if(s===undefined){ s=respell(word); if(!/[aeiouy]/.test(s))s+="a"; if(s.length<=2)s+=s.slice(-1); }
+  return s.toLowerCase();
+}
+let _voices=[];
+const VOICE_KEY="vaya-voice";
+function _loadVoices(){if(window.speechSynthesis)_voices=speechSynthesis.getVoices()||[];}
+function _scoreVoice(v){                       // higher = more natural / human
+  const n=v.name||"",l=(v.lang||"").toLowerCase();let s=0;
+  if(/siri/i.test(n))s+=100;
+  if(/enhanced|premium|natural|neural/i.test(n))s+=60;
+  if(/google/i.test(n))s+=45;
+  if(/microsoft/i.test(n)&&/online|natural/i.test(n))s+=50;
+  if(/\b(ava|samantha|allison|serena|zoe|evan|nathan|joelle|karen|moira|tessa|alex)\b/i.test(n))s+=20;
+  if(l.startsWith("en-us"))s+=12;else if(l.startsWith("en"))s+=8;
+  return s;
+}
+function _pickVoice(){
+  if(!_voices.length)_loadVoices();
+  const saved=localStorage.getItem(VOICE_KEY);
+  if(saved){const v=_voices.find(v=>v.name===saved);if(v)return v;}
+  let best=null,bs=-1;for(const v of _voices){const s=_scoreVoice(v);if(s>bs){bs=s;best=v;}}
+  return best||_voices[0]||null;
+}
+function speakText(text){
+  if(!window.speechSynthesis)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const v=_pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=0.95;u.pitch=1.02;speechSynthesis.speak(u);
+}
+function fillVoices(){
+  _loadVoices();const sel=document.getElementById("voicepick");if(!sel)return;
+  const cur=(_pickVoice()||{}).name;
+  let list=_voices.filter(v=>/^en/i.test(v.lang));if(!list.length)list=_voices;
+  list=list.slice().sort((a,b)=>_scoreVoice(b)-_scoreVoice(a));
+  sel.innerHTML=list.map(v=>'<option value="'+v.name+'"'+(v.name===cur?' selected':'')+'>'+(_scoreVoice(v)>=60?'★ ':'')+v.name+' — '+v.lang+'</option>').join("");
+  sel.onchange=()=>{localStorage.setItem(VOICE_KEY,sel.value);speakText(["mi","jǎi","θa","gu"].map(speechify).join(" "));};
+}
+if(window.speechSynthesis){_loadVoices();speechSynthesis.onvoiceschanged=()=>{_loadVoices();fillVoices();};}
+function speak(word){ if(window.speechSynthesis) speakText(speechify(word)); else _fsynth(word); }
+// unlock audio on first interaction (browser autoplay policy)
+["click","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,()=>{try{AC().resume();}catch(e){}},{once:true}));
+document.addEventListener("click",e=>{
+  const rb=e.target.closest&&e.target.closest("[data-read]");if(rb){try{speakText(rb.dataset.read.split(" ").map(speechify).join(" "));}catch(err){}return;}
+  const b=e.target.closest&&e.target.closest("[data-say]");if(b){try{speak(b.dataset.say);}catch(err){console.warn(err);}}
+});
+
+/* ============================ DECODER ============================ */
+const COMB="́̀̌̂̃̈";
+function seglist(s){
+  s=s.normalize("NFD");const out=[];let i=0;
+  while(i<s.length){
+    const three=s.substr(i,3);
+    if(AFFR[three]){out.push({sym:three,marks:""});i+=3;continue;}
+    let base=s[i];i++;let marks="";
+    while(i<s.length&&(/\p{Mn}/u.test(s[i])||s[i]==="ː")){marks+=s[i];i++;}
+    if(base.trim()==="")continue;
+    // recompose non-tone marks (e.g. cedilla in ç) back onto the base; keep tone marks separate
+    const other=marks.replace(/[̀́̂̃̈̌̄]/g,"").replace(/ː/g,"");
+    out.push({sym:(base+other).normalize("NFC"),marks});
+  }
+  return out;
+}
+function classify(sym){
+  if(AFFR[sym])return {kind:"C",place:AFFR[sym][0],manner:"affricate",voiced:AFFR[sym][1]};
+  if(C[sym])return {kind:"C",place:C[sym][0],manner:C[sym][1],voiced:C[sym][2]};
+  if(V[sym])return {kind:"V",height:V[sym][0],back:V[sym][1],round:V[sym][2]};
+  return {kind:"?"};
+}
+function decode(word){
+  const rows=[];
+  for(const {sym,marks} of seglist(word)){
+    const c=classify(sym);
+    if(c.kind==="C") rows.push({sym,kind:"C",parts:[
+      MANNER[c.manner].mode+" — "+MANNER[c.manner].desc,VOICE[!!c.voiced].v+" — "+VOICE[!!c.voiced].d,"locus: "+c.place+" — "+PLACE[c.place]],
+      artic:(c.voiced?"voiced":"voiceless")+" "+c.place+" "+c.manner});
+    else if(c.kind==="V"){let tone="";for(const mm of marks){if(TONE[mm])tone=TONE[mm].t+" — "+TONE[mm].d;}
+      rows.push({sym,kind:"V",parts:["stance: "+HEIGHT[c.height].s+" — "+HEIGHT[c.height].d,"arc: "+BACK[c.back].a+" — "+BACK[c.back].d,"magnitude: "+ROUND[!!c.round],(marks.includes("ː")?"long — a large residual":""),(tone?"trajectory: "+tone:"")].filter(Boolean),
+        artic:(c.round?"rounded ":"")+c.height+" "+c.back+" vowel"});}
+    else rows.push({sym,kind:"?",parts:["not in the current IPA inventory"],artic:"—"});
+  }
+  return rows;
+}
+function glossSentence(rows){
+  const cs=rows.filter(r=>r.kind==="C"),vs=rows.filter(r=>r.kind==="V");
+  if(!cs.length&&!vs.length)return "—";
+  let s="A ";const c=cs[0]&&classify(cs[0].sym),v=vs[vs.length-1]&&classify(vs[vs.length-1].sym);
+  if(c)s+="<b class=tag>"+MANNER[c.manner].mode.toLowerCase()+"</b>, <b class=tag>"+VOICE[!!c.voiced].v.split(" ")[0].toLowerCase()+"</b> process at the <b class=tag>"+c.place+"</b> locus";else s+="stance";
+  if(v)s+=", held as <b class=tag>"+HEIGHT[v.height].s.toLowerCase()+"</b> at the <b class=tag>"+BACK[v.back].a.toLowerCase()+"</b> point of the arc";
+  return s+".";
+}
+
+/* ============================ TRANSLATE ============================ */
+function lemma(w){
+  // returns {base, plural, past, prog}
+  let plural=false,past=false,prog=false,base=w;
+  if(CORE_EN[w]) return {base:w,plural,past,prog};
+  if(w.endsWith("ies")&&w.length>4){const b=w.slice(0,-3)+"y";plural=true;base=b;}
+  else if(w.endsWith("es")&&w.length>3){base=w.slice(0,-2);plural=true;}
+  else if(w.endsWith("s")&&!w.endsWith("ss")&&w.length>2){base=w.slice(0,-1);plural=true;}
+  if(w.endsWith("ed")&&w.length>3){base=w.slice(0,-2);past=true;plural=false;}
+  if(w.endsWith("ing")&&w.length>4){base=w.slice(0,-3);prog=true;plural=false;}
+  return {base,plural,past,prog};
+}
+function wordToVaya(raw){
+  const w=raw.toLowerCase();
+  if(w==="a"||w==="an")return null; // drop indefinite article
+  const LEX=window.VAYA_LEX||{};
+  let hit=CORE_EN[w]?{v:CORE_EN[w]}:LEX[w];
+  if(hit)return {v:hit.v,en:raw,coined:false,parts:hit.p||null,extra:[]};
+  const lm=lemma(w);
+  let bh=CORE_EN[lm.base]?{v:CORE_EN[lm.base]}:LEX[lm.base];
+  let v,coined;
+  if(bh){v=bh.v;coined=false;} else {v=coin(lm.base);coined=true;}
+  const extra=[];
+  if(lm.past)extra.push({v:G.past,tag:"past"});
+  if(lm.plural)extra.push({v:G.plural,tag:"plural"});
+  if(lm.prog)extra.push({v:"ʒa",tag:"ongoing"});
+  return {v,en:raw,coined,parts:(bh&&bh.p)||null,extra};
+}
+function translate(text){
+  const parts=text.match(/([A-Za-z']+)|([^A-Za-z']+)/g)||[];
+  const out=[];
+  for(const p of parts){
+    if(!/[A-Za-z]/.test(p)){out.push({punct:p});continue;}
+    const r=wordToVaya(p);
+    if(r)out.push(r);
+  }
+  return out;
+}
+
+/* ============================ shared UI ============================ */
+function sayBtn(w){return '<button class="say" data-say="'+w+'">🔊</button>';}
+
+/* ============================ LEARN ============================ */
+function renderLearn(){
+  const LEX=window.VAYA_LEX||{}; const ex=en=>LEX[en]?LEX[en].v:"…";
+  document.getElementById("p-learn").innerHTML=
+  '<div class="card"><h2>Start here — what Vaya is</h2>'+
+    '<p>Vaya is a constructed language built to be <b>logical, learnable, and big enough to actually write and speak in</b>. You do not need any theory to use it — three simple ideas carry the whole thing.</p></div>'+
+  '<div class="card"><h2>1 · Learn a process once, reuse it everywhere</h2>'+
+    '<p>Most languages give every subject its own unrelated words. Vaya instead names a handful of <b>processes</b> that show up in every field, and you just add the field. Example — the process <b>DISSIPATE</b> (<span class="ipa" style="color:var(--neon2)">hu</span> '+sayBtn("hu")+', "fade / lose"):</p>'+
+    '<table><tr><th>field</th><th>Vaya</th><th>English</th></tr>'+
+    '<tr><td>economics</td><td class="ipa" style="color:var(--neon2)">'+ex("inflation")+' '+sayBtn(ex("inflation"))+'</td><td>inflation</td></tr>'+
+    '<tr><td>the mind</td><td class="ipa" style="color:var(--neon2)">'+ex("forgetting")+' '+sayBtn(ex("forgetting"))+'</td><td>forgetting</td></tr>'+
+    '<tr><td>ecology</td><td class="ipa" style="color:var(--neon2)">'+ex("erosion")+' '+sayBtn(ex("erosion"))+'</td><td>erosion</td></tr></table>'+
+    '<p class="mut">Same process, different field — you only learn the field, not a new idea. Explore this in the <b>Metaphor</b> tab.</p></div>'+
+  '<div class="card"><h2>2 · Long words break into readable parts (like German)</h2>'+
+    '<p>Built-up words are transparent — read the pieces instead of memorizing them:</p>'+
+    '<table><tr><th>English</th><th>Vaya</th><th>= parts</th></tr>'+
+    ['teacher','unhappy','happiness','hopeless'].map(w=>'<tr><td>'+w+'</td><td class="ipa" style="color:var(--neon2)">'+ex(w)+' '+sayBtn(ex(w))+'</td><td class="mut">'+((LEX[w]&&LEX[w].p)||"")+'</td></tr>').join("")+'</table></div>'+
+  '<div class="card"><h2>3 · ~10,000 words — translate &amp; speak anything</h2>'+
+    '<p>The <b>Dictionary</b> holds ~10,000 words, most-common first. The <b>Translate</b> tab turns any English — a sentence, a paragraph, a page — into Vaya and reads it aloud in a real voice. Anything not in the dictionary gets a consistent new word automatically, so nothing ever stops you.</p></div>'+
+  '<div class="card"><h2>Saying it with flow — the accent</h2>'+
+    '<p>A language flows when it has a steady <b>beat</b>. Vaya\'s accent is one rule, like Esperanto:</p>'+
+    '<ul><li><b>Stress the second-to-last syllable</b> of every word. (One-syllable words just take the beat.)</li>'+
+    '<li><b>Statements fall</b> in pitch at the end; <b>questions rise</b> (a rising tone is a question).</li>'+
+    '<li><b>Run words together</b> — a word ending in a consonant glides straight into the next word\'s vowel, so a sentence is one smooth stream, not word-by-word.</li>'+
+    '<li>Let <b>unstressed vowels relax</b> toward "uh" — that gives the natural long–short–long rhythm.</li></ul>'+
+    '<p class="mut">The built-in voice only approximates this — when <em>you</em> say it with a steady penultimate stress it flows far better. And accents are free to vary: they change the feel, never the meaning, so make it your own.</p></div>'+
+  '<div class="card"><h2>How to start</h2><ol>'+
+    '<li>Open <b>Translate</b>, type a sentence, read and hear the Vaya.</li>'+
+    '<li>Browse the <b>Dictionary</b> and 🔊 a few words.</li>'+
+    '<li>Use <b>Drill</b> to memorize the most common words.</li>'+
+    '<li>Explore <b>Metaphor</b> to see one process span every field.</li></ol></div>';
+}
+
+/* ============================ TRANSLATE tab ============================ */
+function renderTranslate(){
+  document.getElementById("p-translate").innerHTML=
+  '<div class="card"><h2>Translate English → Vaya</h2>'+
+    '<p class="mut">Type or paste anything — a word, a sentence, a paragraph, a page. Known words use the curated core; every other word is coined once and remembered. '+
+    '<span style="color:var(--neon2)">Core words</span> and <span style="color:var(--coin)">auto-coined words</span> are colored differently. Click any word to hear it.</p>'+
+    '<textarea id="tin">The child wanted to learn how the world works.</textarea>'+
+    '<div style="margin-top:8px"><button class="act" id="tgo">Translate</button>'+
+    '<button class="act ghost" id="thear">🔊 Read it aloud</button></div>'+
+    '<div class="mut" style="margin-top:10px">Voice: <select id="voicepick"></select> '+
+    '<span style="font-size:.85em">★ = more natural. For a truly human voice on Mac, install an <b>Enhanced</b> or <b>Siri</b> voice in System Settings ▸ Accessibility ▸ Spoken Content ▸ System Voice ▸ Manage Voices, then reload.</span></div>'+
+    '<div id="tout"></div></div>';
+  const out=document.getElementById("tout");
+  let last=[];
+  function render(){
+    const res=translate(document.getElementById("tin").value);
+    last=res;
+    let vayaLine="",interlin="";
+    for(const t of res){
+      if(t.punct){vayaLine+='<span class="punct">'+t.punct.replace(/\n/g,"<br>")+'</span>';interlin+='<span class="wchip"><span class="punct">'+t.punct.trim()+'</span></span>';continue;}
+      const words=[t.v,...(t.extra||[]).map(x=>x.v)];
+      vayaLine+=words.map(w=>'<span class="tw '+(t.coined?"coined":"")+'" data-say="'+w+'">'+w+'</span>').join(" ")+" ";
+      interlin+='<span class="wchip '+(t.coined?"coined":"")+'" data-say="'+t.v+'"><span class="v">'+t.v+'</span><br><span class="e">'+t.en+(t.extra&&t.extra.length?" ·"+t.extra.map(x=>x.tag).join(","):"")+'</span></span>';
+    }
+    const nCoin=res.filter(t=>t.coined).length;
+    out.innerHTML='<div class="gloss"><div class="tline">'+vayaLine+'</div></div>'+
+      '<div class="card" style="background:#0f0f16"><h3>word by word</h3><div>'+interlin+'</div>'+
+      '<p class="mut" style="margin-top:10px">'+nCoin+' word(s) auto-coined this pass — all saved to your Dictionary, where you can rename any of them. Grammar shown: plural = '+G.plural+', past = '+G.past+', negation = '+G.neg+'.</p></div>';
+  }
+  document.getElementById("tgo").onclick=render;
+  document.getElementById("thear").onclick=()=>{
+    const parts=[];for(const t of last){if(t.punct){parts.push(t.punct);continue;}parts.push(speechify(t.v));(t.extra||[]).forEach(x=>parts.push(speechify(x.v)));}
+    speakText(parts.join(" "));
+  };
+  render();
+  fillVoices();
+}
+
+/* ============================ DICTIONARY tab ============================ */
+function renderDict(){
+  const LEX=window.VAYA_LEX||{}, ORDER=window.VAYA_ORDER||Object.keys(LEX), store=coinStore();
+  document.getElementById("p-dict").innerHTML=
+  '<div class="card"><h2>Dictionary <span class="mut">'+ORDER.length.toLocaleString()+' words</span></h2>'+
+    '<p class="mut">Most-common words first. A word with a <span style="color:var(--coin)">parts</span> column is built from readable pieces. Click 🔊 to hear any word.</p>'+
+    '<input class="search" id="dsearch" placeholder="search English or Vaya…">'+
+    '<div id="dlist"></div></div>';
+  const listEl=document.getElementById("dlist");
+  const SEN=window.VAYA_SENSES||{};
+  function senseStr(v,en){const s=(SEN[v]||[]).filter(x=>x!==en);return s.length?'also: '+s.slice(0,8).join(", ")+(s.length>8?"…":""):"";}
+  function row(en,e,coined){
+    const info=e.p||senseStr(e.v,en);
+    return '<tr><td>'+en+'</td><td class="ipa" style="font-size:1.15em;color:'+((e.p||coined)?"var(--coin)":"var(--neon2)")+'">'+e.v+' '+sayBtn(e.v)+'</td><td class="mut">'+info+'</td><td>'+(coined?'<button class="say" data-edit="'+en+'">✎</button>':'')+'</td></tr>';
+  }
+  function paint(q){
+    q=(q||"").toLowerCase().trim();
+    let out='<table><tr><th>English</th><th>Vaya</th><th>parts</th><th></th></tr>',n=0;
+    const src=q?ORDER.filter(en=>en.includes(q)||(LEX[en]&&LEX[en].v.toLowerCase().includes(q))):ORDER;
+    for(const en of src){ if(n>=350)break; if(LEX[en]){out+=row(en,LEX[en],false);n++;} }
+    for(const en in store){ if(n>=400)break; if(!q||en.includes(q)||store[en].includes(q)){out+=row(en,{v:store[en]},true);n++;} }
+    listEl.innerHTML=out+'</table>'+(n>=350?'<p class="mut">showing first '+n+'… refine your search to see more</p>':'');
+    listEl.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{
+      const en=b.dataset.edit,cur=coinStore()[en];
+      const nv=prompt('Rename the Vaya word for "'+en+'":',cur);
+      if(nv&&nv.trim()){const s=coinStore();s[en]=nv.trim();saveCoin(s);_taken=null;renderDict();}
+    });
+  }
+  document.getElementById("dsearch").addEventListener("input",e=>paint(e.target.value));
+  paint("");
+}
+
+/* ============================ DECODE tab ============================ */
+function renderDecode(){
+  document.getElementById("p-decode").innerHTML=
+  '<div class="card"><h2>Decode a sound</h2>'+
+    '<p class="mut">Type any Vaya word in IPA — the trainer reads out the literal process + stance its features encode. The core skill: seeing the world as transformation.</p>'+
+    '<input class="ipa" id="din" value="jǎi"><div style="margin-top:8px"><button class="act" id="dgo">Decode</button> <button class="say" id="dsay">🔊 hear it</button></div>'+
+    '<div id="dout"></div></div>';
+  const out=document.getElementById("dout");
+  function show(w){const rows=decode(w);
+    out.innerHTML='<div class="gloss"><div style="font-size:1.1em">'+glossSentence(rows)+'</div><hr style="border:none;border-top:1px solid var(--ln);margin:12px 0">'+
+      rows.map(r=>'<div class="seg"><span class="ipa" style="font-size:1.2em;color:var(--neon2)">'+r.sym+'</span> <span class="mut">— '+r.artic+'</span>'+r.parts.map(p=>'<div>'+p+'</div>').join("")+'</div>').join("")+'</div>';}
+  document.getElementById("dgo").onclick=()=>show(document.getElementById("din").value.trim());
+  document.getElementById("dsay").onclick=()=>speak(document.getElementById("din").value.trim());
+  document.getElementById("din").addEventListener("keydown",e=>{if(e.key==="Enter")show(e.target.value.trim());});
+  show("jǎi");
+}
+
+/* ============================ DRILL tab ============================ */
+// the course: all ~10k words, most-common first, each {v, en, p}
+const COURSE=(function(){
+  const LEX=window.VAYA_LEX||{}, ORDER=window.VAYA_ORDER||[], out=[], seen=new Set();
+  for(const en of ORDER){ if(out.length>=10000)break; const e=LEX[en]; if(!e||en.length<2||seen.has(e.v))continue; seen.add(e.v); out.push({v:e.v,en,p:e.p||null,s:(window.VAYA_SENSES&&window.VAYA_SENSES[e.v])||[en]}); }
+  return out;
+})();
+function _shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const SKEY="vaya-srs-v1";
+function srs(){try{return JSON.parse(localStorage.getItem(SKEY))||{};}catch(e){return {};}}
+function saveSrs(s){localStorage.setItem(SKEY,JSON.stringify(s));}
+function strength(it){if(!it)return 0;const days=(Date.now()-it.last)/86400000;return it.s*Math.exp(-days/Math.max(0.4,it.s*6));}
+function renderCourse(){
+  const el=document.getElementById("p-course");
+  const S={active:false,n:0,correct:0,cur:null};
+  const key=it=>"w:"+it.v;
+  function learned(){const s=srs();return COURSE.filter(it=>strength(s[key(it)])>0.5).length;}
+  function grade(ok){const s=srs(),id=key(S.cur),prev=s[id]?s[id].s:0.2;s[id]={s:ok?Math.min(1,prev+0.3):0.15,last:Date.now()};saveSrs(s);S.n++;if(ok)S.correct++;}
+  function pick(){
+    const s=srs();
+    const due=COURSE.filter(it=>s[key(it)]&&strength(s[key(it)])<0.6);
+    const fresh=COURSE.find(it=>!s[key(it)]);
+    if(fresh&&(Math.random()<0.55||!due.length))return{item:fresh,mode:"teach"};
+    if(due.length)return{item:due[Math.floor(Math.random()*due.length)],mode:"quiz"};
+    let w=COURSE[0],bs=2;for(const it of COURSE){const st=strength(s[key(it)]);if(st<bs){bs=st;w=it;}}return{item:w,mode:"quiz"};
+  }
+  function opts(item){return _shuffle([item,..._shuffle(COURSE.filter(x=>x.v!==item.v)).slice(0,3)]);}
+  function topbar(){return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="mut">this session · '+S.n+' done · '+S.correct+' right</span><button class="act ghost" id="cstop">■ Stop</button></div>';}
+  function wire(){const b=el.querySelector("#cstop");if(b)b.onclick=()=>{S.active=false;render();};}
+  function teach(item){
+    el.innerHTML='<div class="card">'+topbar()+
+      '<div class="mut">new word</div>'+
+      '<div style="text-align:center;margin:22px 0"><div class="ipa" style="font-size:2.8em;color:var(--neon2)">'+item.v+'</div>'+
+      '<div style="font-size:1.35em;margin-top:8px">'+item.en+'</div>'+
+      (item.s&&item.s.length>1?'<div class="mut" style="margin-top:4px">also: '+item.s.filter(x=>x!==item.en).slice(0,8).join(", ")+'</div>':'')+
+      (item.p?'<div class="mut">'+item.p+'</div>':'')+
+      '<div style="margin-top:14px"><button class="say" data-say="'+item.v+'">🔊 hear it</button></div></div>'+
+      '<button class="act" id="cgot" style="width:100%">Got it →</button></div>';
+    wire();speak(item.v);
+    el.querySelector("#cgot").onclick=()=>{const s=srs();s[key(item)]={s:0.35,last:Date.now()};saveSrs(s);next();};
+  }
+  function quiz(item){
+    const type=["va2en","en2va","listen"][Math.floor(Math.random()*3)], choices=opts(item);
+    let q,ren,auto=false;
+    if(type==="va2en"){q='What does <span class="ipa big">'+item.v+'</span> <button class="say" data-say="'+item.v+'">🔊</button> mean?';ren=o=>o.en;}
+    else if(type==="en2va"){q='Which word means <b>'+item.en+'</b>?';ren=o=>'<span class="ipa" style="font-size:1.2em">'+o.v+'</span>';}
+    else{q='🔊 What did you hear? <button class="say" data-say="'+item.v+'">↻ replay</button>';ren=o=>o.en;auto=true;}
+    el.innerHTML='<div class="card">'+topbar()+'<div style="font-size:1.2em;margin:8px 0 14px">'+q+'</div><div id="copts">'+
+      choices.map((o,i)=>'<button class="opt" data-i="'+i+'">'+ren(o)+'</button>').join("")+'</div><div id="ccont"></div></div>';
+    wire();if(auto)speak(item.v);
+    el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      const ok=choices[+b.dataset.i].v===item.v;
+      el.querySelectorAll(".opt").forEach((x,i)=>{x.disabled=true;if(choices[i].v===item.v)x.classList.add("correct");});
+      if(!ok)b.classList.add("wrong");
+      grade(ok);
+      el.querySelector("#ccont").innerHTML='<button class="act" id="cnext" style="width:100%;margin-top:10px">'+(ok?"Correct →":"Got it →")+'</button>';
+      el.querySelector("#cnext").onclick=next;
+    });
+  }
+  function next(){if(!S.active)return;const{item,mode}=pick();S.cur=item;if(mode==="teach")teach(item);else quiz(item);}
+  function render(){
+    const done=learned();
+    el.innerHTML='<div class="card"><h2>Learn Vaya — guided lessons</h2>'+
+      '<p>Press start and go. New words are introduced, then drilled with quick activities — multiple choice, listening, and recall — and spaced over time so they stick. Stop whenever you like; progress is saved.</p>'+
+      '<div class="bar"><i style="width:'+Math.round(done/COURSE.length*100)+'%"></i></div>'+
+      '<p class="mut">'+done+' / '+COURSE.length+' words learned'+(S.n?' · last session '+S.correct+'/'+S.n+' right':'')+'</p>'+
+      '<button class="act" id="cstart" style="width:100%;font-size:1.1em;padding:14px">▶ Start lesson</button></div>';
+    el.querySelector("#cstart").onclick=()=>{S.active=true;S.n=0;S.correct=0;next();};
+  }
+  render();
+}
+
+/* ============================ PROGRESS tab ============================ */
+function renderProgress(){
+  const s=srs(),strs=COURSE.map(it=>strength(s["w:"+it.v]));
+  const mastered=strs.filter(x=>x>0.7).length,learning=strs.filter(x=>x>0.15&&x<=0.7).length;
+  const avg=strs.reduce((a,b)=>a+b,0)/COURSE.length,coined=Object.keys(coinStore()).length;
+  document.getElementById("p-progress").innerHTML=
+  '<div class="card"><h2>Your progress</h2>'+
+    '<div class="stat"><b>'+mastered+'</b><span>mastered</span></div>'+
+    '<div class="stat"><b>'+learning+'</b><span>learning</span></div>'+
+    '<div class="stat"><b>'+Math.round(avg*100)+'%</b><span>avg strength</span></div>'+
+    '<div class="stat"><b>'+CORE.length+'</b><span>core words</span></div>'+
+    '<div class="stat"><b>'+coined+'</b><span>coined words</span></div>'+
+    '<div style="margin-top:14px"><button class="act ghost" id="rdrill">Reset study progress</button> '+
+    '<button class="act ghost" id="rcoin">Clear coined dictionary</button></div></div>';
+  document.getElementById("rdrill").onclick=()=>{if(confirm("Reset study progress?")){localStorage.removeItem(SKEY);renderProgress();}};
+  document.getElementById("rcoin").onclick=()=>{if(confirm("Delete all auto-coined words? (core stays)")){localStorage.removeItem(CKEY);_taken=null;renderProgress();}};
+}
+
+/* ============================ METAPHOR — schema × domain ============================ */
+const DOMAINS={
+  fis:{n:"physical"},erg:{n:"energy / thermal"},eko:{n:"economic"},noe:{n:"mind / cognition"},
+  soc:{n:"social"},bio:{n:"biological"},inf:{n:"information"},pat:{n:"emotion"},
+  pol:{n:"political"},gaia:{n:"ecological"},mat:{n:"mathematical"},kem:{n:"chemical"}
+};
+const SCHEMAS=[
+ {v:"va",name:"FLOW / transfer",math:"transfer:  dq/dt = J",
+   inst:{fis:"current, stream",eko:"trade, payment",noe:"train of thought, attention",inf:"bandwidth",soc:"influence spreading",bio:"blood flow, sap"}},
+ {v:"du",name:"ACCUMULATE / build",math:"integral:  x(t)=∫J dt",
+   inst:{eko:"capital, savings",noe:"learning, expertise",erg:"heating, charging",soc:"reputation",bio:"growth",fis:"charge build-up"}},
+ {v:"hu",name:"DISSIPATE / decay",math:"decay:  x' = −λx  →  e^(−λt)",
+   inst:{erg:"heat loss, friction",eko:"inflation, waste",noe:"forgetting (haze)",gaia:"erosion",soc:"trust eroding",bio:"aging"}},
+ {v:"pe",name:"GRADIENT / potential-difference",math:"∇: a difference that drives flow (PTO potential)",
+   inst:{fis:"voltage, pressure",eko:"price gap → arbitrage",noe:"desire, drive",kem:"concentration gradient",soc:"status difference"}},
+ {v:"ti",name:"THRESHOLD / phase-change",math:"bifurcation: a jump at a critical value",
+   inst:{fis:"boiling, phase transition",eko:"crash, bankruptcy",noe:"insight, the aha",soc:"revolution, tipping point",bio:"action potential"}},
+ {v:"ro",name:"CYCLE / oscillation",math:"limit cycle:  x(t)=A·sin(ωt)",
+   inst:{fis:"wave, pendulum",eko:"business cycle",bio:"circadian, heartbeat",gaia:"seasons",soc:"fashion, trends"}},
+ {v:"ba",name:"BALANCE / equilibrium",math:"fixed point:  x' = 0",
+   inst:{eko:"market clearing",bio:"homeostasis",kem:"chemical equilibrium",fis:"mechanical balance",soc:"fairness, justice"}},
+ {v:"fo",name:"FEEDBACK / amplify",math:"loop gain:  x' = kx  (k>0 runaway)",
+   inst:{fis:"resonance, standing wave",eko:"bubble, hype",soc:"virality",noe:"rumination",bio:"runaway selection"}},
+ {v:"pu",name:"INHIBIT / damp",math:"negative feedback:  x' = −kx",
+   inst:{fis:"cooling, damping",eko:"regulation, tax",noe:"self-control",bio:"homeostatic brake",pol:"law"}},
+ {v:"vi",name:"BRANCH / diverge",math:"a bifurcation tree",
+   inst:{bio:"speciation, evolution",noe:"decision tree",fis:"river delta",soc:"schism",mat:"case split"}},
+ {v:"ku",name:"MERGE / converge",math:"limit, fusion",
+   inst:{fis:"collapse, fusion",soc:"consensus, coalition",bio:"symbiosis",noe:"synthesis",mat:"convergence"}},
+ {v:"kar",name:"BOUNDARY / membrane",math:"the set, the enclosing surface",
+   inst:{bio:"cell membrane",soc:"nation, in-group",noe:"category, concept",fis:"phase boundary",mat:"a set"}},
+ {v:"ji",name:"PREDICT / anticipate",math:"model:  x̂(t+1)=f(x)  (PEP core)",
+   inst:{noe:"expectation",eko:"hedging, futures",bio:"preparation",fis:"feed-forward control"}},
+ {v:"ha",name:"RESIDUAL / surprise",math:"error:  r = x − x̂  (PEP learning signal)",
+   inst:{mat:"anomaly, error",bio:"mutation",eko:"shock",noe:"the aha",pat:"startle"}},
+ {v:"re",name:"ATTRACTOR / pull-toward",math:"a stable fixed point of a flow",
+   inst:{fis:"gravity well",eko:"equilibrium price",noe:"goal, habit",soc:"norm",bio:"attractor state"}},
+];
+function renderMetaphor(){
+  const el=document.getElementById("p-metaphor");
+  el.innerHTML=
+  '<div class="card"><h2>Metaphor is the engine: learn a process once, apply it everywhere</h2>'+
+   '<p>Vaya names <b>process-schemas</b> — the handful of transformation-patterns that recur in <em>every</em> field. '+
+   'To speak a new domain you keep the schema you already know and just add a <b>field-marker</b>: <span class="ipa" style="color:var(--neon2)">schema-field</span>. '+
+   'So you learn the <em>context</em>, not the idea.</p>'+
+   '<p class="mut">Each schema has the same <b>mathematical core</b> across domains — which is <em>why</em> the metaphor works: it is literally the same dynamics. '+
+   'This is PEP spreading-activation (one hub, many domains) and PTO substrate-independence, made speakable.</p>'+
+   '<div style="margin-top:8px"><button class="act" id="mby-s">By process (metaphor)</button><button class="act ghost" id="mby-d">By field (learn a topic)</button></div>'+
+   '<div id="mpick" style="margin-top:12px"></div><div id="mout"></div></div>';
+  const pick=el.querySelector("#mpick"),out=el.querySelector("#mout");
+  function showSchema(i){
+    const s=SCHEMAS[i];
+    const rows=Object.keys(s.inst).map(dk=>{const w=s.v+dk;
+      return '<tr><td>'+DOMAINS[dk].n+'</td><td class="ipa" style="color:var(--neon2)">'+s.v+'-'+dk+' '+sayBtn(w)+'</td><td>'+s.inst[dk]+'</td></tr>';}).join("");
+    out.innerHTML='<div class="gloss"><div style="font-size:1.2em">'+s.name+' &nbsp;<span class="ipa" style="color:var(--neon2)">'+s.v+'</span> '+sayBtn(s.v)+'</div>'+
+      '<p class="mut">mathematical core: <code>'+s.math+'</code></p>'+
+      '<p class="mut">the same process, seen in many fields:</p>'+
+      '<table><tr><th>field</th><th>Vaya</th><th>means</th></tr>'+rows+'</table></div>';
+  }
+  function showDomain(dk){
+    const rows=SCHEMAS.filter(s=>s.inst[dk]).map(s=>{const w=s.v+dk;
+      return '<tr><td class="ipa" style="color:var(--neon2)">'+s.v+'-'+dk+' '+sayBtn(w)+'</td><td>'+s.inst[dk]+'</td><td class="mut">'+s.name.split(" ")[0]+'</td></tr>';}).join("");
+    out.innerHTML='<div class="gloss"><div style="font-size:1.15em">To speak <b>'+DOMAINS[dk].n+'</b>, you already know these processes — just add <span class="ipa" style="color:var(--neon2)">-'+dk+'</span>:</div>'+
+      '<table><tr><th>Vaya</th><th>means</th><th>schema</th></tr>'+rows+'</table></div>';
+  }
+  function bySchema(){pick.innerHTML=SCHEMAS.map((s,i)=>'<span class="pill" style="cursor:pointer" data-si="'+i+'">'+s.name.split(" ")[0]+'</span>').join("");
+    pick.querySelectorAll("[data-si]").forEach(p=>p.onclick=()=>showSchema(+p.dataset.si));showSchema(2);}
+  function byDomain(){pick.innerHTML=Object.keys(DOMAINS).map(dk=>'<span class="pill" style="cursor:pointer" data-dk="'+dk+'">'+DOMAINS[dk].n+'</span>').join("");
+    pick.querySelectorAll("[data-dk]").forEach(p=>p.onclick=()=>showDomain(p.dataset.dk));showDomain("eko");}
+  el.querySelector("#mby-s").onclick=()=>{el.querySelector("#mby-s").classList.remove("ghost");el.querySelector("#mby-d").classList.add("ghost");bySchema();};
+  el.querySelector("#mby-d").onclick=()=>{el.querySelector("#mby-d").classList.remove("ghost");el.querySelector("#mby-s").classList.add("ghost");byDomain();};
+  bySchema();
+}
+/* ============================ LOGIC & MATH tab ============================ */
+const NUMW={0:"zin",1:"win",2:"tin",3:"rin",4:"pin",5:"kin",6:"lin",7:"min",8:"bin",9:"gin",10:"den"};
+function num2vaya(n){
+  n=Math.floor(Math.abs(n));
+  if(n<=10)return NUMW[n];
+  if(n<100){const t=Math.floor(n/10),o=n%10;return (t===1?"den":NUMW[t]+" den")+(o?" "+NUMW[o]:"");}
+  if(n<1000){const h=Math.floor(n/100),r=n%100;return NUMW[h]+" sun"+(r?" "+num2vaya(r):"");}
+  if(n<1000000){const k=Math.floor(n/1000),r=n%1000;return num2vaya(k)+" tun"+(r?" "+num2vaya(r):"");}
+  return String(n);
+}
+const MATHOP={"+":"ple","-":"mɪnu","*":"mul","×":"mul","/":"div","÷":"div","=":"ba","^":"pote",">":"maʁ","<":"mɪnɔ"};
+function mathToVaya(expr){
+  const toks=expr.match(/\d+\.?\d*|[+\-*/=^×÷<>]/g)||[];
+  return toks.map(t=>/\d/.test(t)?num2vaya(parseFloat(t)):(MATHOP[t]||t)).join(" ");
+}
+function sHTML(str,label){
+  const words=str.split(" ").filter(Boolean);
+  return '<div class="gloss"><div class="mut">'+label+'</div>'+
+    '<div class="tline" style="font-size:1.3em;margin:6px 0">'+words.map(w=>'<span class="tw" data-say="'+w+'">'+w+'</span>').join(" ")+'</div>'+
+    '<button class="say" data-read="'+str+'">🔊 read the whole line</button></div>';
+}
+function renderLogic(){
+  const el=document.getElementById("p-logic");
+  const ref=(sym,en,v)=>'<tr><td class="mut" style="font-size:1.1em">'+sym+'</td><td>'+en+'</td><td class="ipa" style="color:var(--neon2)">'+v+' '+sayBtn(v)+'</td></tr>';
+  el.innerHTML=
+  '<div class="card"><h2>Logic &amp; Math — argue and calculate cleanly</h2>'+
+    '<p>Vaya keeps the words of reasoning to a small, fixed set, so building an argument — premises, then a conclusion — is simple and unambiguous. The same goes for math: numbers and operators are regular, so you can say an equation out loud.</p></div>'+
+  '<div class="card"><h2>The words of argument</h2>'+
+    '<table><tr><th>symbol</th><th>meaning</th><th>Vaya</th></tr>'+
+    ref("∧","and","e")+ref("∨","or","od")+ref("¬","not","ʔa")+ref("if","if …","si")+
+    ref("→","implies / then","θen")+ref("↔","is equivalent to","ekiv")+
+    ref("∴","therefore / thus","θus")+ref("∵","because","ku")+
+    ref("⊢","suppose / given","poze")+ref("∀","for all / every","pan")+ref("∃","there exists","eʃi")+
+    ref("⊥","contradiction","kɔntʁa")+ref("T","true","ver")+ref("F","false","fal")+'</table></div>'+
+  '<div class="card"><h2>A proof, in Vaya</h2>'+
+    '<p class="mut">A classic syllogism — every step is core vocabulary:</p>'+
+    sHTML("pan de je","Every person thinks.   (∀ person · think)")+
+    sHTML("θa es de","You are a person.   (you = a person)")+
+    sHTML("θus θa je","∴ You think.   (therefore you think)")+
+    '<p class="mut" style="margin-top:14px">And a conditional argument (modus ponens):</p>'+
+    sHTML("si θa jǎi , θa ju","If you learn, you know.")+
+    sHTML("θa jǎi","You learn.")+
+    sHTML("θus θa ju","∴ You know.")+'</div>'+
+  '<div class="card"><h2>The words of math</h2>'+
+    '<table><tr><th>symbol</th><th>meaning</th><th>Vaya</th></tr>'+
+    ref("=","equals","ba")+ref("≠","not equal","ʔa ba")+ref("+","plus","ple")+ref("−","minus","mɪnu")+
+    ref("×","times","mul")+ref("÷","divide","div")+ref("^","to the power","pote")+ref("√","root","ʁadi")+
+    ref("∑","sum","suma")+ref(">","greater than","maʁ")+ref("<","less than","mɪnɔ")+'</table>'+
+    '<p class="mut">Numbers are regular: 0–10 are single words, then they combine — 25 = <span class="ipa" style="color:var(--neon2)">tin den kin</span> (two-ten-five), 342 = <span class="ipa" style="color:var(--neon2)">rin sun pin den tin</span>.</p></div>'+
+  '<div class="card"><h2>Say any equation</h2>'+
+    '<p class="mut">Type math with digits and + − * / = ^ &gt; &lt; and hear it in Vaya.</p>'+
+    '<input class="ipa" id="mexpr" style="font-size:1.2em" value="2 + 2 = 4">'+
+    '<div style="margin-top:8px"><button class="act" id="mgo">Read as Vaya</button></div>'+
+    '<div id="mout"></div></div>';
+  const out=el.querySelector("#mout");
+  function go(){ const v=mathToVaya(el.querySelector("#mexpr").value); out.innerHTML=sHTML(v,el.querySelector("#mexpr").value); }
+  el.querySelector("#mgo").onclick=go;
+  el.querySelector("#mexpr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+  go();
+}
+/* ============================ NUANCE — where Vaya splits English ============================ */
+const SPLITS=[
+  {en:"love",senses:[{v:"am",g:"romantic love, desire",t:"eros"},{v:"filo",g:"deep friendship",t:"philia"},{v:"storo",g:"family / kin love",t:"storge"},{v:"agapo",g:"selfless, universal care",t:"agape"},{v:"ludo",g:"playful, flirtatious love",t:"ludus"}]},
+  {en:"know",senses:[{v:"ju",g:"know a fact",t:"savoir / wissen"},{v:"koneso",g:"know / be acquainted with a person or place",t:"connaître / kennen"},{v:"sabu",g:"know how — a skill"}]},
+  {en:"be",senses:[{v:"es",g:"be — identity, essence (permanent)",t:"ser"},{v:"sta",g:"be — state, condition (temporary)",t:"estar"}]},
+  {en:"you",senses:[{v:"ni",g:"you — one person"},{v:"nivo",g:"you — many (“y’all”)"},{v:"nisu",g:"you — formal, respectful",t:"Sie / vous"}]},
+  {en:"we",senses:[{v:"wai",g:"we — but NOT you (exclusive)"},{v:"waini",g:"we — INCLUDING you (inclusive)"}]},
+  {en:"free",senses:[{v:"libe",g:"free — at liberty",t:"libre"},{v:"grati",g:"free — at no cost",t:"gratis"}]},
+  {en:"time",senses:[{v:"kono",g:"time — measured duration, the clock",t:"chronos"},{v:"kairo",g:"time — the right, opportune moment",t:"kairos"}]},
+  {en:"light",senses:[{v:"luma",g:"light — illumination"},{v:"leve",g:"light — not heavy"},{v:"klaro",g:"light — pale in color"}]},
+  {en:"can",senses:[{v:"po",g:"can — be able to"},{v:"permi",g:"can — be allowed to"},{v:"posi",g:"can — it is possible that"}]},
+  {en:"right",senses:[{v:"rekt",g:"right — correct"},{v:"dekstra",g:"right — the direction"},{v:"yura",g:"right — a moral / legal entitlement"}]},
+  {en:"dream",senses:[{v:"sonjo",g:"dream — while sleeping"},{v:"revo",g:"dream — a hope, aspiration"}]},
+  {en:"see",senses:[{v:"ɗa",g:"see — perceive with the eyes (passive)"},{v:"vise",g:"look — direct your gaze (active)"},{v:"garda",g:"watch — observe over time"}]},
+  {en:"say",senses:[{v:"za",g:"say — utter"},{v:"naro",g:"tell — recount a story"},{v:"dizo",g:"state — declare a fact"}]},
+  {en:"hear",senses:[{v:"aw",g:"hear — sound reaches you (passive)"},{v:"asko",g:"listen — attend actively"}]},
+  {en:"think",senses:[{v:"je",g:"think — reason, cognize"},{v:"opino",g:"think — believe, hold an opinion"},{v:"medito",g:"think — ponder, reflect"}]},
+  {en:"good",senses:[{v:"lá",g:"good — morally, rightly"},{v:"bona",g:"good — skilled at"},{v:"gusto",g:"good — pleasant, tasty"}]},
+  {en:"fear",senses:[{v:"pavo",g:"fear — dread, being afraid"},{v:"timo",g:"fear — awe, reverence"}]},
+  {en:"truth",senses:[{v:"vero",g:"truth — factual correctness"},{v:"alete",g:"truth — deep, disclosed reality",t:"aletheia"}]},
+  {en:"blue",senses:[{v:"sini",g:"blue — deep, dark blue",t:"siniy"},{v:"golu",g:"blue — light, sky blue",t:"goluboy"}]},
+  {en:"brother",senses:[{v:"frano",g:"brother — a sibling"},{v:"franmaj",g:"elder brother"},{v:"franmin",g:"younger brother"}]},
+  {en:"do / make",senses:[{v:"vo",g:"do — perform an action"},{v:"du",g:"make — create, build"}]},
+];
+function renderNuance(){
+  const el=document.getElementById("p-nuance");
+  el.innerHTML='<div class="card"><h2>Where Vaya is sharper than English</h2>'+
+    '<p>English often uses one blunt word for ideas that are genuinely different. Vaya gives each its own word, so you can say exactly which you mean. (The opposite is also true: where English splits hairs pointlessly, Vaya merges — that’s the Dictionary’s job.)</p></div>'+
+    SPLITS.map(sp=>'<div class="card"><h3 style="text-transform:none;font-size:1.05em;color:#ffc7f4">English “<span style="color:var(--txt)">'+sp.en+'</span>” becomes:</h3>'+
+      '<table><tr><th>Vaya</th><th>precise meaning</th></tr>'+
+      sp.senses.map(s=>'<tr><td class="ipa" style="color:var(--neon2);font-size:1.15em">'+s.v+' '+sayBtn(s.v)+'</td><td>'+s.g+(s.t?' <span class="mut">('+s.t+')</span>':'')+'</td></tr>').join("")+'</table></div>').join("");
+}
+/* ============================ nav ============================ */
+const TABS=[["course","Learn"],["learn","Guide"],["translate","Translate"],["dict","Dictionary"],["metaphor","Metaphor"],["nuance","Nuance"],["logic","Logic & Math"],["progress","Progress"]];
+const R={course:renderCourse,learn:renderLearn,translate:renderTranslate,dict:renderDict,metaphor:renderMetaphor,nuance:renderNuance,logic:renderLogic,progress:renderProgress};
+const nav=document.getElementById("nav");
+nav.innerHTML=TABS.map(([id,l])=>'<button data-t="'+id+'">'+l+'</button>').join("");
+function go(id){nav.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.t===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+id));R[id]();}
+nav.querySelectorAll("button").forEach(b=>b.onclick=()=>go(b.dataset.t));
+go("course");
+</script>
+</body>
+</html>

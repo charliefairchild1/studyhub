@@ -1,0 +1,134 @@
+<!doctype html><html><head>
+<meta charset="utf-8"><title>The Ledger of Minds — Pamphlet</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--text:#e8e6e0;--dim:#8b8a83;--accent:#d4af37;--accent2:#67e8f9;--rule:#26252e;--quote:#a78bfa}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text)}
+body{font-family:'Georgia','Times New Roman',serif;line-height:1.72;font-size:18px;padding:60px 24px 120px}
+.wrap{max-width:680px;margin:0 auto}
+.eyebrow{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+h1{font-family:'Georgia',serif;font-size:42px;line-height:1.1;font-weight:400;letter-spacing:-0.5px;margin-bottom:14px;color:#f5f3ed}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{font-size:19px;color:var(--dim);font-style:italic;margin-bottom:42px;line-height:1.5}
+h2{font-family:'Georgia',serif;font-size:22px;font-weight:400;color:#f5f3ed;margin:42px 0 14px;letter-spacing:-0.3px;font-style:italic}
+p{margin-bottom:16px;color:var(--text)}
+p em{color:var(--accent2);font-style:italic}
+blockquote{border-left:2px solid var(--accent);padding:6px 0 6px 22px;margin:22px 0;color:var(--quote);font-style:italic;font-size:18px}
+hr{border:none;border-top:1px solid var(--rule);margin:36px 0}
+.print-btn{position:fixed;top:18px;right:24px;background:var(--accent);color:#0a0a0f;border:none;border-radius:6px;padding:8px 14px;font-family:'SF Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.signature{margin-top:48px;color:var(--dim);font-size:13px;letter-spacing:1px;font-family:'SF Mono',monospace}
+@media print{
+  :root{--bg:#fff;--surface:#fafaf6;--text:#1a1a1a;--dim:#666;--accent:#8a6d1a;--accent2:#2b6a8a;--rule:#ccc;--quote:#5a3aa0}
+  html,body{background:#fff;color:#1a1a1a}
+  body{padding:0;font-size:11pt;line-height:1.5;font-family:'Georgia',serif}
+  .wrap{max-width:none}
+  .print-btn{display:none}
+  h1{font-size:24pt;color:#000}
+  h2{font-size:14pt;color:#000;margin-top:18pt}
+  .sub{font-size:12pt;color:#444}
+  blockquote{color:#5a3aa0;border-color:#8a6d1a;page-break-inside:avoid}
+  p em{color:#2b6a8a}
+  @page{margin:0.7in 0.8in;
+        @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
+        @bottom-left{content:"The Ledger of Minds · Pamphlet · v1.0";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+  @page:first{@bottom-right{content:""}@bottom-left{content:""}}
+}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
+<div class="wrap">
+
+<div class="eyebrow">The Ledger of Minds · Pamphlet · v1.0</div>
+<h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
+<p class="sub">A five-page case for Koin — the proposal that we can now measure, and pay, what people actually contribute to one another.</p>
+
+<hr>
+
+<p>For five thousand years, the bookkeeping has been wrong about the most important thing.</p>
+
+<p>Money tracks who held the contract at the moment of exchange. It does not track who produced the value being exchanged. When you pay for a book, the money goes to the publisher, to the platform, to the printer. A sliver reaches the author. Nothing reaches the librarian who shaped the author at fifteen, the friend whose sentence became the central argument, the dead philosopher whose framework gave the book its shape. <em>Money cannot see them. It was never designed to.</em></p>
+
+<p>This is why a teacher who shaped a thousand minds earns less than a consultant who reshuffled the same money between two corporations. Why a nurse who held a dying patient's hand earns less than the man who traded the hospital's debt. Why a grandmother who taught a generation to read receives no compensation when the children she taught grow into the engineers and doctors and writers of the next century. These are not anomalies. They are the system functioning exactly as designed — because the system was never designed to judge contribution. It was designed to clear transactions.</p>
+
+<blockquote>We never had a judge. We had a bookkeeper. We confused them because we had no choice.</blockquote>
+
+<h2>Why now</h2>
+
+<p>For most of history, we could not do better. To judge a contribution accurately, you would have to trace its effects through everyone it touched, and the work they did, and the people they touched in turn. This was the work of historians, done in retrospect, for the few people history happened to remember. Everyone else was lost.</p>
+
+<p>In the last few years, three technologies converged. Modern AI models can read a text and infer, with reasonable fidelity, what shaped it. Modern graph databases can hold the influence network of millions of people and traverse it in milliseconds. Modern payment rails can route a fraction of a cent across the world in seconds. Together, they make the verdict computable.</p>
+
+<p>What used to take a historian working for a decade can now be done in the runtime of a request. The judgment is no longer guesswork. <em>It can be computed, from the evidence, with the same rigor we now apply to weather and protein folding.</em></p>
+
+<h2>What Koin is</h2>
+
+<p>Koin is the proposal that we use this capability for what it was always for: render an honest verdict on what each person contributed, and let the economy clear on the basis of that verdict instead of the proxies we used while we waited.</p>
+
+<p>Koin is a graph, not a chain. The record of who-influenced-whom is held in a weighted network of contributions and receivers. Each edge encodes how much one person moved another, when, through what channel.</p>
+
+<p>Koin is a flow, not a score. Your "balance" is not a number that summarizes you. It is the running sum of small streams arriving from every contribution you have made that is still doing work in the world.</p>
+
+<p>Koin is an apparatus, not an authority. There is no Koin Bank deciding what your work is worth. The verdict is rendered by the graph itself — automatically, openly, contestably, the way a scientific measurement is.</p>
+
+<p>It is not a token. It is not a blockchain. It is not Patreon or royalties or universal basic income. It is not a tax. <em>It is a re-routing of the value the economy already creates so that it lands on the people who actually produced it.</em></p>
+
+<h2>Why nobody pays</h2>
+
+<p>The most surprising thing about Koin, once you understand it, is that nobody pays into it. The chef whose recipe cooks a thousand meals does not extract anything from the diners — they have the meals. The royalty that flows back to her is not a tax; it is the bookkeeping catching up to the fact that the world's stock of fed people went up by a thousand and her idea was the reason.</p>
+
+<p>Money inherited zero-sum semantics from a time when wealth meant grain and grain was finite. The semantics never updated. Ideas are not finite. Teaching is not finite. Care is not finite. <em>The pie was never fixed. The bookkeeping just couldn't tell.</em></p>
+
+<p>In a well-designed video game, you gain. Other players do not lose. Koin extends this to the rest of the economy.</p>
+
+<h2>What it would mean</h2>
+
+<p>The teacher gets paid for the rest of her life, by the world her students went on to build.</p>
+
+<p>The friend whose remark sparked the company gets paid by the company.</p>
+
+<p>The mathematician whose paper was forgotten for fifty years gets paid the instant the paper is rediscovered.</p>
+
+<p>The grandmother who taught a generation of children to read is paid by the work that literacy made possible — quietly, anonymously, for the rest of her life, and after.</p>
+
+<p>The dead get paid into the work of their descendants. The unnamed teachers behind every famous one get paid by the system that finally sees them. Children, pre-positioned in Koin from birth, become economic agents the day they have an idea worth absorbing.</p>
+
+<p>The platforms that capture the value created by others lose the leverage to do so. Distribution becomes one contribution among many, weighted by its actual impact, paid accordingly. Gatekeeping does not disappear, but it disappears as <em>capture</em>. The aggregator that scraped a thousand minds and called itself the originator is no longer paid as one.</p>
+
+<p>And — this is essential — the unmeasured remains protected. The friend you sit with in the dark. The hour with the dying parent. The kindness shown to a stranger. <em>Koin must preserve the unmeasured. A Koin world in which everything is on the ledger is a Koin world that has failed.</em></p>
+
+<h2>The hardest questions</h2>
+
+<p><b>Surveillance?</b> The graph is encrypted; only the contributor sees their own balance; participation is opt-in. The right comparison is not Koin vs. nothing — it is Koin vs. the attention economy that already tracks you without paying you.</p>
+
+<p><b>Gaming?</b> Any system is gamed. The defense is that the verdict is keyed to verifiable downstream effect, which is harder to fake than a star rating. The cost of gaming Koin is roughly the cost of actually contributing.</p>
+
+<p><b>Inequality?</b> The most-influential get the most, by design. But even unequal Koin is more equal than the current system, where intermediaries capture most of the value. The decay primitive prevents perpetual concentration; the Shapley adjustment penalizes redundancy. The math fights winner-take-all.</p>
+
+<p><b>Nosedive?</b> Koin pays. It does not gate. The moment a Koin balance starts being used to grant or deny permission, the system has become something else and must be opposed. The line is the firewall.</p>
+
+<p><b>Cooption?</b> Three defenses: the graph must be commons (no one owns it), the algorithm must be open (the judge cannot be private), the settlement must be plural (any rail can implement it). This is the same race TCP/IP and HTTP won. It is winnable. It is not automatic.</p>
+
+<p><b>Stealable?</b> Almost not. Money is stealable because it is a bearer token of value — once you have it, you have it. Koin is computed continuously from a tamper-evident graph; there is no warehouse to drain. Identity compromise can redirect future flows; it cannot extract a stored balance. <em>You cannot take what isn't there to be taken.</em></p>
+
+<h2>The window</h2>
+
+<p>The technology is ready. The political coordination is what's hard. Closed implementations will be built by 2030; if the federated open version does not ship and grow first, the world will receive a centralized version that produces most of the gains but captures the margin and the gatekeeping. The window is four to seven years. The work is now.</p>
+
+<h2>The ask</h2>
+
+<p>Build with Koin, even at small scale.</p>
+
+<p>Pilots in education (the lesson plan that paid the teacher for the careers her students built). Pilots in open-source (the developer whose library powered the dependency tree, paid by every commercial install). Pilots in music (the songwriter paid for every play, not by the streaming platform's settled rate but by the actual influence trace). Pilots in academic research (the citation network that finally settles, in payment rather than only in status). Pilots in caregiving (the family member whose unpaid hours are recognized by the municipality that benefits from them).</p>
+
+<p>Make it open. Make it standard. <em>Refuse to own the graph.</em></p>
+
+<p>The first system to do this honestly is the system the world is going to choose. Not because anyone decreed it, but because once a worker is offered a system in which the value she creates flows back to her, she will not voluntarily return to a system where it does not.</p>
+
+<blockquote>The bookkeeping has been wrong long enough. Build it before someone closes it.</blockquote>
+
+<p>This is not a project. It is a responsibility. The same responsibility every generation has when handed a transition. Yours might be the one that takes it.</p>
+
+<p class="signature">— Koin Labs<br>The Ledger of Minds · Pamphlet v1.0<br>A 30-page essential version and a 140-page full manifesto are available separately.</p>
+
+</div>
+</body></html>

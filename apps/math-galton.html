@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galton Board — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#f06292; --accent2:#81c784;
+    --warn:#ffb74d; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;overflow:hidden;display:flex;flex-direction:column}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;flex:1;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">galton board — central limit theorem live</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="bayes.html">Β Bayes</a>
+    <a href="entropy.html">Σ Entropy</a>
+    <a href="diffusion.html">◌ Diffusion</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>balls falling through pegs · each peg → left (1−q) or right (q)</span><b id="m-info">— rows, q = —</b></div>
+    <canvas id="board"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Galton Board</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Every ball is a <b>sum of n independent ±1 shifts</b>. Bottom histogram is the distribution of those sums. For n large, it converges to <b>Normal(n(2q−1), 4nq(1−q))</b> — central limit theorem, live.
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Rows (n)</label>
+    <input id="rows" type="range" min="6" max="24" step="1" value="14">
+    <span class="val" id="rows-v">14</span>
+  </div>
+  <div class="row">
+    <label>Right-prob q</label>
+    <input id="q" type="range" min="0" max="1" step="0.01" value="0.5">
+    <span class="val" id="q-v">0.50</span>
+  </div>
+  <div class="row">
+    <label>Drop rate</label>
+    <input id="rate" type="range" min="1" max="30" step="1" value="6">
+    <span class="val" id="rate-v">6</span>
+  </div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="drop100">+100 instant</button>
+    <button id="drop1000">+1000 instant</button>
+    <button id="reset">Reset</button>
+    <button id="show-curve" class="active">overlay normal curve</button>
+  </div>
+
+  <h3>Stats</h3>
+  <div class="metric"><span>Balls dropped</span><b id="m-balls">0</b></div>
+  <div class="metric"><span>Empirical mean</span><b id="m-mean">—</b></div>
+  <div class="metric"><span>Empirical σ</span><b id="m-sd">—</b></div>
+  <div class="metric"><span>Predicted mean</span><b id="m-pmean">—</b></div>
+  <div class="metric"><span>Predicted σ</span><b id="m-psd">—</b></div>
+
+  <div class="pep-note">
+    <b>Why PEP (and almost every ML loss) loves Gaussians.</b>
+    Residuals are rarely "a single cause" — they're piles of small
+    independent effects. CLT says those piles go Gaussian. MSE loss
+    is the max-likelihood estimator under Gaussian residuals; gradient
+    descent under MSE is Bayesian update under a Gaussian likelihood.
+    Primitive 3 defaults to Gaussian not by choice but by theorem.
+    <br><br>
+    <b>Connected demos.</b>
+    <a href="diffusion.html">◌ Diffusion</a> — the Gaussian kernel is
+    exactly the limit of many random-walk steps.
+    <a href="entropy.html">Σ Entropy</a> — Gaussian is max-entropy
+    for a fixed variance.
+    <a href="bayes.html">Β Bayes</a> — Normal prior × Normal
+    likelihood = Normal posterior (conjugacy).
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">q = 0.5, high rows:</b> clean bell.<br>
+    <b style="color:var(--accent2)">q = 0.2:</b> skewed toward the left — biased random walk.<br>
+    <b style="color:var(--accent2)">Few rows:</b> empirical still chunky. Watch ±1σ bands miss.<br>
+    <b style="color:var(--accent2)">Drop 1000 instant:</b> histogram snaps to the theoretical curve.
+  </div>
+</div>
+
+<script>
+(() => {
+  const c = document.getElementById('board');
+  const ctx = c.getContext('2d');
+  let W, H;
+  function resize() {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    W = r.width; H = r.height;
+  }
+  window.addEventListener('resize', resize);
+
+  let rows = 14, q = 0.5, rate = 6;
+  let balls = [];  // {row, slot, x, y, done}
+  let bins = new Array(rows+1).fill(0);
+  let total = 0;
+  let sumX = 0, sum2X = 0;
+  let running = true;
+  let showCurve = true;
+
+  function reset() {
+    rows = parseInt(document.getElementById('rows').value);
+    bins = new Array(rows+1).fill(0);
+    balls = [];
+    total = 0; sumX = 0; sum2X = 0;
+  }
+
+  function dropBall(instant=false) {
+    let slot = 0;  // rights so far
+    if (instant) {
+      for (let r=0;r<rows;r++) if (Math.random()<q) slot++;
+      bins[slot]++;
+      total++;
+      sumX += slot; sum2X += slot*slot;
+    } else {
+      balls.push({ row: 0, slot: 0, phase: 0, done: false });
+    }
+  }
+  function stepBall(b) {
+    if (b.done) return;
+    b.phase += 0.12;
+    if (b.phase >= 1) {
+      b.phase = 0;
+      b.row++;
+      if (Math.random() < q) b.slot++;
+      if (b.row >= rows) {
+        b.done = true;
+        bins[b.slot]++;
+        total++;
+        sumX += b.slot; sum2X += b.slot*b.slot;
+      }
+    }
+  }
+
+  function layout() {
+    // pegs in rows 0..rows-1; histogram at bottom
+    const margin = 30;
+    const histH = 100;
+    const boardH = H - histH - 30;
+    const rowStep = boardH / (rows + 1);
+    const colWidth = (W - 2*margin) / (rows + 1);
+    const pegs = [];
+    for (let r=0;r<rows;r++) {
+      const y = margin/2 + (r+1)*rowStep;
+      for (let s=0;s<=r;s++) {
+        const x = W/2 + (s - r/2) * colWidth;
+        pegs.push({x, y, row: r, slot: s});
+      }
+    }
+    return { pegs, margin, histH, boardH, rowStep, colWidth };
+  }
+
+  function ballPos(b, L) {
+    // interpolate between peg at (b.row, b.slot - (b.slot>0?1:0)) and destination peg
+    const { colWidth, rowStep, margin } = L;
+    const fromY = b.row === 0 ? (margin/2 - 14) : (margin/2 + b.row * rowStep);
+    const toY = margin/2 + (b.row+1) * rowStep;
+    const y = fromY + (toY - fromY) * b.phase;
+    // horizontal position depends on current intended path; approximate by drifting by ±colWidth/2
+    const curX = W/2 + (b.slot - b.row/2) * colWidth;
+    const r = Math.random(); // stable enough for visual
+    // deterministic per-ball horizontal path: use current slot
+    return { x: curX + (b.phase-0.5) * 0.5 * colWidth * (Math.random()<q?1:-1), y };
+  }
+  // simpler: interpolate slot and row
+  function ballPosSimple(b, L) {
+    const { colWidth, rowStep, margin } = L;
+    const x = W/2 + (b.slot + b.phase * (Math.random()<0.5?0:0) - b.row/2) * colWidth;
+    const y = margin/2 + (b.row + b.phase) * rowStep;
+    return { x, y };
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(10,13,20,0.3)';
+    ctx.fillRect(0,0,W,H);
+    const L = layout();
+    // pegs
+    ctx.fillStyle = 'rgba(186,104,200,0.6)';
+    for (const p of L.pegs) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+    }
+    // balls
+    for (const b of balls) {
+      if (b.done) continue;
+      const { colWidth, rowStep, margin } = L;
+      const x = W/2 + (b.slot + (b.phase - 0.5)*(Math.sin(b.row*7+b.slot*3) > 0 ? 0.3 : -0.3) - b.row/2) * colWidth;
+      const y = margin/2 + (b.row + b.phase) * rowStep;
+      ctx.fillStyle = '#f06292';
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+    }
+    // histogram
+    const histY = H - L.histH - 10;
+    const histH = L.histH;
+    const binW = (W - 2*L.margin) / (rows + 1);
+    const maxCount = Math.max(1, ...bins);
+    for (let i=0;i<=rows;i++) {
+      const bh = (bins[i]/maxCount) * histH;
+      const x = L.margin + i*binW;
+      ctx.fillStyle = '#81c784';
+      ctx.fillRect(x+1, H - 10 - bh, binW - 2, bh);
+    }
+    // overlay theoretical normal
+    if (showCurve && total > 0) {
+      const meanP = rows*q;
+      const varP = rows*q*(1-q);
+      const sdP = Math.sqrt(varP);
+      ctx.strokeStyle = '#ffb74d';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      const samples = 200;
+      for (let i=0;i<=samples;i++) {
+        const bin = i/samples * rows;
+        const x = L.margin + (bin+0.5)*binW;
+        const d = Math.exp(-(bin-meanP)*(bin-meanP)/(2*varP)) / Math.sqrt(2*Math.PI*varP);
+        // scale to match histogram (integer prob * total)
+        const height = d * total * (histH / maxCount);
+        const y = H - 10 - height;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    // axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '9px monospace';
+    ctx.fillText('slot 0', L.margin, H-2);
+    ctx.fillText('slot '+rows, W-L.margin-40, H-2);
+  }
+
+  function stepSim() {
+    if (!running) return;
+    for (let k=0;k<rate;k++) dropBall(false);
+    for (const b of balls) stepBall(b);
+    balls = balls.filter(b => !b.done || (balls.indexOf(b) > balls.length - 50));
+    // update stats
+    const mean = total>0 ? sumX/total : 0;
+    const var_ = total>0 ? sum2X/total - mean*mean : 0;
+    const sd = Math.sqrt(Math.max(0, var_));
+    const meanP = rows*q;
+    const sdP = Math.sqrt(rows*q*(1-q));
+    document.getElementById('m-balls').textContent = total;
+    document.getElementById('m-mean').textContent = mean.toFixed(2);
+    document.getElementById('m-sd').textContent = sd.toFixed(2);
+    document.getElementById('m-pmean').textContent = meanP.toFixed(2);
+    document.getElementById('m-psd').textContent = sdP.toFixed(2);
+    document.getElementById('m-info').textContent = rows + ' rows, q = ' + q.toFixed(2);
+  }
+  function loop() {
+    stepSim();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.getElementById('rows').addEventListener('input', e => {
+    document.getElementById('rows-v').textContent = e.target.value;
+    reset();
+  });
+  document.getElementById('q').addEventListener('input', e => {
+    q = parseFloat(e.target.value);
+    document.getElementById('q-v').textContent = q.toFixed(2);
+    reset();
+  });
+  document.getElementById('rate').addEventListener('input', e => {
+    rate = parseInt(e.target.value);
+    document.getElementById('rate-v').textContent = rate;
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('drop100').onclick = () => { for (let i=0;i<100;i++) dropBall(true); };
+  document.getElementById('drop1000').onclick = () => { for (let i=0;i<1000;i++) dropBall(true); };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('show-curve').onclick = e => {
+    showCurve = !showCurve;
+    e.target.classList.toggle('active', showCurve);
+  };
+
+  resize();
+  reset();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

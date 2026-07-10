@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpaceX — where could it go? (a PEP/PTO scenario model)</title>
+<style>
+:root{--bg:#0a0e17;--panel:#121a28;--panel2:#182234;--ink:#e8eef7;--dim:#8aa0bd;--faint:#5f7391;--acc:#5aa2ff;--gold:#e6b043;--green:#4bd07f;--red:#ff6b6b;--rule:#25324a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 70% -10%,#132038,#0a0e17 60%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding:30px 22px 90px}
+h1{font-size:1.7em;letter-spacing:-.5px}h1 .s{color:var(--acc)}
+.sub{color:var(--dim);margin-top:6px;max-width:680px}
+.disc{background:#2a1e0c;border:1px solid #5a4a1c;color:#e6cf9b;border-radius:10px;padding:10px 14px;font-size:.85em;margin:16px 0}
+.big{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:24px;margin:18px 0;text-align:center}
+.big .val{font-size:3.2em;font-weight:800;color:var(--gold);line-height:1}
+.big .lbl{color:var(--dim);font-size:.9em;margin-top:6px}
+.big .cmp{margin-top:10px;font-size:.95em}
+.presets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.presets button{background:var(--panel2);border:1px solid var(--rule);color:var(--ink);padding:8px 18px;border-radius:10px;cursor:pointer;font-weight:600}
+.presets button:hover{border-color:var(--acc)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.big .val{font-size:2.4em}}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+.card h2{font-size:1.05em;margin-bottom:10px}
+.sld{margin:12px 0}
+.sld label{display:flex;justify-content:space-between;font-size:.9em;color:var(--dim);margin-bottom:4px}
+.sld label b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.breakdown{font-size:.9em;color:var(--dim)}
+.breakdown .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule)}
+.breakdown .row b{color:var(--ink)}
+.pto{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+@media(max-width:680px){.pto{grid-template-columns:1fr}}
+.pto .col{border-radius:12px;padding:14px 16px}
+.pto .t{background:#0f2418;border:1px solid #1e5c38}
+.pto .d{background:#2a1214;border:1px solid #6b2a2e}
+.pto h3{font-size:.95em;margin-bottom:8px}.pto .t h3{color:var(--green)}.pto .d h3{color:var(--red)}
+.pto ul{margin:0 0 0 18px;font-size:.88em;color:var(--dim)}.pto li{margin-bottom:5px}
+.note{color:var(--faint);font-size:.82em;margin-top:20px;line-height:1.6;border-top:1px solid var(--rule);padding-top:14px}
+.note b{color:var(--dim)}
+.expo{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;margin-top:16px;font-size:.9em}
+.expo h2{font-size:1.05em;margin-bottom:8px}.expo li{margin-bottom:6px;color:var(--dim)}.expo b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Space<span class="s">X</span> — where could it go?</h1>
+  <div class="sub">A PEP/PTO scenario model. It reads valuation as <b>Potential → Transformation → Output</b>, minus <b>Dissipation</b> (illiquidity, key-person, execution). Push the sliders; nothing here is a forecast — they're bets, and the residual gets the last word.</div>
+  <div class="disc">⚠ SpaceX is a <b>private company</b> — you can't buy it in Robinhood. This is a speculative thought-model, not investment advice. Numbers are rough public estimates of an opaque business.</div>
+
+  <div class="big">
+    <div class="val" id="ev">$—</div>
+    <div class="lbl">implied enterprise value (your assumptions)</div>
+    <div class="cmp" id="cmp"></div>
+    <div class="presets">
+      <button onclick="preset('bear')">🐻 Bear</button>
+      <button onclick="preset('base')">Base</button>
+      <button onclick="preset('bull')">🚀 Bull</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Starlink (the cash engine)</h2>
+      <div class="sld"><label>Subscribers <b><span id="subsv"></span>M</b></label><input type="range" id="subs" min="5" max="80" step="1"></div>
+      <div class="sld"><label>ARPU (revenue/subscriber/yr) <b>$<span id="arpuv"></span></b></label><input type="range" id="arpu" min="600" max="1400" step="50"></div>
+      <div class="sld"><label>Revenue multiple <b><span id="multv"></span>×</b></label><input type="range" id="mult" min="4" max="22" step="1"></div>
+    </div>
+    <div class="card">
+      <h2>Launch + Starship optionality</h2>
+      <div class="sld"><label>Launch &amp; other revenue <b>$<span id="lrevv"></span>B</b></label><input type="range" id="lrev" min="2" max="20" step="1"></div>
+      <div class="sld"><label>Launch multiple <b><span id="lmultv"></span>×</b></label><input type="range" id="lmult" min="4" max="16" step="1"></div>
+      <div class="sld"><label>Starship optionality (Mars/heavy-lift/p2p) <b>$<span id="shipv"></span>B</b></label><input type="range" id="ship" min="0" max="800" step="25"></div>
+      <div class="sld"><label>Dissipation discount (illiquidity, key-person, execution) <b><span id="discv"></span>%</b></label><input type="range" id="disc" min="0" max="45" step="1"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Where the number comes from</h2>
+    <div class="breakdown" id="bd"></div>
+  </div>
+
+  <div class="pto">
+    <div class="col t">
+      <h3>▲ Transformation (the case)</h3>
+      <ul>
+        <li><b>Reusability = anti-dissipation, literally.</b> Landing & re-flying boosters cut $/kg ~10×+ — more output per unit of burned capital. That's the PTO edge as an engineering fact.</li>
+        <li><b>Launch near-monopoly.</b> ~80–90% of all mass to orbit; cadence competitors can't match yet.</li>
+        <li><b>Starlink converts capex into recurring revenue</b> — a compounding cash engine with a global TAM (rural, maritime, aviation, mobile, defense).</li>
+        <li><b>Starship is optionality</b>, not priced-in cash: heavy lift, Mars, point-to-point — a call option on a step-change.</li>
+        <li><b>Vertical integration + iteration speed</b> — hardware-rich testing turns potential into learning faster than anyone.</li>
+      </ul>
+    </div>
+    <div class="col d">
+      <h3>▼ Dissipation (the risks)</h3>
+      <ul>
+        <li><b>Key-person concentration</b> — Musk is the org's spine and its political/attention risk.</li>
+        <li><b>Capital intensity</b> — Starship + Starlink v3 burn enormous cash; execution can slip.</li>
+        <li><b>Competition</b> — Amazon Kuiper, Blue Origin, China's launch + constellations.</li>
+        <li><b>Regulatory / spectrum / geopolitical</b> friction (FAA, ITU, foreign markets).</li>
+        <li><b>Illiquidity</b> — private marks are sticky and can reprice hard; you may not be able to exit.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="expo">
+    <h2>If you actually wanted exposure (all with real caveats)</h2>
+    <ul>
+      <li><b>DXYZ</b> (Destiny Tech100) — a public closed-end fund that holds SpaceX. Buyable in Robinhood, <b>but it has traded at a wild premium to its actual net asset value</b> — you can overpay massively for the SpaceX slice. Big risk.</li>
+      <li><b>ARKVX</b> (ARK Venture) — a fund with a SpaceX position; interval fund, limited liquidity, fees.</li>
+      <li><b>Secondaries</b> (Forge, EquityZen) — direct pre-IPO shares, but <b>accredited-investor only</b> + high minimums + lockups.</li>
+      <li><b>Wait for a Starlink IPO</b> — the most-rumored path to a clean, liquid, retail-buyable ticker. Doesn't exist yet.</li>
+    </ul>
+  </div>
+
+  <div class="note" id="verdict"></div>
+</div>
+
+<script>
+const CUR=1700; // ~IPO valuation (SpaceX went public as SPCX, June 2026), $B
+const F={subs:'subsv',arpu:'arpuv',mult:'multv',lrev:'lrevv',lmult:'lmultv',ship:'shipv',disc:'discv'};
+const PRESETS={
+  bear:{subs:10,arpu:850,mult:8, lrev:5, lmult:6, ship:50,  disc:32},
+  base:{subs:22,arpu:1000,mult:12,lrev:7, lmult:8, ship:160, disc:15},
+  bull:{subs:45,arpu:1150,mult:18,lrev:13,lmult:12,ship:520, disc:5},
+};
+function g(id){return +document.getElementById(id).value;}
+function fmt(b){ return b>=1000 ? ("$"+(b/1000).toFixed(2)+"T") : ("$"+Math.round(b)+"B"); }
+function calc(){
+  const subs=g('subs'),arpu=g('arpu'),mult=g('mult'),lrev=g('lrev'),lmult=g('lmult'),ship=g('ship'),disc=g('disc');
+  for(const k in F) document.getElementById(F[k]).textContent = document.getElementById(k).value;
+  const slRev=subs*arpu/1000;                // $B/yr
+  const slVal=slRev*mult, lVal=lrev*lmult;
+  const gross=slVal+lVal+ship;
+  const ev=gross*(1-disc/100);
+  document.getElementById('ev').textContent=fmt(ev);
+  const x=(ev/CUR);
+  const col = ev>CUR? 'var(--green)':'var(--red)';
+  document.getElementById('cmp').innerHTML='vs ~$1.7T IPO valuation &middot; <b style="color:'+col+'">'+x.toFixed(2)+'×</b>';
+  document.getElementById('bd').innerHTML=
+    '<div class="row"><span>Starlink revenue ('+subs+'M × $'+arpu+')</span><b>$'+slRev.toFixed(1)+'B/yr</b></div>'+
+    '<div class="row"><span>Starlink value (× '+mult+')</span><b>'+fmt(slVal)+'</b></div>'+
+    '<div class="row"><span>Launch &amp; other value ($'+lrev+'B × '+lmult+')</span><b>'+fmt(lVal)+'</b></div>'+
+    '<div class="row"><span>Starship optionality</span><b>'+fmt(ship)+'</b></div>'+
+    '<div class="row"><span>Gross</span><b>'+fmt(gross)+'</b></div>'+
+    '<div class="row"><span>Dissipation discount (−'+disc+'%)</span><b style="color:var(--red)">−'+fmt(gross*disc/100)+'</b></div>'+
+    '<div class="row" style="border:none"><span><b>Implied enterprise value</b></span><b style="color:var(--gold)">'+fmt(ev)+'</b></div>';
+}
+function preset(name){ const p=PRESETS[name]; for(const k in p) document.getElementById(k).value=p[k]; calc(); }
+document.querySelectorAll('input[type=range]').forEach(s=>s.addEventListener('input',calc));
+preset('base');
+document.getElementById('verdict').innerHTML='<b>My read, in one line:</b> SpaceX is one of the highest transformation-per-dissipation machines in existence (reusability is the PTO thesis made physical), so the long-run <em>direction</em> is genuinely up — but the range is enormous (this model spans ~$100B to ~$1.4T on plausible inputs), the risks are concentrated and real, and it&rsquo;s illiquid and private. Direction isn&rsquo;t knowable from inside the system; these are bets sized to their downside, not forecasts.';
+</script>
+</body>
+</html>

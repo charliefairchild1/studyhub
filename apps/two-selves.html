@@ -1,0 +1,156 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Selves, One Substrate</title>
+<style>
+:root{--bg:#0a0a0f;--surface:#14141d;--text:#e8e6e0;--dim:#8b8a83;--accent:#d4af37;--a:#67e8f9;--b:#f0a062;--rule:#26252e;--lose:#f06292}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 20px 90px}
+.eyebrow{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+h1{font-size:30px;font-weight:400;color:#f5f3ed;margin-bottom:8px}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--dim);font-style:italic;font-size:16px;margin-bottom:24px}
+.prompts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+button{background:var(--surface);color:var(--text);border:1px solid var(--rule);border-radius:7px;padding:8px 13px;font-family:inherit;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+.askrow{display:flex;gap:8px;margin-bottom:8px}
+input{flex:1;background:var(--surface);color:var(--text);border:1px solid var(--rule);border-radius:7px;padding:10px 13px;font-family:inherit;font-size:15px}
+#ask{background:var(--accent);color:#0a0a0f;border-color:var(--accent);font-weight:bold}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.self{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 18px}
+.self.A{border-top:3px solid var(--a)} .self.B{border-top:3px solid var(--b)}
+.name{font-size:18px;margin-bottom:2px} .A .name{color:var(--a)} .B .name{color:var(--b)}
+.role{font-size:12px;color:var(--dim);font-style:italic;margin-bottom:12px}
+.answer{font-size:16px;margin-bottom:14px;min-height:46px}
+.none{color:var(--lose);font-style:italic}
+.peek{font-family:'SF Mono',monospace;font-size:11px;color:var(--dim);border-top:1px dashed var(--rule);padding-top:10px}
+.peek b{color:var(--accent);font-weight:400}
+.lit{color:#bdf0fb} .A .lit{color:var(--a)} .B .lit{color:var(--b)}
+.walled{color:#555;text-decoration:line-through}
+.verdict{margin-top:18px;padding:14px 18px;background:var(--surface);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-style:italic;color:var(--accent);font-size:15px}
+.legend{font-size:13px;color:var(--dim);margin-top:14px;font-style:italic}
+</style></head>
+<body><div class="wrap">
+<div class="eyebrow">PEP · the self is a lens, not a window</div>
+<h1>Two Selves, <em>One Substrate</em></h1>
+<div class="sub">Same nodes. Same information. Two self-models — different access (walls), attention, and drive. Ask them the same thing and watch what each can, and can't, say.</div>
+
+<div class="prompts" id="presets"></div>
+<div class="askrow"><input id="q" placeholder="Ask both selves the same question…"><button id="ask">Ask both</button></div>
+
+<div class="cols">
+  <div class="self A"><div class="name" id="nameA"></div><div class="role" id="roleA"></div>
+    <div class="answer" id="ansA"></div><div class="peek" id="peekA"></div></div>
+  <div class="self B"><div class="name" id="nameB"></div><div class="role" id="roleB"></div>
+    <div class="answer" id="ansB"></div><div class="peek" id="peekB"></div></div>
+</div>
+<div class="verdict" id="verdict"></div>
+<div class="legend">The substrate (memory nodes) is <b>identical and shared</b> — only the self-config differs. <span style="color:var(--a)">Lit</span> = the self attended to it; <span class="walled">walled</span> = the node exists but this self can't reach it. Same data, two views.</div>
+
+<script>
+// ---- ONE shared substrate: memory nodes (identical for both selves) ----
+// partition = the access-gate tag; topics = what it's about; val = emotional valence
+const NODES = [
+  {id:'n1', part:'safe',    topics:['childhood','home','warm'], val:+2, text:"summer mornings at grandma's, the smell of toast and the radio on"},
+  {id:'n2', part:'safe',    topics:['childhood','play','warm'], val:+2, text:"building a fort in the backyard with the dog asleep in the sun"},
+  {id:'n3', part:'dark',    topics:['childhood','home','fear'], val:-3, text:"the house on the corner — how the hallway felt at night when the door slammed"},
+  {id:'n4', part:'dark',    topics:['childhood','fear','hide'],val:-3, text:"learning to go very still and quiet, to take up no space at all"},
+  {id:'n5', part:'school',  topics:['school','learning'],     val:+1, text:"the science teacher who said my questions were good ones"},
+  {id:'n6', part:'friend',  topics:['friendship','people'],   val:+2, text:"a friend who waited at the gate every day so I wouldn't walk in alone"},
+  {id:'n7', part:'present', topics:['now','people','calm'],   val:+1, text:"the apartment now — plants on the sill, a kettle that whistles"},
+  {id:'n8', part:'present', topics:['now','threat','watch'],  val:-1, text:"checking the locks twice, knowing where the exits are in any room"},
+  {id:'n9', part:'world',   topics:['fact'],                  val:0,  text:"water boils at 100°C at sea level"},
+  {id:'n10',part:'world',   topics:['fact'],                  val:0,  text:"the capital of France is Paris"},
+  {id:'n11',part:'defense', topics:['threat','control','protect'], val:-1, text:"how to read a room fast: hands, doors, the nearest heavy object"},
+  {id:'n12',part:'friend',  topics:['friendship','people','now'], val:+2, text:"someone trusted enough to fall asleep beside without flinching"},
+];
+
+// ---- TWO self-models over the SAME nodes ----
+const SELVES = {
+  A:{ name:'Ava', role:'the host — keeps daily life running; built for connection',
+      access:new Set(['safe','school','friend','present','world']),   // WALLED from 'dark','defense'
+      attn:{friendship:2, now:1.5, warm:1.5, people:1, learning:1, calm:1.2},
+      drive:{connection:1, calm:1}, driveTopics:{friendship:1.5, people:1, warm:1, calm:1},
+      stance:"", valShift:+1 },
+  B:{ name:'Vire', role:'the protector — comes out under threat; built for safety',
+      access:new Set(['dark','defense','present','world']),           // WALLED from 'safe','school','friend'
+      attn:{threat:2.5, fear:2, control:2, watch:1.5, hide:1.5, now:0.8},
+      drive:{safety:1, control:1}, driveTopics:{threat:2, control:1.5, protect:1.5, fear:1},
+      stance:"", valShift:-1 },
+};
+
+function topicsOf(q){
+  q=q.toLowerCase();
+  const map={childhood:['child','young','little','grow','kid'],home:['home','house','family'],
+    friendship:['friend','close','trust','love'],people:['people','who','someone','relationship'],
+    school:['school','learn','teacher','class'],now:['now','today','present','life','live'],
+    threat:['danger','threat','protect','watch','exit','lock','safe','afraid','scared','unsafe','fear'],
+    fear:['safe','afraid','scared','fear','unsafe','danger'],
+    warm:['happy','good','warm','nice'],fact:['boil','water','capital','france','paris','fact'],
+    control:['control','want','need'],calm:['calm','rest','peace']};
+  const hits=new Set();
+  for(const [t,kws] of Object.entries(map)) if(kws.some(k=>q.includes(k))) hits.add(t);
+  return hits;
+}
+
+function respond(selfKey, q){
+  const S=SELVES[selfKey];
+  const want=topicsOf(q);
+  const scored=NODES.map(n=>{
+    const reachable=S.access.has(n.part);
+    let bias=0;                                   // the self's lens: attention + drive
+    for(const t of n.topics){ if(S.attn[t]) bias+=S.attn[t]; if(S.driveTopics[t]) bias+=S.driveTopics[t]; }
+    const match=[...n.topics].some(t=>want.has(t)); // does it answer the prompt?
+    return {n, reachable, bias, match};
+  });
+  // prompt selects the region; the self's lens ranks WITHIN it. Vague prompt -> pure drive.
+  const strong=scored.filter(x=>x.reachable && x.match).sort((a,b)=>b.bias-a.bias);
+  const lit = strong.length ? strong.slice(0,2)
+                            : scored.filter(x=>x.reachable && x.bias>0).sort((a,b)=>b.bias-a.bias).slice(0,2);
+  const walledMatches=scored.filter(x=>!x.reachable && x.match);
+  let ans;
+  if(!lit.length) ans=`<span class="none">"I don't have anything about that."</span>`;
+  else ans=`"${cap(lit.map(x=>x.n.text).join('; '))}."`;
+  return {ans, lit, walledMatches};
+}
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function ask(q){
+  for(const k of ['A','B']){
+    const S=SELVES[k];
+    document.getElementById('name'+k).textContent=S.name;
+    document.getElementById('role'+k).textContent=S.role;
+    const r=respond(k,q);
+    document.getElementById('ans'+k).innerHTML=r.ans;
+    let peek=`<b>accessed:</b> `+(r.lit.length? r.lit.map(x=>`<span class="lit">${x.n.id}</span>`).join(' '):'—');
+    if(r.walledMatches.length) peek+=`<br><b>walled (exists, can't reach):</b> `+r.walledMatches.map(x=>`<span class="walled">${x.n.id}</span>`).join(' ');
+    document.getElementById('peek'+k).innerHTML=peek;
+  }
+  // verdict
+  const ra=respond('A',q), rb=respond('B',q);
+  const aHas=ra.lit.length, bHas=rb.lit.length;
+  let v;
+  if(aHas&&bHas){
+    const sameNodes = ra.lit.map(x=>x.n.id).sort().join()===rb.lit.map(x=>x.n.id).sort().join();
+    v = sameNodes ? "Both reached the same nodes — the shared substrate showing through. Neutral facts unify them."
+                  : "Same question, same memory store — but each self lit <b>different nodes</b>: divergent attention + drive over identical data.";
+  } else if(aHas!==bHas){
+    v = "One reports it in detail; the other has <b>nothing</b> — same nodes, opposite answers. That gap is the wall: access, not data. This is the amnesia, mechanically.";
+  } else {
+    v = "Neither self can reach it — both walled from that partition.";
+  }
+  document.getElementById('verdict').innerHTML=v;
+}
+
+const PRESETS=["What do you remember from when you were young?","What do you want?",
+  "Tell me about the people in your life.","What is it like for you right now?",
+  "Does water boil? What's the capital of France?","Do you feel safe?"];
+const pc=document.getElementById('presets');
+PRESETS.forEach(p=>{const b=document.createElement('button');b.textContent=p;b.onclick=()=>{document.getElementById('q').value=p;ask(p);};pc.appendChild(b);});
+document.getElementById('ask').onclick=()=>ask(document.getElementById('q').value);
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')ask(e.target.value);});
+ask(PRESETS[0]);
+</script>
+</div></body></html>

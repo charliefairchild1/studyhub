@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study</title>
+<title>The Study</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#14110c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,71 +15,127 @@
 <style>
 :root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--rule:#352c22}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 60%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;
-  padding:calc(env(safe-area-inset-top) + 26px) 18px calc(env(safe-area-inset-bottom) + 40px)}
-header{max-width:640px;margin:0 auto 20px}
-h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.1em;letter-spacing:-.5px}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;
+  padding:calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 48px)}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.2em;letter-spacing:-.5px}
 h1 .a{color:var(--gold)}
-.tag{color:var(--dim);font-size:.92em;margin-top:2px}
-.grid{max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-a.tile{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:16px 16px 15px;text-decoration:none;color:var(--ink);transition:transform .08s,border-color .15s}
-a.tile:active{transform:scale(.97)}
-a.tile:hover{border-color:var(--gold)}
-.ic{font-size:1.9em;line-height:1}
-.nm{font-weight:700;font-size:1.05em}
-.ds{color:var(--dim);font-size:.8em;line-height:1.35}
-.badge{align-self:flex-start;margin-top:2px;font-size:.62em;color:var(--gold);border:1px solid #4a3a1c;background:#241c0d;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.section{max-width:640px;margin:24px auto 8px;color:var(--faint);font-size:.75em;text-transform:uppercase;letter-spacing:2px;font-weight:700}
-.foot{max-width:640px;margin:26px auto 0;color:var(--faint);font-size:.8em;line-height:1.6}
-.foot b{color:var(--dim)}
-#install{max-width:640px;margin:0 auto 16px;background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;font-size:.85em;color:var(--dim);display:none}
+.tag{color:var(--dim);font-size:.95em;margin-top:3px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 6px}
+.stat{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:8px 12px;flex:1;min-width:96px;text-align:center}
+.stat .n{font-size:1.5em;font-weight:800;color:var(--gold);line-height:1}
+.stat .l{color:var(--dim);font-size:.68em;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+#install{background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;font-size:.85em;color:var(--dim);display:none;margin:14px 0}
 #install b{color:var(--gold)}
+.sec{margin:26px 0 10px;color:var(--faint);font-size:.74em;text-transform:uppercase;letter-spacing:2px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sec .ln{flex:1;height:1px;background:var(--rule)}
+.grp{color:var(--green);font-size:.82em;font-weight:700;margin:16px 0 6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+a.tile{display:flex;flex-direction:column;gap:5px;background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink);transition:transform .08s,border-color .15s}
+a.tile:active{transform:scale(.97)}a.tile:hover{border-color:var(--gold)}
+a.tile .ic{font-size:1.6em;line-height:1}
+a.tile .nm{font-weight:700;font-size:1em}
+a.tile .ds{color:var(--dim);font-size:.76em;line-height:1.35}
+a.mtile{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:11px 6px;text-decoration:none;color:var(--ink);text-align:center;font-size:.78em}
+a.mtile:active{transform:scale(.96)}a.mtile:hover{border-color:var(--gold)}
+a.mtile .ic{font-size:1.3em}
+.catbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 12px}
+.catbar input{flex:1;min-width:160px;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit}
+.catnote{color:var(--faint);font-size:.78em;margin-bottom:10px}
+details.cg{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:8px;overflow:hidden}
+details.cg summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
+details.cg summary::-webkit-details-marker{display:none}
+details.cg summary .ct{margin-left:auto;color:var(--gold);font-size:.8em;background:#241c0d;border:1px solid #4a3a1c;border-radius:10px;padding:1px 8px}
+.cat-list{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:0 10px 12px}
+@media(max-width:520px){.cat-list{grid-template-columns:1fr}}
+.cat-list a{color:var(--ink);text-decoration:none;font-size:.84em;padding:6px 8px;border-radius:8px;display:flex;flex-direction:column}
+.cat-list a:hover{background:var(--panel2)}
+.cat-list a .pp{color:var(--faint);font-size:.72em;font-family:ui-monospace,Menlo,monospace}
+.muted{color:var(--dim)}
+.foot{color:var(--faint);font-size:.8em;margin-top:26px;line-height:1.6;border-top:1px solid var(--rule);padding-top:16px}
+.foot b{color:var(--dim)}.foot a{color:var(--gold)}
 </style>
 </head>
 <body>
-<header>
+<div class="wrap">
   <h1>The <span class="a">Study</span></h1>
-  <div class="tag">Everything worth practising, in one place.</div>
-</header>
+  <div class="tag">Everything we've built — one framework (PEP · PTO), hundreds of surfaces.</div>
 
-<div id="install">Add me to your home screen: tap <b>Share</b> ⬆︎ then <b>Add to Home Screen</b> — I'll run fullscreen and work offline.</div>
+  <div class="stats">
+    <div class="stat"><div class="n">460+</div><div class="l">live routes</div></div>
+    <div class="stat"><div class="n">33</div><div class="l">offline apps</div></div>
+    <div class="stat"><div class="n">19</div><div class="l">products</div></div>
+    <div class="stat"><div class="n">130+</div><div class="l">visualizations</div></div>
+  </div>
 
-<div class="section">Games</div>
-<div class="grid">
-  <a class="tile" href="apps/chess.html"><div class="ic">♟️</div><div class="nm">Chess</div><div class="ds">Vantage — influence maps, PTO eval, predict-the-move, play the engine.</div></a>
-  <a class="tile" href="apps/poker.html"><div class="ic">🂡</div><div class="nm">Poker</div><div class="ds">Hold'em through PEP/PTO — equity, EV coach, range trainer, play a bot.</div></a>
-</div>
+  <div id="install">Add me to your home screen: tap <b>Share</b> ⬆︎ then <b>Add to Home Screen</b> — I run fullscreen and work offline.</div>
 
-<div class="section">Language</div>
-<div class="grid">
-  <a class="tile" href="apps/spanish.html"><div class="ic">🇪🇸</div><div class="nm">Spanish</div><div class="ds">30-day sprint — SRS vocab, verbs, cognates, grammar, dictation.</div></a>
-</div>
+  <div class="sec"><span>Runs on your phone · offline</span><span class="ln"></span></div>
+  <div id="bundled"></div>
 
-<div class="section">Mind &amp; ideas</div>
-<div class="grid">
-  <a class="tile" href="apps/poietism.html"><div class="ic">🧠</div><div class="nm">Poietism</div><div class="ds">Study the philosophy — thinkers, big ideas, the arbitrary border.</div></a>
-  <a class="tile" href="apps/doomsday.html"><div class="ic">📅</div><div class="nm">Doomsday</div><div class="ds">Day-of-week mental math — Conway's method, drilled.</div></a>
-</div>
+  <div class="sec"><span>The full catalog · 460+ surfaces</span><span class="ln"></span></div>
+  <div class="catbar">
+    <input id="csearch" placeholder="search everything — law, ising, seeming, gustar…" autocomplete="off">
+  </div>
+  <div class="catnote">These live in the <b>PEP app</b>. They open when the server is running (on your Mac, or wherever you deploy it). Set the address here: <input id="pepbase" style="width:200px;background:#100c08;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:4px 8px;font:inherit;font-size:.85em"></div>
+  <div id="catalog"><p class="muted">Loading the catalog…</p></div>
 
-<div class="section">Math playground</div>
-<div class="grid">
-  <a class="tile" href="apps/life.html"><div class="ic">🔬</div><div class="nm">Life</div><div class="ds">Cellular automata — emergence from simple rules.</div></a>
-  <a class="tile" href="apps/evolution.html"><div class="ic">🧬</div><div class="nm">Evolution</div><div class="ds">Selection + variation, visualized.</div></a>
-  <a class="tile" href="apps/voronoi.html"><div class="ic">🕸️</div><div class="nm">Voronoi</div><div class="ds">Space partitioned by nearest point.</div></a>
-</div>
+  <div class="sec"><span>Deployed &amp; shareable</span><span class="ln"></span></div>
+  <div class="grid">
+    <a class="tile" href="https://lemma-2b0h.onrender.com" target="_blank" rel="noopener"><div class="ic">🎓</div><div class="nm">Lemma</div><div class="ds">Teacher classroom warmups — live on the web.</div></a>
+    <a class="tile" href="https://charliefairchild1.github.io/studyhub/" target="_blank" rel="noopener"><div class="ic">📱</div><div class="nm">This app</div><div class="ds">The Study — installable, updates over the air.</div></a>
+  </div>
 
-<div class="foot">
-  <b>Offline-ready.</b> Everything here runs on your phone with no connection — except two Chess extras (import your online games, ask the coach) that need the internet. Built from PEP/PTO. Tap the ⤓ in any tool to save/print where offered.
+  <div class="foot">
+    <b>How to show it off:</b> the offline apps run anywhere, right here on your phone. For the full 460-route catalog, run the PEP app (<code>uv run pep serve</code>) on your Mac and it all opens live. Built entirely on <b>PEP</b> (the predicting mind) and <b>PTO</b> (potential → transformation → output).
+  </div>
 </div>
 
 <script>
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
-// show the install hint on iOS Safari when not already installed
-(function(){
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+(function(){ const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
   const standalone=window.navigator.standalone===true || window.matchMedia('(display-mode: standalone)').matches;
-  if(isIOS && !standalone) document.getElementById('install').style.display='block';
-})();
+  if(isIOS && !standalone) document.getElementById('install').style.display='block'; })();
+
+// ---- bundled (offline) apps ----
+const BUNDLED=[
+ ['Games',[['chess','♟️','Chess','Vantage — influence maps, PTO eval, predict-the-move, play the engine.'],['poker','🂡','Poker',"Hold'em via PEP/PTO — equity, EV coach, range trainer, a bot."]]],
+ ['Language',[['spanish','🇪🇸','Spanish','30-day sprint — SRS, verbs, cognates, grammar, dictation.'],['vaya','🗣️','Vaya','A constructed PEP-native language (an experiment).']]],
+ ['Mind &amp; consciousness',[['two-selves','🧠','Two Selves','The rider &amp; the animal — conscious vs. subconscious.'],['poietism','📚','Poietism','Study the philosophy — thinkers, ideas, the arbitrary border.'],['doomsday','📅','Doomsday','Day-of-week mental math, drilled.']]],
+ ['Writing &amp; philosophy',[['animal-book','📖','The Animal That Bets','The book — origin of the betting mind.'],['poietism-pamphlet','📜','Poietism — Field Guide','The whole philosophy, 20+ pages.'],['poietism-paper','📄','Poietism — Paper','The shareable core essay.']]],
+ ['Koin · economy',[['koin','⚖️','Koin','Give-take economics on PEP+PTO.'],['koin-pamphlet','📜','Koin Manifesto','Money tracks custody, not contribution.'],['koin-essential','✦','Koin Essentials','The idea in brief.'],['koin-kids','🧒','Koin for Kids','The friendliest version.']]],
+ ['Investing',[['transformation-map','🌐','Transformation Map','Where the world is going — PTO-scored.'],['portfolio-planner','📊','Portfolio Planner','Core + satellite, projected.'],['spacex-invest','🚀','SpaceX Plan','DCA projection.'],['spacex-pto','🛰️','SpaceX · PTO','Valuation scenarios.']]],
+];
+const MATH=[['life','◼︎','Life'],['evolution','🧬','Evolution'],['voronoi','🕸️','Voronoi'],['math-neural','🔀','Neural'],['math-spreading','💫','Spreading'],['math-predictor','🎯','Predictor'],['math-kuramoto','🌀','Kuramoto'],['math-reaction','🐆','Reaction'],['math-sandpile','⛰️','Sandpile'],['math-percolation','💧','Percolation'],['math-galton','🎲','Galton'],['math-globe','🌍','Globe'],['math-language-evolution','🗨️','Language'],['math-annealing','🔥','Annealing'],['hex','⬡','Hex']];
+document.getElementById('bundled').innerHTML = BUNDLED.map(([g,items])=>
+  '<div class="grp">'+g+'</div><div class="grid">'+items.map(([f,ic,nm,ds])=>
+    '<a class="tile" href="apps/'+f+'.html"><div class="ic">'+ic+'</div><div class="nm">'+nm+'</div><div class="ds">'+ds+'</div></a>').join('')+'</div>'
+).join('') + '<div class="grp">Math playground &amp; puzzles</div><div class="mgrid">'+
+  MATH.map(([f,ic,nm])=>'<a class="mtile" href="apps/'+f+'.html"><div class="ic">'+ic+'</div>'+nm+'</a>').join('')+'</div>';
+
+// ---- full catalog (460+ routes) ----
+let ROUTES=[];
+const pepIn=document.getElementById('pepbase');
+pepIn.value=localStorage.getItem('pepbase')||'http://localhost:8000';
+pepIn.addEventListener('change',()=>{ localStorage.setItem('pepbase',pepIn.value.trim()); renderCatalog(); });
+function pepBase(){ return (pepIn.value||'http://localhost:8000').trim().replace(/\/$/,''); }
+const ORDER=['LAVAS suite','Axona — mind & consciousness','Koin — economy','Substrate — philosophy','PEP — framework & applications','Math playground','Lemma — classroom','Writing','Apps & experiments'];
+function esc(s){return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function renderCatalog(){
+  if(!ROUTES.length){ document.getElementById('catalog').innerHTML='<p class="muted">Catalog loads when online. It lists the 460+ routes in the PEP app.</p>'; return; }
+  const q=(document.getElementById('csearch').value||'').toLowerCase().trim();
+  const groups={};
+  ROUTES.forEach(r=>{ if(q && !((r.title+' '+r.path).toLowerCase().includes(q))) return; (groups[r.group]=groups[r.group]||[]).push(r); });
+  const keys=Object.keys(groups).sort((a,b)=>(ORDER.indexOf(a)+99*(ORDER.indexOf(a)<0))-(ORDER.indexOf(b)+99*(ORDER.indexOf(b)<0)));
+  const base=pepBase();
+  document.getElementById('catalog').innerHTML = keys.length ? keys.map(g=>
+    '<details class="cg"'+(q?' open':'')+'><summary>'+esc(g)+'<span class="ct">'+groups[g].length+'</span></summary><div class="cat-list">'+
+    groups[g].map(r=>'<a href="'+base+esc(r.path)+'" target="_blank" rel="noopener">'+esc(r.title)+'<span class="pp">'+esc(r.path)+'</span></a>').join('')+
+    '</div></details>').join('') : '<p class="muted">No matches for &ldquo;'+esc(q)+'&rdquo;.</p>';
+}
+document.getElementById('csearch').addEventListener('input',renderCatalog);
+fetch('routes.json').then(r=>r.json()).then(d=>{ ROUTES=d; renderCatalog(); }).catch(()=>renderCatalog());
 </script>
 </body>
 </html>

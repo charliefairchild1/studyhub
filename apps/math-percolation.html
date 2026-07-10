@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Percolation — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#4db6ac; --accent2:#81c784;
+    --warn:#ffb74d; --danger:#ef5350; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-rows:1fr 180px;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">percolation — phase transition on a lattice</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="spreading.html">⟳ Spreading</a>
+    <a href="diffusion.html">◌ Diffusion</a>
+    <a href="epidemic.html">☣ Epidemic</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>lattice · filled cells connected by 4-neighbor adjacency</span><b id="m-p">p = —</b></div>
+    <canvas id="grid"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>P(giant spans lattice) vs p — averaged over ensemble</span><b>p_c ≈ 0.5927</b></div>
+    <canvas id="curve"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Percolation</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Each cell is filled with probability <b>p</b>. Filled neighbors share a cluster. At <b>p_c ≈ 0.5927</b> (site percolation on square lattice) a giant component appears that spans the whole grid.
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Fill prob p</label>
+    <input id="p" type="range" min="0" max="1" step="0.005" value="0.55">
+    <span class="val" id="p-v">0.550</span>
+  </div>
+  <div class="row">
+    <label>Grid size</label>
+    <input id="N" type="range" min="30" max="160" step="5" value="80">
+    <span class="val" id="N-v">80</span>
+  </div>
+
+  <div class="btn-row">
+    <button id="re">↻ Reshuffle</button>
+    <button id="sweep">▶ Sweep p</button>
+    <button id="crit">⇢ Jump to p_c</button>
+    <button id="ensemble">⚙ Build curve (ensemble)</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Filled cells</span><b id="m-filled">0</b></div>
+  <div class="metric"><span>Clusters</span><b id="m-cc">0</b></div>
+  <div class="metric"><span>Largest cluster</span><b id="m-giant">0</b></div>
+  <div class="metric"><span>Spans grid?</span><b id="m-spans">no</b></div>
+
+  <div class="pep-note">
+    <b>Why PEP cares.</b> Spreading activation on a random graph has
+    the same transition at a critical edge density. Below: seed dies
+    locally — retrieval fails for most queries. Above: one seed
+    reaches everything — retrieval is dominated by popularity, not
+    relevance. Retrieval systems tune density to sit <i>just above</i>
+    p_c: connected but not saturated.
+    <br><br>
+    <b>Also appears in:</b> forest fires, disease spread (see
+    <a href="epidemic.html">☣ Epidemic</a>), social tipping,
+    neural-avalanche criticality (brains seem to operate near p_c —
+    "edge of chaos" hypothesis).
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">p = 0.5:</b> many small clusters. No spanning path.<br>
+    <b style="color:var(--accent2)">p = 0.59–0.60:</b> fractal "incipient infinite cluster" — spanning for some seeds, not others.<br>
+    <b style="color:var(--accent2)">p = 0.65:</b> one giant cluster, isolated holes. Phase has flipped.<br>
+    <b style="color:var(--accent2)">Build ensemble curve:</b> runs 20 lattices per p, averages span probability. The S-curve around p_c is the phase transition.
+  </div>
+</div>
+
+<script>
+(() => {
+  const gridC = document.getElementById('grid');
+  const curveC = document.getElementById('curve');
+  const gctx = gridC.getContext('2d');
+  const cctx = curveC.getContext('2d');
+  let gd, cd;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() {
+    gd = resizeOne(gridC, gctx);
+    cd = resizeOne(curveC, cctx);
+    drawCurve();
+  }
+  window.addEventListener('resize', resizeAll);
+
+  let N = 80;
+  let p = 0.55;
+  let cells = [];   // 0 empty, 1 filled
+  let cluster = []; // cluster id or -1
+  let nClusters = 0;
+  let giantSize = 0;
+  let giantId = -1;
+  let spans = false;
+  let curvePoints = [];
+
+  function reshuffle() {
+    N = parseInt(document.getElementById('N').value);
+    p = parseFloat(document.getElementById('p').value);
+    cells = new Array(N*N).fill(0);
+    for (let i=0;i<N*N;i++) if (Math.random() < p) cells[i] = 1;
+    analyze();
+    drawGrid();
+  }
+
+  function analyze() {
+    // union-find over 4-neighbors
+    const parent = new Array(N*N).fill(-1);
+    for (let i=0;i<N*N;i++) parent[i] = i;
+    function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+    function uni(a,b) { a = find(a); b = find(b); if (a!==b) parent[a] = b; }
+    for (let r=0;r<N;r++) for (let c=0;c<N;c++) {
+      const i = r*N + c;
+      if (!cells[i]) continue;
+      if (c+1<N && cells[i+1]) uni(i, i+1);
+      if (r+1<N && cells[i+N]) uni(i, i+N);
+    }
+    cluster = new Array(N*N).fill(-1);
+    const size = new Map();
+    let filled = 0;
+    for (let i=0;i<N*N;i++) {
+      if (!cells[i]) continue;
+      filled++;
+      const root = find(i);
+      cluster[i] = root;
+      size.set(root, (size.get(root)||0)+1);
+    }
+    giantSize = 0; giantId = -1;
+    for (const [id, s] of size) {
+      if (s > giantSize) { giantSize = s; giantId = id; }
+    }
+    nClusters = size.size;
+    // spans? giant reaches top row AND bottom row
+    let topHit = false, botHit = false;
+    for (let c=0;c<N;c++) {
+      if (cluster[c] === giantId) topHit = true;
+      if (cluster[(N-1)*N + c] === giantId) botHit = true;
+    }
+    spans = topHit && botHit;
+    document.getElementById('m-p').textContent = 'p = ' + p.toFixed(3);
+    document.getElementById('m-filled').textContent = filled;
+    document.getElementById('m-cc').textContent = nClusters;
+    document.getElementById('m-giant').textContent = giantSize + ' ('+((giantSize/Math.max(1,N*N))*100).toFixed(1)+'%)';
+    document.getElementById('m-spans').textContent = spans ? 'YES' : 'no';
+  }
+
+  function hash(id) {
+    const x = Math.sin(id * 78.233) * 43758.5453;
+    return Math.floor((x - Math.floor(x)) * 360);
+  }
+  function drawGrid() {
+    const { w, h } = gd;
+    gctx.fillStyle = '#0a0d14'; gctx.fillRect(0,0,w,h);
+    const cell = Math.min(w/N, h/N);
+    const xoff = (w - cell*N)/2, yoff = (h - cell*N)/2;
+    for (let r=0;r<N;r++) for (let c=0;c<N;c++) {
+      const i = r*N + c;
+      if (!cells[i]) continue;
+      const cid = cluster[i];
+      let fill;
+      if (cid === giantId) fill = spans ? '#4db6ac' : '#81c784';
+      else {
+        const hue = hash(cid);
+        fill = `hsl(${hue}, 50%, 55%)`;
+      }
+      gctx.fillStyle = fill;
+      gctx.fillRect(xoff + c*cell, yoff + r*cell, cell+0.5, cell+0.5);
+    }
+  }
+
+  function drawCurve() {
+    const { w, h } = cd;
+    cctx.fillStyle = '#0a0d14'; cctx.fillRect(0,0,w,h);
+    // axes
+    const pad = 26;
+    cctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    cctx.beginPath(); cctx.moveTo(pad, h-pad); cctx.lineTo(w-4, h-pad); cctx.moveTo(pad, 4); cctx.lineTo(pad, h-pad); cctx.stroke();
+    cctx.fillStyle = 'rgba(255,255,255,0.4)'; cctx.font='10px monospace';
+    cctx.fillText('p →', w-24, h-8);
+    cctx.save(); cctx.translate(4, 14); cctx.rotate(-Math.PI/2); cctx.fillText('P(span)', 0, 0); cctx.restore();
+    // p_c marker
+    const xc = pad + 0.5927*(w-pad-4);
+    cctx.strokeStyle = 'rgba(255,183,77,0.7)';
+    cctx.setLineDash([4,4]);
+    cctx.beginPath(); cctx.moveTo(xc, 4); cctx.lineTo(xc, h-pad); cctx.stroke();
+    cctx.setLineDash([]);
+    cctx.fillStyle = '#ffb74d';
+    cctx.fillText('p_c', xc+3, 14);
+    // current p marker
+    const xcur = pad + p*(w-pad-4);
+    cctx.strokeStyle = '#4db6ac';
+    cctx.beginPath(); cctx.moveTo(xcur, 4); cctx.lineTo(xcur, h-pad); cctx.stroke();
+    // curve points
+    if (curvePoints.length > 1) {
+      cctx.strokeStyle = '#81c784';
+      cctx.lineWidth = 2;
+      cctx.beginPath();
+      for (let i=0;i<curvePoints.length;i++) {
+        const pt = curvePoints[i];
+        const x = pad + pt.p*(w-pad-4);
+        const y = h-pad - pt.q*(h-pad-4);
+        if (i===0) cctx.moveTo(x,y); else cctx.lineTo(x,y);
+      }
+      cctx.stroke();
+      for (const pt of curvePoints) {
+        const x = pad + pt.p*(w-pad-4);
+        const y = h-pad - pt.q*(h-pad-4);
+        cctx.fillStyle = '#81c784';
+        cctx.beginPath(); cctx.arc(x,y,2,0,Math.PI*2); cctx.fill();
+      }
+    }
+  }
+
+  function ensembleCurve() {
+    const trials = 18;
+    const ps = [];
+    for (let pv=0.3; pv<=0.85; pv+=0.025) ps.push(parseFloat(pv.toFixed(3)));
+    curvePoints = [];
+    const sizeN = Math.min(N, 60);
+    let idx = 0;
+    function step() {
+      if (idx >= ps.length) return;
+      const pv = ps[idx];
+      let spans = 0;
+      for (let t=0;t<trials;t++) {
+        const c = new Array(sizeN*sizeN).fill(0);
+        for (let i=0;i<c.length;i++) if (Math.random()<pv) c[i]=1;
+        // BFS from top row
+        const q = [];
+        const seen = new Uint8Array(sizeN*sizeN);
+        for (let cc=0;cc<sizeN;cc++) if (c[cc]) { q.push(cc); seen[cc]=1; }
+        let hitBot = false;
+        while (q.length) {
+          const x = q.shift();
+          const r = Math.floor(x/sizeN), col = x%sizeN;
+          if (r === sizeN-1) { hitBot = true; break; }
+          for (const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+            const nr = r+dr, nc = col+dc;
+            if (nr<0||nr>=sizeN||nc<0||nc>=sizeN) continue;
+            const ni = nr*sizeN+nc;
+            if (c[ni] && !seen[ni]) { seen[ni]=1; q.push(ni); }
+          }
+        }
+        if (hitBot) spans++;
+      }
+      curvePoints.push({ p: pv, q: spans/trials });
+      drawCurve();
+      idx++;
+      setTimeout(step, 15);
+    }
+    step();
+  }
+
+  // controls
+  document.getElementById('p').addEventListener('input', e => {
+    p = parseFloat(e.target.value);
+    document.getElementById('p-v').textContent = p.toFixed(3);
+    reshuffle();
+    drawCurve();
+  });
+  document.getElementById('N').addEventListener('input', e => {
+    document.getElementById('N-v').textContent = e.target.value;
+    reshuffle();
+  });
+  document.getElementById('re').onclick = reshuffle;
+  document.getElementById('crit').onclick = () => {
+    p = 0.5927;
+    document.getElementById('p').value = p;
+    document.getElementById('p-v').textContent = p.toFixed(3);
+    reshuffle();
+    drawCurve();
+  };
+  document.getElementById('sweep').onclick = () => {
+    let v = 0.3;
+    const iv = setInterval(() => {
+      p = v;
+      document.getElementById('p').value = v;
+      document.getElementById('p-v').textContent = v.toFixed(3);
+      reshuffle();
+      drawCurve();
+      v += 0.01;
+      if (v > 0.85) clearInterval(iv);
+    }, 80);
+  };
+  document.getElementById('ensemble').onclick = ensembleCurve;
+
+  resizeAll();
+  reshuffle();
+  drawCurve();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>
