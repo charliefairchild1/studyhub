@@ -1,0 +1,29 @@
+#!/bin/zsh
+# Supervisor run by the launchd agent (com.study.terminal) at every login.
+# Ensures userspace tailscaled + the tailnet HTTPS serve are up, then runs ttyd
+# in the foreground so launchd can keep it alive.
+SOCK=/tmp/tailscaled.sock
+PORT=7681
+TS=/opt/homebrew/bin/tailscale
+TSD=/opt/homebrew/bin/tailscaled
+TTYD=/opt/homebrew/bin/ttyd
+ts(){ $TS --socket=$SOCK "$@"; }
+
+# 1. userspace tailscaled (no root)
+if ! pgrep -f "tailscaled --tun=userspace" >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/tailscale"
+  nohup $TSD --tun=userspace-networking --socket=$SOCK --statedir="$HOME/.config/tailscale" >/tmp/tailscaled.log 2>&1 &
+  sleep 5
+fi
+ts up --hostname=study-mac >/dev/null 2>&1 || true
+
+# 2. publish over the tailnet with HTTPS (idempotent; persists in the daemon)
+ts serve --bg $PORT >/tmp/serve.log 2>&1 || true
+
+# 3. stable password
+PASSFILE="$HOME/.study_term_pass"
+[ -f "$PASSFILE" ] || /usr/bin/openssl rand -hex 5 > "$PASSFILE"
+PASS=$(cat "$PASSFILE")
+
+# 4. run the terminal in the foreground (launchd KeepAlive restarts it if it dies)
+exec $TTYD -p $PORT -W -c "user:$PASS" zsh -l
