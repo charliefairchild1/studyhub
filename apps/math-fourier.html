@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fourier — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#b39ddb; --accent2:#81c784;
+    --warn:#ffb74d; --danger:#ef5350; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-rows:1.2fr 1fr 0.8fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">fourier — predictor as spectral reconstruction</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="entropy.html">Σ Entropy</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>signal (blue) &amp; k-term reconstruction (purple)</span><b id="m-k">k = 0</b></div>
+    <canvas id="sig"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>residual = signal − reconstruction</span><b id="m-res">rms = —</b></div>
+    <canvas id="res"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>magnitude spectrum — |a_n|² per frequency</span><b id="m-pow">covered: — / —</b></div>
+    <canvas id="spec"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Fourier</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Any signal = Σ a<sub>n</sub>&nbsp;cos(n&omega;t) + b<sub>n</sub>&nbsp;sin(n&omega;t). A <b>k-term reconstruction</b> is the best possible predictor of the signal using only the k highest-power frequencies. The rest is residual.
+  </div>
+
+  <h3>Signal</h3>
+  <div class="btn-row">
+    <button class="sig-btn active" data-sig="square">Square</button>
+    <button class="sig-btn" data-sig="saw">Sawtooth</button>
+    <button class="sig-btn" data-sig="triangle">Triangle</button>
+    <button class="sig-btn" data-sig="pulse">Pulse</button>
+    <button class="sig-btn" data-sig="chirp">Chirp</button>
+    <button class="sig-btn" data-sig="two">Two tones</button>
+    <button class="sig-btn" data-sig="noise">White noise</button>
+    <button class="sig-btn" data-sig="voice">Voice-like</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Terms k</label>
+    <input id="k" type="range" min="0" max="48" step="1" value="5">
+    <span class="val" id="k-v">5</span>
+  </div>
+  <div class="row">
+    <label>Noise on signal</label>
+    <input id="noise" type="range" min="0" max="0.4" step="0.01" value="0">
+    <span class="val" id="noise-v">0.00</span>
+  </div>
+  <div class="row">
+    <label>Phase shift</label>
+    <input id="phase" type="range" min="0" max="6.28" step="0.05" value="0">
+    <span class="val" id="phase-v">0.00</span>
+  </div>
+
+  <h3>Animate</h3>
+  <div class="btn-row">
+    <button id="sweep">▶ Sweep k 0→48</button>
+    <button id="time" class="active">▶ Time scroll</button>
+  </div>
+
+  <h3>Metrics</h3>
+  <div class="metric"><span>Signal RMS</span><b id="m-sigrms">—</b></div>
+  <div class="metric"><span>Residual RMS</span><b id="m-resrms">—</b></div>
+  <div class="metric"><span>% variance explained</span><b id="m-var">—</b></div>
+  <div class="metric"><span>Dominant freq</span><b id="m-dom">—</b></div>
+
+  <div class="pep-note">
+    <b>PEP primitive 3.</b> The k-term reconstruction IS a predictor.
+    Each new term reduces residual energy by exactly |a<sub>k</sub>|².
+    The residual-shrink rate is a property of the signal, not the
+    predictor — it's set by how concentrated the signal's spectrum is.
+    <br><br>
+    <b>Tie to <a href="entropy.html">entropy</a>.</b> A signal whose
+    power is spread uniformly across all frequencies (white noise) has
+    maximum spectral entropy and minimum predictability — no finite k
+    helps. A signal concentrated on a few frequencies (voice, music)
+    is low-entropy and compresses fast. Predictor ceiling = spectral
+    entropy of the residual.
+  </div>
+</div>
+
+<script>
+(() => {
+  const sigC = document.getElementById('sig');
+  const resC = document.getElementById('res');
+  const specC = document.getElementById('spec');
+  const sctx = sigC.getContext('2d');
+  const rctx = resC.getContext('2d');
+  const pctx = specC.getContext('2d');
+  let sd, rd, pd;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() {
+    sd = resizeOne(sigC, sctx);
+    rd = resizeOne(resC, rctx);
+    pd = resizeOne(specC, pctx);
+  }
+  window.addEventListener('resize', resizeAll);
+
+  const N = 512;
+  let sig = new Array(N).fill(0);
+  let sigKind = 'square';
+  const params = { k: 5, noise: 0, phase: 0 };
+  let timeOffset = 0;
+  let timeRunning = true;
+
+  function buildSignal() {
+    sig = new Array(N).fill(0);
+    for (let i=0;i<N;i++) {
+      const t = i / N * 2 * Math.PI + params.phase;
+      let v = 0;
+      if (sigKind === 'square') v = Math.sign(Math.sin(t*2)) * 0.9;
+      else if (sigKind === 'saw') v = (((t*2/(2*Math.PI)) % 1) * 2 - 1) * 0.9;
+      else if (sigKind === 'triangle') {
+        const s = (t*2/(2*Math.PI)) % 1;
+        v = (s < 0.5 ? 4*s-1 : 3-4*s) * 0.9;
+      } else if (sigKind === 'pulse') v = ((((t*2/(2*Math.PI)) % 1) < 0.1) ? 1 : -0.1) * 0.9;
+      else if (sigKind === 'chirp') v = Math.sin(t*2 + t*t*0.4) * 0.8;
+      else if (sigKind === 'two') v = (0.7*Math.sin(t*3) + 0.4*Math.sin(t*11 + 0.3)) * 0.8;
+      else if (sigKind === 'noise') v = (Math.random()-0.5) * 1.6;
+      else if (sigKind === 'voice') {
+        // fundamental + formant-ish harmonics
+        v = 0.6*Math.sin(t*4) + 0.3*Math.sin(t*8) + 0.2*Math.sin(t*12) + 0.25*Math.sin(t*20);
+        v *= (0.6 + 0.4*Math.sin(t*0.5));
+      }
+      if (params.noise > 0) v += (Math.random()-0.5)*2*params.noise;
+      sig[i] = v;
+    }
+  }
+
+  // Real-valued DFT (slow but fine for N=512)
+  let coefs = [];  // {a, b, mag, freq}
+  function dft() {
+    coefs = [];
+    const maxK = 64;
+    for (let k=1;k<=maxK;k++) {
+      let a = 0, b = 0;
+      for (let i=0;i<N;i++) {
+        const t = 2*Math.PI * i / N;
+        a += sig[i] * Math.cos(k*t);
+        b += sig[i] * Math.sin(k*t);
+      }
+      a /= N; b /= N;
+      coefs.push({ a, b, mag: Math.sqrt(a*a + b*b), freq: k });
+    }
+  }
+
+  function reconstruct(kTerms) {
+    // pick the kTerms largest magnitude
+    const sorted = coefs.slice().sort((a,b) => b.mag - a.mag);
+    const chosen = sorted.slice(0, kTerms);
+    const chosenFreqs = new Set(chosen.map(c => c.freq));
+    const rec = new Array(N).fill(0);
+    for (let i=0;i<N;i++) {
+      const t = 2*Math.PI * i / N;
+      for (const c of chosen) {
+        rec[i] += 2 * (c.a * Math.cos(c.freq*t) + c.b * Math.sin(c.freq*t));
+      }
+    }
+    return { rec, chosenFreqs };
+  }
+
+  function drawSignal(rec, chosenFreqs) {
+    const { w, h } = sd;
+    sctx.fillStyle = 'rgba(10,13,20,0.4)'; sctx.fillRect(0,0,w,h);
+    // zero line
+    sctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    sctx.beginPath(); sctx.moveTo(0, h/2); sctx.lineTo(w, h/2); sctx.stroke();
+    function yv(v) { return h/2 - v*h*0.42; }
+    const off = Math.floor(timeOffset * N) % N;
+    // original
+    sctx.strokeStyle = '#64b5f6';
+    sctx.lineWidth = 1.5;
+    sctx.beginPath();
+    for (let i=0;i<N;i++) {
+      const x = i/(N-1) * w;
+      const v = sig[(i+off)%N];
+      if (i===0) sctx.moveTo(x, yv(v)); else sctx.lineTo(x, yv(v));
+    }
+    sctx.stroke();
+    // reconstruction
+    sctx.strokeStyle = '#b39ddb';
+    sctx.lineWidth = 1.8;
+    sctx.beginPath();
+    for (let i=0;i<N;i++) {
+      const x = i/(N-1) * w;
+      const v = rec[(i+off)%N];
+      if (i===0) sctx.moveTo(x, yv(v)); else sctx.lineTo(x, yv(v));
+    }
+    sctx.stroke();
+    // legend
+    sctx.fillStyle = '#64b5f6'; sctx.font='10px monospace'; sctx.fillText('signal', 8, 14);
+    sctx.fillStyle = '#b39ddb'; sctx.fillText('reconstruction (k='+chosenFreqs.size+')', 8, 28);
+  }
+  function drawResidual(rec) {
+    const { w, h } = rd;
+    rctx.fillStyle = 'rgba(10,13,20,0.4)'; rctx.fillRect(0,0,w,h);
+    rctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    rctx.beginPath(); rctx.moveTo(0, h/2); rctx.lineTo(w, h/2); rctx.stroke();
+    function yv(v) { return h/2 - v*h*0.4; }
+    const off = Math.floor(timeOffset * N) % N;
+    rctx.strokeStyle = '#ef5350';
+    rctx.lineWidth = 1.3;
+    rctx.beginPath();
+    let sum2 = 0;
+    for (let i=0;i<N;i++) {
+      const x = i/(N-1) * w;
+      const r = sig[(i+off)%N] - rec[(i+off)%N];
+      sum2 += r*r;
+      if (i===0) rctx.moveTo(x, yv(r)); else rctx.lineTo(x, yv(r));
+    }
+    rctx.stroke();
+    const rms = Math.sqrt(sum2 / N);
+    document.getElementById('m-res').textContent = 'rms = ' + rms.toFixed(3);
+    let sigSum2 = 0;
+    for (const v of sig) sigSum2 += v*v;
+    const sigRms = Math.sqrt(sigSum2 / N);
+    const ve = sigRms > 0 ? (1 - (rms*rms)/(sigRms*sigRms)) * 100 : 0;
+    document.getElementById('m-sigrms').textContent = sigRms.toFixed(3);
+    document.getElementById('m-resrms').textContent = rms.toFixed(3);
+    document.getElementById('m-var').textContent = ve.toFixed(1) + '%';
+  }
+  function drawSpectrum(chosenFreqs) {
+    const { w, h } = pd;
+    pctx.fillStyle = '#0a0d14'; pctx.fillRect(0,0,w,h);
+    const K = coefs.length;
+    const maxMag = Math.max(0.0001, ...coefs.map(c => c.mag));
+    const barW = Math.max(2, (w - 40) / K);
+    for (let k=0;k<K;k++) {
+      const c = coefs[k];
+      const x = 30 + k*barW;
+      const bh = (c.mag / maxMag) * (h - 40);
+      const chosen = chosenFreqs.has(c.freq);
+      pctx.fillStyle = chosen ? '#b39ddb' : 'rgba(255,255,255,0.15)';
+      pctx.fillRect(x, h - 20 - bh, barW - 0.5, bh);
+    }
+    pctx.fillStyle = 'rgba(255,255,255,0.4)'; pctx.font='10px monospace';
+    pctx.fillText('freq →', w-50, h-4);
+    pctx.fillText('|a_n|²', 4, 14);
+    // dominant
+    let dom = coefs[0];
+    for (const c of coefs) if (c.mag > dom.mag) dom = c;
+    document.getElementById('m-dom').textContent = 'k = ' + dom.freq;
+    document.getElementById('m-pow').textContent = 'covered: ' + chosenFreqs.size + ' / ' + K;
+  }
+
+  function refresh() {
+    const { rec, chosenFreqs } = reconstruct(params.k);
+    drawSignal(rec, chosenFreqs);
+    drawResidual(rec);
+    drawSpectrum(chosenFreqs);
+    document.getElementById('m-k').textContent = 'k = ' + params.k;
+  }
+
+  function loop() {
+    if (timeRunning) timeOffset = (timeOffset + 0.003) % 1;
+    // redraw signal + residual only (spectrum unchanged unless signal changes)
+    const { rec, chosenFreqs } = reconstruct(params.k);
+    drawSignal(rec, chosenFreqs);
+    drawResidual(rec);
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.querySelectorAll('.sig-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.sig-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      sigKind = b.dataset.sig;
+      buildSignal(); dft(); refresh();
+    });
+  });
+  document.getElementById('k').addEventListener('input', e => {
+    params.k = parseInt(e.target.value);
+    document.getElementById('k-v').textContent = params.k;
+    refresh();
+  });
+  document.getElementById('noise').addEventListener('input', e => {
+    params.noise = parseFloat(e.target.value);
+    document.getElementById('noise-v').textContent = params.noise.toFixed(2);
+    buildSignal(); dft(); refresh();
+  });
+  document.getElementById('phase').addEventListener('input', e => {
+    params.phase = parseFloat(e.target.value);
+    document.getElementById('phase-v').textContent = params.phase.toFixed(2);
+    buildSignal(); dft(); refresh();
+  });
+  document.getElementById('sweep').onclick = () => {
+    let k = 0;
+    const iv = setInterval(() => {
+      params.k = k;
+      document.getElementById('k').value = k;
+      document.getElementById('k-v').textContent = k;
+      refresh();
+      k++;
+      if (k > 48) clearInterval(iv);
+    }, 140);
+  };
+  document.getElementById('time').onclick = e => {
+    timeRunning = !timeRunning;
+    e.target.textContent = timeRunning ? '⏸ Time' : '▶ Time scroll';
+    e.target.classList.toggle('active', timeRunning);
+  };
+
+  resizeAll();
+  buildSignal();
+  dft();
+  refresh();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

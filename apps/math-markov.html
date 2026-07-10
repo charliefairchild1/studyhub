@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markov — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#4fc3f7; --accent2:#81c784;
+    --warn:#ffb74d; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)} nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  .split{display:grid;grid-template-rows:1fr 1fr;gap:8px;height:100%}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px} .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .matrix{background:var(--bg);padding:8px;border-radius:4px;overflow:auto}
+  table.m{border-collapse:collapse;font-size:10px}
+  table.m td{border:1px solid var(--border);padding:4px 6px;text-align:center;min-width:32px}
+  table.m th{color:var(--accent);font-weight:normal;padding:4px 6px}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">markov chain — stationary dist as spreading equilibrium</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="spreading.html">⟳ Spreading</a>
+    <a href="bayes.html">Β Bayes</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>state graph · edge weight = transition probability</span><b id="m-state">—</b></div>
+    <canvas id="graph"></canvas>
+  </div>
+  <div class="section">
+    <div class="split">
+      <div style="display:flex;flex-direction:column">
+        <div class="section-title"><span>distribution over time — each row = a state</span></div>
+        <canvas id="evol"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div class="section-title"><span>stationary π — bars, labeled</span></div>
+        <canvas id="stat"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="panel">
+  <h2>Markov Chain</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Pick a preset. Watch the distribution over states evolve. It converges to the <b>stationary distribution π</b> — the left-eigenvector of the transition matrix with eigenvalue 1.
+  </div>
+
+  <h3>Preset</h3>
+  <div class="btn-row">
+    <button class="preset active" data-p="ring">Ring walk</button>
+    <button class="preset" data-p="weather">Weather (sunny→rainy)</button>
+    <button class="preset" data-p="bouncer">Drunken bouncer</button>
+    <button class="preset" data-p="pagerank">PageRank mini-web</button>
+    <button class="preset" data-p="absorbing">Absorbing state</button>
+    <button class="preset" data-p="periodic">Periodic (2-cycle)</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row"><label>Speed</label><input id="speed" type="range" min="1" max="30" step="1" value="6"><span class="val" id="speed-v">6</span></div>
+  <div class="row"><label>Restart prob (PR)</label><input id="damp" type="range" min="0" max="0.5" step="0.01" value="0.15"><span class="val" id="damp-v">0.15</span></div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset to uniform</button>
+    <button id="spike">Spike one state</button>
+    <button id="mixing">Measure mixing time</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Step</span><b id="m-step">0</b></div>
+  <div class="metric"><span>TV dist to π</span><b id="m-tv">—</b></div>
+  <div class="metric"><span>Max π entry</span><b id="m-max">—</b></div>
+  <div class="metric"><span>Mixing time (≤0.05)</span><b id="m-mix">—</b></div>
+
+  <h3>Transition matrix P</h3>
+  <div class="matrix" id="matrix"></div>
+
+  <div class="pep-note">
+    <b>PEP connection.</b> Spreading activation on a weighted graph,
+    normalized to rows summing to 1, IS a Markov chain. The
+    equilibrium activation pattern IS the stationary distribution.
+    Damped random walk = PageRank = PEP retrieval with teleport. The
+    relaxation time of the chain IS the horizon for spreading-based
+    search.
+  </div>
+</div>
+
+<script>
+(() => {
+  const gC = document.getElementById('graph');
+  const eC = document.getElementById('evol');
+  const sC = document.getElementById('stat');
+  const gctx = gC.getContext('2d'), ectx = eC.getContext('2d'), sctx = sC.getContext('2d');
+  let gd, ed, sdim;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() { gd = resizeOne(gC, gctx); ed = resizeOne(eC, ectx); sdim = resizeOne(sC, sctx); layoutStates(); }
+  window.addEventListener('resize', resizeAll);
+
+  let preset = 'ring';
+  let N = 6, P = [], labels = [], positions = [], colors = [];
+  function pickColors(n) { const out = []; for (let i=0;i<n;i++) out.push(`hsl(${(i*360/n)%360}, 65%, 60%)`); return out; }
+
+  function build(presetName) {
+    preset = presetName;
+    if (presetName === 'ring') {
+      N = 8; labels = Array.from({length:N}, (_,i) => 'S'+i);
+      P = Array.from({length:N}, () => new Array(N).fill(0));
+      for (let i=0;i<N;i++) { P[i][(i+1)%N] = 0.6; P[i][(i-1+N)%N] = 0.3; P[i][i] = 0.1; }
+    } else if (presetName === 'weather') {
+      N = 4; labels = ['☀ sun','⛅ cloud','🌧 rain','⛈ storm'];
+      P = [[0.7,0.2,0.1,0.0],[0.3,0.4,0.2,0.1],[0.1,0.3,0.4,0.2],[0.05,0.15,0.35,0.45]];
+    } else if (presetName === 'bouncer') {
+      N = 5; labels = ['edge','curb','center','aisle','wall'];
+      P = Array.from({length:N}, () => new Array(N).fill(0));
+      for (let i=0;i<N;i++) {
+        if (i>0) P[i][i-1] = 0.5;
+        if (i<N-1) P[i][i+1] = 0.5;
+        if (i===0) { P[0][0] = 0.5; P[0][1] = 0.5; }
+        if (i===N-1) { P[N-1][N-1] = 0.5; P[N-1][N-2] = 0.5; }
+      }
+    } else if (presetName === 'pagerank') {
+      N = 6; labels = ['home','docs','api','blog','about','404'];
+      P = [
+        [0, 0.4, 0.3, 0.15, 0.1, 0.05],
+        [0.3, 0.1, 0.5, 0.05, 0.05, 0],
+        [0.2, 0.5, 0.1, 0.05, 0.05, 0.1],
+        [0.4, 0.1, 0.1, 0.2, 0.15, 0.05],
+        [0.5, 0.1, 0.1, 0.15, 0.1, 0.05],
+        [0.8, 0.05, 0.05, 0.05, 0.05, 0],
+      ];
+      applyDamping();
+    } else if (presetName === 'absorbing') {
+      N = 5; labels = ['A','B','C','D','E (sink)'];
+      P = Array.from({length:N}, () => new Array(N).fill(0));
+      for (let i=0;i<N-1;i++) {
+        P[i][i] = 0.4; P[i][(i+1)%N] = 0.3; P[i][N-1] = 0.3;
+      }
+      P[N-1][N-1] = 1;
+    } else if (presetName === 'periodic') {
+      N = 4; labels = ['A','B','C','D'];
+      P = [[0,1,0,0],[0,0,1,0],[0,0,0,1],[1,0,0,0]];
+    }
+    normalizeRows();
+    colors = pickColors(N);
+    layoutStates();
+    reset();
+  }
+  function normalizeRows() {
+    for (let i=0;i<N;i++) {
+      let s = 0; for (let j=0;j<N;j++) s += P[i][j];
+      if (s < 1e-9) P[i][i] = 1; else for (let j=0;j<N;j++) P[i][j] /= s;
+    }
+  }
+  function applyDamping() {
+    const d = parseFloat(document.getElementById('damp').value);
+    for (let i=0;i<N;i++) for (let j=0;j<N;j++) P[i][j] = (1-d)*P[i][j] + d/N;
+  }
+  function layoutStates() {
+    if (!gd) return;
+    const { w, h } = gd;
+    const cx = w/2, cy = h/2, R = Math.min(w, h)*0.36;
+    positions = [];
+    for (let i=0;i<N;i++) {
+      const t = i*2*Math.PI/N - Math.PI/2;
+      positions.push({ x: cx + R*Math.cos(t), y: cy + R*Math.sin(t) });
+    }
+  }
+
+  let pi = [], dist = [], distHist = [], step = 0, running = true, mixingTime = null;
+  function reset() {
+    dist = new Array(N).fill(1/N);
+    distHist = [dist.slice()];
+    step = 0;
+    mixingTime = null;
+    // compute π via power iteration
+    let v = new Array(N).fill(1/N);
+    for (let k=0;k<500;k++) {
+      const nv = new Array(N).fill(0);
+      for (let j=0;j<N;j++) for (let i=0;i<N;i++) nv[j] += v[i]*P[i][j];
+      v = nv;
+    }
+    pi = v;
+  }
+  function stepOnce() {
+    const nd = new Array(N).fill(0);
+    for (let j=0;j<N;j++) for (let i=0;i<N;i++) nd[j] += dist[i]*P[i][j];
+    dist = nd;
+    distHist.push(dist.slice());
+    if (distHist.length > 300) distHist.shift();
+    step++;
+    // TV distance
+    let tv = 0; for (let i=0;i<N;i++) tv += Math.abs(dist[i] - pi[i]); tv /= 2;
+    if (mixingTime === null && tv < 0.05) mixingTime = step;
+    document.getElementById('m-step').textContent = step;
+    document.getElementById('m-tv').textContent = tv.toFixed(3);
+    document.getElementById('m-max').textContent = Math.max(...pi).toFixed(3);
+    document.getElementById('m-mix').textContent = mixingTime === null ? '…' : mixingTime;
+    const topIdx = pi.indexOf(Math.max(...pi));
+    document.getElementById('m-state').textContent = 'π max: ' + labels[topIdx] + ' ('+pi[topIdx].toFixed(3)+')';
+  }
+
+  function drawGraph() {
+    const { w, h } = gd;
+    gctx.fillStyle = '#0a0d14'; gctx.fillRect(0,0,w,h);
+    // arrows
+    for (let i=0;i<N;i++) for (let j=0;j<N;j++) {
+      const p = P[i][j];
+      if (p < 0.03) continue;
+      const a = positions[i], b = positions[j];
+      if (i === j) {
+        // self-loop
+        gctx.strokeStyle = `rgba(129,199,132,${0.15 + p*0.7})`;
+        gctx.lineWidth = 1 + p*3;
+        gctx.beginPath(); gctx.arc(a.x+18, a.y-18, 12, 0, Math.PI*2); gctx.stroke();
+      } else {
+        // curved line
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d = Math.sqrt(dx*dx+dy*dy);
+        const nx = -dy/d, ny = dx/d;
+        const mx = (a.x+b.x)/2 + nx*18;
+        const my = (a.y+b.y)/2 + ny*18;
+        gctx.strokeStyle = `rgba(79,195,247,${0.15 + p*0.8})`;
+        gctx.lineWidth = 0.5 + p*3;
+        gctx.beginPath();
+        gctx.moveTo(a.x, a.y);
+        gctx.quadraticCurveTo(mx, my, b.x, b.y);
+        gctx.stroke();
+        // arrow head at b
+        const ang = Math.atan2(b.y - my, b.x - mx);
+        const bx = b.x - 22*Math.cos(ang), by = b.y - 22*Math.sin(ang);
+        gctx.fillStyle = `rgba(79,195,247,${0.2 + p*0.8})`;
+        gctx.beginPath();
+        gctx.moveTo(bx, by);
+        gctx.lineTo(bx - 6*Math.cos(ang-0.4), by - 6*Math.sin(ang-0.4));
+        gctx.lineTo(bx - 6*Math.cos(ang+0.4), by - 6*Math.sin(ang+0.4));
+        gctx.closePath(); gctx.fill();
+      }
+    }
+    // nodes
+    for (let i=0;i<N;i++) {
+      const p = positions[i];
+      const r = 14 + dist[i]*30;
+      gctx.fillStyle = colors[i];
+      gctx.globalAlpha = 0.3 + dist[i]*0.7;
+      gctx.beginPath(); gctx.arc(p.x, p.y, r, 0, Math.PI*2); gctx.fill();
+      gctx.globalAlpha = 1;
+      gctx.fillStyle = '#0a0d14';
+      gctx.font = 'bold 11px monospace';
+      gctx.textAlign = 'center'; gctx.textBaseline = 'middle';
+      gctx.fillText(labels[i], p.x, p.y);
+      gctx.fillStyle = 'rgba(255,255,255,0.85)';
+      gctx.font = '9px monospace';
+      gctx.fillText((dist[i]*100).toFixed(1)+'%', p.x, p.y + r + 10);
+    }
+  }
+  function drawEvol() {
+    const { w, h } = ed;
+    ectx.fillStyle = '#0a0d14'; ectx.fillRect(0,0,w,h);
+    if (distHist.length < 2) return;
+    for (let i=0;i<N;i++) {
+      ectx.strokeStyle = colors[i];
+      ectx.lineWidth = 1.3;
+      ectx.beginPath();
+      for (let k=0;k<distHist.length;k++) {
+        const x = k/Math.max(300,distHist.length) * w;
+        const y = h - distHist[k][i]*(h-4) - 2;
+        if (k===0) ectx.moveTo(x,y); else ectx.lineTo(x,y);
+      }
+      ectx.stroke();
+      // π line
+      ectx.strokeStyle = colors[i]+'80';
+      ectx.setLineDash([3,3]);
+      const y0 = h - pi[i]*(h-4) - 2;
+      ectx.beginPath(); ectx.moveTo(0,y0); ectx.lineTo(w,y0); ectx.stroke();
+      ectx.setLineDash([]);
+    }
+  }
+  function drawStat() {
+    const { w, h } = sdim;
+    sctx.fillStyle = '#0a0d14'; sctx.fillRect(0,0,w,h);
+    const bw = (w - 20) / N;
+    for (let i=0;i<N;i++) {
+      const bh = pi[i]*(h-30);
+      sctx.fillStyle = colors[i];
+      sctx.fillRect(10+i*bw+2, h-20-bh, bw-4, bh);
+      sctx.fillStyle = 'rgba(255,255,255,0.8)';
+      sctx.font = '9px monospace';
+      sctx.textAlign = 'center';
+      sctx.fillText(labels[i].slice(0,8), 10+i*bw+bw/2, h-6);
+      sctx.fillText(pi[i].toFixed(2), 10+i*bw+bw/2, h-22-bh-2);
+    }
+  }
+  function drawMatrix() {
+    let html = '<table class="m"><tr><th></th>';
+    for (let j=0;j<N;j++) html += `<th>${labels[j].slice(0,6)}</th>`;
+    html += '</tr>';
+    for (let i=0;i<N;i++) {
+      html += `<tr><th>${labels[i].slice(0,6)}</th>`;
+      for (let j=0;j<N;j++) {
+        const v = P[i][j];
+        const bg = `rgba(79,195,247,${v*0.8})`;
+        html += `<td style="background:${bg};color:${v>0.5?'#0a0d14':'#e2e6ed'}">${v.toFixed(2)}</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+    document.getElementById('matrix').innerHTML = html;
+  }
+
+  function loop() {
+    if (running) {
+      const speed = parseInt(document.getElementById('speed').value);
+      for (let k=0;k<speed;k++) stepOnce();
+    }
+    drawGraph(); drawEvol(); drawStat();
+    setTimeout(loop, 100);
+  }
+
+  // controls
+  document.querySelectorAll('.preset').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      build(b.dataset.p);
+      drawMatrix();
+    });
+  });
+  document.getElementById('speed').addEventListener('input', e => {
+    document.getElementById('speed-v').textContent = e.target.value;
+  });
+  document.getElementById('damp').addEventListener('input', e => {
+    document.getElementById('damp-v').textContent = parseFloat(e.target.value).toFixed(2);
+    if (preset === 'pagerank') { build('pagerank'); drawMatrix(); }
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('spike').onclick = () => {
+    const idx = Math.floor(Math.random()*N);
+    dist = new Array(N).fill(0); dist[idx] = 1;
+    distHist = [dist.slice()]; step = 0; mixingTime = null;
+  };
+  document.getElementById('mixing').onclick = () => {
+    dist = new Array(N).fill(0); dist[0] = 1;
+    distHist = [dist.slice()]; step = 0; mixingTime = null;
+  };
+
+  resizeAll();
+  build('ring');
+  drawMatrix();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

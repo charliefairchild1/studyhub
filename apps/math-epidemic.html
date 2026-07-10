@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Epidemic Network — PEP applied to disease spread</title>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+    --susceptible: #64b5f6;
+    --infected: #ef5350;
+    --recovered: #81c784;
+    --vaccinated: #ffb74d;
+    --dead: #424242;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #net-container { position: fixed; top: 44px; left: 0; right: 340px; bottom: 200px;
+                   background: radial-gradient(ellipse at center, #18223a 0%, #0a0d14 70%); }
+  #net-canvas { position: absolute; inset: 0; }
+  #chart-container { position: fixed; bottom: 0; left: 0; right: 340px; height: 200px;
+                     background: var(--surface2); border-top: 1px solid var(--border); padding: 10px 20px; }
+  #chart-canvas { width: 100%; height: 100%; }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 340px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 12px; }
+  #panel label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; }
+  #panel label b { color: var(--text); font-size: 11px; }
+  #panel input[type=range] { width: 100%; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+  .legend-row { display: flex; align-items: center; gap: 6px; font-size: 10px; margin: 2px 0; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .pep-note { background: var(--surface2); border-radius: 6px;
+              padding: 10px 12px; font-size: 10px; color: var(--text);
+              line-height: 1.6; border-left: 2px solid var(--accent2); }
+  .pep-note b { color: var(--accent2); }
+
+  @media (max-width: 900px) {
+    #net-container { right: 0; bottom: 400px; }
+    #chart-container { right: 0; bottom: 200px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 200px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Epidemic Network</span>
+  <span class="tag">PEP primitives applied to disease spread</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="voronoi.html">⬡ Voronoi</a>
+    <a href="life.html">▦ CA</a>
+  </span>
+</nav>
+
+<div id="net-container">
+  <canvas id="net-canvas"></canvas>
+</div>
+
+<div id="chart-container">
+  <canvas id="chart-canvas"></canvas>
+</div>
+
+<div id="panel">
+  <h3>What this is</h3>
+  <div class="pep-note">
+    An epidemic is <b>PEP's four primitives applied to disease</b>:<br>
+    • <b>Weighted graph</b>: population = nodes, social contacts = edges, contact strength = weight<br>
+    • <b>Spreading activation</b>: virus propagates along edges, probability scales with edge weight<br>
+    • <b>State modulation</b>: vaccination / masks / distance reduce transmission<br>
+    • <b>Opacity / haze</b>: infected → recovered over time (activation fades)
+    <br><br>
+    Nothing exotic. Same four tools as every other PEP demo. Pointed here.
+  </div>
+
+  <h3>Disease parameters</h3>
+  <div class="ctrl">
+    <label><b>Transmission rate β</b> <span id="beta-val" style="float:right">0.25</span></label>
+    <input id="beta-slider" type="range" min="0.01" max="0.8" step="0.01" value="0.25">
+    <label style="color:var(--dim);font-size:9px">per-contact probability of infection per step</label>
+  </div>
+  <div class="ctrl">
+    <label><b>Recovery rate γ</b> <span id="gamma-val" style="float:right">0.08</span></label>
+    <input id="gamma-slider" type="range" min="0.01" max="0.5" step="0.01" value="0.08">
+    <label style="color:var(--dim);font-size:9px">per-step probability of recovery — opacity decay on the infection state</label>
+  </div>
+  <div class="ctrl">
+    <label><b>Fatality rate δ</b> <span id="delta-val" style="float:right">0.02</span></label>
+    <input id="delta-slider" type="range" min="0" max="0.3" step="0.01" value="0.02">
+    <label style="color:var(--dim);font-size:9px">per-step probability infected → dead (absorbing state)</label>
+  </div>
+  <div class="ctrl">
+    <label><b>Reinfection rate</b> <span id="reinf-val" style="float:right">0.00</span></label>
+    <input id="reinf-slider" type="range" min="0" max="0.2" step="0.01" value="0.00">
+    <label style="color:var(--dim);font-size:9px">per-step probability recovered → susceptible (immunity wanes)</label>
+  </div>
+
+  <h3>Population structure</h3>
+  <div class="ctrl">
+    <label><b>Population size</b> <span id="n-val" style="float:right">150</span></label>
+    <input id="n-slider" type="range" min="40" max="400" step="10" value="150">
+  </div>
+  <div class="ctrl">
+    <label><b>Avg contacts per person</b> <span id="deg-val" style="float:right">6</span></label>
+    <input id="deg-slider" type="range" min="2" max="20" step="1" value="6">
+  </div>
+  <div class="ctrl">
+    <label><b>Network topology</b></label>
+    <select id="topo-select" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:11px" onchange="resetSim()">
+      <option value="random">Random (Erdős–Rényi)</option>
+      <option value="smallworld" selected>Small-world (Watts–Strogatz)</option>
+      <option value="scalefree">Scale-free (Barabási–Albert)</option>
+      <option value="clustered">Two clusters + bridge</option>
+    </select>
+    <label style="color:var(--dim);font-size:9px;margin-top:4px">different topologies show what "flattening the curve" means structurally</label>
+  </div>
+
+  <h3>Intervention (state modulation)</h3>
+  <div class="ctrl">
+    <label><b>Vaccination rate</b> <span id="vacc-val" style="float:right">0%</span></label>
+    <input id="vacc-slider" type="range" min="0" max="1" step="0.05" value="0">
+    <label style="color:var(--dim);font-size:9px">fraction of population vaccinated at start</label>
+  </div>
+  <div class="ctrl">
+    <label><b>Social distancing</b> <span id="dist-val" style="float:right">0.0</span></label>
+    <input id="dist-slider" type="range" min="0" max="1" step="0.05" value="0">
+    <label style="color:var(--dim);font-size:9px">multiplicative reduction on transmission probability — "state modulator" on every edge</label>
+  </div>
+
+  <h3>Simulation</h3>
+  <div class="ctrl">
+    <button onclick="stepOne()">Step</button>
+    <button id="play-btn" class="primary" onclick="togglePlay()">▶ Play</button>
+    <button onclick="resetSim()" class="danger">Reset</button>
+    <button onclick="infectOne()">Infect random</button>
+  </div>
+
+  <h3>Population state</h3>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--susceptible)"></span> Susceptible <span style="margin-left:auto" id="n-sus">—</span></div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--infected)"></span> Infected <span style="margin-left:auto" id="n-inf">—</span></div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--recovered)"></span> Recovered <span style="margin-left:auto" id="n-rec">—</span></div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--vaccinated)"></span> Vaccinated <span style="margin-left:auto" id="n-vac">—</span></div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--dead)"></span> Dead <span style="margin-left:auto" id="n-dead">—</span></div>
+
+  <h3>Metrics</h3>
+  <div class="stat-row"><span class="label">Day</span><span class="value" id="stat-day">0</span></div>
+  <div class="stat-row"><span class="label">R<sub>0</sub> (basic)</span><span class="value" id="stat-r0">—</span></div>
+  <div class="stat-row"><span class="label">R<sub>eff</sub> (current)</span><span class="value" id="stat-reff">—</span></div>
+  <div class="stat-row"><span class="label">Peak infected</span><span class="value" id="stat-peak">—</span></div>
+  <div class="stat-row"><span class="label">Herd immunity threshold</span><span class="value" id="stat-herd">—</span></div>
+
+  <h3>Sister demos</h3>
+  <div class="pep-note" style="font-size:10px;line-height:1.8">
+    <a href="voronoi.html" style="color:#4fc3f7">⬡ Voronoi Retrieval</a> — nearest-neighbor partition<br>
+    <a href="life.html" style="color:#67e8f9">▦ Cellular Automata</a> — state modulation on a grid<br>
+    <a href="globe.html" style="color:#fbbf24">🌍 Evolution Globe</a> — species under climate pressure<br>
+    <a href="language-evolution.html" style="color:#a78bfa">🗣 Language Evolution</a> — 55+ languages, 7 families<br>
+    <a href="index.html" style="color:var(--accent)">← back to math playground</a>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('net-canvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+
+const chartCanvas = document.getElementById('chart-canvas');
+const chartCtx = chartCanvas.getContext('2d');
+
+let nodes = [];  // { id, x, y, state: 'S'|'I'|'R'|'V'|'D', infectedSince }
+let edges = [];  // [[a, b]]
+let day = 0;
+let history = [];  // {day, S, I, R, V, D}
+let peakInfected = 0;
+
+const COLORS = {
+  S: '#64b5f6', I: '#ef5350', R: '#81c784', V: '#ffb74d', D: '#424242',
+};
+
+function resize() {
+  const netRect = document.getElementById('net-container').getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = netRect.width * dpr;
+  canvas.height = netRect.height * dpr;
+  canvas.style.width = netRect.width + 'px';
+  canvas.style.height = netRect.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  W = netRect.width; H = netRect.height;
+
+  const chartRect = document.getElementById('chart-container').getBoundingClientRect();
+  chartCanvas.width = (chartRect.width - 40) * dpr;
+  chartCanvas.height = (chartRect.height - 20) * dpr;
+  chartCanvas.style.width = (chartRect.width - 40) + 'px';
+  chartCanvas.style.height = (chartRect.height - 20) + 'px';
+  chartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  layoutNodes();
+  draw();
+  drawChart();
+}
+window.addEventListener('resize', resize);
+
+function buildNetwork() {
+  const n = parseInt(document.getElementById('n-slider').value);
+  const degree = parseInt(document.getElementById('deg-slider').value);
+  const topo = document.getElementById('topo-select').value;
+
+  nodes = [];
+  edges = [];
+  for (let i = 0; i < n; i++) {
+    nodes.push({ id: i, state: 'S', x: 0, y: 0, infectedSince: -1 });
+  }
+  const edgeSet = new Set();
+  function addEdge(a, b) {
+    if (a === b) return;
+    const key = a < b ? `${a}-${b}` : `${b}-${a}`;
+    if (edgeSet.has(key)) return;
+    edgeSet.add(key);
+    edges.push([a, b]);
+  }
+
+  if (topo === 'random') {
+    // Erdős–Rényi
+    const p = degree / (n - 1);
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (Math.random() < p) addEdge(i, j);
+      }
+    }
+  } else if (topo === 'smallworld') {
+    // Watts–Strogatz: ring lattice with K=degree neighbors, rewire p=0.1
+    const K = Math.max(2, degree);
+    for (let i = 0; i < n; i++) {
+      for (let k = 1; k <= K/2; k++) {
+        let target = (i + k) % n;
+        if (Math.random() < 0.1) target = Math.floor(Math.random() * n);
+        addEdge(i, target);
+      }
+    }
+  } else if (topo === 'scalefree') {
+    // Barabási–Albert: start with a small clique, add nodes preferring high-degree attachment
+    const m = Math.max(2, Math.floor(degree / 2));
+    for (let i = 0; i < m; i++) {
+      for (let j = i + 1; j < m; j++) addEdge(i, j);
+    }
+    const degrees = new Array(n).fill(0);
+    for (const [a, b] of edges) { degrees[a]++; degrees[b]++; }
+    for (let i = m; i < n; i++) {
+      const targets = new Set();
+      while (targets.size < m) {
+        const totalDeg = degrees.slice(0, i).reduce((a, b) => a + b, 0);
+        if (totalDeg === 0) break;
+        let r = Math.random() * totalDeg;
+        for (let j = 0; j < i; j++) {
+          r -= degrees[j];
+          if (r <= 0) { targets.add(j); break; }
+        }
+      }
+      for (const t of targets) {
+        addEdge(i, t);
+        degrees[i]++; degrees[t]++;
+      }
+    }
+  } else if (topo === 'clustered') {
+    // Two well-connected clusters with a few bridges
+    const half = Math.floor(n / 2);
+    const pIn = degree / (half - 1) * 1.5;
+    const pBridge = 0.01;
+    for (let i = 0; i < half; i++) {
+      for (let j = i + 1; j < half; j++) if (Math.random() < pIn) addEdge(i, j);
+    }
+    for (let i = half; i < n; i++) {
+      for (let j = i + 1; j < n; j++) if (Math.random() < pIn) addEdge(i, j);
+    }
+    for (let i = 0; i < half; i++) {
+      for (let j = half; j < n; j++) if (Math.random() < pBridge) addEdge(i, j);
+    }
+  }
+
+  // Vaccinate some at start
+  const vaccRate = parseFloat(document.getElementById('vacc-slider').value);
+  for (const node of nodes) {
+    if (Math.random() < vaccRate) node.state = 'V';
+  }
+}
+
+function layoutNodes() {
+  // Force-directed, simplified: place on a circle for stability and let it settle with a few steps
+  const cx = W / 2, cy = H / 2;
+  const r = Math.min(W, H) * 0.4;
+  nodes.forEach((n, i) => {
+    const angle = (i / nodes.length) * Math.PI * 2;
+    n.x = cx + r * Math.cos(angle);
+    n.y = cy + r * Math.sin(angle);
+    n.vx = 0; n.vy = 0;
+  });
+  // Relax with spring-based layout for a few iterations
+  for (let iter = 0; iter < 80; iter++) {
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[j].x - nodes[i].x;
+        const dy = nodes[j].y - nodes[i].y;
+        const d = Math.hypot(dx, dy) || 1;
+        const f = 200 / (d * d);
+        nodes[i].vx -= (dx / d) * f;
+        nodes[i].vy -= (dy / d) * f;
+        nodes[j].vx += (dx / d) * f;
+        nodes[j].vy += (dy / d) * f;
+      }
+    }
+    // Attraction along edges
+    for (const [a, b] of edges) {
+      const dx = nodes[b].x - nodes[a].x;
+      const dy = nodes[b].y - nodes[a].y;
+      const d = Math.hypot(dx, dy) || 1;
+      const f = d * 0.003;
+      nodes[a].vx += (dx / d) * f;
+      nodes[a].vy += (dy / d) * f;
+      nodes[b].vx -= (dx / d) * f;
+      nodes[b].vy -= (dy / d) * f;
+    }
+    // Integrate with damping + keep in bounds
+    for (const n of nodes) {
+      n.x += n.vx * 0.5;
+      n.y += n.vy * 0.5;
+      n.vx *= 0.5; n.vy *= 0.5;
+      n.x = Math.max(20, Math.min(W - 20, n.x));
+      n.y = Math.max(20, Math.min(H - 20, n.y));
+    }
+  }
+}
+
+function stepOne() {
+  day++;
+  const beta = parseFloat(document.getElementById('beta-slider').value);
+  const gamma = parseFloat(document.getElementById('gamma-slider').value);
+  const delta = parseFloat(document.getElementById('delta-slider').value);
+  const reinf = parseFloat(document.getElementById('reinf-slider').value);
+  const dist = parseFloat(document.getElementById('dist-slider').value);
+  const effBeta = beta * (1 - dist);
+
+  // Build adjacency
+  const adj = nodes.map(() => []);
+  for (const [a, b] of edges) { adj[a].push(b); adj[b].push(a); }
+
+  const nextStates = nodes.map(n => n.state);
+  for (const node of nodes) {
+    if (node.state === 'S') {
+      for (const nb of adj[node.id]) {
+        if (nodes[nb].state === 'I' && Math.random() < effBeta) {
+          nextStates[node.id] = 'I';
+          break;
+        }
+      }
+    } else if (node.state === 'I') {
+      if (Math.random() < delta) nextStates[node.id] = 'D';
+      else if (Math.random() < gamma) nextStates[node.id] = 'R';
+    } else if (node.state === 'R') {
+      if (Math.random() < reinf) nextStates[node.id] = 'S';
+    }
+  }
+  nodes.forEach((n, i) => {
+    if (n.state === 'S' && nextStates[i] === 'I') n.infectedSince = day;
+    n.state = nextStates[i];
+  });
+
+  recordHistory();
+  updatePanel();
+  draw();
+  drawChart();
+}
+
+function recordHistory() {
+  const counts = { S: 0, I: 0, R: 0, V: 0, D: 0 };
+  for (const n of nodes) counts[n.state]++;
+  if (counts.I > peakInfected) peakInfected = counts.I;
+  history.push({ day, ...counts });
+  if (history.length > 500) history.shift();
+}
+
+function updatePanel() {
+  const counts = { S: 0, I: 0, R: 0, V: 0, D: 0 };
+  for (const n of nodes) counts[n.state]++;
+  document.getElementById('n-sus').textContent = counts.S;
+  document.getElementById('n-inf').textContent = counts.I;
+  document.getElementById('n-rec').textContent = counts.R;
+  document.getElementById('n-vac').textContent = counts.V;
+  document.getElementById('n-dead').textContent = counts.D;
+  document.getElementById('stat-day').textContent = day;
+  // R0 = beta / gamma * avg degree. Use network avg degree.
+  const beta = parseFloat(document.getElementById('beta-slider').value);
+  const gamma = parseFloat(document.getElementById('gamma-slider').value);
+  const dist = parseFloat(document.getElementById('dist-slider').value);
+  const effBeta = beta * (1 - dist);
+  const avgDeg = edges.length > 0 ? (2 * edges.length / nodes.length) : 0;
+  const r0 = (beta * avgDeg / Math.max(gamma, 0.001)).toFixed(2);
+  const reff = counts.S > 0 ? (effBeta * avgDeg * counts.S / (nodes.length * Math.max(gamma, 0.001))).toFixed(2) : '0.00';
+  document.getElementById('stat-r0').textContent = r0;
+  document.getElementById('stat-reff').textContent = reff;
+  document.getElementById('stat-peak').textContent = peakInfected;
+  const herd = r0 > 1 ? ((1 - 1/r0) * 100).toFixed(1) + '%' : 'N/A';
+  document.getElementById('stat-herd').textContent = herd;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // Edges
+  ctx.strokeStyle = 'rgba(150,180,210,0.18)';
+  ctx.lineWidth = 0.8;
+  for (const [a, b] of edges) {
+    const na = nodes[a], nb = nodes[b];
+    ctx.beginPath();
+    ctx.moveTo(na.x, na.y);
+    ctx.lineTo(nb.x, nb.y);
+    ctx.stroke();
+  }
+  // Highlight edges from infected to susceptible (transmission channels)
+  ctx.strokeStyle = 'rgba(239,83,80,0.4)';
+  ctx.lineWidth = 1.2;
+  for (const [a, b] of edges) {
+    const na = nodes[a], nb = nodes[b];
+    if ((na.state === 'I' && nb.state === 'S') || (na.state === 'S' && nb.state === 'I')) {
+      ctx.beginPath();
+      ctx.moveTo(na.x, na.y);
+      ctx.lineTo(nb.x, nb.y);
+      ctx.stroke();
+    }
+  }
+  // Nodes
+  for (const n of nodes) {
+    const r = n.state === 'I' ? 5 + Math.sin(Date.now() / 200) * 1 : 4;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = COLORS[n.state];
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+}
+
+function drawChart() {
+  const cRect = { w: chartCanvas.width / (window.devicePixelRatio || 1), h: chartCanvas.height / (window.devicePixelRatio || 1) };
+  chartCtx.clearRect(0, 0, cRect.w, cRect.h);
+  chartCtx.fillStyle = 'rgba(15,19,24,0.5)';
+  chartCtx.fillRect(0, 0, cRect.w, cRect.h);
+  if (history.length < 2) {
+    chartCtx.fillStyle = 'rgba(200,210,225,0.4)';
+    chartCtx.font = '11px SF Mono, monospace';
+    chartCtx.fillText('curve will plot here as the simulation runs', 20, cRect.h / 2);
+    return;
+  }
+  const maxDay = history[history.length - 1].day;
+  const total = nodes.length;
+  function x(d) { return 40 + (d / Math.max(1, maxDay)) * (cRect.w - 60); }
+  function y(v) { return cRect.h - 20 - (v / total) * (cRect.h - 30); }
+  // Axis
+  chartCtx.strokeStyle = 'rgba(150,170,200,0.2)';
+  chartCtx.beginPath(); chartCtx.moveTo(40, 10); chartCtx.lineTo(40, cRect.h - 20); chartCtx.lineTo(cRect.w - 10, cRect.h - 20); chartCtx.stroke();
+  chartCtx.fillStyle = 'rgba(150,170,200,0.7)';
+  chartCtx.font = '9px SF Mono, monospace';
+  chartCtx.fillText('100%', 6, 14);
+  chartCtx.fillText('0', 28, cRect.h - 18);
+  chartCtx.fillText(`day ${maxDay}`, cRect.w - 50, cRect.h - 4);
+  // Lines for each state
+  const states = ['S', 'I', 'R', 'V', 'D'];
+  for (const s of states) {
+    chartCtx.strokeStyle = COLORS[s];
+    chartCtx.lineWidth = s === 'I' ? 2 : 1.2;
+    chartCtx.beginPath();
+    history.forEach((h, i) => {
+      const xp = x(h.day), yp = y(h[s]);
+      if (i === 0) chartCtx.moveTo(xp, yp); else chartCtx.lineTo(xp, yp);
+    });
+    chartCtx.stroke();
+  }
+  // Herd-immunity line
+  const r0 = (parseFloat(document.getElementById('beta-slider').value) * (2 * edges.length / Math.max(1, nodes.length)) /
+              Math.max(0.001, parseFloat(document.getElementById('gamma-slider').value)));
+  if (r0 > 1) {
+    const herdFrac = 1 - 1/r0;
+    const yh = y(total * herdFrac);
+    chartCtx.strokeStyle = 'rgba(255,183,77,0.5)';
+    chartCtx.setLineDash([4, 4]);
+    chartCtx.beginPath(); chartCtx.moveTo(40, yh); chartCtx.lineTo(cRect.w - 10, yh); chartCtx.stroke();
+    chartCtx.setLineDash([]);
+    chartCtx.fillStyle = 'rgba(255,183,77,0.7)';
+    chartCtx.fillText(`herd threshold ${(herdFrac*100).toFixed(0)}%`, cRect.w - 140, yh - 4);
+  }
+}
+
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (window.__playTimer) { clearInterval(window.__playTimer); window.__playTimer = null; btn.textContent = '▶ Play'; }
+  else { window.__playTimer = setInterval(stepOne, 250); btn.textContent = '■ Pause'; }
+}
+
+function resetSim() {
+  day = 0; history = []; peakInfected = 0;
+  buildNetwork();
+  layoutNodes();
+  // Infect patient zero
+  const eligible = nodes.filter(n => n.state === 'S');
+  if (eligible.length > 0) {
+    const pz = eligible[Math.floor(Math.random() * eligible.length)];
+    pz.state = 'I';
+    pz.infectedSince = 0;
+  }
+  recordHistory();
+  updatePanel();
+  draw();
+  drawChart();
+}
+
+function infectOne() {
+  const eligible = nodes.filter(n => n.state === 'S');
+  if (eligible.length > 0) {
+    eligible[Math.floor(Math.random() * eligible.length)].state = 'I';
+    updatePanel();
+    draw();
+  }
+}
+
+// Slider wiring
+['beta','gamma','delta','reinf'].forEach(k => {
+  document.getElementById(k + '-slider').addEventListener('input', e => {
+    document.getElementById(k + '-val').textContent = parseFloat(e.target.value).toFixed(2);
+    updatePanel();
+    drawChart();
+  });
+});
+document.getElementById('n-slider').addEventListener('input', e => { document.getElementById('n-val').textContent = e.target.value; });
+document.getElementById('deg-slider').addEventListener('input', e => { document.getElementById('deg-val').textContent = e.target.value; });
+document.getElementById('n-slider').addEventListener('change', resetSim);
+document.getElementById('deg-slider').addEventListener('change', resetSim);
+document.getElementById('vacc-slider').addEventListener('input', e => { document.getElementById('vacc-val').textContent = (parseFloat(e.target.value)*100).toFixed(0)+'%'; });
+document.getElementById('dist-slider').addEventListener('input', e => { document.getElementById('dist-val').textContent = parseFloat(e.target.value).toFixed(1); updatePanel(); });
+document.getElementById('vacc-slider').addEventListener('change', resetSim);
+
+// Boot
+resize();
+resetSim();
+</script>
+</body>
+</html>

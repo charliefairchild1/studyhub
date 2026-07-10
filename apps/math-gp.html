@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gaussian Processes — PEP Math Playground</title>
+<style>
+  :root{--bg:#0a0d14;--surface:#14181f;--surface2:#0f1318;--text:#e2e6ed;--dim:#7a8092;--accent:#64b5f6;--accent2:#81c784;--border:#1e2430}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:flex;flex-direction:column;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;flex:1;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block;cursor:crosshair}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}.row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:48px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">gaussian processes — Bayesian regression with uncertainty</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="bayes.html">Β Bayes</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>posterior mean (blue) ± 2σ (band) · click to add observations</span><b id="m-info">—</b></div>
+    <canvas id="cv"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Gaussian Processes</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    A GP is a probability distribution over <i>functions</i>. Conditioning on observations gives a posterior — you get a curve fit AND a confidence band. Click to drop points; right-click drags.
+  </div>
+
+  <h3>Kernel parameters</h3>
+  <div class="row"><label>Length scale ℓ</label><input id="ls" type="range" min="0.05" max="2" step="0.02" value="0.4"><span class="val" id="ls-v">0.40</span></div>
+  <div class="row"><label>Signal var σ²_f</label><input id="sf" type="range" min="0.1" max="3" step="0.05" value="1.0"><span class="val" id="sf-v">1.00</span></div>
+  <div class="row"><label>Noise σ²_n</label><input id="sn" type="range" min="0.001" max="0.5" step="0.005" value="0.05"><span class="val" id="sn-v">0.050</span></div>
+
+  <h3>Kernel</h3>
+  <div class="btn-row">
+    <button class="kk active" data-k="rbf">RBF (smooth)</button>
+    <button class="kk" data-k="matern">Matérn 3/2 (rough)</button>
+    <button class="kk" data-k="periodic">Periodic</button>
+  </div>
+
+  <h3>Actions</h3>
+  <div class="btn-row">
+    <button id="prior">Sample prior</button>
+    <button id="post">Sample posterior</button>
+    <button id="clear">Clear obs</button>
+    <button id="demo">Demo wave</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Observations</span><b id="m-n">0</b></div>
+  <div class="metric"><span>Mean uncertainty</span><b id="m-unc">—</b></div>
+  <div class="metric"><span>Marginal log-lik</span><b id="m-mll">—</b></div>
+
+  <div class="pep-note">
+    <b>Why PEP cares about uncertainty.</b> A point predictor that
+    confidently extrapolates beyond its training data is dangerous.
+    A GP collapses uncertainty where you've observed and reverts to
+    the prior elsewhere. That's exactly what retrieval should do —
+    high confidence near anchored memories, low confidence in the
+    space between them. Tied to <a href="predictor.html">📈 predictor</a>
+    (uncertainty-aware twin) and <a href="bayes.html">Β Bayes</a>
+    (function-space generalization).
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Add a few points, increase ℓ:</b> the curve flattens, fitting only the trend.<br>
+    <b style="color:var(--accent2)">Decrease ℓ:</b> the curve threads every point, but the band between is huge.<br>
+    <b style="color:var(--accent2)">Sample posterior:</b> draws random plausible functions consistent with your data.
+  </div>
+</div>
+
+<script>
+(() => {
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  let W, H;
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    cv.width = r.width*devicePixelRatio;
+    cv.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    W = r.width; H = r.height;
+  }
+  window.addEventListener('resize', () => { resize(); draw(); });
+
+  const params = { ls: 0.4, sf: 1.0, sn: 0.05 };
+  let kernel = 'rbf';
+  let obs = []; // {x in [-1,1], y in [-1,1]}
+  let priorSamples = [], postSamples = [];
+
+  // Domain: x in [-1, 1]
+  const Ngrid = 120;
+  const xs = [];
+  for (let i=0;i<Ngrid;i++) xs.push(-1 + 2*i/(Ngrid-1));
+
+  function k(a, b) {
+    const d = a - b;
+    if (kernel === 'rbf') return params.sf * Math.exp(-(d*d)/(2*params.ls*params.ls));
+    if (kernel === 'matern') {
+      const r = Math.sqrt(3)*Math.abs(d)/params.ls;
+      return params.sf * (1 + r) * Math.exp(-r);
+    }
+    if (kernel === 'periodic') {
+      const sin = Math.sin(Math.PI*Math.abs(d)/0.5);
+      return params.sf * Math.exp(-2*sin*sin/(params.ls*params.ls));
+    }
+    return 0;
+  }
+
+  // Cholesky decomposition (lower triangular L of A = L L^T)
+  function chol(A) {
+    const n = A.length;
+    const L = Array.from({length:n}, () => new Array(n).fill(0));
+    for (let i=0;i<n;i++) {
+      for (let j=0;j<=i;j++) {
+        let s = A[i][j];
+        for (let kk=0;kk<j;kk++) s -= L[i][kk]*L[j][kk];
+        if (i === j) {
+          if (s <= 0) s = 1e-10;
+          L[i][j] = Math.sqrt(s);
+        } else {
+          L[i][j] = s / L[j][j];
+        }
+      }
+    }
+    return L;
+  }
+  function fwdSub(L, b) {
+    const n = b.length;
+    const x = new Array(n);
+    for (let i=0;i<n;i++) {
+      let s = b[i];
+      for (let j=0;j<i;j++) s -= L[i][j]*x[j];
+      x[i] = s / L[i][i];
+    }
+    return x;
+  }
+  function backSub(LT, b) {
+    const n = b.length;
+    const x = new Array(n);
+    for (let i=n-1;i>=0;i--) {
+      let s = b[i];
+      for (let j=i+1;j<n;j++) s -= LT[j][i]*x[j];
+      x[i] = s / LT[i][i];
+    }
+    return x;
+  }
+
+  let posterior = null;
+
+  function recompute() {
+    posterior = null;
+    if (obs.length === 0) return;
+    const n = obs.length;
+    const Knn = Array.from({length:n}, () => new Array(n));
+    for (let i=0;i<n;i++) for (let j=0;j<n;j++) {
+      Knn[i][j] = k(obs[i].x, obs[j].x) + (i===j ? params.sn : 0);
+    }
+    const L = chol(Knn);
+    const y = obs.map(o => o.y);
+    const alpha = backSub(L, fwdSub(L, y));
+    // mll
+    let mll = 0;
+    for (let i=0;i<n;i++) mll -= 0.5*y[i]*alpha[i];
+    for (let i=0;i<n;i++) mll -= Math.log(L[i][i]);
+    mll -= 0.5*n*Math.log(2*Math.PI);
+    // mean and var on grid
+    const mu = new Array(Ngrid), sigma2 = new Array(Ngrid);
+    for (let i=0;i<Ngrid;i++) {
+      const x = xs[i];
+      const ks = obs.map(o => k(x, o.x));
+      let m = 0;
+      for (let j=0;j<n;j++) m += ks[j]*alpha[j];
+      const v = fwdSub(L, ks);
+      let var2 = k(x, x);
+      for (let j=0;j<n;j++) var2 -= v[j]*v[j];
+      mu[i] = m;
+      sigma2[i] = Math.max(0, var2);
+    }
+    posterior = { mu, sigma2, mll, L };
+  }
+
+  function samplePrior(nSamples=3) {
+    const n = Ngrid;
+    const K = Array.from({length:n}, () => new Array(n));
+    for (let i=0;i<n;i++) for (let j=0;j<n;j++) {
+      K[i][j] = k(xs[i], xs[j]) + (i===j ? 1e-6 : 0);
+    }
+    const L = chol(K);
+    priorSamples = [];
+    for (let s=0;s<nSamples;s++) {
+      const z = new Array(n);
+      for (let i=0;i<n;i++) {
+        const u1 = Math.max(1e-9, Math.random()), u2 = Math.max(1e-9, Math.random());
+        z[i] = Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+      }
+      const f = new Array(n);
+      for (let i=0;i<n;i++) {
+        let s = 0;
+        for (let j=0;j<=i;j++) s += L[i][j]*z[j];
+        f[i] = s;
+      }
+      priorSamples.push(f);
+    }
+  }
+
+  function samplePosterior(nSamples=3) {
+    if (!posterior) return;
+    const { mu, sigma2 } = posterior;
+    postSamples = [];
+    // Approximate by sampling f_i ~ N(mu_i, sigma2_i) (ignore correlations
+    // between grid points to keep this fast — visually fine for a demo).
+    for (let s=0;s<nSamples;s++) {
+      const f = new Array(Ngrid);
+      for (let i=0;i<Ngrid;i++) {
+        const u1 = Math.max(1e-9, Math.random()), u2 = Math.max(1e-9, Math.random());
+        const z = Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+        f[i] = mu[i] + Math.sqrt(sigma2[i]) * z;
+      }
+      postSamples.push(f);
+    }
+  }
+
+  function dataToScreenX(x) { return 30 + (x+1)/2 * (W-50); }
+  function dataToScreenY(y) { return H/2 - y * (H*0.4); }
+  function screenToDataX(x) { return ((x-30)/(W-50))*2 - 1; }
+  function screenToDataY(y) { return -(y - H/2)/(H*0.4); }
+
+  function draw() {
+    ctx.fillStyle = '#0a0d14'; ctx.fillRect(0,0,W,H);
+    // axes
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath(); ctx.moveTo(30, 6); ctx.lineTo(30, H-20); ctx.lineTo(W-6, H-20); ctx.stroke();
+    // zero line
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.beginPath(); ctx.moveTo(30, H/2); ctx.lineTo(W-6, H/2); ctx.stroke();
+
+    // prior samples (faint)
+    if (priorSamples.length) {
+      ctx.strokeStyle = 'rgba(167,139,250,0.5)'; ctx.lineWidth = 1;
+      for (const s of priorSamples) {
+        ctx.beginPath();
+        for (let i=0;i<Ngrid;i++) {
+          const x = dataToScreenX(xs[i]), y = dataToScreenY(s[i]);
+          if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    if (posterior) {
+      const { mu, sigma2 } = posterior;
+      // ±2σ band
+      ctx.fillStyle = 'rgba(100,181,246,0.18)';
+      ctx.beginPath();
+      for (let i=0;i<Ngrid;i++) {
+        const x = dataToScreenX(xs[i]);
+        const y = dataToScreenY(mu[i] + 2*Math.sqrt(sigma2[i]));
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      for (let i=Ngrid-1;i>=0;i--) {
+        const x = dataToScreenX(xs[i]);
+        const y = dataToScreenY(mu[i] - 2*Math.sqrt(sigma2[i]));
+        ctx.lineTo(x,y);
+      }
+      ctx.closePath(); ctx.fill();
+      // posterior samples
+      if (postSamples.length) {
+        ctx.strokeStyle = 'rgba(129,199,132,0.65)'; ctx.lineWidth = 1;
+        for (const s of postSamples) {
+          ctx.beginPath();
+          for (let i=0;i<Ngrid;i++) {
+            const x = dataToScreenX(xs[i]), y = dataToScreenY(s[i]);
+            if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          }
+          ctx.stroke();
+        }
+      }
+      // mean
+      ctx.strokeStyle = '#64b5f6'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i=0;i<Ngrid;i++) {
+        const x = dataToScreenX(xs[i]), y = dataToScreenY(mu[i]);
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+    // observations
+    ctx.fillStyle = '#ffb74d';
+    for (const o of obs) {
+      const x = dataToScreenX(o.x), y = dataToScreenY(o.y);
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+    }
+
+    // metrics
+    document.getElementById('m-n').textContent = obs.length;
+    if (posterior) {
+      let avgU = 0;
+      for (let i=0;i<Ngrid;i++) avgU += Math.sqrt(posterior.sigma2[i]);
+      avgU /= Ngrid;
+      document.getElementById('m-unc').textContent = avgU.toFixed(3);
+      document.getElementById('m-mll').textContent = posterior.mll.toFixed(2);
+    } else {
+      document.getElementById('m-unc').textContent = '—';
+      document.getElementById('m-mll').textContent = '—';
+    }
+    document.getElementById('m-info').textContent = obs.length + ' obs · kernel ' + kernel + ' · ℓ=' + params.ls.toFixed(2);
+  }
+
+  cv.addEventListener('click', e => {
+    const r = cv.getBoundingClientRect();
+    const x = screenToDataX(e.clientX - r.left);
+    const y = screenToDataY(e.clientY - r.top);
+    if (x < -1.05 || x > 1.05) return;
+    obs.push({x, y});
+    recompute(); postSamples = []; draw();
+  });
+
+  // sliders
+  ['ls','sf','sn'].forEach(id => {
+    const el = document.getElementById(id);
+    const val = document.getElementById(id+'-v');
+    el.addEventListener('input', () => {
+      params[id] = parseFloat(el.value);
+      val.textContent = params[id].toFixed(id==='sn'?3:2);
+      recompute(); samplePrior(); draw();
+    });
+  });
+  document.querySelectorAll('.kk').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.kk').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      kernel = b.dataset.k;
+      recompute(); samplePrior(); draw();
+    });
+  });
+  document.getElementById('prior').onclick = () => { samplePrior(); postSamples = []; draw(); };
+  document.getElementById('post').onclick = () => { samplePosterior(); priorSamples = []; draw(); };
+  document.getElementById('clear').onclick = () => { obs = []; postSamples = []; recompute(); draw(); };
+  document.getElementById('demo').onclick = () => {
+    obs = [];
+    for (const xv of [-0.8,-0.5,-0.2,0.1,0.4,0.65]) {
+      obs.push({x: xv, y: Math.sin(xv*3)*0.6 + (Math.random()-0.5)*0.05});
+    }
+    recompute(); samplePosterior(); draw();
+  };
+
+  resize();
+  samplePrior();
+  draw();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

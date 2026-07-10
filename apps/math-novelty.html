@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novelty — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#ffb74d; --accent2:#81c784;
+    --warn:#ef5350; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:20px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+  .section{background:var(--surface2);border-radius:6px;padding:14px 18px;border:1px solid var(--border)}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px}
+  #conveyor{height:90px;overflow:hidden;position:relative;background:var(--bg);border-radius:4px}
+  #conveyor .track{position:absolute;top:0;left:0;right:0;bottom:0}
+  .sym{position:absolute;top:50%;transform:translateY(-50%);font-size:32px;padding:10px 14px;border-radius:6px;transition:left 0.25s linear;display:flex;align-items:center;justify-content:center;min-width:60px;height:68px}
+  .sym.novel{box-shadow:0 0 0 3px var(--warn);animation:pulse-novel 0.6s}
+  @keyframes pulse-novel { 0%{transform:translateY(-50%) scale(1)} 30%{transform:translateY(-50%) scale(1.3)} 100%{transform:translateY(-50%) scale(1)} }
+  .sym .nov-badge{position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:bold}
+
+  #spark-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-height:150px}
+  canvas.track{width:100%;height:100%;background:var(--bg);border-radius:4px;display:block}
+  .track-wrap{display:flex;flex-direction:column;height:100%}
+  .track-wrap canvas{flex:1}
+
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:6px 10px;margin-bottom:4px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .fam-table{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px;font-size:10px;max-height:200px;overflow-y:auto}
+  .fam-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dotted var(--border)}
+  .fam-row:last-child{border-bottom:none}
+  .fam-row .sym-mini{font-size:18px;min-width:24px}
+  .fam-row .bar-outer{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+  .fam-row .bar-inner{height:100%;background:var(--accent2)}
+  .fam-row .pct{min-width:40px;text-align:right;color:var(--dim)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">novelty — residual as surprise signal</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="spreading.html" style="color:#4fc3f7">⟳ Spreading</a>
+    <a href="haze.html" style="color:#f06292">░ Haze</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title">conveyor (t = <span id="tick">0</span>)</div>
+    <div id="conveyor"><div class="track" id="track"></div></div>
+  </div>
+  <div id="spark-row">
+    <div class="section track-wrap">
+      <div class="section-title">novelty signal</div>
+      <canvas class="track" id="nov-canvas"></canvas>
+    </div>
+    <div class="section track-wrap">
+      <div class="section-title">familiarity of current symbol</div>
+      <canvas class="track" id="fam-canvas"></canvas>
+    </div>
+  </div>
+</div>
+<div id="panel">
+  <h2>Novelty</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    Each symbol has a running <b>familiarity</b>. Novelty = 1 − familiarity. Above threshold, the flag fires and the symbol glows. Silence decays familiarity — you get your sensitivity back.
+  </div>
+
+  <h3>Distribution</h3>
+  <div class="btn-row">
+    <button class="dist-btn active" data-dist="common">Common + rare</button>
+    <button class="dist-btn" data-dist="uniform">Uniform</button>
+    <button class="dist-btn" data-dist="one-only">Only ★</button>
+    <button class="dist-btn" data-dist="burst">Bursty</button>
+  </div>
+  <div class="btn-row">
+    <button id="inject-rare">Inject rare symbol</button>
+    <button id="silence">Silence 30 ticks</button>
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Learning rate</label>
+    <input id="lr" type="range" min="0.01" max="0.5" step="0.01" value="0.15">
+    <span class="val" id="lr-v">0.15</span>
+  </div>
+  <div class="row">
+    <label>Decay (silence)</label>
+    <input id="dec" type="range" min="0" max="0.1" step="0.002" value="0.015">
+    <span class="val" id="dec-v">0.015</span>
+  </div>
+  <div class="row">
+    <label>Novelty thresh</label>
+    <input id="thresh" type="range" min="0.1" max="0.95" step="0.02" value="0.7">
+    <span class="val" id="thresh-v">0.70</span>
+  </div>
+  <div class="row">
+    <label>Stream speed</label>
+    <input id="speed" type="range" min="0.2" max="3" step="0.1" value="1">
+    <span class="val" id="speed-v">1.0</span>
+  </div>
+
+  <h3>Metrics</h3>
+  <div class="metric"><span>Current novelty</span><b id="m-nov">0.00</b></div>
+  <div class="metric"><span>Novelty events</span><b id="m-events">0</b></div>
+  <div class="metric"><span>Max seen</span><b id="m-max">0.00</b></div>
+
+  <h3>Familiarity per symbol</h3>
+  <div class="fam-table" id="fam-table"></div>
+
+  <div class="pep-note">
+    <b>PEP primitive 3.</b> Novelty is the residual made useful. The
+    familiarity model is a one-step predictor over symbol frequency;
+    its error on the current symbol is the novelty score. Habituation
+    = learning reduces error. Dishabituation = decay restores error.
+    Axona uses this to gate attention; Vectora Watch uses it to flag
+    anomalous queries; Atria uses it to surface outlier matches.
+  </div>
+</div>
+
+<script>
+(() => {
+  const POOL = ['★','●','▲','■','♦','♥','♠','♣','◆','◇','☀','☽','☘','❄','⚑','✿','⚛','⚙'];
+  const COLORS = ['#ffb74d','#4fc3f7','#81c784','#ba68c8','#f06292','#ef5350','#ffeb3b','#b39ddb','#64b5f6','#a5d6a7','#ff8a65','#90a4ae','#c8e6c9','#80deea','#ffecb3','#e1bee7','#aed581','#9fa8da'];
+
+  let fam = new Map();
+  POOL.forEach(s => fam.set(s, 0.01));
+
+  const track = document.getElementById('track');
+  const novCv = document.getElementById('nov-canvas');
+  const famCv = document.getElementById('fam-canvas');
+  const novCtx = novCv.getContext('2d');
+  const famCtx = famCv.getContext('2d');
+  function resizeCanvas(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  let novDim, famDim;
+  function resizeAll() {
+    novDim = resizeCanvas(novCv, novCtx);
+    famDim = resizeCanvas(famCv, famCtx);
+  }
+  window.addEventListener('resize', resizeAll);
+
+  const params = { lr: 0.15, dec: 0.015, thresh: 0.7, speed: 1 };
+  let dist = 'common';
+  let running = true;
+  let silenceTicks = 0;
+  let tick = 0;
+  let events = 0;
+  let maxNov = 0;
+  let novHist = [];
+  let famHist = [];
+  let onBelt = []; // {sym, el, x, color, nov}
+
+  function pickSymbol() {
+    if (silenceTicks > 0) { silenceTicks--; return null; }
+    if (dist === 'common') {
+      // 80% on first 3 common, 20% spread on rest
+      if (Math.random() < 0.8) return POOL[Math.floor(Math.random()*3)];
+      return POOL[3 + Math.floor(Math.random()*(POOL.length-3))];
+    }
+    if (dist === 'uniform') return POOL[Math.floor(Math.random()*POOL.length)];
+    if (dist === 'one-only') {
+      return Math.random() < 0.98 ? POOL[0] : POOL[Math.floor(Math.random()*POOL.length)];
+    }
+    if (dist === 'burst') {
+      // 70% same as last; occasional jumps
+      if (Math.random() < 0.7 && onBelt.length) return onBelt[onBelt.length-1].sym;
+      return POOL[Math.floor(Math.random()*Math.min(6, POOL.length))];
+    }
+    return POOL[0];
+  }
+
+  function step() {
+    tick++;
+    // 1. decay all familiarities (dishabituation from passage of time)
+    for (const [k,v] of fam) fam.set(k, Math.max(0.001, v - params.dec));
+
+    const sym = pickSymbol();
+    let novelty = 0;
+    if (sym) {
+      const f = fam.get(sym) || 0.01;
+      novelty = Math.max(0, 1 - f);
+      // update: familiarity += lr * (1 - familiarity)
+      fam.set(sym, f + params.lr * (1 - f));
+      // spawn on belt
+      const color = COLORS[POOL.indexOf(sym)];
+      const el = document.createElement('div');
+      el.className = 'sym';
+      el.textContent = sym;
+      el.style.color = '#0a0d14';
+      el.style.background = color;
+      el.style.left = (track.getBoundingClientRect().width + 10) + 'px';
+      if (novelty > params.thresh) {
+        el.classList.add('novel');
+        const badge = document.createElement('span');
+        badge.className = 'nov-badge';
+        badge.textContent = 'NOVEL';
+        el.appendChild(badge);
+        events++;
+      }
+      track.appendChild(el);
+      onBelt.push({ sym, el, x: track.getBoundingClientRect().width + 10, color, nov: novelty });
+      if (novelty > maxNov) maxNov = novelty;
+    }
+
+    // slide
+    const dx = 20 * params.speed;
+    for (const it of onBelt) it.x -= dx;
+    for (const it of onBelt) it.el.style.left = it.x + 'px';
+    // remove offscreen
+    while (onBelt.length && onBelt[0].x < -100) {
+      const it = onBelt.shift();
+      it.el.remove();
+    }
+
+    // track records
+    novHist.push(novelty);
+    if (novHist.length > 200) novHist.shift();
+    famHist.push(sym ? (fam.get(sym)||0) : null);
+    if (famHist.length > 200) famHist.shift();
+
+    // metrics
+    document.getElementById('tick').textContent = tick;
+    document.getElementById('m-nov').textContent = novelty.toFixed(2);
+    document.getElementById('m-events').textContent = events;
+    document.getElementById('m-max').textContent = maxNov.toFixed(2);
+
+    drawNovTrack();
+    drawFamTrack();
+    updateFamTable();
+  }
+
+  function drawNovTrack() {
+    const {w, h} = novDim;
+    novCtx.fillStyle = '#0a0d14';
+    novCtx.fillRect(0,0,w,h);
+    // threshold line
+    const yT = h - params.thresh*h*0.92 - 4;
+    novCtx.strokeStyle = 'rgba(239,83,80,0.5)';
+    novCtx.setLineDash([4,4]);
+    novCtx.beginPath(); novCtx.moveTo(0,yT); novCtx.lineTo(w,yT); novCtx.stroke();
+    novCtx.setLineDash([]);
+    // bars
+    for (let i=0;i<novHist.length;i++) {
+      const x = i/200 * w;
+      const v = novHist[i];
+      const bh = v*h*0.92;
+      novCtx.fillStyle = v > params.thresh ? '#ef5350' : '#ffb74d';
+      novCtx.fillRect(x, h-bh-4, Math.max(1, w/200 - 0.5), bh);
+    }
+  }
+  function drawFamTrack() {
+    const {w,h} = famDim;
+    famCtx.fillStyle = '#0a0d14';
+    famCtx.fillRect(0,0,w,h);
+    famCtx.strokeStyle = '#81c784';
+    famCtx.lineWidth = 1.5;
+    famCtx.beginPath();
+    let started = false;
+    for (let i=0;i<famHist.length;i++) {
+      const v = famHist[i];
+      if (v===null) { started = false; continue; }
+      const x = i/200 * w;
+      const y = h - v*h*0.92 - 4;
+      if (!started) { famCtx.moveTo(x,y); started = true; } else famCtx.lineTo(x,y);
+    }
+    famCtx.stroke();
+  }
+  function updateFamTable() {
+    const rows = [...fam.entries()].sort((a,b)=>b[1]-a[1]);
+    const html = rows.map(([s,v]) => {
+      const color = COLORS[POOL.indexOf(s)];
+      return `<div class="fam-row"><span class="sym-mini" style="color:${color}">${s}</span><div class="bar-outer"><div class="bar-inner" style="width:${v*100}%;background:${color}"></div></div><span class="pct">${(v*100).toFixed(0)}%</span></div>`;
+    }).join('');
+    document.getElementById('fam-table').innerHTML = html;
+  }
+
+  function loop() {
+    if (running) step();
+    setTimeout(loop, 250 / params.speed);
+  }
+
+  // controls
+  ['lr','dec','thresh','speed'].forEach(k => {
+    const el = document.getElementById(k);
+    const val = document.getElementById(k+'-v');
+    el.addEventListener('input', () => {
+      params[k] = parseFloat(el.value);
+      val.textContent = k==='dec' ? params[k].toFixed(3) : params[k].toFixed(2);
+    });
+  });
+  document.querySelectorAll('.dist-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.dist-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      dist = b.dataset.dist;
+    });
+  });
+  document.getElementById('inject-rare').onclick = () => {
+    // force a rare symbol
+    const s = POOL[POOL.length-1];
+    const f = fam.get(s) || 0;
+    fam.set(s, 0); // fully unfamiliar
+    silenceTicks = 0;
+    step();
+  };
+  document.getElementById('silence').onclick = () => { silenceTicks = 30; };
+  const playBtn = document.getElementById('play');
+  playBtn.onclick = () => {
+    running = !running;
+    playBtn.textContent = running ? '⏸ Pause' : '▶ Play';
+    playBtn.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = () => {
+    fam = new Map(); POOL.forEach(s => fam.set(s, 0.01));
+    tick = 0; events = 0; maxNov = 0; novHist = []; famHist = [];
+    onBelt.forEach(it => it.el.remove()); onBelt = [];
+  };
+
+  resizeAll();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

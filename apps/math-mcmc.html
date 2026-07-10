@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCMC — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#64b5f6; --accent2:#81c784;
+    --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)} nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px} .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">metropolis-hastings — sampling by accept/reject</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="bayes.html">Β Bayes</a>
+    <a href="diffusion.html">◌ Diffusion</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>target density (heatmap) + chain samples (dots)</span><b id="m-acc">acc —</b></div>
+    <canvas id="target"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>empirical histogram from sampler</span><b id="m-tv">—</b></div>
+    <canvas id="hist"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>MCMC · Metropolis-Hastings</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    Propose x' = x + Normal(0,σ). Accept with probability min(1, π(x')/π(x)). Over time the chain spends more time in high-density regions — the histogram IS the distribution.
+  </div>
+
+  <h3>Target distribution</h3>
+  <div class="btn-row">
+    <button class="tgt active" data-t="bimodal">Bimodal</button>
+    <button class="tgt" data-t="banana">Banana (Rosenbrock)</button>
+    <button class="tgt" data-t="ring">Ring</button>
+    <button class="tgt" data-t="funnel">Neal's funnel</button>
+    <button class="tgt" data-t="gauss">Gaussian</button>
+    <button class="tgt" data-t="4spots">4 spots</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row"><label>Proposal σ</label><input id="sigma" type="range" min="0.02" max="1.5" step="0.01" value="0.3"><span class="val" id="sigma-v">0.30</span></div>
+  <div class="row"><label>Iters/frame</label><input id="iters" type="range" min="1" max="200" step="1" value="30"><span class="val" id="iters-v">30</span></div>
+
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset chain</button>
+    <button id="burn">Burn 1000</button>
+    <button id="showTrace" class="active">trail</button>
+  </div>
+
+  <h3>Diagnostics</h3>
+  <div class="metric"><span>Samples</span><b id="m-n">0</b></div>
+  <div class="metric"><span>Acceptance</span><b id="m-acc2">—</b></div>
+  <div class="metric"><span>Mean x</span><b id="m-mx">—</b></div>
+  <div class="metric"><span>Mean y</span><b id="m-my">—</b></div>
+  <div class="metric"><span>Effective σ_x</span><b id="m-sx">—</b></div>
+
+  <div class="pep-note">
+    <b>PEP connection.</b> MCMC is how you sample a posterior when
+    you can only evaluate it up to a constant — which is the
+    <i>default</i> situation for any Bayes problem PEP cares about.
+    Rejecting a step is the residual saying "that direction is
+    worse — don't go." Accept-ratio = local quality signal. No
+    gradient, no smoothness required. Works when gradient descent
+    can't.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">σ very small:</b> high acceptance, chain stuck near start. Covariance underestimated.<br>
+    <b style="color:var(--accent2)">σ very large:</b> low acceptance, chain wastes most proposals.<br>
+    <b style="color:var(--accent2)">Sweet spot ≈ 23.4%:</b> classic optimal acceptance for high-dim Gaussians.<br>
+    <b style="color:var(--accent2)">Funnel:</b> notoriously hard — gets stuck in neck.
+  </div>
+</div>
+
+<script>
+(() => {
+  const tC = document.getElementById('target');
+  const hC = document.getElementById('hist');
+  const tctx = tC.getContext('2d'), hctx = hC.getContext('2d');
+  let td, hd;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() { td = resizeOne(tC, tctx); hd = resizeOne(hC, hctx); buildField(); }
+  window.addEventListener('resize', resizeAll);
+
+  let target = 'bimodal';
+  // domain [-3,3] x [-3,3]
+  function logPi(x, y) {
+    if (target === 'bimodal') return Math.log(Math.exp(-((x+1)*(x+1)+y*y)*0.8) + 0.7*Math.exp(-((x-1.2)*(x-1.2)+(y-0.3)*(y-0.3))*0.8) + 1e-12);
+    if (target === 'banana') {
+      const a = 1, b = 3;
+      return -((x-a)*(x-a) + b*(y-x*x+1)*(y-x*x+1))*0.3;
+    }
+    if (target === 'ring') {
+      const r = Math.sqrt(x*x+y*y);
+      return -((r-1.5)*(r-1.5))*5;
+    }
+    if (target === 'funnel') {
+      const vy = Math.exp(y);
+      return -y*y*0.5/9 - 0.5*x*x/Math.max(0.01, vy) - 0.5*Math.log(Math.max(0.01, vy));
+    }
+    if (target === 'gauss') return -(x*x+y*y)*0.5;
+    if (target === '4spots') {
+      const peaks = [[-1,1], [1,1], [-1,-1], [1,-1]];
+      let s = 0;
+      for (const [px,py] of peaks) s += Math.exp(-((x-px)*(x-px)+(y-py)*(y-py))*4);
+      return Math.log(s + 1e-12);
+    }
+    return 0;
+  }
+
+  let field, fieldVals;
+  function buildField() {
+    const { w, h } = td;
+    field = tctx.createImageData(w, h);
+    fieldVals = new Float32Array(w*h);
+    let minV = Infinity, maxV = -Infinity;
+    for (let py=0;py<h;py++) for (let px=0;px<w;px++) {
+      const x = (px/w)*6 - 3;
+      const y = 3 - (py/h)*6;
+      const v = logPi(x, y);
+      fieldVals[py*w+px] = v;
+      if (v>maxV) maxV = v;
+    }
+    minV = maxV - 6;
+    for (let i=0;i<w*h;i++) {
+      const t = Math.max(0, Math.min(1, (fieldVals[i]-minV)/(maxV-minV)));
+      const [r,g,b] = heat(t);
+      field.data[i*4] = r; field.data[i*4+1] = g; field.data[i*4+2] = b; field.data[i*4+3] = 255;
+    }
+  }
+  function heat(t) {
+    const stops = [[14,18,24],[30,60,90],[50,110,150],[100,180,200],[220,210,120],[240,130,70]];
+    const s = t*(stops.length-1);
+    const i = Math.min(stops.length-2, Math.floor(s));
+    const u = s - i;
+    const c0 = stops[i], c1 = stops[i+1];
+    return [c0[0]+(c1[0]-c0[0])*u|0, c0[1]+(c1[1]-c0[1])*u|0, c0[2]+(c1[2]-c0[2])*u|0];
+  }
+
+  // chain state
+  let cx = 0, cy = 0;
+  let sigma = 0.3;
+  let samples = [], accepts = 0, proposals = 0;
+  let sumX = 0, sumY = 0, sum2X = 0;
+  let bins, binN = 40, binMin = -3, binMax = 3;
+  let showTrace = true;
+
+  function reset() {
+    cx = 0; cy = 0; samples = []; accepts = 0; proposals = 0;
+    sumX = 0; sumY = 0; sum2X = 0;
+    bins = [];
+    for (let i=0;i<binN;i++) { bins.push(new Array(binN).fill(0)); }
+  }
+
+  function randN() {
+    const u1 = Math.max(1e-9, Math.random()), u2 = Math.max(1e-9, Math.random());
+    return Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+  }
+
+  function step() {
+    const px = cx + randN()*sigma, py = cy + randN()*sigma;
+    const logA = logPi(px, py) - logPi(cx, cy);
+    proposals++;
+    if (Math.log(Math.random()) < logA) {
+      cx = px; cy = py;
+      accepts++;
+    }
+    samples.push([cx, cy]);
+    if (samples.length > 4000) samples.shift();
+    sumX += cx; sumY += cy; sum2X += cx*cx;
+    // bin
+    const bx = Math.floor((cx - binMin)/(binMax-binMin)*binN);
+    const by = Math.floor((cy - binMin)/(binMax-binMin)*binN);
+    if (bx>=0 && bx<binN && by>=0 && by<binN) bins[by][bx]++;
+  }
+
+  function drawTarget() {
+    const { w, h } = td;
+    tctx.putImageData(field, 0, 0);
+    function map(x, y) { return { sx: (x+3)/6*w, sy: (1-(y+3)/6)*h }; }
+    if (showTrace) {
+      tctx.strokeStyle = 'rgba(79,195,247,0.35)';
+      tctx.lineWidth = 0.6;
+      tctx.beginPath();
+      const trace = samples.slice(-400);
+      if (trace.length>0) {
+        const s0 = map(trace[0][0], trace[0][1]);
+        tctx.moveTo(s0.sx, s0.sy);
+        for (let i=1;i<trace.length;i++) {
+          const s = map(trace[i][0], trace[i][1]);
+          tctx.lineTo(s.sx, s.sy);
+        }
+      }
+      tctx.stroke();
+    }
+    // recent samples
+    for (const [x,y] of samples.slice(-200)) {
+      const s = map(x, y);
+      tctx.fillStyle = 'rgba(100,181,246,0.7)';
+      tctx.fillRect(s.sx-1, s.sy-1, 2, 2);
+    }
+    // current
+    const cur = map(cx, cy);
+    tctx.fillStyle = '#ffb74d';
+    tctx.beginPath(); tctx.arc(cur.sx, cur.sy, 4, 0, Math.PI*2); tctx.fill();
+  }
+  function drawHist() {
+    const { w, h } = hd;
+    hctx.fillStyle = '#0a0d14'; hctx.fillRect(0,0,w,h);
+    let maxC = 0;
+    for (const row of bins) for (const c of row) if (c>maxC) maxC = c;
+    if (maxC === 0) return;
+    const cell = Math.min(w, h) / binN;
+    const xoff = (w - cell*binN)/2, yoff = (h - cell*binN)/2;
+    for (let by=0;by<binN;by++) for (let bx=0;bx<binN;bx++) {
+      const c = bins[binN-1-by][bx];
+      if (c === 0) continue;
+      const t = c/maxC;
+      const [r,g,b] = heat(t);
+      hctx.fillStyle = `rgb(${r},${g},${b})`;
+      hctx.fillRect(xoff + bx*cell, yoff + by*cell, cell+0.5, cell+0.5);
+    }
+  }
+  function updateMetrics() {
+    const n = samples.length;
+    const acc = proposals>0 ? accepts/proposals : 0;
+    document.getElementById('m-acc').textContent = 'acc ' + (acc*100).toFixed(1)+'%';
+    document.getElementById('m-acc2').textContent = (acc*100).toFixed(1)+'%';
+    document.getElementById('m-n').textContent = n;
+    if (n>0) {
+      document.getElementById('m-mx').textContent = (sumX/n).toFixed(2);
+      document.getElementById('m-my').textContent = (sumY/n).toFixed(2);
+      const mx = sumX/n;
+      document.getElementById('m-sx').textContent = Math.sqrt(Math.max(0, sum2X/n - mx*mx)).toFixed(2);
+    }
+  }
+
+  let running = true;
+  function loop() {
+    if (running) {
+      const iters = parseInt(document.getElementById('iters').value);
+      for (let k=0;k<iters;k++) step();
+    }
+    drawTarget(); drawHist(); updateMetrics();
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.querySelectorAll('.tgt').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.tgt').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      target = b.dataset.t;
+      buildField(); reset();
+    });
+  });
+  document.getElementById('sigma').addEventListener('input', e => {
+    sigma = parseFloat(e.target.value);
+    document.getElementById('sigma-v').textContent = sigma.toFixed(2);
+  });
+  document.getElementById('iters').addEventListener('input', e => {
+    document.getElementById('iters-v').textContent = e.target.value;
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('burn').onclick = () => { for (let k=0;k<1000;k++) step(); };
+  document.getElementById('showTrace').onclick = e => {
+    showTrace = !showTrace;
+    e.target.classList.toggle('active', showTrace);
+  };
+
+  resizeAll();
+  buildField();
+  reset();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

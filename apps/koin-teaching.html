@@ -1,0 +1,219 @@
+<!doctype html><html><head>
+<meta charset="utf-8"><title>Teaching Koin — A Guide for Educators</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--text:#e8e6e0;--dim:#8b8a83;--accent:#d4af37;--accent2:#67e8f9;--rule:#26252e;--quote:#a78bfa;--lesson:#7dd3fc}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text)}
+body{font-family:'Georgia','Times New Roman',serif;line-height:1.72;font-size:18px;padding:60px 24px 120px}
+.wrap{max-width:680px;margin:0 auto}
+.eyebrow{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+h1{font-family:'Georgia',serif;font-size:42px;line-height:1.1;font-weight:400;letter-spacing:-0.5px;margin-bottom:14px;color:#f5f3ed}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{font-size:19px;color:var(--dim);font-style:italic;margin-bottom:42px;line-height:1.5}
+h2{font-family:'Georgia',serif;font-size:26px;font-weight:400;color:#f5f3ed;margin:54px 0 16px;letter-spacing:-0.3px}
+h2 .num{color:var(--accent);font-family:'SF Mono',monospace;font-size:14px;letter-spacing:2px;display:block;margin-bottom:6px;font-style:normal}
+h3{font-family:'Georgia',serif;font-size:21px;font-weight:400;color:#f5f3ed;margin:32px 0 14px;font-style:italic}
+p{margin-bottom:18px;color:var(--text)}
+p em{color:var(--accent2);font-style:italic}
+blockquote{border-left:2px solid var(--accent);padding:6px 0 6px 22px;margin:24px 0;color:var(--quote);font-style:italic;font-size:19px}
+hr{border:none;border-top:1px solid var(--rule);margin:48px 0}
+.print-btn{position:fixed;top:18px;right:24px;background:var(--accent);color:#0a0a0f;border:none;border-radius:6px;padding:8px 14px;font-family:'SF Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.signature{margin-top:60px;color:var(--dim);font-size:14px;letter-spacing:1px;font-family:'SF Mono',monospace}
+.lesson-card{background:var(--surface);border-left:3px solid var(--lesson);padding:22px 26px;margin:24px 0;border-radius:0 6px 6px 0}
+.lesson-card .label{font-family:'SF Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lesson);text-transform:uppercase;margin-bottom:8px}
+.lesson-card h4{font-family:'Georgia',serif;font-size:18px;color:#f5f3ed;font-style:italic;margin-bottom:10px;font-weight:400}
+.lesson-card .meta{font-family:'SF Mono',monospace;font-size:12px;color:var(--dim);margin-bottom:14px}
+.lesson-card p{color:#dcdad3;font-size:16.5px}
+.lesson-card p:last-child{margin-bottom:0}
+.discussion{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:18px 22px;margin:18px 0}
+.discussion h5{font-family:'SF Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.discussion ul{padding-left:20px;color:#dcdad3}
+.discussion li{margin-bottom:8px;font-size:16.5px}
+.activity{background:#1a2820;border:1px solid #2a4a36;border-radius:6px;padding:18px 22px;margin:18px 0;color:#c5e5cf}
+.activity h5{font-family:'SF Mono',monospace;font-size:11px;letter-spacing:2px;color:#7dd3fc;text-transform:uppercase;margin-bottom:10px}
+.activity p{color:#c5e5cf;font-size:16.5px}
+@media print{
+  :root{--bg:#fff;--surface:#fafaf6;--text:#1a1a1a;--dim:#666;--accent:#8a6d1a;--accent2:#2b6a8a;--rule:#ccc;--quote:#5a3aa0;--lesson:#2b6a8a}
+  body{padding:0;font-size:11pt;line-height:1.55;font-family:'Georgia',serif;background:#fff;color:#1a1a1a}
+  .wrap{max-width:none}
+  .print-btn{display:none}
+  h1{font-size:26pt;color:#000}
+  h2{font-size:15pt;color:#000;page-break-before:always;page-break-after:avoid;margin-top:24pt}
+  h2 .num{font-size:9pt;color:#8a6d1a}
+  h3{font-size:13pt;color:#000}
+  .sub{font-size:12pt;color:#444}
+  blockquote{color:#5a3aa0;border-color:#8a6d1a;page-break-inside:avoid}
+  p em{color:#2b6a8a}
+  .lesson-card{background:#eef6fa;border-color:#2b6a8a;page-break-inside:avoid}
+  .lesson-card .label{color:#2b6a8a}
+  .discussion{background:#fafaf6;page-break-inside:avoid}
+  .discussion h5{color:#8a6d1a}
+  .activity{background:#eaf5ed;border-color:#3a6a32;color:#1a3a22;page-break-inside:avoid}
+  .activity h5{color:#3a6a32}
+  @page{margin:0.75in 0.85in;
+        @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
+        @bottom-left{content:"Teaching Koin · A guide for educators · v1.0";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+  @page:first{@bottom-right{content:""}@bottom-left{content:""}}
+}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
+<div class="wrap">
+
+<div class="eyebrow">Teaching Koin · A guide for educators · v1.0</div>
+<h1>Teaching Koin</h1>
+<p class="sub">A practical guide for educators who want to teach Koin in a classroom — high school economics, college philosophy or political theory, adult education, professional development. Lesson plans, discussion questions, classroom activities.</p>
+
+<hr>
+
+<p>Koin is, in our experience, one of the easier complex ideas to teach. The core thesis can be conveyed in a single class period; the implications unfold across as many sessions as the course allows. This guide assumes you have read either the essential version or the full manifesto. It provides the framework for taking that material and structuring it for classroom use.</p>
+
+<p>The guide is organized in three parts. The first describes a single-class introduction that fits a 50-minute or 75-minute class period — appropriate for a guest lecture or as part of a broader economics or political theory survey. The second describes a four-class unit suitable for a unit within a longer course. The third describes a full-semester course on Koin, contribution economics, and the political economy of bookkeeping.</p>
+
+<p>Throughout, each lesson includes the core conceptual content, suggested readings, discussion questions, and a classroom activity that gives students hands-on engagement with the ideas. The activities are designed for groups of 15-30 students with minimal technology requirements.</p>
+
+<h2><span class="num">Part 1</span>The single-class introduction</h2>
+
+<p>If you have one class period to teach Koin, structure it around three movements: <em>the problem</em>, <em>the new possibility</em>, and <em>the implication</em>. Each movement is roughly 15-25 minutes depending on class length.</p>
+
+<div class="lesson-card">
+<div class="label">Class · 1 of 1 · 50-75 min</div>
+<h4>The Verdict — an introduction to Koin</h4>
+<div class="meta">Suggested readings before class: the pamphlet (5 pages) OR the essential version's chapters I and III (8 pages)</div>
+<p><b>Opening question (5 min):</b> "Imagine you have a grandmother who taught you to read when you were five years old. Twenty years later you're earning $80,000 as a doctor. How much of that $80,000 should your grandmother get? Explain your reasoning." Have students write a brief answer individually before discussing. The variation in responses sets up the central question.</p>
+<p><b>Movement 1 — The problem (15 min):</b> Money tracks custody, not contribution. Walk through the book-purchase example from the manifesto: where does the $20 go, and where does it not go? Name the population of invisible contributors. The teacher, the librarian, the friend who shaped the manuscript, the dead philosopher whose framework was inherited. Show that this isn't an accident — money was never designed to see them.</p>
+<p><b>Movement 2 — The new possibility (15 min):</b> Three technologies just arrived. Models that read influence. Graphs that hold provenance at scale. Settlement rails that route pennies globally. Together they make the verdict computable. Show the influence-graph diagram from the manifesto's Chapter III. Walk through what spreading activation does, in plain language.</p>
+<p><b>Movement 3 — The implication (15 min):</b> Who would be visibly wealthy in a Koin world? The teacher, the open-source maintainer, the songwriter whose songs continue to influence, the mother who raised a generation. The class structure shifts; the people who were always doing the work become the people who are paid for it. Distribution from intermediaries to originators.</p>
+<p><b>Closing (5 min):</b> Return to the opening question. How would students answer it differently now? Note that this is the kind of question Koin's algorithm answers automatically.</p>
+</div>
+
+<div class="discussion">
+<h5>Discussion questions</h5>
+<ul>
+<li>Can you think of someone who contributed to your life whose work would be invisible to the current bookkeeping? How would Koin see them?</li>
+<li>What's the strongest objection to this proposal? How would you defend Koin against it?</li>
+<li>Who benefits most from the current bookkeeping continuing as it is? Who benefits most from Koin replacing it?</li>
+<li>If Koin existed when you were five, what contributions would you already have recorded?</li>
+</ul>
+</div>
+
+<div class="activity">
+<h5>Activity: the influence audit</h5>
+<p>Give students 15 minutes to map their own influence graph for a specific contribution they have made — a paper, a project, a creative work, a problem they solved. They draw nodes for everyone who influenced their work, edges showing the influence relationships, weights indicating relative magnitude. After 15 minutes, students share their graphs in pairs and discuss patterns. Many students discover, in this exercise, that their own work depended on many more people than they had previously thought to credit.</p>
+</div>
+
+<h2><span class="num">Part 2</span>The four-class unit</h2>
+
+<p>A four-class unit on Koin lets you develop the argument more fully. Each class builds on the previous; by the end of the unit, students have engaged with the technical, philosophical, political, and practical dimensions.</p>
+
+<div class="lesson-card">
+<div class="label">Class · 1 of 4 · The problem</div>
+<h4>Why money doesn't see contribution</h4>
+<div class="meta">Readings: essential version chapters I and II (12 pages)</div>
+<p>The first class establishes the central thesis: that money tracks custody rather than contribution, that this mismatch has been the structural feature of the economy for five thousand years, and that the technology to do better has just arrived.</p>
+<p>Cover the historical depth: previous societies tracked contribution through other mechanisms (the kula ring, citation networks, ASCAP). Show that the problem the manifesto names is not a new discovery but a long-recognized condition that has only recently become technically solvable.</p>
+<p>End with: now that you see the problem, you cannot unsee it. Every transaction you observe in the following week will look different.</p>
+</div>
+
+<div class="lesson-card">
+<div class="label">Class · 2 of 4 · The mechanism</div>
+<h4>How the verdict gets made</h4>
+<div class="meta">Readings: essential version chapter IV (4 pages) + the math explainer subsection of main manifesto chapter III (6 pages)</div>
+<p>The second class is the technical class. Walk through how Koin actually computes credit. Spreading activation. Shapley values. Decay dynamics. Use the influence-graph diagram. Use the worked $20 book purchase example.</p>
+<p>This is the class where students with technical backgrounds get to dig in. For students without technical backgrounds, the plain-language explanations in the main manifesto are essential. Spend extra time on the worked example. Have students manually compute, on paper, the credit distribution for a small graph.</p>
+<p>End with the Lagrangian connection (if your students have physics background) or the analogy to PageRank (if they don't). Show that the math is borrowed from physics and from search algorithms — it's not new mathematics, it's a new application of well-established mathematics.</p>
+</div>
+
+<div class="lesson-card">
+<div class="label">Class · 3 of 4 · The implications</div>
+<h4>The world Koin builds</h4>
+<div class="meta">Readings: essential version chapter VII (3 pages) + main manifesto chapter IV "The new wealth" subsection (4 pages)</div>
+<p>The third class is about consequences. What does the world look like if Koin succeeds? Who becomes wealthy? Who loses leverage? What is preserved (the unmeasured)? What changes (the class structure)?</p>
+<p>Use the "New Wealth" framing from the main manifesto: the teacher, the maintainer, the mother, the librarian are wealthy in a Koin world. Have students think about specific people in their lives whose contributions Koin would surface.</p>
+<p>Then do the harder version: who loses status, leverage, or income in a Koin world? Platform operators, gatekeepers, rent-extractors. This is essential for the political-economy understanding.</p>
+</div>
+
+<div class="lesson-card">
+<div class="label">Class · 4 of 4 · The objections and the call</div>
+<h4>Why it might fail, and what you can do</h4>
+<div class="meta">Readings: critics.html (selections from any 2 critics) + essential version chapter XI (4 pages)</div>
+<p>The final class confronts the objections and discusses action. Pick two critics from the critics companion that you think will resonate with your specific student population. Read the critique aloud. Have students draft their own response before reading the manifesto's response. Compare.</p>
+<p>End with the "first moves, in concrete" section from the main manifesto: what students can actually do. Teachers, programmers, writers, organizers, capital allocators, the curious. Different students will see different paths.</p>
+<p>Closing: there is no automatic answer. Your generation chooses.</p>
+</div>
+
+<div class="discussion">
+<h5>Cumulative discussion questions for the unit</h5>
+<ul>
+<li>Of the eight critics in the companion document, which one's critique do you find most compelling? Why?</li>
+<li>If a Koin pilot were proposed at your school, what specific implementation choices would matter most? What would you fight for?</li>
+<li>What's a contribution you've made in the past year that the current bookkeeping doesn't see? What would it mean for that contribution to be visible?</li>
+<li>The manifesto says "the bookkeeping has been wrong long enough." What's the strongest counter-argument that the current bookkeeping is the right kind of bookkeeping?</li>
+<li>Imagine the closed Koin implementations win the race. Describe the world that produces. Now imagine the open ones win. Describe that world. Which one do you want to live in, and why?</li>
+</ul>
+</div>
+
+<div class="activity">
+<h5>Activity: design your own pilot</h5>
+<p>For the final class, have students work in groups of 4 to design a small Koin pilot for a specific domain. The domain can be chosen by the group (a club, a department, a local cooperative, a small business, a community organization). They must specify: who the contributors are, what counts as an absorption event, how consent is obtained, where the payment substrate comes from, how disputes are resolved, and how the pilot evaluates its own success after one year.</p>
+<p>The groups present their pilots to the class. The class discusses which pilots seem most likely to succeed and why. This is the most generative activity in the unit; students often arrive at design insights that go beyond what the manifesto itself proposes.</p>
+</div>
+
+<h2><span class="num">Part 3</span>The full-semester course</h2>
+
+<p>A full-semester course on Koin can carry students through the complete intellectual architecture: economic history, political theory, mathematical foundations, sociological consequences, and political-strategy analysis. The course is appropriate for upper-level undergraduates, graduate students, or advanced adult-education contexts.</p>
+
+<p>A suggested 14-week structure:</p>
+
+<p><b>Weeks 1-3: The history of bookkeeping.</b> The pre-literate accounting of oral cultures. The invention of writing as a bookkeeping technology. Double-entry bookkeeping and the rise of capitalism. National income accounting and the welfare state. Required readings: the main manifesto's Chapter IX (the long story), plus selected chapters from David Graeber's <i>Debt: The First 5,000 Years</i> and Karl Polanyi's <i>The Great Transformation</i>.</p>
+
+<p><b>Weeks 4-5: The bookkeeping problem.</b> Why money tracks custody, not contribution. The case studies of invisible labor — care work, teaching, mentorship, open-source maintenance, the dead. The historical attempts to address the problem — kula ring, citation networks, ASCAP, gift economies. Required readings: main manifesto Chapters I-II, Mauss's <i>The Gift</i>, Hyde's <i>The Gift</i>.</p>
+
+<p><b>Weeks 6-7: The mathematical foundations.</b> Graph theory primer. Spreading activation. PageRank. Shapley values and cooperative game theory. The Lagrangian formulation. Decay dynamics and reinforcement. Required readings: main manifesto Chapters III and VII; selected chapters from Easley & Kleinberg's <i>Networks, Crowds, and Markets</i>.</p>
+
+<p><b>Weeks 8-9: The political economy.</b> Who benefits from Koin? Who loses? What is the relationship to capitalism, socialism, and other political-economic frameworks? How does the federation governance prevent capture? Required readings: main manifesto Chapter V + critics.html in full + selected chapters from Ostrom's <i>Governing the Commons</i>.</p>
+
+<p><b>Weeks 10-11: The implementation.</b> The builder's guide. The federation specification. The deployment scenarios. The threat model. Required readings: builder.html in full + main manifesto Chapter X (deployment scenarios).</p>
+
+<p><b>Weeks 12-13: The implications.</b> The new class structure. The transformation of work. The treatment of children, the elderly, the dead. The relationship to AI, ecology, care labor. Required readings: main manifesto Chapter IV + new_ideas.html.</p>
+
+<p><b>Week 14: Synthesis and the future.</b> What questions remain open? What would the next manifesto address? Student final-project presentations.</p>
+
+<p><b>Final project options:</b> Students may choose one of several final projects. (a) Design a complete Koin pilot for a specific real-world organization, with budget, timeline, and evaluation criteria. (b) Write a chapter for the next revision of the manifesto, addressing a gap they have identified. (c) Develop a critique of Koin from a tradition not represented in the critics companion, with the manifesto's likely response. (d) Build a working prototype of a small Koin implementation (technically-inclined students). Each project requires both a written component and an oral presentation.</p>
+
+<h2><span class="num">Notes on different student populations</span></h2>
+
+<h3>High school students</h3>
+
+<p>For high schoolers (typically grades 10-12), use the single-class introduction or, for an economics class with more time, the four-class unit. The for-kids.html document is appropriate for younger students (middle school and below). The conceptual content lands well at the high school level; the math may need to be skimmed.</p>
+
+<p>High school students often connect strongly to the personal-relevance angle: who in their lives would be paid by Koin? The activity in the single-class introduction (mapping your own influence graph) works particularly well at this age. Many students discover for the first time how many people contributed to their own development.</p>
+
+<h3>College undergraduates</h3>
+
+<p>For undergraduates, the four-class unit fits naturally into a political theory, economics, sociology, or science-and-society course. The mathematical material can be pitched at varying levels of rigor depending on the student population.</p>
+
+<p>The most productive discussions tend to be in classes that include students from multiple disciplinary backgrounds. Economics students engage with the algorithm; philosophy students engage with the meaning question; computer science students engage with the implementation; sociology students engage with the class transformation. The cross-disciplinary discussion that emerges is often where the deepest insights happen.</p>
+
+<h3>Graduate students and professionals</h3>
+
+<p>For graduate students or professional adult learners, the full-semester course or substantial portions of it can be taught. The critics companion and the new ideas document are particularly useful at this level, because graduate students and professionals are best positioned to engage with the document as a working draft they can critique and extend rather than a finished argument they are asked to learn.</p>
+
+<p>Many professional students will see immediate applications to their own work: educators thinking about classroom Koin, programmers thinking about open-source Koin, healthcare workers thinking about care Koin, artists thinking about influence Koin. Encourage these applications; they are often the most productive intellectual outputs of the course.</p>
+
+<h2><span class="num">Notes on teaching style</span></h2>
+
+<p>Three notes on the teaching style that seems to work best for this material.</p>
+
+<p><b>Lead with examples, not definitions.</b> The grandmother who taught reading, the chef who wrote the recipe, the maintainer who built the library — these examples convey the thesis more effectively than the abstract framing. Once students have absorbed several examples, the abstractions land naturally. Once students have absorbed only the abstractions, the examples can feel like illustrations rather than the substance they actually are.</p>
+
+<p><b>Acknowledge complexity without being defeated by it.</b> Koin is an idea that operates at the intersection of economics, mathematics, computer science, political philosophy, and sociology. No single teacher will be equally fluent in all of these. Acknowledge the gaps in your own expertise; invite students who have stronger backgrounds in specific areas to contribute. The intellectual character of the manifesto is collaborative, and the classroom should mirror that character.</p>
+
+<p><b>Take objections seriously.</b> Students will raise objections. Some will be good. Some will be confused. The instinct to defend Koin against all objections is the wrong instinct; the right instinct is to take each objection seriously, distinguish good ones from confused ones, and let students see the process of intellectual refinement happening in real time. The critics companion is the model for this kind of engagement.</p>
+
+<blockquote>You are not teaching a finished doctrine. You are teaching a working argument. Let the students see it work. Let them improve it.</blockquote>
+
+<p class="signature">— Koin Labs<br>Teaching Koin · A guide for educators · v1.0</p>
+
+</div>
+</body></html>

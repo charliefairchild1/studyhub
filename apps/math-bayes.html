@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayes — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#64b5f6; --accent2:#81c784;
+    --warn:#ffb74d; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:12px;display:grid;grid-template-rows:1.1fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;overflow:hidden}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px}
+  #monty{flex:1;display:grid;grid-template-columns:auto 1fr;gap:14px;min-height:0}
+  #monty-ui{display:flex;flex-direction:column;gap:10px;padding:6px 0}
+  .door-row{display:flex;gap:10px}
+  .door{width:60px;height:80px;background:var(--bg);border:2px solid var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:22px}
+  .door:hover{border-color:var(--accent)}
+  .door.chosen{border-color:var(--accent);background:rgba(100,181,246,0.1)}
+  .door.opened{background:#4a3a2a;border-color:#ffb74d}
+  .door.final{animation:flash 0.8s}
+  @keyframes flash { 0%,100%{box-shadow:0 0 0 0 rgba(255,183,77,0)} 50%{box-shadow:0 0 0 6px rgba(255,183,77,0.5)} }
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:6px 10px;margin-bottom:4px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+  .status{font-size:11px;color:var(--accent);background:var(--bg);padding:6px 10px;border-radius:4px;border:1px solid var(--border);min-height:30px}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">Bayes — belief updating as learning</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="novelty.html">⚠ Novelty</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>Coin bias — Beta posterior concentrates as flips arrive</span><b id="coin-est">p̂ = —</b></div>
+    <canvas id="beta-canvas"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>Monty Hall — switch vs stay convergence</span><b id="mh-rate">—</b></div>
+    <div id="monty">
+      <div id="monty-ui">
+        <div class="status" id="mh-status">Pick a door.</div>
+        <div class="door-row">
+          <div class="door" data-door="0">?</div>
+          <div class="door" data-door="1">?</div>
+          <div class="door" data-door="2">?</div>
+        </div>
+        <div class="btn-row">
+          <button id="mh-switch">Switch policy → auto ×100</button>
+          <button id="mh-stay">Stay policy → auto ×100</button>
+          <button id="mh-reset">Reset</button>
+        </div>
+      </div>
+      <canvas id="mh-canvas"></canvas>
+    </div>
+  </div>
+</div>
+<div id="panel">
+  <h2>Bayes</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    <b>Belief update = learning.</b> Every PEP predictor is, at heart, a posterior tracker. Flip the coin to watch a posterior narrow; play Monty Hall to watch intuition lose to the math.
+  </div>
+
+  <h3>Coin bias</h3>
+  <div class="row">
+    <label>True bias</label>
+    <input id="bias" type="range" min="0" max="1" step="0.01" value="0.7">
+    <span class="val" id="bias-v">0.70</span>
+  </div>
+  <div class="row">
+    <label>Prior α (H)</label>
+    <input id="pa" type="range" min="0.5" max="20" step="0.5" value="1">
+    <span class="val" id="pa-v">1.0</span>
+  </div>
+  <div class="row">
+    <label>Prior β (T)</label>
+    <input id="pb" type="range" min="0.5" max="20" step="0.5" value="1">
+    <span class="val" id="pb-v">1.0</span>
+  </div>
+  <div class="btn-row">
+    <button id="flip">Flip 1</button>
+    <button id="flip10">Flip 10</button>
+    <button id="flip100">Flip 100</button>
+    <button id="coin-reset">Reset</button>
+  </div>
+  <div class="metric"><span>Heads</span><b id="m-h">0</b></div>
+  <div class="metric"><span>Tails</span><b id="m-t">0</b></div>
+  <div class="metric"><span>MAP estimate</span><b id="m-map">—</b></div>
+  <div class="metric"><span>95% credible</span><b id="m-ci">—</b></div>
+
+  <h3>Monty Hall</h3>
+  <div class="metric"><span>Games played</span><b id="mh-n">0</b></div>
+  <div class="metric"><span>Wins (this sess.)</span><b id="mh-wins">0</b></div>
+
+  <div class="pep-note">
+    <b>PEP connection.</b> The posterior density IS the model weight.
+    Each observed flip is a residual (the event that happened, against
+    what the current posterior would have predicted). Bayesian update
+    concentrates probability mass on values that survive the data —
+    which is exactly what gradient descent does with continuous
+    weights. See <a href="predictor.html">📈 Predictor</a> for the
+    gradient version; this page shows the probability-measure version.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Strong prior vs weak:</b> set prior α=10, β=10 — needs many flips to move. Set α=β=1 — updates fast.<br>
+    <b style="color:var(--accent2)">Biased coin vs honest:</b> set bias 0.5 vs 0.05 — watch the posterior shape differ.<br>
+    <b style="color:var(--accent2)">Monty auto:</b> switch → ~66%, stay → ~33%. The intuition that "it's 50/50 after one door is open" is wrong.
+  </div>
+</div>
+
+<script>
+(() => {
+  const betaC = document.getElementById('beta-canvas');
+  const bctx = betaC.getContext('2d');
+  const mhC = document.getElementById('mh-canvas');
+  const mctx = mhC.getContext('2d');
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  let bd, md;
+  function resizeAll() { bd = resizeOne(betaC, bctx); md = resizeOne(mhC, mctx); }
+  window.addEventListener('resize', resizeAll);
+
+  // === Beta posterior ===
+  const coin = { trueP: 0.7, priorA: 1, priorB: 1, heads: 0, tails: 0 };
+  function logGamma(x) {
+    // Stirling approx good enough for plotting
+    const g = [676.5203681218851, -1259.1392167224028, 771.32342877765313,
+               -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+               9.9843695780195716e-6, 1.5056327351493116e-7];
+    if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI*x)) - logGamma(1-x);
+    x -= 1;
+    let a = 0.99999999999980993;
+    const t = x + 7.5;
+    for (let i=0;i<8;i++) a += g[i] / (x+i+1);
+    return 0.5*Math.log(2*Math.PI) + (x+0.5)*Math.log(t) - t + Math.log(a);
+  }
+  function betaPDF(x, a, b) {
+    if (x <= 0 || x >= 1) return 0;
+    const lp = (a-1)*Math.log(x) + (b-1)*Math.log(1-x) - (logGamma(a)+logGamma(b)-logGamma(a+b));
+    return Math.exp(lp);
+  }
+  function flipN(n) {
+    for (let k=0;k<n;k++) {
+      if (Math.random() < coin.trueP) coin.heads++; else coin.tails++;
+    }
+    drawBeta();
+  }
+  function drawBeta() {
+    const { w, h } = bd;
+    bctx.fillStyle = '#0a0d14'; bctx.fillRect(0,0,w,h);
+    const a = coin.priorA + coin.heads, b = coin.priorB + coin.tails;
+    // compute curve
+    const N = 200;
+    let maxY = 0;
+    const ys = [];
+    for (let i=0;i<=N;i++) {
+      const x = i/N;
+      const y = betaPDF(x, a, b);
+      ys.push(y);
+      if (y > maxY) maxY = y;
+    }
+    maxY = Math.max(maxY, 1);
+    // axes
+    bctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    bctx.beginPath(); bctx.moveTo(30, h-22); bctx.lineTo(w-10, h-22); bctx.moveTo(30, 10); bctx.lineTo(30, h-22); bctx.stroke();
+    bctx.fillStyle = 'rgba(255,255,255,0.4)'; bctx.font='10px monospace';
+    for (let v=0; v<=1; v+=0.1) {
+      const x = 30 + v*(w-40);
+      bctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      bctx.beginPath(); bctx.moveTo(x, 10); bctx.lineTo(x, h-22); bctx.stroke();
+      if (v*10 % 2 === 0) bctx.fillText(v.toFixed(1), x-6, h-6);
+    }
+    // prior (faint)
+    bctx.strokeStyle = 'rgba(129,199,132,0.4)';
+    bctx.lineWidth = 1;
+    bctx.beginPath();
+    for (let i=0;i<=N;i++) {
+      const x = 30 + i/N*(w-40);
+      const py = betaPDF(i/N, coin.priorA, coin.priorB);
+      const y = h - 22 - py/maxY * (h-40);
+      if (i===0) bctx.moveTo(x,y); else bctx.lineTo(x,y);
+    }
+    bctx.stroke();
+    // posterior
+    bctx.strokeStyle = '#64b5f6';
+    bctx.lineWidth = 2;
+    bctx.fillStyle = 'rgba(100,181,246,0.15)';
+    bctx.beginPath();
+    bctx.moveTo(30, h-22);
+    for (let i=0;i<=N;i++) {
+      const x = 30 + i/N*(w-40);
+      const y = h - 22 - ys[i]/maxY * (h-40);
+      bctx.lineTo(x, y);
+    }
+    bctx.lineTo(w-10, h-22);
+    bctx.closePath();
+    bctx.fill();
+    bctx.beginPath();
+    for (let i=0;i<=N;i++) {
+      const x = 30 + i/N*(w-40);
+      const y = h - 22 - ys[i]/maxY * (h-40);
+      if (i===0) bctx.moveTo(x,y); else bctx.lineTo(x,y);
+    }
+    bctx.stroke();
+    // true bias line
+    const xt = 30 + coin.trueP*(w-40);
+    bctx.strokeStyle = '#ffb74d';
+    bctx.setLineDash([4,4]);
+    bctx.beginPath(); bctx.moveTo(xt, 10); bctx.lineTo(xt, h-22); bctx.stroke();
+    bctx.setLineDash([]);
+    bctx.fillStyle = '#ffb74d'; bctx.fillText('true p = '+coin.trueP.toFixed(2), Math.min(xt+4, w-80), 18);
+    // MAP estimate
+    const MAP = (a-1 > 0 && b-1 > 0) ? (a-1)/(a+b-2) : a/(a+b);
+    const sdApprox = Math.sqrt(a*b / ((a+b)*(a+b)*(a+b+1)));
+    const lo = Math.max(0, MAP - 1.96*sdApprox);
+    const hi = Math.min(1, MAP + 1.96*sdApprox);
+    const xm = 30 + MAP*(w-40);
+    bctx.strokeStyle = '#64b5f6';
+    bctx.beginPath(); bctx.moveTo(xm, 10); bctx.lineTo(xm, h-22); bctx.stroke();
+    bctx.fillStyle = '#64b5f6'; bctx.fillText('MAP = '+MAP.toFixed(2), Math.max(xm-40, 40), 36);
+    document.getElementById('m-h').textContent = coin.heads;
+    document.getElementById('m-t').textContent = coin.tails;
+    document.getElementById('m-map').textContent = MAP.toFixed(3);
+    document.getElementById('m-ci').textContent = '['+lo.toFixed(2)+', '+hi.toFixed(2)+']';
+    document.getElementById('coin-est').textContent = 'p̂ = '+MAP.toFixed(3);
+  }
+
+  // === Monty Hall ===
+  const mh = { stage:'pick', car:0, chosen:-1, opened:-1, n:0, winsSwitch:0, playsSwitch:0, winsStay:0, playsStay:0, hist:[] };
+  function newGame() {
+    mh.car = Math.floor(Math.random()*3);
+    mh.chosen = -1; mh.opened = -1; mh.stage = 'pick';
+    document.querySelectorAll('.door').forEach(d => {
+      d.className = 'door';
+      d.textContent = '?';
+    });
+    document.getElementById('mh-status').textContent = 'Pick a door.';
+  }
+  function pickDoor(d) {
+    if (mh.stage !== 'pick') return;
+    mh.chosen = d;
+    document.querySelectorAll('.door').forEach((el, i) => {
+      el.classList.toggle('chosen', i === d);
+    });
+    // host opens a non-chosen, non-car door
+    const options = [0,1,2].filter(i => i !== mh.chosen && i !== mh.car);
+    mh.opened = options[Math.floor(Math.random()*options.length)];
+    document.querySelectorAll('.door').forEach((el, i) => {
+      if (i === mh.opened) { el.classList.add('opened'); el.textContent = '🐐'; }
+    });
+    mh.stage = 'decide';
+    document.getElementById('mh-status').textContent = 'Host opened door '+(mh.opened+1)+' (goat). Click another door to switch, or your original to stay.';
+  }
+  function decide(d) {
+    if (mh.stage !== 'decide') return;
+    if (d === mh.opened) return;
+    const switched = (d !== mh.chosen);
+    const win = (d === mh.car);
+    mh.n++;
+    if (switched) { mh.playsSwitch++; if (win) mh.winsSwitch++; }
+    else { mh.playsStay++; if (win) mh.winsStay++; }
+    // reveal
+    document.querySelectorAll('.door').forEach((el, i) => {
+      el.textContent = i === mh.car ? '🚗' : '🐐';
+      if (i === d) el.classList.add('final');
+    });
+    mh.stage = 'done';
+    document.getElementById('mh-status').textContent = (win ? '✓ WIN ' : '✗ LOSS ') + '— ' + (switched ? 'switched' : 'stayed') + '. Click a door to play again.';
+    mh.hist.push({ switched, win });
+    updateMH();
+    setTimeout(newGame, 1400);
+  }
+  function autoPlay(policy, n) {
+    for (let k=0;k<n;k++) {
+      const car = Math.floor(Math.random()*3);
+      const chosen = Math.floor(Math.random()*3);
+      const opts = [0,1,2].filter(i => i !== chosen && i !== car);
+      const opened = opts[Math.floor(Math.random()*opts.length)];
+      let final = chosen;
+      if (policy === 'switch') {
+        final = [0,1,2].find(i => i !== chosen && i !== opened);
+      }
+      const win = (final === car);
+      mh.n++;
+      if (policy === 'switch') { mh.playsSwitch++; if (win) mh.winsSwitch++; }
+      else { mh.playsStay++; if (win) mh.winsStay++; }
+      mh.hist.push({ switched: policy==='switch', win });
+    }
+    updateMH();
+  }
+  function updateMH() {
+    document.getElementById('mh-n').textContent = mh.n;
+    const wins = mh.winsSwitch + mh.winsStay;
+    document.getElementById('mh-wins').textContent = wins;
+    const rS = mh.playsSwitch > 0 ? (mh.winsSwitch/mh.playsSwitch) : 0;
+    const rT = mh.playsStay > 0 ? (mh.winsStay/mh.playsStay) : 0;
+    document.getElementById('mh-rate').textContent =
+      'switch '+(mh.playsSwitch>0?(rS*100).toFixed(1)+'%':'—')+' · stay '+(mh.playsStay>0?(rT*100).toFixed(1)+'%':'—');
+    drawMH();
+  }
+  function drawMH() {
+    const { w, h } = md;
+    mctx.fillStyle = '#0a0d14'; mctx.fillRect(0,0,w,h);
+    // 2/3 and 1/3 reference lines
+    const y2 = h - (2/3)*h*0.85 - 12;
+    const y1 = h - (1/3)*h*0.85 - 12;
+    mctx.strokeStyle = 'rgba(129,199,132,0.4)';
+    mctx.setLineDash([3,3]);
+    mctx.beginPath(); mctx.moveTo(0,y2); mctx.lineTo(w,y2); mctx.stroke();
+    mctx.strokeStyle = 'rgba(239,83,80,0.4)';
+    mctx.beginPath(); mctx.moveTo(0,y1); mctx.lineTo(w,y1); mctx.stroke();
+    mctx.setLineDash([]);
+    mctx.fillStyle = 'rgba(129,199,132,0.7)'; mctx.font='10px monospace';
+    mctx.fillText('switch limit 2/3', 4, y2-3);
+    mctx.fillStyle = 'rgba(239,83,80,0.7)';
+    mctx.fillText('stay limit 1/3', 4, y1+12);
+    // running win rate for each policy
+    let winsS=0, playsS=0, winsT=0, playsT=0;
+    const pointsS = [], pointsT = [];
+    for (let i=0;i<mh.hist.length;i++) {
+      const e = mh.hist[i];
+      if (e.switched) { playsS++; if (e.win) winsS++; pointsS.push({i, r: winsS/playsS}); }
+      else { playsT++; if (e.win) winsT++; pointsT.push({i, r: winsT/playsT}); }
+    }
+    const N = Math.max(mh.hist.length, 1);
+    function plot(pts, color) {
+      if (pts.length < 2) return;
+      mctx.strokeStyle = color;
+      mctx.lineWidth = 1.5;
+      mctx.beginPath();
+      for (let i=0;i<pts.length;i++) {
+        const x = pts[i].i/N * w;
+        const y = h - pts[i].r*h*0.85 - 12;
+        if (i===0) mctx.moveTo(x,y); else mctx.lineTo(x,y);
+      }
+      mctx.stroke();
+    }
+    plot(pointsS, '#81c784');
+    plot(pointsT, '#ef5350');
+  }
+
+  // bind coin controls
+  document.getElementById('bias').addEventListener('input', e => {
+    coin.trueP = parseFloat(e.target.value);
+    document.getElementById('bias-v').textContent = coin.trueP.toFixed(2);
+    drawBeta();
+  });
+  document.getElementById('pa').addEventListener('input', e => {
+    coin.priorA = parseFloat(e.target.value);
+    document.getElementById('pa-v').textContent = coin.priorA.toFixed(1);
+    drawBeta();
+  });
+  document.getElementById('pb').addEventListener('input', e => {
+    coin.priorB = parseFloat(e.target.value);
+    document.getElementById('pb-v').textContent = coin.priorB.toFixed(1);
+    drawBeta();
+  });
+  document.getElementById('flip').onclick = () => flipN(1);
+  document.getElementById('flip10').onclick = () => flipN(10);
+  document.getElementById('flip100').onclick = () => flipN(100);
+  document.getElementById('coin-reset').onclick = () => {
+    coin.heads = 0; coin.tails = 0; drawBeta();
+  };
+
+  // bind Monty Hall
+  document.querySelectorAll('.door').forEach(d => {
+    d.addEventListener('click', () => {
+      const idx = parseInt(d.dataset.door);
+      if (mh.stage === 'pick') pickDoor(idx);
+      else if (mh.stage === 'decide') decide(idx);
+      else if (mh.stage === 'done') newGame();
+    });
+  });
+  document.getElementById('mh-switch').onclick = () => autoPlay('switch', 100);
+  document.getElementById('mh-stay').onclick = () => autoPlay('stay', 100);
+  document.getElementById('mh-reset').onclick = () => {
+    mh.n = 0; mh.winsSwitch = 0; mh.playsSwitch = 0; mh.winsStay = 0; mh.playsStay = 0; mh.hist = [];
+    newGame(); updateMH();
+  };
+
+  resizeAll();
+  drawBeta();
+  newGame();
+  drawMH();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

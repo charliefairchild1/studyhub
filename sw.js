@@ -1,9 +1,12 @@
-const CACHE = 'studyhub-v3';
+const CACHE = 'studyhub-v4';
 const APPS = ['highlights','chess','poker','spanish','vaya','two-selves','poietism','doomsday',
-  'animal-book','poietism-pamphlet','poietism-paper','koin','koin-pamphlet','koin-essential','koin-kids',
+  'animal-book','animal-essay','poietism-pamphlet','poietism-paper','poietism-naming',
+  'koin','koin-welcome','koin-pamphlet','koin-essential','koin-teaching','koin-kids',
   'transformation-map','portfolio-planner','spacex-invest','spacex-pto','hex',
   'life','evolution','voronoi','math-neural','math-spreading','math-predictor','math-kuramoto',
-  'math-reaction','math-sandpile','math-percolation','math-galton','math-globe','math-language-evolution','math-annealing'];
+  'math-reaction','math-sandpile','math-percolation','math-galton','math-globe','math-language-evolution','math-annealing',
+  'math-bayes','math-entropy','math-diffusion','math-network','math-gradient','math-fourier','math-epidemic',
+  'math-pendulum','math-attractor','math-cycles','math-markov','math-mcmc','math-gp','math-novelty','math-haze','math-modulation'];
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './routes.json',
   './icon-180.png', './icon-192.png', './icon-512.png'

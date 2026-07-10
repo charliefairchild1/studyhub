@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diffusion — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#4fc3f7; --accent2:#81c784;
+    --warn:#ffb74d; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;overflow:hidden}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
+  .section-title b{color:var(--accent)}
+  canvas{flex:1;width:100%;background:var(--bg);border-radius:4px;display:block}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">diffusion — continuous limit of spreading</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="spreading.html">⟳ Spreading</a>
+    <a href="entropy.html">Σ Entropy</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title"><span>N random walkers (discrete)</span><b id="m-steps">t = 0</b></div>
+    <canvas id="rw"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title"><span>Density field (heat eq · ∂ρ/∂t = D∇²ρ)</span><b id="m-total">∫ρ = —</b></div>
+    <canvas id="field"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Diffusion</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px">
+    A cloud of random walkers (left) and a continuous density solving the heat equation (right), started from the same initial condition. They converge. That's why spreading activation on a weighted graph IS a diffusion process in the limit.
+  </div>
+
+  <h3>Initial condition</h3>
+  <div class="btn-row">
+    <button class="ic-btn active" data-ic="point">Point source</button>
+    <button class="ic-btn" data-ic="two">Two sources</button>
+    <button class="ic-btn" data-ic="bar">Horizontal bar</button>
+    <button class="ic-btn" data-ic="random">Random</button>
+  </div>
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset</button>
+    <button id="step1">Step 1</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label># walkers</label>
+    <input id="N" type="range" min="1" max="2000" step="1" value="300">
+    <span class="val" id="N-v">300</span>
+  </div>
+  <div class="row">
+    <label>Drift x</label>
+    <input id="dx" type="range" min="-1" max="1" step="0.02" value="0">
+    <span class="val" id="dx-v">0.00</span>
+  </div>
+  <div class="row">
+    <label>Drift y</label>
+    <input id="dy" type="range" min="-1" max="1" step="0.02" value="0">
+    <span class="val" id="dy-v">0.00</span>
+  </div>
+  <div class="row">
+    <label>Absorbing rate</label>
+    <input id="abs" type="range" min="0" max="0.05" step="0.001" value="0">
+    <span class="val" id="abs-v">0.000</span>
+  </div>
+
+  <h3>Boundary</h3>
+  <div class="btn-row">
+    <button class="bd-btn active" data-bd="reflect">Reflecting</button>
+    <button class="bd-btn" data-bd="absorb">Absorbing</button>
+    <button class="bd-btn" data-bd="periodic">Periodic</button>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Step</span><b id="m-step">0</b></div>
+  <div class="metric"><span>Walkers alive</span><b id="m-alive">0</b></div>
+  <div class="metric"><span>Avg r²</span><b id="m-r2">0</b></div>
+  <div class="metric"><span>Field mass</span><b id="m-mass">—</b></div>
+
+  <div class="pep-note">
+    <b>Einstein's relation.</b> For a simple random walk with step τ,
+    spacing h, ⟨x²⟩ = 2D t with D = h²/(2τ). The left canvas <i>is</i>
+    the right canvas, one sample at a time. This is the formal
+    statement that <a href="spreading.html">spreading activation</a>
+    is diffusion with a discrete stencil.<br><br>
+    <b>Why it matters for PEP.</b> The predictable-envelope of where
+    activation will be after k steps is exactly the Gaussian
+    ρ(x, t) = e^(-x²/(4Dt)) / √(4πDt). That envelope is what the
+    engine uses to decide the reach horizon of a query.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Same IC, different N:</b> scrub walker count — more walkers, less sampling noise, closer match to the field.<br>
+    <b style="color:var(--accent2)">Drift:</b> crank drift_x → walker cloud slides, field develops advection.<br>
+    <b style="color:var(--accent2)">Absorbing:</b> walkers that touch the boundary die — field drains too.
+  </div>
+</div>
+
+<script>
+(() => {
+  const rwC = document.getElementById('rw');
+  const fC = document.getElementById('field');
+  const rctx = rwC.getContext('2d');
+  const fctx = fC.getContext('2d');
+  let rwDim, fDim;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() {
+    rwDim = resizeOne(rwC, rctx);
+    fDim = resizeOne(fC, fctx);
+    // reinit field grid
+    gridW = Math.min(80, Math.floor(fDim.w / 6));
+    gridH = Math.min(80, Math.floor(fDim.h / 6));
+    field = new Array(gridW*gridH).fill(0);
+    nextField = new Array(gridW*gridH).fill(0);
+    placeIC();
+  }
+  window.addEventListener('resize', resizeAll);
+
+  // Walkers
+  let walkers = [];
+  let step = 0;
+  function resetWalkers() {
+    const n = parseInt(document.getElementById('N').value);
+    walkers = [];
+    const { w, h } = rwDim;
+    if (ic === 'point') {
+      for (let i=0;i<n;i++) walkers.push({ x: w/2, y: h/2, alive: true, path:[] });
+    } else if (ic === 'two') {
+      for (let i=0;i<n;i++) walkers.push({ x: i<n/2 ? w/3 : 2*w/3, y: h/2, alive: true, path:[] });
+    } else if (ic === 'bar') {
+      for (let i=0;i<n;i++) walkers.push({ x: w*0.2 + Math.random()*w*0.6, y: h/2, alive: true, path:[] });
+    } else {
+      for (let i=0;i<n;i++) walkers.push({ x: Math.random()*w, y: Math.random()*h, alive: true, path:[] });
+    }
+    step = 0;
+  }
+
+  // Field
+  let gridW = 60, gridH = 60;
+  let field = new Array(gridW*gridH).fill(0);
+  let nextField = new Array(gridW*gridH).fill(0);
+  let ic = 'point', bd = 'reflect';
+  function placeIC() {
+    field.fill(0);
+    if (ic === 'point') field[Math.floor(gridH/2)*gridW + Math.floor(gridW/2)] = 1;
+    else if (ic === 'two') {
+      field[Math.floor(gridH/2)*gridW + Math.floor(gridW/3)] = 0.5;
+      field[Math.floor(gridH/2)*gridW + Math.floor(2*gridW/3)] = 0.5;
+    } else if (ic === 'bar') {
+      const row = Math.floor(gridH/2);
+      const c0 = Math.floor(gridW*0.25), c1 = Math.floor(gridW*0.75);
+      const per = 1/(c1-c0);
+      for (let c=c0;c<c1;c++) field[row*gridW + c] = per;
+    } else {
+      for (let i=0;i<field.length;i++) field[i] = Math.random();
+      const s = field.reduce((a,b)=>a+b,0);
+      for (let i=0;i<field.length;i++) field[i] /= s;
+    }
+  }
+
+  // step functions
+  const params = { dx: 0, dy: 0, abs: 0, N: 300 };
+  function stepWalkers() {
+    const { w, h } = rwDim;
+    const sigma = 4;  // step stddev
+    const driftX = params.dx * 2, driftY = params.dy * 2;
+    let r2sum = 0, alive = 0;
+    for (const wk of walkers) {
+      if (!wk.alive) continue;
+      if (Math.random() < params.abs) { wk.alive = false; continue; }
+      const nx = wk.x + (Math.random()-0.5)*2*sigma + driftX;
+      const ny = wk.y + (Math.random()-0.5)*2*sigma + driftY;
+      let x = nx, y = ny, doKill = false;
+      if (bd === 'reflect') {
+        if (x < 0) x = -x;
+        if (y < 0) y = -y;
+        if (x > w) x = 2*w - x;
+        if (y > h) y = 2*h - y;
+      } else if (bd === 'absorb') {
+        if (x < 0 || x > w || y < 0 || y > h) doKill = true;
+      } else {
+        x = ((x % w) + w) % w;
+        y = ((y % h) + h) % h;
+      }
+      if (doKill) { wk.alive = false; continue; }
+      wk.x = x; wk.y = y;
+      alive++;
+      const dx = wk.x - w/2, dy = wk.y - h/2;
+      r2sum += dx*dx + dy*dy;
+    }
+    step++;
+    document.getElementById('m-steps').textContent = 't = ' + step;
+    document.getElementById('m-step').textContent = step;
+    document.getElementById('m-alive').textContent = alive;
+    document.getElementById('m-r2').textContent = alive>0 ? (r2sum/alive).toFixed(1) : '—';
+  }
+  function stepField() {
+    const D = 0.15;   // per-tick Laplacian multiplier (stable if <= 0.25)
+    const driftX = params.dx * 0.2;
+    const driftY = params.dy * 0.2;
+    for (let y=0;y<gridH;y++) for (let x=0;x<gridW;x++) {
+      const i = y*gridW + x;
+      let left, right, up, down;
+      if (bd === 'periodic') {
+        left  = field[y*gridW + ((x-1+gridW)%gridW)];
+        right = field[y*gridW + ((x+1)%gridW)];
+        up    = field[((y-1+gridH)%gridH)*gridW + x];
+        down  = field[((y+1)%gridH)*gridW + x];
+      } else {
+        left  = x>0 ? field[y*gridW + x-1] : (bd==='reflect' ? field[i] : 0);
+        right = x<gridW-1 ? field[y*gridW + x+1] : (bd==='reflect' ? field[i] : 0);
+        up    = y>0 ? field[(y-1)*gridW + x] : (bd==='reflect' ? field[i] : 0);
+        down  = y<gridH-1 ? field[(y+1)*gridW + x] : (bd==='reflect' ? field[i] : 0);
+      }
+      const lap = left + right + up + down - 4*field[i];
+      const advect = -driftX*(right-left)/2 - driftY*(down-up)/2;
+      nextField[i] = field[i] + D*lap + advect - params.abs*field[i];
+      if (nextField[i] < 0) nextField[i] = 0;
+    }
+    [field, nextField] = [nextField, field];
+    const mass = field.reduce((a,b)=>a+b, 0);
+    document.getElementById('m-mass').textContent = mass.toFixed(3);
+    document.getElementById('m-total').textContent = '∫ρ = ' + mass.toFixed(3);
+  }
+
+  // draw
+  function drawRW() {
+    const { w, h } = rwDim;
+    rctx.fillStyle = 'rgba(10,13,20,0.25)';
+    rctx.fillRect(0,0,w,h);
+    rctx.fillStyle = 'rgba(129,199,132,0.55)';
+    for (const wk of walkers) {
+      if (!wk.alive) continue;
+      rctx.fillRect(wk.x-1, wk.y-1, 2, 2);
+    }
+  }
+  function drawField() {
+    const { w, h } = fDim;
+    const cell = Math.min(w/gridW, h/gridH);
+    const xoff = (w - cell*gridW)/2;
+    const yoff = (h - cell*gridH)/2;
+    fctx.fillStyle = '#0a0d14'; fctx.fillRect(0,0,w,h);
+    const maxV = Math.max(0.001, ...field);
+    for (let y=0;y<gridH;y++) for (let x=0;x<gridW;x++) {
+      const v = field[y*gridW + x] / maxV;
+      if (v < 0.001) continue;
+      const [r,g,b] = heat(v);
+      fctx.fillStyle = `rgb(${r},${g},${b})`;
+      fctx.fillRect(xoff + x*cell, yoff + y*cell, cell+0.5, cell+0.5);
+    }
+  }
+  function heat(t) {
+    const stops = [[10,13,20], [30,60,90], [60,140,180], [120,200,200], [230,220,90], [240,140,60]];
+    const s = t*(stops.length-1);
+    const i = Math.min(stops.length-2, Math.floor(s));
+    const u = s - i;
+    const c0 = stops[i], c1 = stops[i+1];
+    return [c0[0]+(c1[0]-c0[0])*u|0, c0[1]+(c1[1]-c0[1])*u|0, c0[2]+(c1[2]-c0[2])*u|0];
+  }
+
+  // controls
+  document.querySelectorAll('.ic-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.ic-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      ic = b.dataset.ic;
+      placeIC();
+      resetWalkers();
+    });
+  });
+  document.querySelectorAll('.bd-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.bd-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      bd = b.dataset.bd;
+    });
+  });
+  ['N','dx','dy','abs'].forEach(k => {
+    const el = document.getElementById(k);
+    const val = document.getElementById(k+'-v');
+    el.addEventListener('input', () => {
+      params[k] = parseFloat(el.value);
+      val.textContent = k==='N' ? parseInt(el.value) : k==='abs' ? params[k].toFixed(3) : params[k].toFixed(2);
+      if (k==='N') resetWalkers();
+    });
+  });
+  let running = true;
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = () => {
+    placeIC(); resetWalkers();
+  };
+  document.getElementById('step1').onclick = () => { stepWalkers(); stepField(); };
+
+  function loop() {
+    if (running) { stepWalkers(); stepField(); }
+    drawRW(); drawField();
+    setTimeout(loop, 50);
+  }
+
+  resizeAll();
+  resetWalkers();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

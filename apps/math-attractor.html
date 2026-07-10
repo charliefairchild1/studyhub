@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lorenz — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#ffb74d; --accent2:#4fc3f7;
+    --warn:#ef5350; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+  #phase{flex:2;display:block;background:var(--bg);border-radius:4px;width:100%}
+  #phase-wrap{flex:2;display:flex;flex-direction:column}
+  #phase-wrap canvas{flex:1}
+  #lower{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .track-wrap{display:flex;flex-direction:column;height:100%}
+  .track-wrap canvas{flex:1;width:100%;background:var(--bg);border-radius:4px}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:110px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:52px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">Lorenz attractor — prediction horizon</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="predictor.html">📈 Predictor</a>
+    <a href="novelty.html">⚠ Novelty</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section" id="phase-wrap" style="display:flex;flex-direction:column;flex:2">
+    <div class="section-title">Phase space (x–z projection, rotating)</div>
+    <canvas id="phase"></canvas>
+  </div>
+  <div id="lower">
+    <div class="section track-wrap">
+      <div class="section-title">Separation |Δ| between trajectories</div>
+      <canvas id="sep-canvas"></canvas>
+    </div>
+    <div class="section track-wrap">
+      <div class="section-title">log₂(|Δ|/ε) — Lyapunov-style growth</div>
+      <canvas id="lyap-canvas"></canvas>
+    </div>
+  </div>
+</div>
+<div id="panel">
+  <h2>Lorenz Attractor</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    Two trajectories start <b>ε</b> apart in state space. Both live on the butterfly. But their <i>positions</i> diverge exponentially — that's the prediction horizon. After O(log(1/ε)) time, any predictor loses lock on the exact state, no matter how perfect its model.
+  </div>
+
+  <h3>Regime</h3>
+  <div class="btn-row">
+    <button class="rho-btn active" data-rho="28">Chaos (ρ=28)</button>
+    <button class="rho-btn" data-rho="15">Pre-chaos (ρ=15)</button>
+    <button class="rho-btn" data-rho="99.96">Windowed (ρ=99.96)</button>
+    <button class="rho-btn" data-rho="10">Damped (ρ=10)</button>
+  </div>
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset trails</button>
+    <button id="kick">Kick 2nd trajectory</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>ε (initial gap)</label>
+    <input id="eps" type="range" min="-10" max="-1" step="0.2" value="-5">
+    <span class="val" id="eps-v">1e-5</span>
+  </div>
+  <div class="row">
+    <label>dt</label>
+    <input id="dt" type="range" min="0.002" max="0.02" step="0.001" value="0.01">
+    <span class="val" id="dt-v">0.010</span>
+  </div>
+  <div class="row">
+    <label>Steps / frame</label>
+    <input id="sps" type="range" min="1" max="12" step="1" value="4">
+    <span class="val" id="sps-v">4</span>
+  </div>
+  <div class="row">
+    <label>Rotation speed</label>
+    <input id="rot" type="range" min="0" max="0.03" step="0.002" value="0.006">
+    <span class="val" id="rot-v">0.006</span>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Sim time</span><b id="m-t">0.00</b></div>
+  <div class="metric"><span>|Δ| now</span><b id="m-dist">0</b></div>
+  <div class="metric"><span>log₂(|Δ|/ε)</span><b id="m-lyap">0</b></div>
+  <div class="metric"><span>Horizon (bits lost)</span><b id="m-horizon">0</b></div>
+
+  <div class="pep-note">
+    <b>Why this matters to PEP.</b> Primitive 3 (predictor + residual)
+    has a <i>finite</i> horizon in any chaotic system. Residual stays
+    bounded at long lead times no matter how much you train — the
+    signal itself has outgrown what a predictor can resolve. Lesson:
+    predict the attractor (shape, statistics, regime) instead of the
+    state. PTO echoes this: grade the trajectory, not the instantaneous
+    position.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Start with ε=1e-9:</b> trails are indistinguishable for ~10 sim-seconds, then visibly split.<br>
+    <b style="color:var(--accent2)">Switch to Pre-chaos:</b> trails converge to a fixed point or limit cycle — no horizon, perfect prediction.<br>
+    <b style="color:var(--accent2)">Windowed:</b> one of Lorenz's periodic windows — chaos collapses to a cycle even at high ρ.
+  </div>
+</div>
+
+<script>
+(() => {
+  const phase = document.getElementById('phase');
+  const pctx = phase.getContext('2d');
+  const sepC = document.getElementById('sep-canvas');
+  const sctx = sepC.getContext('2d');
+  const lyapC = document.getElementById('lyap-canvas');
+  const lctx = lyapC.getContext('2d');
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  let pd, sd, ld;
+  function resizeAll() {
+    pd = resizeOne(phase, pctx);
+    sd = resizeOne(sepC, sctx);
+    ld = resizeOne(lyapC, lctx);
+  }
+  window.addEventListener('resize', resizeAll);
+
+  const sigma = 10, beta = 8/3;
+  let rho = 28;
+
+  const params = { eps: 1e-5, dt: 0.01, sps: 4, rot: 0.006 };
+  let state1 = {x:1,y:1,z:1};
+  let state2 = {x:1,y:1,z:1+params.eps};
+  let t = 0;
+  let trail1 = [], trail2 = [];
+  let sepHist = [];
+  let lyapHist = [];
+  let angle = 0;
+  let running = true;
+
+  function rk4(s) {
+    function f(st) { return { x:sigma*(st.y-st.x), y:st.x*(rho-st.z)-st.y, z:st.x*st.y-beta*st.z }; }
+    const dt = params.dt;
+    const k1 = f(s);
+    const s2 = { x:s.x+dt/2*k1.x, y:s.y+dt/2*k1.y, z:s.z+dt/2*k1.z };
+    const k2 = f(s2);
+    const s3 = { x:s.x+dt/2*k2.x, y:s.y+dt/2*k2.y, z:s.z+dt/2*k2.z };
+    const k3 = f(s3);
+    const s4 = { x:s.x+dt*k3.x, y:s.y+dt*k3.y, z:s.z+dt*k3.z };
+    const k4 = f(s4);
+    return {
+      x: s.x + dt/6*(k1.x + 2*k2.x + 2*k3.x + k4.x),
+      y: s.y + dt/6*(k1.y + 2*k2.y + 2*k3.y + k4.y),
+      z: s.z + dt/6*(k1.z + 2*k2.z + 2*k3.z + k4.z),
+    };
+  }
+
+  function stepOnce() {
+    state1 = rk4(state1);
+    state2 = rk4(state2);
+    t += params.dt;
+    angle += params.rot;
+    trail1.push({...state1}); if (trail1.length > 3000) trail1.shift();
+    trail2.push({...state2}); if (trail2.length > 3000) trail2.shift();
+    const dx = state1.x-state2.x, dy = state1.y-state2.y, dz = state1.z-state2.z;
+    const d = Math.sqrt(dx*dx+dy*dy+dz*dz);
+    sepHist.push(d); if (sepHist.length > 500) sepHist.shift();
+    const lyap = d > 0 ? Math.log2(d/params.eps) : 0;
+    lyapHist.push(lyap); if (lyapHist.length > 500) lyapHist.shift();
+  }
+
+  function proj(p) {
+    // rotate around y axis and project x–z
+    const ca = Math.cos(angle), sa = Math.sin(angle);
+    const X = p.x*ca + p.z*sa;  // skip for projection
+    const Z = -p.x*sa + p.z*ca;
+    // y is up
+    return { u: X, v: p.z - 25 + Z*0.0 /* keep z in view */, X, Z };
+  }
+  function mapPt(p) {
+    const { w, h } = pd;
+    const cx = w/2, cy = h/2;
+    const scale = Math.min(w,h) / 120;
+    const pp = proj(p);
+    return { x: cx + pp.X*scale, y: cy + (p.z-25)*scale*0.9 };
+  }
+
+  function drawPhase() {
+    const { w, h } = pd;
+    pctx.fillStyle = 'rgba(10,13,20,0.15)';
+    pctx.fillRect(0,0,w,h);
+    // trail 1
+    pctx.strokeStyle = 'rgba(79,195,247,0.85)';
+    pctx.lineWidth = 1;
+    pctx.beginPath();
+    for (let i=0;i<trail1.length;i++) {
+      const { x, y } = mapPt(trail1[i]);
+      if (i===0) pctx.moveTo(x,y); else pctx.lineTo(x,y);
+    }
+    pctx.stroke();
+    pctx.strokeStyle = 'rgba(255,183,77,0.85)';
+    pctx.beginPath();
+    for (let i=0;i<trail2.length;i++) {
+      const { x, y } = mapPt(trail2[i]);
+      if (i===0) pctx.moveTo(x,y); else pctx.lineTo(x,y);
+    }
+    pctx.stroke();
+    // current points
+    const p1 = mapPt(state1), p2 = mapPt(state2);
+    pctx.fillStyle = '#4fc3f7';
+    pctx.beginPath(); pctx.arc(p1.x,p1.y,4,0,Math.PI*2); pctx.fill();
+    pctx.fillStyle = '#ffb74d';
+    pctx.beginPath(); pctx.arc(p2.x,p2.y,4,0,Math.PI*2); pctx.fill();
+  }
+
+  function drawTrack(c, ctx, dim, hist, log) {
+    const { w, h } = dim;
+    ctx.fillStyle = '#0a0d14';
+    ctx.fillRect(0,0,w,h);
+    if (hist.length < 2) return;
+    let minV = hist[0], maxV = hist[0];
+    for (const v of hist) { if (v<minV) minV=v; if (v>maxV) maxV=v; }
+    if (log) { minV = Math.min(-50, minV); maxV = Math.max(50, maxV); }
+    if (maxV - minV < 1e-12) maxV = minV + 1;
+    // zero line for lyap
+    if (log) {
+      const y0 = h - (0 - minV)/(maxV - minV) * h * 0.9 - 4;
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(w,y0); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.strokeStyle = log ? '#ba68c8' : '#ef5350';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i=0;i<hist.length;i++) {
+      const x = i/500 * w;
+      const y = h - (hist[i] - minV)/(maxV - minV) * h * 0.9 - 4;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  function updateMetrics() {
+    const d = sepHist.length ? sepHist[sepHist.length-1] : 0;
+    const l = lyapHist.length ? lyapHist[lyapHist.length-1] : 0;
+    document.getElementById('m-t').textContent = t.toFixed(2);
+    document.getElementById('m-dist').textContent = d < 0.001 ? d.toExponential(2) : d.toFixed(3);
+    document.getElementById('m-lyap').textContent = l.toFixed(2);
+    document.getElementById('m-horizon').textContent = Math.max(0, l).toFixed(1);
+  }
+
+  function loop() {
+    if (running) for (let k=0;k<params.sps;k++) stepOnce();
+    drawPhase();
+    drawTrack(sepC, sctx, sd, sepHist, false);
+    drawTrack(lyapC, lctx, ld, lyapHist, true);
+    updateMetrics();
+    requestAnimationFrame(loop);
+  }
+
+  // controls
+  document.querySelectorAll('.rho-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.rho-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      rho = parseFloat(b.dataset.rho);
+      reset();
+    });
+  });
+  document.getElementById('eps').addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    params.eps = Math.pow(10, v);
+    document.getElementById('eps-v').textContent = params.eps.toExponential(1);
+    reset();
+  });
+  document.getElementById('dt').addEventListener('input', e => {
+    params.dt = parseFloat(e.target.value);
+    document.getElementById('dt-v').textContent = params.dt.toFixed(3);
+  });
+  document.getElementById('sps').addEventListener('input', e => {
+    params.sps = parseInt(e.target.value);
+    document.getElementById('sps-v').textContent = params.sps;
+  });
+  document.getElementById('rot').addEventListener('input', e => {
+    params.rot = parseFloat(e.target.value);
+    document.getElementById('rot-v').textContent = params.rot.toFixed(3);
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('kick').onclick = () => {
+    state2.x += params.eps*1e6;
+    state2.y += params.eps*1e6;
+  };
+
+  function reset() {
+    state1 = {x:1,y:1,z:1};
+    state2 = {x:1,y:1,z:1+params.eps};
+    t = 0;
+    trail1 = []; trail2 = [];
+    sepHist = []; lyapHist = [];
+    angle = 0;
+  }
+
+  resizeAll();
+  reset();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

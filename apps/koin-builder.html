@@ -1,0 +1,466 @@
+<!doctype html><html><head>
+<meta charset="utf-8"><title>The Builder's Guide — Implementing Koin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--text:#e8e6e0;--dim:#8b8a83;--accent:#d4af37;--accent2:#67e8f9;--rule:#26252e;--quote:#a78bfa}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text)}
+body{font-family:'Georgia','Times New Roman',serif;line-height:1.72;font-size:18px;padding:60px 24px 120px}
+.wrap{max-width:720px;margin:0 auto}
+.eyebrow{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+h1{font-family:'Georgia',serif;font-size:42px;line-height:1.1;font-weight:400;letter-spacing:-0.5px;margin-bottom:14px;color:#f5f3ed}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{font-size:19px;color:var(--dim);font-style:italic;margin-bottom:42px;line-height:1.5}
+h2{font-family:'Georgia',serif;font-size:26px;font-weight:400;color:#f5f3ed;margin:54px 0 16px;letter-spacing:-0.3px}
+h2 .num{color:var(--accent);font-family:'SF Mono',monospace;font-size:14px;letter-spacing:2px;display:block;margin-bottom:6px;font-style:normal}
+h3{font-family:'Georgia',serif;font-size:21px;font-weight:400;color:#f5f3ed;margin:32px 0 14px;font-style:italic}
+p{margin-bottom:18px;color:var(--text)}
+p em{color:var(--accent2);font-style:italic}
+code{font-family:'SF Mono',ui-monospace,monospace;font-size:14px;background:var(--surface);padding:2px 6px;border-radius:3px;color:#dcdad3}
+pre{background:var(--surface);border-left:2px solid var(--accent2);padding:14px 18px;margin:18px 0;font-family:'SF Mono',ui-monospace,monospace;font-size:14px;color:#cfcdc6;overflow-x:auto;line-height:1.5;border-radius:0 6px 6px 0}
+blockquote{border-left:2px solid var(--accent);padding:6px 0 6px 22px;margin:24px 0;color:var(--quote);font-style:italic;font-size:19px}
+hr{border:none;border-top:1px solid var(--rule);margin:48px 0}
+.print-btn{position:fixed;top:18px;right:24px;background:var(--accent);color:#0a0a0f;border:none;border-radius:6px;padding:8px 14px;font-family:'SF Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.signature{margin-top:60px;color:var(--dim);font-size:14px;letter-spacing:1px;font-family:'SF Mono',monospace}
+.step{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:20px 24px;margin:18px 0}
+.step h4{font-family:'Georgia',serif;font-size:18px;color:#f5f3ed;font-style:italic;margin-bottom:10px;font-weight:400}
+.step p{margin-bottom:10px;color:#dcdad3;font-size:16.5px}
+.step p:last-child{margin-bottom:0}
+.warn{background:#2a1a1a;border-left:3px solid #f06292;padding:14px 18px;margin:16px 0;color:#f5d5d8;font-size:15.5px;border-radius:0 6px 6px 0}
+@media print{
+  :root{--bg:#fff;--surface:#fafaf6;--text:#1a1a1a;--dim:#666;--accent:#8a6d1a;--accent2:#2b6a8a;--rule:#ccc;--quote:#5a3aa0}
+  html,body{background:#fff;color:#1a1a1a}
+  body{padding:0;font-size:11pt;line-height:1.55;font-family:'Georgia',serif}
+  .wrap{max-width:none}
+  .print-btn{display:none}
+  h1{font-size:26pt;color:#000}
+  h2{font-size:15pt;color:#000;page-break-before:always;page-break-after:avoid;margin-top:24pt}
+  h2 .num{font-size:9pt;color:#8a6d1a}
+  h3{font-size:13pt;color:#000}
+  .sub{font-size:12pt;color:#444}
+  code{background:#f0f0e8;color:#222;font-size:10pt}
+  pre{background:#f0f0e8;border-color:#2b6a8a;color:#222;font-size:10pt;page-break-inside:avoid}
+  blockquote{color:#5a3aa0;border-color:#8a6d1a;page-break-inside:avoid}
+  p em{color:#2b6a8a}
+  .step{background:#f5f5ef;border-color:#bbb;page-break-inside:avoid}
+  .warn{background:#fce4e7;border-color:#a8326e;color:#5a1a30}
+  @page{margin:0.75in 0.85in;
+        @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
+        @bottom-left{content:"The Builder's Guide · Implementing Koin · v1.0";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+  @page:first{@bottom-right{content:""}@bottom-left{content:""}}
+}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
+<div class="wrap">
+
+<div class="eyebrow">The Builder's Guide · Implementing Koin · v1.0</div>
+<h1>The Builder's Guide</h1>
+<p class="sub">A concrete protocol specification for the person who wants to build a Koin pilot. Domain-agnostic. Engineer-readable. Plain-language for each technical concept.</p>
+
+<hr>
+
+<p>This document is for the engineer, the small-team founder, the public-sector technologist, or the curious developer who has read the manifesto and now wants to build something. It does not assume that you have read the manifesto in detail; it does assume that you understand the concept of an influence graph and the idea of routing payments to upstream contributors.</p>
+
+<p>The protocol described here is the first reference specification of Koin. It is intentionally minimal — enough to ship a small pilot in a single domain, with the option to federate later. Every component is described twice: once in plain English so the non-engineer can verify it, once in implementation-ready detail so the engineer can build it.</p>
+
+<p>If you build a Koin pilot using this guide, your implementation will be compatible with the open federation specification (when the federation specification is finalized). If you build a Koin-like system without following this guide, you may end up with a closed implementation that cannot federate — which is the outcome the manifesto warns against.</p>
+
+<h2><span class="num">I — Architecture overview</span></h2>
+
+<p>A Koin implementation consists of seven components. They can be deployed on a single machine for a small pilot or distributed across many servers for production.</p>
+
+<p><b>Identity registry.</b> The system that maintains the identifiers of contributors. Each contributor has a did:koin DID that resolves to public-key material and chosen payment substrates. The identity registry is decentralized — no central authority issues DIDs; contributors generate their own and register them.</p>
+
+<p><b>Graph store.</b> The database that holds the influence graph. Nodes are contributors and artifacts; edges are absorption events with weights, timestamps, channels, and signatures. The graph store must support fast backward traversal (for credit assignment) and efficient appending (for new absorption events).</p>
+
+<p><b>Attribution engine.</b> The component that computes credit distributions when benefits arrive. Implements spreading activation, Shapley adjustment, and haze decay. Outputs a vector of (contributor_id, amount) pairs for each benefit.</p>
+
+<p><b>Settlement adapter.</b> The component that connects the attribution engine to payment substrates. Receives credit-distribution vectors and dispatches actual payments via Stripe, Wise, Lightning, etc.</p>
+
+<p><b>Dispute resolver.</b> The component that handles contested verdicts. Receives dispute filings, routes them to arbitration committees, records rulings, and applies retroactive adjustments.</p>
+
+<p><b>Audit interface.</b> The component that exposes the algorithm's computation for third-party verification. Anyone can recompute any verdict and verify the result.</p>
+
+<p><b>Federation gateway.</b> The component that lets this implementation interoperate with other Koin providers. Implements the Federation Protocol Layer (FPL) API. Optional for single-domain pilots; required for cross-domain federation.</p>
+
+<p>The first five components are required for any working Koin implementation. The audit interface is required for federation membership. The federation gateway is required for cross-provider interoperability.</p>
+
+<h2><span class="num">II — Identity (did:koin)</span></h2>
+
+<p>The did:koin DID method is the foundation of Koin's identity layer. Contributors generate their own DIDs locally — no central authority is involved.</p>
+
+<h3>Plain English</h3>
+
+<p>A DID is like a digital signature paired with a public mailbox address. You create one on your own computer. The private key stays with you; the public part is what others use to verify that you signed something. Your DID can be used across all Koin providers; no single provider owns it. If you switch providers, your DID and your graph history come with you.</p>
+
+<h3>Specification</h3>
+
+<p>A did:koin DID has the form:</p>
+
+<pre>did:koin:&lt;method-specific-id&gt;</pre>
+
+<p>Where method-specific-id is a base58-encoded SHA-256 hash of the contributor's public key. The DID resolves to a DID Document containing:</p>
+
+<pre>{
+  "id": "did:koin:&lt;hash&gt;",
+  "publicKey": [...],
+  "authentication": [...],
+  "service": [
+    {
+      "id": "&lt;did&gt;#payment-substrates",
+      "type": "PaymentSubstrate",
+      "serviceEndpoint": {
+        "primary": "stripe:cus_...",
+        "fallback": ["btc:bc1...", "usdc:0x..."]
+      }
+    },
+    {
+      "id": "&lt;did&gt;#preferences",
+      "type": "ContributorPreferences",
+      "serviceEndpoint": {
+        "consentDefault": "explicit",
+        "anonymousMode": false,
+        "panicContact": "&lt;hashed-email&gt;"
+      }
+    }
+  ]
+}</pre>
+
+<p>DIDs are signed by their generating key. The DID Document can be updated by signing the update with the same key. Recovery options (in case of key loss) are configurable: time-locked recovery via designated contacts, social recovery, or hardware-key recovery.</p>
+
+<div class="warn">Implementation note: do not use vanity DIDs or human-readable identifiers. The cryptographic hash provides identity-independence; human-readable identifiers reintroduce naming hierarchies and create attack surfaces.</div>
+
+<h2><span class="num">III — The graph store</span></h2>
+
+<p>The graph store is the heart of a Koin implementation. It holds every node (contributor or artifact) and every edge (absorption event).</p>
+
+<h3>Plain English</h3>
+
+<p>Think of a giant scrapbook with photos of every person and every piece of work in your domain. Each photo is connected to other photos by lines that say "this person was influenced by this work" or "this work was based on this earlier work." Each connecting line has a label saying how strong the influence was, when it happened, and what kind of influence it was. The graph store is the structured version of this scrapbook.</p>
+
+<h3>Specification</h3>
+
+<p>Use a graph database. For pilots up to ~1M nodes: Neo4j or ArangoDB. For larger deployments: distributed graph systems like JanusGraph or TigerGraph. The choice matters less than the schema.</p>
+
+<p><b>Node schema.</b></p>
+
+<pre>{
+  "id": "&lt;did:koin|artifact:hash&gt;",
+  "type": "contributor|artifact|institution",
+  "metadata": {
+    "createdAt": "&lt;ISO-8601&gt;",
+    "registeredBy": "&lt;did&gt;",
+    "consentScope": "this-pilot|all-pilots|domain-specific"
+  },
+  "publicKey": "..." // optional, for contributor nodes
+}</pre>
+
+<p><b>Edge schema.</b></p>
+
+<pre>{
+  "id": "&lt;sha-256-of-edge-content&gt;",
+  "source": "&lt;node-id&gt;",
+  "sink": "&lt;node-id&gt;",
+  "weight": 0.0-1.0,
+  "channel": "read|listened|conversed|taught|cited|...",
+  "timestamp": "&lt;ISO-8601&gt;",
+  "decayRate": 0.0-1.0,  // per year
+  "signatures": {
+    "source": "&lt;sig&gt;",
+    "sink": "&lt;sig&gt;"
+  },
+  "evidence": {
+    "type": "self-reported|inferred|attested",
+    "confidence": 0.0-1.0,
+    "auditUrl": "..."
+  }
+}</pre>
+
+<p>Edges are append-only. Once written, they are not modified. If new evidence emerges that an edge weight was wrong, a correction edge is appended; the original remains as a record. This is essential for tamper-evidence.</p>
+
+<p>All edges must be cosigned by both source and sink. Edges with missing signatures are rejected by the audit interface and excluded from credit computations.</p>
+
+<h2><span class="num">IV — The attribution engine</span></h2>
+
+<p>When a benefit arrives, the attribution engine computes how much each upstream contributor is owed. This is the computational heart of Koin.</p>
+
+<h3>Plain English</h3>
+
+<p>A benefit is a moment when value enters the system — someone buys a book, a song is streamed, a paper is cited. The attribution engine asks: who made this benefit possible? It traces backward through the influence graph, finds every contributor whose work led, directly or indirectly, to this benefit, and computes each contributor's share. It runs in milliseconds.</p>
+
+<h3>Algorithm</h3>
+
+<pre>function compute_credits(benefit_node, benefit_amount):
+    # Step 1: spreading activation from benefit backward
+    credits = spread_credit(
+        graph=load_subgraph(benefit_node, max_hops=10),
+        sink=benefit_node,
+        amount=benefit_amount,
+        damping=0.85,
+        threshold=0.0001 * benefit_amount,
+    )
+
+    # Step 2: Shapley adjustment for non-redundancy
+    credits = apply_sampled_shapley(
+        credits=credits,
+        sample_count=100,
+        graph=loaded_subgraph,
+    )
+
+    # Step 3: haze decay
+    credits = apply_haze_decay(
+        credits=credits,
+        current_time=now(),
+        decay_rates=load_channel_decay_config(),
+    )
+
+    # Step 4: reserve commons portion (typically 2%)
+    credits, commons_amount = reserve_commons(credits, percentage=0.02)
+
+    # Step 5: dispatch settlement
+    return CreditDistribution(
+        contributor_amounts=credits,
+        commons_amount=commons_amount,
+        total=benefit_amount,
+        algorithm_version="koin-attr-1.0",
+        computed_at=now(),
+        verification_hash=compute_hash(credits),
+    )</pre>
+
+<p>The spreading activation step uses the matrix formulation if the subgraph fits in memory:</p>
+
+<pre>credits = (I - d * A.T) ** -1 @ b_vector</pre>
+
+<p>Or the iterative variant for larger graphs:</p>
+
+<pre>queue = [(benefit_node, benefit_amount)]
+while queue:
+    node, amount = queue.pop()
+    if amount &lt; threshold: continue
+    credits[node] += amount
+    for edge in incoming_edges(node):
+        queue.append((edge.source, amount * damping * edge.weight))</pre>
+
+<h3>Configurability</h3>
+
+<p>The damping factor (default 0.85), the maximum hop count (default 10), the commons percentage (default 2%), and the channel-specific decay rates are all configurable per domain. The configuration is published as part of the audit interface; verifiers can reproduce the algorithm with the published parameters.</p>
+
+<div class="warn">Do not tune these parameters in secret. The federation requires that all algorithm parameters be published. A provider that uses private parameters loses federation status.</div>
+
+<h2><span class="num">V — The settlement adapter</span></h2>
+
+<p>Once credits are computed, they need to be paid. The settlement adapter handles the connection between Koin and external payment rails.</p>
+
+<h3>Plain English</h3>
+
+<p>The attribution engine tells you who should get how much. The settlement adapter actually sends the money. It supports multiple payment substrates (dollars via Stripe, bitcoin via Lightning, etc.) and lets each contributor choose how they want to be paid.</p>
+
+<h3>Specification</h3>
+
+<p>The settlement adapter implements substrate-specific drivers behind a common interface:</p>
+
+<pre>class SettlementDriver:
+    def dispatch(self, recipient_did, amount, currency, metadata) -&gt; SettlementReceipt:
+        # substrate-specific implementation
+        pass
+
+    def check_status(self, receipt_id) -&gt; SettlementStatus:
+        pass
+
+    def refund(self, receipt_id, reason) -&gt; SettlementReceipt:
+        pass</pre>
+
+<p>Implement at minimum:</p>
+
+<p><b>StripeConnectDriver</b> for USD/EUR/GBP via Stripe Connect. Required for early pilots in regulated economies.</p>
+
+<p><b>LightningDriver</b> for Bitcoin via the Lightning Network. Required for cross-border micropayments.</p>
+
+<p><b>USDCDriver</b> for stablecoin payments on Solana, Polygon, or similar low-fee chains. Useful for cross-border without the volatility of Bitcoin.</p>
+
+<p><b>WiseTransferDriver</b> for traditional cross-border bank transfers. Required for larger payments to contributors in jurisdictions without crypto access.</p>
+
+<p>Optional, for niche pilots:</p>
+
+<p><b>TimeCreditDriver</b> for time-bank-style settlement (useful in caregiving and educational pilots).</p>
+
+<p><b>LocalCurrencyDriver</b> for local-exchange-trading-system integration (Brixton Pound, Bristol Pound, etc.).</p>
+
+<p>Settlement is asynchronous. The attribution engine produces a CreditDistribution; the settlement adapter queues each contributor payment for dispatch. Successful dispatches return receipts; failures retry up to N times before being escalated to the dispute resolver.</p>
+
+<h3>Batching</h3>
+
+<p>Each contributor sets a settlement threshold (default $1.00). Credits below the threshold accumulate; once the threshold is crossed, a batch payment is dispatched. This dramatically reduces transaction fees on rails like Stripe Connect (which charge per transaction) while preserving the perception of continuous payment.</p>
+
+<h2><span class="num">VI — The dispute resolver</span></h2>
+
+<p>Disputes are inevitable. The system must handle them transparently and bindingly.</p>
+
+<h3>Plain English</h3>
+
+<p>If you think you've been mis-credited — too little, too much, attributed to the wrong work — you file a dispute. A small committee reviews the evidence and makes a binding decision. The decision is public; the algorithm gets better over time as it learns from rulings.</p>
+
+<h3>Specification</h3>
+
+<p>Disputes are filed via a signed message to the dispute API:</p>
+
+<pre>POST /disputes
+{
+  "disputeId": "&lt;uuid&gt;",
+  "filer": "&lt;did&gt;",
+  "subject": {
+    "type": "credit-distribution|edge-weight|node-attribution",
+    "id": "&lt;target-id&gt;"
+  },
+  "claim": {
+    "summary": "...",
+    "requestedAdjustment": {...},
+    "evidence": [...]
+  },
+  "signature": "..."
+}</pre>
+
+<p>The dispute is routed to an arbitration committee of three randomly-selected validators. Validators are contributors with Koin balances above a minimum threshold; selection is weighted by reputation and randomized to prevent capture. Validators have 30 days to render a ruling; rulings are public.</p>
+
+<p>If the ruling adjusts a credit distribution, the system applies retroactive correction:</p>
+
+<pre>function apply_retroactive_correction(original_distribution, adjusted_distribution):
+    diff = adjusted_distribution - original_distribution
+    for contributor_id, amount_change in diff.items():
+        if amount_change &gt; 0:
+            credit_account(contributor_id, amount_change, reason="dispute-adjustment")
+        else:
+            debit_account_or_holdback(contributor_id, -amount_change, reason="dispute-adjustment")</pre>
+
+<p>Appeals go to a larger federated dispute body (composition determined by federation governance). Federated appeals are rare; the three-person committee handles ~95% of cases.</p>
+
+<h2><span class="num">VII — The audit interface</span></h2>
+
+<p>The audit interface is what makes Koin trustworthy. Anyone, including a third party with no relationship to the implementation, can use it to verify that any verdict was computed correctly.</p>
+
+<h3>Plain English</h3>
+
+<p>If you don't trust the implementation, you can check its work. The audit interface lets you re-run the algorithm on the same inputs and verify that the outputs match. If they don't, the implementation has a bug or worse — and the federation can hold it accountable.</p>
+
+<h3>Specification</h3>
+
+<p>The audit interface exposes three endpoints:</p>
+
+<pre>GET /audit/algorithm
+  Returns the current algorithm version, all parameters, and the open-source code (or a hash of the code with a link to the repository).
+
+GET /audit/verdict/{credit-distribution-id}
+  Returns the full computation trace for a given verdict: the subgraph used, the spreading-activation result, the Shapley adjustments, the haze decay, and the final distribution. Anyone can re-run the algorithm with this input and verify the output.
+
+GET /audit/graph-snapshot/{timestamp}
+  Returns a Merkle-tree root of the graph state at the given timestamp. Used for tamper-evidence: if the graph state at a past moment differs from this root, the implementation has been tampered with.</pre>
+
+<p>Audit endpoints are unauthenticated (rate-limited but otherwise open). Privacy-preserving variants are available for sensitive contributors: the audit can verify the verdict's correctness without revealing the specific contributors involved, using zero-knowledge proofs.</p>
+
+<h2><span class="num">VIII — The federation gateway</span></h2>
+
+<p>The federation gateway lets your implementation interoperate with other Koin providers. Required only for cross-domain federation; optional for single-domain pilots.</p>
+
+<h3>Plain English</h3>
+
+<p>If your pilot is in education and a contributor's work also got absorbed by people in the music pilot run by another provider, federation lets the two providers share information so the contributor gets credit for both. Federation is what makes Koin a global system rather than a collection of isolated pilots.</p>
+
+<h3>Specification</h3>
+
+<p>The Federation Protocol Layer (FPL) is an HTTPS API:</p>
+
+<pre>GET /fpl/contributors/{did}
+  Returns the contributor's portable identity record (public key, payment substrate preferences, consent settings). Used by federated providers to discover that this contributor exists.
+
+GET /fpl/contributions/{did}?domain=&lt;domain&gt;&amp;after=&lt;timestamp&gt;
+  Returns a signed list of contributions this provider has recorded for the given contributor in the given domain after the given timestamp. Used by federated providers to incorporate cross-provider contributions into their attribution computations.
+
+POST /fpl/cross-credit
+  Submits a cross-provider credit distribution: "we are crediting this contributor for $X, and the trace includes contributions held by your provider." Used to settle cross-provider attribution.
+
+GET /fpl/algorithm-version
+  Returns the algorithm version and parameters this provider uses. Used by federated providers to detect incompatibilities.
+
+POST /fpl/dispute-escalation
+  Submits a federated dispute (one that cannot be resolved by a single provider's arbitration committee). Routed to the federated dispute body.</pre>
+
+<p>Federation membership requires passing periodic compliance audits, publishing algorithm code, and accepting federated rulings. Providers that fail compliance lose federation status; their cross-credits are rejected by other providers.</p>
+
+<h2><span class="num">IX — Deploying a minimum-viable pilot</span></h2>
+
+<p>Here is the minimum sequence for shipping a Koin pilot in a single domain. The total engineering effort is approximately 6-12 weeks for a small team.</p>
+
+<div class="step">
+<h4>Week 1-2: Identity and graph store</h4>
+<p>Set up the did:koin identity registry. Deploy the graph store with the node and edge schemas above. Build the basic API for registering contributors and recording absorption events. The graph will be empty at this point; you'll populate it in week 3.</p>
+</div>
+
+<div class="step">
+<h4>Week 3-4: Populate the initial graph</h4>
+<p>Import the existing relationship data for your domain. For a school district: load the teacher-student-curriculum graph from the student information system. For an open-source project: load the contributor-commit-dependency graph from version control. For a music label: load the artist-collaborator-track graph from existing rights management. Convert each existing relationship into a signed edge with appropriate channel and weight.</p>
+</div>
+
+<div class="step">
+<h4>Week 5-6: Attribution engine</h4>
+<p>Implement the attribution algorithm above. Start with the iterative spreading-activation variant (simpler to debug). Add Shapley sampling next. Add haze decay last. Test on synthetic data first; then run dry-passes on the real graph without dispatching settlement.</p>
+</div>
+
+<div class="step">
+<h4>Week 7-8: Settlement adapter</h4>
+<p>Integrate with the primary settlement substrate for your domain. For US-based pilots: Stripe Connect. For international: Wise. For crypto-native: Lightning. Test with small amounts to a few contributors before opening to the full pilot population.</p>
+</div>
+
+<div class="step">
+<h4>Week 9-10: Audit interface and dispute resolver</h4>
+<p>Implement the audit endpoints. Publish your algorithm code and parameters. Set up the dispute resolver with a small initial committee of trusted validators (you can transition to randomized selection once the validator pool is large enough).</p>
+</div>
+
+<div class="step">
+<h4>Week 11-12: Soft launch</h4>
+<p>Open the pilot to a small subset of contributors. Monitor for algorithmic errors, disputes, settlement failures. Iterate. Expand the population gradually as confidence grows.</p>
+</div>
+
+<p>After week 12, your pilot is operational. Federation can wait until you have a stable single-provider implementation; it should not be the priority for the first pilot.</p>
+
+<h2><span class="num">X — Common pitfalls and how to avoid them</span></h2>
+
+<p><b>Overfitting the algorithm to your domain.</b> The temptation is to tune the algorithm parameters to produce verdicts that "feel right" for your domain. Resist this. Domain-specific tuning makes your implementation incompatible with federation. The right approach: use the federation defaults, document the cases where the verdicts surprise you, propose parameter changes via the federation governance process.</p>
+
+<p><b>Treating the graph as authoritative for contestable facts.</b> The influence graph records who-influenced-whom according to recorded evidence. It is not a record of objective truth. Different contributors will remember the same event differently. The system handles this through the dispute resolver, not through algorithmic adjudication. If a contributor disputes an edge, the dispute process resolves it; the algorithm does not make automatic judgments about contested facts.</p>
+
+<p><b>Underestimating the importance of consent UX.</b> Both sides of every absorption event must consent. The consent process — how it's worded, how it's surfaced, how it's revoked — is the difference between a pilot that grows and a pilot that stalls. Spend disproportionate effort on consent UX. The technical infrastructure is the easy part.</p>
+
+<p><b>Building the settlement adapter for the wrong substrate.</b> Your contributors will tell you their preferred payment substrate. Listen. A pilot that requires crypto wallets among elderly caregivers will fail. A pilot that requires US bank accounts among international researchers will fail. Match the substrate to the population. Expand later.</p>
+
+<p><b>Skipping the audit interface.</b> The audit interface seems optional during early development. It is not. Build it before launch. The trust your pilot generates depends on external parties being able to verify your work, and the discipline of building the audit interface forces your implementation to be cleaner than it otherwise would be.</p>
+
+<p><b>Designing the dispute resolver as an afterthought.</b> The disputes will start in week one of the pilot. Have the dispute resolver ready to handle them on day one. Underestimating dispute volume is one of the most common reasons pilots fail in the early months.</p>
+
+<h2><span class="num">XI — Becoming federation-compatible</span></h2>
+
+<p>If your pilot succeeds and you want to federate, the following steps make your implementation federation-compatible:</p>
+
+<p><b>Publish your algorithm code and parameters.</b> Open-source the attribution engine. Document every parameter and its rationale. Provide a reproducibility script that takes published verdicts and reproduces them.</p>
+
+<p><b>Implement the Federation Protocol Layer (FPL) endpoints.</b> The five endpoints described in Section VIII. Test interop with at least one other federated implementation.</p>
+
+<p><b>Pass a compliance audit.</b> The federation runs periodic compliance audits. These check that your verdict computation matches the published algorithm, that your dispute process is operating, that your graph store is tamper-evident, that you accept federated rulings. Pass it and you are federation-compatible.</p>
+
+<p><b>Adopt the federation's governance mechanisms.</b> Participate in the algorithm-evolution process. Send representatives to the standards working groups. Implement adopted updates within the required windows.</p>
+
+<p>Federation status is not granted in advance; it is earned by operating compatibly. Once granted, it can be revoked for non-compliance. The federation is a club of well-behaved providers, not a permission system.</p>
+
+<h2><span class="num">XII — Closing remarks for the builder</span></h2>
+
+<p>The most important thing about building Koin is that you are not the first to do it, but you may be the first to do it in your specific domain. The general framework is settled. The specific instantiation in your context — what edges to record, what channels to support, what default decay rates to use, what payment substrate to use, what dispute culture to cultivate — is yours to determine.</p>
+
+<p>Build modestly. Start with the population you know. Solve their problem first. Federate later. The temptation to build the system that handles every case correctly from day one will produce a system that handles no case adequately. The pattern of every successful infrastructure project is the same: solve a specific problem for a specific community, learn from the deployment, generalize incrementally.</p>
+
+<p>The manifesto's ambition is global. The work of getting there is local. Your pilot is local. Build it well. The federation will arrive when enough local pilots are doing well enough that federating them is the obvious next step. That moment is sooner than it looks but later than the manifesto's rhetoric suggests.</p>
+
+<blockquote>Build the smallest thing that works. Ship it. Let the people who use it tell you what to build next. The manifesto is the destination; your pilot is the first step. Take it.</blockquote>
+
+<p class="signature">— Koin Labs<br>The Builder's Guide · v1.0<br>The manifesto and other companion documents are available separately.</p>
+
+</div>
+</body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opacity / Haze — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#f06292; --accent2:#ba68c8;
+    --warn:#ffb74d; --danger:#ef4444; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #canvas-box{position:fixed;top:44px;left:0;right:340px;bottom:0;background:var(--surface2);overflow:hidden}
+  #grid{position:absolute;inset:16px;display:grid;gap:6px}
+  .cell{background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform 0.12s,background 0.3s,border-color 0.3s;padding:4px}
+  .cell:hover{transform:scale(1.05);border-color:var(--accent)}
+  .cell.empty{opacity:0.25;border-style:dashed}
+  .cell.dying{border-color:var(--warn);animation:pulse 0.4s}
+  .cell.fresh{animation:fresh 0.6s}
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,183,77,0)} 50%{box-shadow:0 0 0 6px rgba(255,183,77,0.25)} }
+  @keyframes fresh { 0%{box-shadow:0 0 0 0 rgba(240,98,146,0)} 40%{box-shadow:0 0 0 8px rgba(240,98,146,0.4)} 100%{box-shadow:0 0 0 0 rgba(240,98,146,0)} }
+  .cell .label{font-size:15px;line-height:1;color:var(--text)}
+  .cell .strength-bar{position:absolute;bottom:2px;left:4px;right:4px;height:2px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden}
+  .cell .strength-fill{height:100%;background:var(--accent);transition:width 0.3s}
+  .cell .age{position:absolute;top:2px;right:4px;font-size:8px;color:var(--dim)}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:100px}
+  .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row .val{color:var(--accent);min-width:42px;text-align:right}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .log{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;font-size:10px;color:var(--dim);max-height:120px;overflow-y:auto;line-height:1.6}
+  .log .ev-write{color:var(--accent)}
+  .log .ev-forget{color:var(--warn)}
+  .log .ev-rehearse{color:var(--accent2)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">opacity / haze — forgetting as feature</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="spreading.html" style="color:#4fc3f7">⟳ Spreading</a>
+    <a href="predictor.html" style="color:#ffb74d">📈 Predictor</a>
+    <a href="#" style="color:#ba68c8">🧠 Cognition</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="canvas-box"><div id="grid"></div></div>
+<div id="panel">
+  <h2>Opacity / Haze</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    Memory slots with encoding strength. Strength decays each tick; clicking <b>rehearses</b> (bumps strength). New memories stream in — when the grid fills, the weakest slot gets overwritten. Forgetting is the feature.
+  </div>
+
+  <h3>Regime</h3>
+  <div class="btn-row">
+    <button class="regime-btn active" data-regime="normal">Normal</button>
+    <button class="regime-btn" data-regime="cram">Cramming</button>
+    <button class="regime-btn" data-regime="sleep">Sleep cycle</button>
+    <button class="regime-btn" data-regime="boredom">Boredom (low input)</button>
+  </div>
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="step">⏭ Step</button>
+    <button id="clear">Clear grid</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Decay rate</label>
+    <input id="decay" type="range" min="0.0005" max="0.05" step="0.0005" value="0.008">
+    <span class="val" id="decay-v">0.008</span>
+  </div>
+  <div class="row">
+    <label>Rehearse boost</label>
+    <input id="boost" type="range" min="0.1" max="1" step="0.05" value="0.4">
+    <span class="val" id="boost-v">0.40</span>
+  </div>
+  <div class="row">
+    <label>Reuse threshold</label>
+    <input id="thresh" type="range" min="0" max="0.6" step="0.01" value="0.15">
+    <span class="val" id="thresh-v">0.15</span>
+  </div>
+  <div class="row">
+    <label>Input rate</label>
+    <input id="rate" type="range" min="0" max="1" step="0.05" value="0.3">
+    <span class="val" id="rate-v">0.30</span>
+  </div>
+
+  <h3>Metrics</h3>
+  <div class="metric"><span>Capacity used</span><b id="m-cap">0 / 0</b></div>
+  <div class="metric"><span>Mean strength</span><b id="m-mean">0.00</b></div>
+  <div class="metric"><span>Total forgotten</span><b id="m-forgot">0</b></div>
+  <div class="metric"><span>Tick</span><b id="m-tick">0</b></div>
+
+  <h3>Event log</h3>
+  <div class="log" id="log"></div>
+
+  <div class="pep-note">
+    <b>PEP primitive 5.</b> Every node has an encoding strength that
+    decays. Reuse (rehearsal) keeps it alive. Capacity is finite —
+    forgetting <i>must</i> happen, and it happens first to what hasn't
+    proven itself useful. This is how Lingora's spaced-repetition
+    schedules constellations, how Axona marks memories <i>consolidated</i>
+    during sleep, and how Vectora makes room in a bounded index.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Cram:</b> high input, can't rehearse fast enough. Recent memories overwrite old ones before they consolidate.<br>
+    <b style="color:var(--accent2)">Sleep:</b> input stops, recently-rehearsed memories get a boost (consolidation).<br>
+    <b style="color:var(--accent2)">Click things repeatedly:</b> they glow bright and resist forgetting.<br>
+    <b style="color:var(--accent2)">Lower threshold:</b> fewer overwrites, faster capacity saturation.
+  </div>
+</div>
+
+<script>
+(() => {
+  const grid = document.getElementById('grid');
+  const ROWS = 8, COLS = 10;
+  const N = ROWS * COLS;
+  grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+  grid.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
+
+  const POOL = ['★','☂','♞','☘','✿','☾','☀','♪','✎','⚑','♠','♣','♥','♦','☁','⚙','♟','♜','♝','☕','🌙','🍎','🔑','⚓','🎲','🎯','🧭','🎨','🧩','🔔','💎','🧬','🔮','🪁','🕰','📖','⚔','🌱','🐝','🦋','🌊','🔥','❄','🌵','🍯','🎃','☘','🧿','🌻','🪶','📯','⚗','🧪','🎼','🗝','🏺','📐','🖋','🔦','⏳'];
+  let poolIdx = 0;
+  function nextLabel() { return POOL[(poolIdx++) % POOL.length]; }
+
+  const cells = [];
+  for (let i=0;i<N;i++) {
+    const c = document.createElement('div');
+    c.className = 'cell empty';
+    c.innerHTML = `<span class="label"></span><span class="age"></span><span class="strength-bar"><span class="strength-fill"></span></span>`;
+    c.addEventListener('click', () => rehearse(i));
+    grid.appendChild(c);
+    cells.push({ label: null, strength: 0, age: 0, el: c });
+  }
+
+  const params = { decay: 0.008, boost: 0.4, thresh: 0.15, rate: 0.3 };
+  let running = true;
+  let regime = 'normal';
+  let tick = 0;
+  let forgotten = 0;
+
+  function render() {
+    let used = 0, sumS = 0;
+    for (let i=0;i<N;i++) {
+      const m = cells[i];
+      const lblEl = m.el.querySelector('.label');
+      const barEl = m.el.querySelector('.strength-fill');
+      const ageEl = m.el.querySelector('.age');
+      if (m.label) {
+        used++; sumS += m.strength;
+        m.el.classList.remove('empty');
+        lblEl.textContent = m.label;
+        const s = Math.max(0, Math.min(1, m.strength));
+        lblEl.style.opacity = 0.2 + s*0.8;
+        barEl.style.width = (s*100)+'%';
+        const hue = 340 - s*60;
+        barEl.style.background = `hsl(${hue}, 70%, 60%)`;
+        ageEl.textContent = m.age;
+        m.el.style.background = `rgba(240,98,146,${s*0.15})`;
+        m.el.style.borderColor = s < params.thresh ? 'rgba(255,183,77,0.5)' : 'var(--border)';
+      } else {
+        m.el.classList.add('empty');
+        lblEl.textContent = '';
+        barEl.style.width = '0%';
+        ageEl.textContent = '';
+        m.el.style.background = 'var(--bg)';
+        m.el.style.borderColor = 'var(--border)';
+      }
+    }
+    document.getElementById('m-cap').textContent = `${used} / ${N}`;
+    document.getElementById('m-mean').textContent = used>0 ? (sumS/used).toFixed(2) : '0.00';
+    document.getElementById('m-forgot').textContent = forgotten;
+    document.getElementById('m-tick').textContent = tick;
+  }
+
+  function logEvent(kind, msg) {
+    const log = document.getElementById('log');
+    const div = document.createElement('div');
+    div.className = 'ev-' + kind;
+    div.textContent = `t=${tick} ${msg}`;
+    log.insertBefore(div, log.firstChild);
+    while (log.children.length > 40) log.removeChild(log.lastChild);
+  }
+
+  function rehearse(i) {
+    const m = cells[i];
+    if (!m.label) return;
+    m.strength = Math.min(1, m.strength + params.boost);
+    m.el.classList.remove('fresh');
+    void m.el.offsetWidth;
+    m.el.classList.add('fresh');
+    logEvent('rehearse', `rehearsed ${m.label} → ${m.strength.toFixed(2)}`);
+    render();
+  }
+
+  function writeNew(label) {
+    // find weakest or empty
+    let target = -1, minS = 1e9;
+    for (let i=0;i<N;i++) {
+      if (!cells[i].label) { target = i; minS = -1; break; }
+    }
+    if (target < 0) {
+      for (let i=0;i<N;i++) {
+        if (cells[i].strength < params.thresh && cells[i].strength < minS) {
+          target = i; minS = cells[i].strength;
+        }
+      }
+    }
+    if (target < 0) {
+      // nothing below threshold — skip (capacity saturated)
+      logEvent('forget', `input ${label} rejected — no slot below threshold`);
+      return;
+    }
+    const old = cells[target].label;
+    if (old) { forgotten++; logEvent('forget', `${old} forgotten (str ${cells[target].strength.toFixed(2)})`); }
+    cells[target].label = label;
+    cells[target].strength = 0.6;
+    cells[target].age = 0;
+    cells[target].el.classList.remove('fresh');
+    void cells[target].el.offsetWidth;
+    cells[target].el.classList.add('fresh');
+    logEvent('write', `wrote ${label} at slot ${target}`);
+  }
+
+  function step() {
+    tick++;
+    for (const m of cells) {
+      if (!m.label) continue;
+      m.age++;
+      let decay = params.decay;
+      // regime modulation
+      if (regime === 'sleep') {
+        // strong nodes get consolidated, weak ones decay faster
+        if (m.strength > 0.5) decay *= 0.3;
+        else decay *= 1.8;
+      }
+      m.strength -= decay;
+      if (m.strength <= 0) {
+        forgotten++;
+        logEvent('forget', `${m.label} faded to 0`);
+        m.label = null;
+        m.strength = 0;
+      }
+    }
+    // inputs
+    let rate = params.rate;
+    if (regime === 'cram') rate = Math.min(1, rate*2);
+    if (regime === 'sleep') rate = 0;
+    if (regime === 'boredom') rate *= 0.25;
+    const nInputs = rate > 0 && Math.random() < rate ? 1 : 0;
+    for (let k=0;k<nInputs;k++) writeNew(nextLabel());
+    render();
+  }
+
+  function loop() {
+    if (running) step();
+    setTimeout(loop, 220);
+  }
+
+  // controls
+  document.querySelectorAll('.regime-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.regime-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      regime = b.dataset.regime;
+      logEvent('write', `regime → ${regime}`);
+    });
+  });
+  const playBtn = document.getElementById('play');
+  playBtn.onclick = () => {
+    running = !running;
+    playBtn.textContent = running ? '⏸ Pause' : '▶ Play';
+    playBtn.classList.toggle('active', running);
+  };
+  document.getElementById('step').onclick = () => { step(); };
+  document.getElementById('clear').onclick = () => {
+    for (const m of cells) { m.label = null; m.strength = 0; m.age = 0; }
+    forgotten = 0; tick = 0;
+    render();
+  };
+  ['decay','boost','thresh','rate'].forEach(k => {
+    const el = document.getElementById(k);
+    const val = document.getElementById(k+'-v');
+    el.addEventListener('input', () => {
+      params[k] = parseFloat(el.value);
+      val.textContent = params[k].toFixed(k==='decay'?3:2);
+    });
+  });
+
+  // seed
+  for (let i=0;i<12;i++) writeNew(nextLabel());
+  render();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>
