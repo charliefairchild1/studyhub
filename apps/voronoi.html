@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voronoi Retrieval — PEP Math Playground</title>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #plot-container { position: fixed; top: 44px; left: 0; right: 320px; bottom: 0;
+                    background: radial-gradient(ellipse at center, #18223a 0%, #0a0d14 70%);
+                    display: flex; align-items: center; justify-content: center; }
+  #plot-canvas { cursor: crosshair; background: var(--surface2); border-radius: 6px;
+                 box-shadow: 0 0 0 1px var(--border); }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 320px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 12px; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+
+  .pep-note { background: var(--surface2); border-radius: 6px;
+              padding: 10px 12px; font-size: 11px; color: var(--text);
+              line-height: 1.6; border-left: 2px solid var(--accent2); }
+  .pep-note b { color: var(--accent2); }
+
+  #seed-list { max-height: 200px; overflow-y: auto; font-size: 10px; }
+  .seed-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+  .seed-row .swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+  .seed-row .del { margin-left: auto; cursor: pointer; color: var(--danger); opacity: 0.6; padding: 0 4px; }
+  .seed-row .del:hover { opacity: 1; }
+
+  @media (max-width: 900px) {
+    #plot-container { right: 0; bottom: 260px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 260px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Voronoi Retrieval</span>
+  <span class="tag">PEP's nearest-neighbor partition, visualized</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="life.html">▦ CA</a>
+    <a href="globe.html">🌍 Globe</a>
+  </span>
+</nav>
+
+<div id="plot-container">
+  <canvas id="plot-canvas"></canvas>
+</div>
+
+<div id="panel">
+  <h3>What this shows</h3>
+  <div class="pep-note">
+    Every time PEP retrieves a concept, it computes <b>nearest-neighbor</b>
+    in embedding space. The set of all query points that would retrieve
+    concept X forms X's <b>Voronoi cell</b>. The full tessellation IS
+    the retrieval partition — PEP's implicit map of "what's nearest to what."
+    <br><br>
+    <b>Click anywhere</b> to place a concept seed (labeled automatically).
+    <b>Move the golden query point</b> (drag it) to see which concept wins
+    the retrieval at that position, and the distances to its 3 nearest
+    neighbors.
+  </div>
+
+  <h3>Distance metric</h3>
+  <div class="ctrl">
+    <button id="metric-euclidean" class="primary" onclick="setMetric('euclidean')">Euclidean (L2)</button>
+    <button id="metric-manhattan" onclick="setMetric('manhattan')">Manhattan (L1)</button>
+    <button id="metric-chebyshev" onclick="setMetric('chebyshev')">Chebyshev (L∞)</button>
+  </div>
+  <div class="pep-note" id="metric-note" style="font-size:10px;padding:8px 12px"></div>
+
+  <h3>Controls</h3>
+  <div class="ctrl">
+    <button onclick="presetScattered()">Scattered (20)</button>
+    <button onclick="presetClustered()">Clustered</button>
+    <button onclick="presetGrid()">Grid</button>
+    <button onclick="clearSeeds()" class="danger">Clear</button>
+  </div>
+  <div class="ctrl">
+    <label style="font-size:10px;color:var(--dim)">
+      <input type="checkbox" id="show-cells" checked> show cell colors
+    </label>
+    <label style="font-size:10px;color:var(--dim);display:block">
+      <input type="checkbox" id="show-edges" checked> show cell boundaries
+    </label>
+    <label style="font-size:10px;color:var(--dim);display:block">
+      <input type="checkbox" id="show-query" checked> show query point
+    </label>
+  </div>
+
+  <h3>Field</h3>
+  <div class="stat-row"><span class="label">Seeds</span><span class="value" id="stat-seeds">0</span></div>
+  <div class="stat-row"><span class="label">Query position</span><span class="value" id="stat-query">—</span></div>
+  <div class="stat-row"><span class="label">Nearest</span><span class="value" id="stat-nearest" style="color:#fbbf24">—</span></div>
+
+  <h3>Top-k retrieval at query</h3>
+  <div id="topk-list" style="font-size:10px"></div>
+
+  <h3>Seeds</h3>
+  <div id="seed-list"></div>
+
+  <h3>PEP primitives used</h3>
+  <div class="pep-note" style="font-size:10px">
+    <b>Weighted graph</b>: each seed is a node.<br>
+    <b>Spreading activation</b>: the gradient of distance from query is the activation decay.<br>
+    <b>Predictor + residual</b>: "nearest" is a prediction — moving the query around tests where the predictor is confident vs. where cells are narrow and it could be wrong.<br>
+    <br>
+    The Voronoi diagram is the <b>ground truth</b> of what PEP retrieves; every retrieval system is an approximation of this exact geometry.
+  </div>
+
+  <h3>Sister demos</h3>
+  <div class="pep-note" style="font-size:10px;line-height:1.8">
+    <a href="life.html" style="color:#67e8f9">▦ Cellular Automata</a> — state modulation on a grid<br>
+    <a href="epidemic.html" style="color:#ef5350">☣ Epidemic Network</a> — SIR model on a graph<br>
+    <a href="globe.html" style="color:#fbbf24">🌍 Evolution Globe</a> — species under climate pressure<br>
+    <a href="language-evolution.html" style="color:#a78bfa">🗣 Language Evolution</a> — 55+ languages, 7 families<br>
+    <a href="index.html" style="color:var(--accent)">← back to math playground</a>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('plot-canvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+let seeds = [];  // {x, y, id, color, label}
+let nextSeedId = 1;
+let queryX = null, queryY = null;
+let metric = 'euclidean';
+let isDraggingQuery = false;
+
+const COLORS = [
+  '#4fc3f7','#81c784','#ffb74d','#ba68c8','#f06292',
+  '#67e8f9','#fbbf24','#ef4444','#38bdf8','#5eead4',
+  '#e879f9','#a78bfa','#f97316','#84cc16','#60a5fa',
+  '#facc15','#f472b6','#22d3ee','#a3e635','#fb923c',
+];
+
+const METRIC_NOTES = {
+  euclidean: '<b>L2 / Euclidean</b> — straight-line distance. Standard ML similarity. Cells bounded by straight lines (perpendicular bisectors).',
+  manhattan: '<b>L1 / Manhattan</b> — sum of axis distances. Taxicab metric. Cells bounded by 45° lines. What you get with sparse feature vectors.',
+  chebyshev: '<b>L∞ / Chebyshev</b> — max axis distance. King\'s-move distance in chess. Square cells.',
+};
+
+function resize() {
+  const container = document.getElementById('plot-container');
+  const rect = container.getBoundingClientRect();
+  W = Math.min(rect.width - 40, 900);
+  H = Math.min(rect.height - 40, 700);
+  canvas.width = W; canvas.height = H;
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function dist(ax, ay, bx, by) {
+  if (metric === 'manhattan') return Math.abs(ax - bx) + Math.abs(ay - by);
+  if (metric === 'chebyshev') return Math.max(Math.abs(ax - bx), Math.abs(ay - by));
+  return Math.hypot(ax - bx, ay - by);
+}
+
+function nearestSeed(x, y) {
+  if (!seeds.length) return null;
+  let best = seeds[0], bestD = dist(x, y, seeds[0].x, seeds[0].y);
+  for (let i = 1; i < seeds.length; i++) {
+    const d = dist(x, y, seeds[i].x, seeds[i].y);
+    if (d < bestD) { bestD = d; best = seeds[i]; }
+  }
+  return best;
+}
+
+function topK(x, y, k) {
+  return seeds
+    .map(s => ({ seed: s, d: dist(x, y, s.x, s.y) }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, k);
+}
+
+// Pixel-based tessellation — for every pixel, find nearest seed, color accordingly.
+// Downsampled to 3x3 blocks for speed.
+function drawCells() {
+  if (!seeds.length) return;
+  const showCells = document.getElementById('show-cells').checked;
+  if (!showCells) return;
+  const step = 3;
+  const imageData = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py += step) {
+    for (let px = 0; px < W; px += step) {
+      const s = nearestSeed(px, py);
+      if (!s) continue;
+      const c = hexToRgb(s.color);
+      for (let dy = 0; dy < step; dy++) {
+        for (let dx = 0; dx < step; dx++) {
+          const p = ((py + dy) * W + (px + dx)) * 4;
+          if (p + 3 >= imageData.data.length) continue;
+          imageData.data[p] = c.r;
+          imageData.data[p+1] = c.g;
+          imageData.data[p+2] = c.b;
+          imageData.data[p+3] = 60;  // very translucent
+        }
+      }
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function hexToRgb(hex) {
+  const v = parseInt(hex.slice(1), 16);
+  return { r: (v >> 16) & 0xff, g: (v >> 8) & 0xff, b: v & 0xff };
+}
+
+function drawEdges() {
+  if (!seeds.length) return;
+  const showEdges = document.getElementById('show-edges').checked;
+  if (!showEdges) return;
+  // Draw edges where adjacent pixels belong to different seeds
+  const step = 2;
+  ctx.fillStyle = 'rgba(200,220,240,0.7)';
+  for (let py = step; py < H; py += step) {
+    for (let px = step; px < W; px += step) {
+      const here = nearestSeed(px, py);
+      const left = nearestSeed(px - step, py);
+      const up = nearestSeed(px, py - step);
+      if ((here && left && here.id !== left.id) || (here && up && here.id !== up.id)) {
+        ctx.fillRect(px - 1, py - 1, 1.5, 1.5);
+      }
+    }
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // Background tile
+  ctx.fillStyle = '#0f1318';
+  ctx.fillRect(0, 0, W, H);
+
+  drawCells();
+  drawEdges();
+
+  // Seeds
+  for (const s of seeds) {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Label
+    ctx.fillStyle = 'rgba(226,230,237,0.95)';
+    ctx.font = '10px SF Mono, monospace';
+    ctx.fillText(s.label, s.x + 8, s.y - 6);
+  }
+
+  // Query point
+  const showQuery = document.getElementById('show-query').checked;
+  if (showQuery && queryX !== null && queryY !== null) {
+    // Line to nearest
+    const nearest = nearestSeed(queryX, queryY);
+    if (nearest) {
+      ctx.beginPath();
+      ctx.moveTo(queryX, queryY);
+      ctx.lineTo(nearest.x, nearest.y);
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Query dot
+    ctx.beginPath();
+    ctx.arc(queryX, queryY, 8 + Math.sin(Date.now() / 250) * 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#0a0d14';
+    ctx.font = 'bold 10px SF Mono, monospace';
+    ctx.fillText('Q', queryX - 4, queryY + 4);
+  }
+}
+
+function updatePanel() {
+  document.getElementById('stat-seeds').textContent = seeds.length;
+  if (queryX !== null) {
+    document.getElementById('stat-query').textContent = `(${queryX}, ${queryY})`;
+    const nearest = nearestSeed(queryX, queryY);
+    document.getElementById('stat-nearest').textContent = nearest ? nearest.label : '—';
+    const top = topK(queryX, queryY, 3);
+    document.getElementById('topk-list').innerHTML = top.map((t, i) => `
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dashed var(--border)">
+        <span style="color:var(--dim);width:18px">${i+1}.</span>
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${t.seed.color}"></span>
+        <span>${t.seed.label}</span>
+        <span style="margin-left:auto;color:var(--dim)">d=${t.d.toFixed(1)}</span>
+      </div>
+    `).join('');
+  }
+  // Seed list with delete buttons
+  document.getElementById('seed-list').innerHTML = seeds.map(s => `
+    <div class="seed-row">
+      <span class="swatch" style="background:${s.color}"></span>
+      <span>${s.label}</span>
+      <span class="del" onclick="deleteSeed(${s.id})">✕</span>
+    </div>
+  `).join('');
+}
+
+function addSeed(x, y) {
+  const label = 'c' + nextSeedId;
+  const color = COLORS[(nextSeedId - 1) % COLORS.length];
+  seeds.push({ x, y, id: nextSeedId, color, label });
+  nextSeedId++;
+  draw();
+  updatePanel();
+}
+
+function deleteSeed(id) {
+  seeds = seeds.filter(s => s.id !== id);
+  draw();
+  updatePanel();
+}
+
+function clearSeeds() {
+  seeds = []; nextSeedId = 1;
+  draw(); updatePanel();
+}
+
+function presetScattered() {
+  clearSeeds();
+  for (let i = 0; i < 20; i++) {
+    addSeed(
+      40 + Math.random() * (W - 80),
+      40 + Math.random() * (H - 80),
+    );
+  }
+}
+
+function presetClustered() {
+  clearSeeds();
+  const clusters = [
+    { cx: W*0.3, cy: H*0.3, n: 6 },
+    { cx: W*0.7, cy: H*0.3, n: 7 },
+    { cx: W*0.5, cy: H*0.7, n: 8 },
+  ];
+  for (const cl of clusters) {
+    for (let i = 0; i < cl.n; i++) {
+      addSeed(
+        cl.cx + (Math.random() - 0.5) * 150,
+        cl.cy + (Math.random() - 0.5) * 150,
+      );
+    }
+  }
+}
+
+function presetGrid() {
+  clearSeeds();
+  const stepX = W / 6, stepY = H / 5;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 5; c++) {
+      addSeed(stepX * (c + 1), stepY * (r + 1));
+    }
+  }
+}
+
+function setMetric(m) {
+  metric = m;
+  document.getElementById('metric-euclidean').classList.toggle('primary', m === 'euclidean');
+  document.getElementById('metric-manhattan').classList.toggle('primary', m === 'manhattan');
+  document.getElementById('metric-chebyshev').classList.toggle('primary', m === 'chebyshev');
+  document.getElementById('metric-note').innerHTML = METRIC_NOTES[m];
+  draw();
+  updatePanel();
+}
+
+// Interactions
+canvas.addEventListener('mousedown', e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  // If click is near query point, start dragging it
+  if (queryX !== null && Math.hypot(x - queryX, y - queryY) < 15) {
+    isDraggingQuery = true;
+  } else {
+    // Otherwise add a seed
+    addSeed(x, y);
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if (!isDraggingQuery && e.buttons !== 1) {
+    // Track query with hover when not dragging
+    const rect = canvas.getBoundingClientRect();
+    queryX = e.clientX - rect.left;
+    queryY = e.clientY - rect.top;
+    draw();
+    updatePanel();
+    return;
+  }
+  if (isDraggingQuery) {
+    const rect = canvas.getBoundingClientRect();
+    queryX = e.clientX - rect.left;
+    queryY = e.clientY - rect.top;
+    draw();
+    updatePanel();
+  }
+});
+window.addEventListener('mouseup', () => { isDraggingQuery = false; });
+
+['show-cells','show-edges','show-query'].forEach(id => {
+  document.getElementById(id).addEventListener('change', draw);
+});
+
+// Boot
+resize();
+setMetric('euclidean');
+presetScattered();
+queryX = W / 2; queryY = H / 2;
+draw();
+updatePanel();
+// Pulse animation
+setInterval(() => { if (queryX !== null) draw(); }, 100);
+</script>
+</body>
+</html>

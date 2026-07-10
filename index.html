@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14110c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Study">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--rule:#352c22}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 60%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;
+  padding:calc(env(safe-area-inset-top) + 26px) 18px calc(env(safe-area-inset-bottom) + 40px)}
+header{max-width:640px;margin:0 auto 20px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.1em;letter-spacing:-.5px}
+h1 .a{color:var(--gold)}
+.tag{color:var(--dim);font-size:.92em;margin-top:2px}
+.grid{max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+a.tile{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:16px 16px 15px;text-decoration:none;color:var(--ink);transition:transform .08s,border-color .15s}
+a.tile:active{transform:scale(.97)}
+a.tile:hover{border-color:var(--gold)}
+.ic{font-size:1.9em;line-height:1}
+.nm{font-weight:700;font-size:1.05em}
+.ds{color:var(--dim);font-size:.8em;line-height:1.35}
+.badge{align-self:flex-start;margin-top:2px;font-size:.62em;color:var(--gold);border:1px solid #4a3a1c;background:#241c0d;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.section{max-width:640px;margin:24px auto 8px;color:var(--faint);font-size:.75em;text-transform:uppercase;letter-spacing:2px;font-weight:700}
+.foot{max-width:640px;margin:26px auto 0;color:var(--faint);font-size:.8em;line-height:1.6}
+.foot b{color:var(--dim)}
+#install{max-width:640px;margin:0 auto 16px;background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:12px 15px;font-size:.85em;color:var(--dim);display:none}
+#install b{color:var(--gold)}
+</style>
+</head>
+<body>
+<header>
+  <h1>The <span class="a">Study</span></h1>
+  <div class="tag">Everything worth practising, in one place.</div>
+</header>
+
+<div id="install">Add me to your home screen: tap <b>Share</b> ⬆︎ then <b>Add to Home Screen</b> — I'll run fullscreen and work offline.</div>
+
+<div class="section">Games</div>
+<div class="grid">
+  <a class="tile" href="apps/chess.html"><div class="ic">♟️</div><div class="nm">Chess</div><div class="ds">Vantage — influence maps, PTO eval, predict-the-move, play the engine.</div></a>
+  <a class="tile" href="apps/poker.html"><div class="ic">🂡</div><div class="nm">Poker</div><div class="ds">Hold'em through PEP/PTO — equity, EV coach, range trainer, play a bot.</div></a>
+</div>
+
+<div class="section">Language</div>
+<div class="grid">
+  <a class="tile" href="apps/spanish.html"><div class="ic">🇪🇸</div><div class="nm">Spanish</div><div class="ds">30-day sprint — SRS vocab, verbs, cognates, grammar, dictation.</div></a>
+</div>
+
+<div class="section">Mind &amp; ideas</div>
+<div class="grid">
+  <a class="tile" href="apps/poietism.html"><div class="ic">🧠</div><div class="nm">Poietism</div><div class="ds">Study the philosophy — thinkers, big ideas, the arbitrary border.</div></a>
+  <a class="tile" href="apps/doomsday.html"><div class="ic">📅</div><div class="nm">Doomsday</div><div class="ds">Day-of-week mental math — Conway's method, drilled.</div></a>
+</div>
+
+<div class="section">Math playground</div>
+<div class="grid">
+  <a class="tile" href="apps/life.html"><div class="ic">🔬</div><div class="nm">Life</div><div class="ds">Cellular automata — emergence from simple rules.</div></a>
+  <a class="tile" href="apps/evolution.html"><div class="ic">🧬</div><div class="nm">Evolution</div><div class="ds">Selection + variation, visualized.</div></a>
+  <a class="tile" href="apps/voronoi.html"><div class="ic">🕸️</div><div class="nm">Voronoi</div><div class="ds">Space partitioned by nearest point.</div></a>
+</div>
+
+<div class="foot">
+  <b>Offline-ready.</b> Everything here runs on your phone with no connection — except two Chess extras (import your online games, ask the coach) that need the internet. Built from PEP/PTO. Tap the ⤓ in any tool to save/print where offered.
+</div>
+
+<script>
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+// show the install hint on iOS Safari when not already installed
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone=window.navigator.standalone===true || window.matchMedia('(display-mode: standalone)').matches;
+  if(isIOS && !standalone) document.getElementById('install').style.display='block';
+})();
+</script>
+</body>
+</html>

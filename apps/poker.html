@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poker — learn hold'em through the PEP/PTO lens</title>
+<style>
+  :root{--bg:#0a0f0c;--panel:#111a14;--panel2:#16221a;--line:#243a2c;--ink:#e8f0ea;
+    --dim:#8ba394;--felt:#1f7a4d;--gold:#e8c24a;--good:#5fd68a;--bad:#ff6b6b;--cool:#5cc8ff;--hot:#ff9d5c}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+  a{color:var(--cool);text-decoration:none}
+  .wrap{max-width:940px;margin:0 auto;padding:22px 18px 90px}
+  h1{font-size:24px;margin:0 0 4px} h1 span{color:var(--gold)}
+  .sub{color:var(--dim);font-size:13.5px;margin:0 0 12px;max-width:820px}
+  .prim{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px;font-size:11.5px}
+  .prim b{color:var(--good)}
+  .prim span{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--dim)}
+  .tabs{display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .tab{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--dim);
+    padding:9px 10px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+  .tab.on{color:var(--ink);border-bottom-color:var(--gold)}
+  .pane{display:none} .pane.on{display:block}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px}
+  .card h2{font-size:16px;margin:0 0 4px} .ct{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  button.btn{background:var(--gold);color:#241d05;border:0;border-radius:8px;padding:8px 15px;font:inherit;font-weight:650;cursor:pointer}
+  button.btn.g{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+  button.btn:disabled{opacity:.5;cursor:not-allowed}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:7px 9px;font:inherit}
+  label.fl{font-size:12px;color:var(--dim);display:block;margin:8px 0 3px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  /* heatmap grid */
+  .grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;max-width:560px}
+  .cell{aspect-ratio:1;border-radius:3px;font-size:9.5px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;color:#06120b;font-weight:700;cursor:default;position:relative}
+  .cell small{font-size:8px;font-weight:600;opacity:.8}
+  .cell{transition:opacity .18s,filter .18s}
+  .cell.inr{outline:2px solid var(--gold);outline-offset:-2px;box-shadow:0 0 0 3px rgba(232,194,74,.30);z-index:1}
+  .grid.filtering .cell:not(.inr){opacity:.14;filter:grayscale(.65)}
+  .legend{display:flex;gap:14px;font-size:11.5px;color:var(--dim);margin-top:8px;align-items:center;flex-wrap:wrap}
+  /* cards */
+  .hand{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .pc{width:38px;height:52px;border-radius:6px;background:#f4f6f2;color:#111;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+    box-shadow:0 1px 3px rgba(0,0,0,.4);border:1px solid #cdd3ca}
+  .pc.red{color:#c8102e} .pc.back{background:linear-gradient(135deg,#243a2c,#16221a);color:#3a5a44;border-color:#243a2c}
+  .pc .su{font-size:15px;line-height:1}
+  .eqbar{height:24px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+  .eqbar .w{background:var(--good)} .eqbar .t{background:var(--dim)} .eqbar .l{background:var(--bad)}
+  .eqbar span{display:flex;align-items:center;justify-content:center;font-size:11px;color:#04140b;font-weight:700}
+  .verdict{border-radius:9px;padding:12px 14px;margin-top:12px;font-size:14px;line-height:1.5}
+  .verdict.call{background:rgba(95,214,138,.12);border:1px solid var(--good)}
+  .verdict.fold{background:rgba(255,107,107,.10);border:1px solid var(--bad)}
+  .verdict.raise{background:rgba(232,194,74,.12);border:1px solid var(--gold)}
+  .stat{display:inline-block;margin-right:16px;font-size:12.5px;color:var(--dim)}
+  .stat b{color:var(--ink);font-size:14px}
+  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
+  .felt{background:radial-gradient(ellipse at center,#1f7a4d22,transparent 70%);border:1px solid var(--line);
+    border-radius:14px;padding:16px;margin-top:8px}
+  .board{display:flex;gap:6px;justify-content:center;margin:10px 0;min-height:52px}
+  .seat{text-align:center;margin:6px 0}
+  .seat .lab{font-size:11px;color:var(--dim);margin-bottom:4px}
+  .potline{text-align:center;color:var(--gold);font-weight:700;margin:8px 0}
+  .log{font-size:12px;color:var(--dim);max-height:110px;overflow:auto;margin-top:8px;line-height:1.6}
+  .log b{color:var(--ink)}
+  .big{font-size:15px;font-weight:700}
+  .ok{color:var(--good)} .no{color:var(--bad)}
+  .ref h3{font-size:14px;margin:14px 0 5px;color:var(--gold)}
+  table.rk{border-collapse:collapse;font-size:13px;width:100%;max-width:520px}
+  table.rk td{border-bottom:1px solid var(--line);padding:5px 8px}
+  table.rk td:first-child{color:var(--gold);font-weight:600}
+  .foot{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-top:28px;padding-top:14px}
+  .kbd{font-family:ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+  /* learn */
+  .lhead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:13.5px}
+  .lhead b{color:var(--good)}
+  .pbar2{height:8px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;overflow:hidden;margin-top:8px}
+  .pbar2 span{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+  .lesson{border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin:0 0 12px;background:var(--panel)}
+  .lesson.done{border-color:#2c5a3e}
+  .lh{display:flex;align-items:center;gap:11px}
+  .lnum{width:27px;height:27px;border-radius:50%;background:var(--felt);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+  .lesson.done .lnum{background:var(--good);color:#04140b}
+  .lh h3{margin:0;font-size:15.5px}
+  .lb{margin-top:9px;font-size:13.5px;color:#cdd8d0;line-height:1.65}
+  .lb b{color:var(--ink)} .lb .term{color:var(--gold);font-weight:600}
+  .demoBox{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:13px;margin-top:11px}
+  .narr{font-size:13.5px;color:#dfe8e2;line-height:1.6;margin-bottom:8px;min-height:22px}
+  .chk{cursor:pointer;font-size:12.5px;color:var(--dim);user-select:none;display:inline-flex;align-items:center;gap:6px;margin-top:11px}
+  .chk .bx{width:16px;height:16px;border:1px solid var(--line);border-radius:4px;display:inline-block}
+  .chk.on{color:var(--good)} .chk.on .bx{background:var(--good);border-color:var(--good)}
+  .rankrow{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+  .rankrow .nm{width:120px;font-size:13px;color:var(--gold);font-weight:600}
+  .rankrow .pc{width:30px;height:42px;font-size:12px}
+  .seatmini{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .seatmini .s{text-align:center} .seatmini .s .lab{font-size:11px;color:var(--dim);margin-bottom:4px}
+  /* practice room */
+  .scorecard{display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:var(--panel2);
+    border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-bottom:14px}
+  .accbig{font-size:36px;font-weight:800;line-height:1}
+  .acclab{font-size:12px;color:var(--dim);margin-top:2px}
+  .accmeter{flex:1;min-width:180px}
+  .accmeter .bar{height:12px;background:#0a0f0c;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:5px}
+  .accmeter .bar>span{display:block;height:100%;width:0;transition:width .4s}
+  .prstats{font-size:12px;color:var(--dim)} .prstats b{color:var(--ink)}
+  .leaktip{font-size:12.5px;color:var(--hot);margin-top:4px}
+  /* mode */
+  .modebar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+  .modebar .ml{font-size:12px;color:var(--dim);margin-right:2px}
+  .mode{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:20px;
+    padding:5px 15px;font:inherit;font-weight:650;cursor:pointer;font-size:12.5px}
+  .mode.on{background:var(--felt);color:#fff;border-color:var(--felt)}
+  .mdesc{font-size:12px;color:var(--dim);flex-basis:100%;margin-top:5px}
+  .tabs{-webkit-overflow-scrolling:touch}
+  @media(max-width:600px){
+    body{overflow-x:hidden}
+    .wrap{padding:16px 11px 70px}
+    h1{font-size:20px} .sub{font-size:13px}
+    .prim{gap:5px} .prim span{padding:3px 8px}
+    .card{padding:14px 13px}
+    .grid{max-width:100%} .cell{font-size:8.5px} .cell small{font-size:6.5px}
+    .two{grid-template-columns:1fr}
+    .scorecard{gap:14px;padding:12px 13px} .accbig{font-size:30px}
+    .pc{width:32px;height:44px;font-size:13px} .pc .su{font-size:13px}
+    .tab{padding:8px 9px;font-size:12.5px}
+    /* stop iOS zoom-on-focus by keeping inputs at 16px */
+    input,select{font-size:16px}
+    .row{gap:8px} .seatmini{gap:12px}
+  }
+</style></head>
+<body><div class="wrap">
+<h1>Poker <span>&spades;</span> through the lens</h1>
+<p class="sub">Hold'em is the purest PTO game there is: win the most <em>over the long run</em>, not this hand. Every decision is expected transformation (EV) versus dissipation (chips risked, variance, tilt), made blind to the opponent's cards. Learn it as equity, ranges, and residuals.</p>
+<div class="prim">
+  <span><b>equity</b> = transformation potential</span>
+  <span><b>pot odds / EV</b> = PTO, made literal</span>
+  <span><b>hidden cards</b> = opacity</span>
+  <span><b>their range</b> = your predictor</span>
+  <span><b>what they show</b> = the residual</span>
+  <span><b>the fold</b> = inhibition</span>
+</div>
+
+<div class="modebar">
+  <span class="ml">Mode:</span>
+  <button class="mode" data-m="beginner">Beginner</button>
+  <button class="mode" data-m="intermediate">Intermediate</button>
+  <button class="mode" data-m="pro">Pro</button>
+  <span class="mdesc" id="mode-desc"></span>
+</div>
+
+<div class="tabs">
+  <button class="tab on" data-t="learn">Learn</button>
+  <button class="tab" data-t="equity">Equity</button>
+  <button class="tab" data-t="decide">Decide</button>
+  <button class="tab" data-t="read">Read</button>
+  <button class="tab" data-t="practice">Practice</button>
+  <button class="tab" data-t="draws">Draws</button>
+  <button class="tab" data-t="sizing">Sizing</button>
+  <button class="tab" data-t="position">Position</button>
+  <button class="tab" data-t="play">Play</button>
+  <button class="tab" data-t="ref">Reference</button>
+</div>
+
+<!-- LEARN -->
+<div class="pane on" id="p-learn">
+  <div class="lhead" id="learn-head">Assumes you've <b>never played a hand</b>. Nine short lessons, from "what is poker" to "when to call" — each with something to try. Work top to bottom.
+    <div class="pbar2"><span id="learn-bar"></span></div>
+  </div>
+
+  <div class="lesson" data-l="goal">
+    <div class="lh"><div class="lnum">1</div><h3>What you're actually trying to do</h3></div>
+    <div class="lb">Poker is a betting game. You each get <b>2 private cards</b> (your <span class="term">hole cards</span>), and over the hand <b>5 shared cards</b> (the <span class="term">board</span>) are dealt face-up in the middle. You make your best <b>5-card hand</b> using any of your 7 cards.
+      <br><br>You win a pot two ways: <b>everyone else folds</b> (gives up), or you have the <b>best hand at showdown</b>. Here's the mind-bender that makes poker deep — <b>you don't win by winning hands, you win by winning chips over time.</b> A great player folds most hands and still profits, because they put money in only when the math is in their favor. Everything else here builds toward knowing when it is.
+      <div class="chk" data-c="goal"><span class="bx"></span> Got it</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="rank">
+    <div class="lh"><div class="lnum">2</div><h3>Which hands beat which</h3></div>
+    <div class="lb">Every hand is a best-5-cards. Strongest at the top:
+      <div class="demoBox" id="ranklist"></div>
+      Now test it — here's a shared board and two players' hole cards. <b>Who has the better 5-card hand?</b>
+      <div class="demoBox" id="q-rank"><div class="narr">Loading…</div></div>
+      <div class="chk" data-c="rank"><span class="bx"></span> I can read who wins</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="streets">
+    <div class="lh"><div class="lnum">3</div><h3>How a hand plays out — the four streets</h3></div>
+    <div class="lb">A hand unfolds in four betting rounds. Deal one and I'll narrate it step by step:
+      <div class="demoBox">
+        <div class="narr" id="gh-narr">Press deal to watch a full hand, one step at a time.</div>
+        <div class="seatmini" style="margin:10px 0">
+          <div class="s"><div class="lab">BOT</div><div class="hand" id="gh-bot"></div></div>
+          <div class="s"><div class="lab">BOARD</div><div class="hand" id="gh-board" style="min-height:52px"></div></div>
+          <div class="s"><div class="lab">YOU</div><div class="hand" id="gh-you"></div></div>
+        </div>
+        <div class="row"><button class="btn" id="gh-deal">Deal a hand</button><button class="btn g" id="gh-next" disabled>Next step →</button></div>
+      </div>
+      <div class="chk" data-c="streets"><span class="bx"></span> I see how a hand flows</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="pos">
+    <div class="lh"><div class="lnum">4</div><h3>Blinds &amp; position — turn order matters</h3></div>
+    <div class="lb">To force action, two players post forced bets each hand — the <span class="term">small blind</span> and <span class="term">big blind</span> — so there's always something to fight over. A <span class="term">dealer button</span> rotates each hand and sets who acts when.
+      <br><br>The key idea: <b>acting last is power.</b> If you decide after seeing what everyone else did, you have information they didn't. That's why the player "on the button" (last to act) can profitably play far more hands than the player who acts first. Position is <b>opacity working for you</b> — you see their move before revealing yours. Drill open-or-fold by seat in the <a href="#" data-goto="position"><b>Position</b></a> tab.
+      <div class="chk" data-c="pos"><span class="bx"></span> Later position = more information</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="actions">
+    <div class="lh"><div class="lnum">5</div><h3>Your five options</h3></div>
+    <div class="lb">On your turn you can only ever do a few things:
+      <br>• <b class="term">Fold</b> — give up the hand (and any chips already in). Costs nothing more.
+      <br>• <b class="term">Check</b> — do nothing, pass the action, stay in — only allowed if no one has bet.
+      <br>• <b class="term">Bet</b> — put chips in when no one else has yet.
+      <br>• <b class="term">Call</b> — match someone's bet to stay in.
+      <br>• <b class="term">Raise</b> — match and increase; now they must respond.
+      <br><br>Most of poker is one question repeated: <b>is putting these chips in worth it?</b> The next three lessons are how you answer it.
+      <div class="chk" data-c="actions"><span class="bx"></span> I know my options</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="equity">
+    <div class="lh"><div class="lnum">6</div><h3>Equity — how often you'd win</h3></div>
+    <div class="lb"><span class="term">Equity</span> is the single most important word here. It's the share of the pot that's "yours" — <b>the % of the time you'd win if all remaining cards were dealt out right now.</b> A hand that wins 70% of the time has 70% equity.
+      <br><br>Watch: two aces against two kings, all-in before any board. Who's ahead, and by how much?
+      <div class="demoBox"><div class="narr" id="eq-demo">…</div><button class="btn g" id="eq-demo-btn">Run A♠A♥ vs K♠K♥</button></div>
+      The full <b>Equity map</b> tab colors all 169 starting hands by this number, and the calculator does any matchup. Equity is your <b>transformation potential</b> — the raw material every decision is made from.
+      <div class="chk" data-c="equity"><span class="bx"></span> Equity = my chance to win</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="odds">
+    <div class="lh"><div class="lnum">7</div><h3>Pot odds &amp; EV — the one idea that wins</h3></div>
+    <div class="lb">Here's where it clicks. If the pot is <b>100</b> and someone bets so you must <b>call 50</b>, you're risking 50 to win 150. You only need to win <b>50 ÷ 150 = 33%</b> of the time to break even. That threshold is your <span class="term">pot odds</span>.
+      <br><br>The rule that makes poker profitable: <b>call when your equity beats your pot odds.</b> If you have 45% equity and only need 33%, calling <b>makes money on average</b> — even though you'll lose the hand 55% of the time. That gap between "I lost this one" and "it was still right" is the whole game, and it's pure PTO: judge the <b>trajectory</b>, not the result.
+      <br><br><b>Call or raise?</b> That's a <em>separate</em> question — pot odds only decide whether to <em>continue</em>. You <b>raise for value</b> when you're ahead of the hands that would call you (get more money in while you're the favorite); you <b>raise as a semi-bluff</b> when you're behind but hold a draw plus fold equity; and you just <b>call</b> when you're good enough to continue but raising would only fold out worse hands and get called by better. So: <b>pot odds → fold vs continue; value &amp; fold equity → call vs raise.</b> The Decide, Practice, and Read trainers all label which reason applies.
+      <br><br>The <b>Decide</b> tab does this math for any spot and gives you a plain call/fold/raise. Try it after this.
+      <div class="chk" data-c="odds"><span class="bx"></span> Pot odds decide fold-vs-call; value/fold-equity decide call-vs-raise</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="draws">
+    <div class="lh"><div class="lnum">8</div><h3>Draws &amp; sizing — the everyday math</h3></div>
+    <div class="lb">Two things you'll use on almost every hand:
+      <br>• <b>Outs &amp; the rule of 2 &amp; 4.</b> When you're behind but can improve, count the cards that win it for you (your <span class="term">outs</span>), then estimate equity instantly — flop <b>outs × 4</b>, turn <b>outs × 2</b>. A flush draw is 9 outs ≈ 36% on the flop. Drill it in the <a href="#" data-goto="draws"><b>Draws</b></a> tab.
+      <br>• <b>Bet sizing.</b> Betting isn't one button: the more of their range you beat, the <b>bigger</b> you bet; check or go small with marginal hands to control the pot. Drill it in the <a href="#" data-goto="sizing"><b>Sizing</b></a> tab.
+      <div class="chk" data-c="draws"><span class="bx"></span> Outs × 4/2, and size to my strength</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="range">
+    <div class="lh"><div class="lnum">9</div><h3>Ranges &amp; bluffing — why you can't just wait for aces</h3></div>
+    <div class="lb">You never know an opponent's exact two cards — only the <span class="term">range</span> of hands they'd play this way (a whole set, a distribution, never one hand). Good players think "what would they do this with all of the time?" not "do they have it?"
+      <br><br>This is also why <b>bluffing works</b>: because your betting could mean many hands, a bet with nothing can win if the story is believable. And why you can't only play premium hands — everyone folds to you, and you never get paid. The <b>Read the range</b> tab trains exactly this: guess the right play, then see the answer. The gap is your <b>residual</b> — the only thing that teaches you.
+      <div class="chk" data-c="range"><span class="bx"></span> People have ranges, not hands</div>
+    </div>
+  </div>
+
+  <div class="lesson" data-l="bankroll">
+    <div class="lh"><div class="lnum">10</div><h3>Variance — why you can play perfectly and lose</h3></div>
+    <div class="lb">Short-term, cards are random: you can make every correct decision and lose for days. That's <span class="term">variance</span>, and it's why poker rewards patience. You bet your edge in small enough pieces that a bad run can't bust you, and let the +EV compound. Tilt — playing worse because you're losing — is the real leak; it's <b>dissipation</b>, chips lost to a bruised ego, not to the cards.
+      <br><br>That's the mindset the whole app is built around: <b>win the trajectory, not the hand.</b>
+      <div class="chk" data-c="bankroll"><span class="bx"></span> I think in the long run</div>
+    </div>
+  </div>
+
+  <div class="lesson done" data-l="ready" style="border-color:var(--gold)">
+    <div class="lh"><div class="lnum" style="background:var(--gold);color:#241d05">✓</div><h3>You know enough to start</h3></div>
+    <div class="lb">That's real poker. Now practice with the tools, in this order:
+      <br><br>→ <a href="#" data-goto="decide"><b>Decide</b></a> — feed it spots, learn to feel call vs fold. &nbsp; → <a href="#" data-goto="read"><b>Read the range</b></a> — quiz yourself. &nbsp; → <a href="#" data-goto="play"><b>Play a bot</b></a> — put it together in real hands. &nbsp; → <a href="#" data-goto="equity"><b>Equity map</b></a> — study which hands are strong.
+    </div>
+  </div>
+</div>
+
+<!-- EQUITY -->
+<div class="pane" id="p-equity">
+  <div class="card">
+    <h2>Where value lives &mdash; the 169 starting hands</h2>
+    <p class="ct">Every hold'em hand is one of 169 shapes. Colored by all-in equity vs a random hand &mdash; the poker analog of a piece-square table: a map of value before anything happens. Suited hands sit above the diagonal, offsuit below, pairs on it.</p>
+    <div class="row" style="margin-bottom:10px">
+      <span><label class="fl">Overlay a solid opening range</label>
+      <select id="rangeSel"><option value="">— none —</option></select></span>
+      <span class="note" id="rangeNote" style="margin:0"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="legend"><span>weak</span>
+      <span style="width:120px;height:10px;border-radius:5px;background:linear-gradient(90deg,#c0392b,#e8c24a,#2ecc71)"></span>
+      <span>strong</span><span id="cellInfo" style="margin-left:auto"></span></div>
+  </div>
+  <div class="card">
+    <h2>Equity calculator</h2>
+    <p class="ct">Your equity is how much of the pot is already &ldquo;yours.&rdquo; Everything downstream &mdash; pot odds, EV, the call &mdash; is built on this one number. Runs the real Monte-Carlo engine.</p>
+    <div class="row">
+      <span><label class="fl">Your hand</label><input id="c-hero" value="As Ks" size="8"></span>
+      <span><label class="fl">Villain — cards, a range, or blank</label><input id="c-vill" value="" size="12" placeholder="random / tight / standard / loose"></span>
+      <span><label class="fl">Board (0/3/4/5)</label><input id="c-board" value="" size="12" placeholder="e.g. Qs 7h 2d"></span>
+      <button class="btn" id="c-go">Compute</button>
+    </div>
+    <div id="c-out" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- DECIDE -->
+<div class="pane" id="p-decide">
+  <div class="card">
+    <h2>The decision, through PTO</h2>
+    <p class="ct">A call is right when its <b class="ok">expected transformation</b> (equity &times; pot) beats its <b class="no">dissipation</b> (the chips risked) &mdash; even if you&rsquo;ll lose the hand most of the time. That gap between the local result and the long-run right move is the whole game.</p>
+    <div class="row">
+      <span><label class="fl">Your hand</label><input id="d-hero" value="Ah Qh" size="7"></span>
+      <span><label class="fl">Board (3/4/5 cards)</label><input id="d-board" value="Kh 8h 3c" size="12"></span>
+      <span><label class="fl">Villain plays like</label>
+        <select id="d-range"><option value="tight">tight (strong hands)</option><option value="standard" selected>standard</option><option value="loose">loose (a station)</option></select></span>
+      <span><label class="fl">Pot</label><input id="d-pot" value="100" size="4"></span>
+      <span><label class="fl">To call</label><input id="d-call" value="60" size="4"></span>
+      <button class="btn g" id="d-deal">Deal me a spot</button>
+    </div>
+    <div style="margin-top:12px"><span class="note" style="margin:0">The spot:</span>
+      <div id="d-cards" class="board" style="justify-content:flex-start;margin-top:6px;min-height:52px"></div></div>
+    <div class="row" style="margin-top:6px">
+      <span class="note" style="margin:0">Your move:</span>
+      <button class="btn g" data-da="fold">Fold</button>
+      <button class="btn g" data-da="call">Call</button>
+      <button class="btn g" data-da="raise">Raise</button>
+      <button class="btn g" id="d-peek" style="margin-left:auto">Just show me the answer</button>
+    </div>
+    <div id="d-out" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- READ -->
+<div class="pane" id="p-read">
+  <div class="card">
+    <h2>Read the range &mdash; predict the +EV move</h2>
+    <p class="ct">The predictor/residual drill. You get a spot; you commit to fold, call, or raise; then the engine reveals the expected-value-correct play. The distance between your guess and the truth is your <b>residual</b> &mdash; the only thing that teaches you. Novelty of being wrong &gt; comfort of being right.</p>
+    <div id="r-spot"></div>
+    <div class="row" id="r-actions" style="margin-top:12px">
+      <button class="btn g" data-a="fold">Fold</button>
+      <button class="btn g" data-a="call">Call</button>
+      <button class="btn g" data-a="raise">Raise</button>
+      <button class="btn" id="r-next" style="margin-left:auto">Deal a spot →</button>
+    </div>
+    <div id="r-out" style="margin-top:12px"></div>
+    <div class="note" id="r-score">score 0 / 0</div>
+  </div>
+</div>
+
+<!-- PRACTICE -->
+<div class="pane" id="p-practice">
+  <div class="card">
+    <h2>Practice room &mdash; your decision accuracy</h2>
+    <p class="ct">Rapid-fire real spots, graded against the villain's <b>actual range</b> (not a random hand) &mdash; and against the <b>expected-value-best</b> of fold/call/raise. The <b>size</b> of a mistake counts, not just right/wrong, like chess move accuracy: snap-folding a clear winner scores worse than a close call. Each spot tells you the villain's style; account for it. Watch your accuracy, streak, and where your chips leak.</p>
+    <div class="scorecard">
+      <div><div class="accbig" id="pr-acc">—</div><div class="acclab" id="pr-label">deal your first spot</div></div>
+      <div class="accmeter">
+        <div class="bar"><span id="pr-bar"></span></div>
+        <div class="prstats"><span style="margin-right:14px">decisions <b id="pr-dec">0</b></span>
+          <span style="margin-right:14px">streak <b id="pr-streak">0</b></span>
+          <span>avg EV lost <b id="pr-evloss">0</b></span></div>
+        <div class="leaktip" id="pr-leak"></div>
+      </div>
+    </div>
+    <div class="demoBox" id="pr-spot"><div class="narr">Press <b>Start / Next spot</b> to begin.</div></div>
+    <div class="row" id="pr-actions" style="margin-top:12px">
+      <button class="btn g" data-a="fold" disabled>Fold</button>
+      <button class="btn g" data-a="call" disabled>Call</button>
+      <button class="btn g" data-a="raise" disabled>Raise</button>
+      <button class="btn" id="pr-next" style="margin-left:auto">Start / Next spot →</button>
+    </div>
+    <div id="pr-out" style="margin-top:12px"></div>
+    <div class="log" id="pr-log"></div>
+    <div class="row" style="margin-top:10px"><button class="btn g" id="pr-reset">New session</button>
+      <span class="note" id="pr-life" style="margin:0"></span></div>
+  </div>
+</div>
+
+<!-- DRAWS -->
+<div class="pane" id="p-draws">
+  <div class="card">
+    <h2>Draws &amp; the rule of 2 and 4</h2>
+    <p class="ct">When you're behind but can improve, count your <b>outs</b> — the cards that make you the winner. Then estimate your equity instantly: on the flop (2 cards to come) <b>outs × 4</b>; on the turn (1 to come) <b>outs × 2</b>. This is the fastest math in poker, and it's how you know whether a draw is worth a call.</p>
+    <div class="demoBox">
+      <div class="narr" id="dr-spot">Press <b>Deal a draw</b> — you'll be behind with a draw; count the outs.</div>
+      <div class="seatmini" style="margin:10px 0">
+        <div class="s"><div class="lab">VILLAIN (shown)</div><div class="hand" id="dr-vill"></div></div>
+        <div class="s"><div class="lab">BOARD</div><div class="hand" id="dr-board"></div></div>
+        <div class="s"><div class="lab">YOU</div><div class="hand" id="dr-you"></div></div>
+      </div>
+      <div class="row" id="dr-guessrow" style="display:none">
+        <span>How many outs?</span>
+        <button class="btn g" id="dr-minus">−</button>
+        <b id="dr-guess" style="min-width:24px;text-align:center;font-size:18px">8</b>
+        <button class="btn g" id="dr-plus">+</button>
+        <button class="btn" id="dr-check">Check my count</button>
+      </div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="dr-deal">Deal a draw</button>
+        <span class="note" id="dr-score" style="margin:0">solved 0 / 0</span></div>
+      <div id="dr-out" style="margin-top:10px"></div>
+    </div>
+    <p class="note"><b>Implied odds</b>: sometimes a draw is worth calling even when the immediate pot odds say no — because when you hit, you win extra chips on later streets. The bigger the hidden hand and the deeper the stacks, the more you can call. <b>Reverse</b> implied odds are the trap: a weak draw that makes a second-best hand and pays <em>them</em> off.</p>
+  </div>
+</div>
+
+<!-- SIZING -->
+<div class="pane" id="p-sizing">
+  <div class="card">
+    <h2>Bet sizing — how much, not just whether</h2>
+    <p class="ct">Betting isn't one button. The core rule: <b>the more of their range you beat, the bigger you bet</b>. Nut hands want big bets and overbets (they still get called and you deny equity); marginal made hands want small bets or a check (keep the pot small, don't get raised off it). Guess the size, then see what your equity says.</p>
+    <div class="demoBox">
+      <div class="narr" id="sz-spot">Press <b>Deal a spot</b>.</div>
+      <div class="seatmini" style="margin:10px 0">
+        <div class="s"><div class="lab">BOARD</div><div class="hand" id="sz-board"></div></div>
+        <div class="s"><div class="lab">YOU</div><div class="hand" id="sz-you"></div></div>
+      </div>
+      <div class="row" id="sz-guessrow" style="display:none">
+        <span>Your size vs <b id="sz-rangelab">a standard player</b>:</span>
+        <button class="btn g" data-sz="check">Check</button>
+        <button class="btn g" data-sz="small">Small ⅓</button>
+        <button class="btn g" data-sz="big">Big ⅔–pot</button>
+        <button class="btn g" data-sz="overbet">Overbet 1.5×</button>
+      </div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="sz-deal">Deal a spot</button>
+        <span class="note" id="sz-score" style="margin:0">score 0 / 0</span></div>
+      <div id="sz-out" style="margin-top:10px"></div>
+    </div>
+    <p class="note">This is the value-betting foundation. Advanced play <em>polarizes</em> — betting big with the nuts <b>and</b> bluffs while checking medium hands — but "bet bigger when you're stronger" is the rule to internalize first.</p>
+  </div>
+</div>
+
+<!-- POSITION -->
+<div class="pane" id="p-position">
+  <div class="card">
+    <h2>Position — which hands to play, and from where</h2>
+    <p class="ct">Acting later is information, so you can profitably play more hands. Two drills: <b>Opening</b> (folded to you — raise or fold from your seat), and <b>Big-blind defense</b> (someone raised and it's on you in the BB, where a discount lets you defend very wide).</p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="mode on" data-pmode="rfi">Opening (raise or fold)</button>
+      <button class="mode" data-pmode="bb">Big-blind defense</button>
+    </div>
+    <div class="demoBox">
+      <div class="narr" id="ps-spot">Press <b>Deal a hand</b>.</div>
+      <div class="seatmini" style="margin:12px 0">
+        <div class="s"><div class="lab" id="ps-poslab">POSITION</div><div class="hand" id="ps-hand"></div></div>
+      </div>
+      <div class="row" id="ps-actions" style="display:none"></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="ps-deal">Deal a hand</button>
+        <span class="note" id="ps-score" style="margin:0">score 0 / 0</span></div>
+      <div id="ps-out" style="margin-top:10px"></div>
+    </div>
+    <p class="note">Opening ranges are teaching defaults (tight UTG → wide BTN); BB defense is graded on your equity vs the raiser's range and the discount you get. See the full charts overlaid on the grid in the <a href="#" data-goto="equity"><b>Equity</b></a> tab.</p>
+  </div>
+</div>
+
+<!-- PLAY -->
+<div class="pane" id="p-play">
+  <div class="card">
+    <h2>Heads-up vs the equity bot</h2>
+    <p class="ct">A simplified hold'em: each street you check or bet ⅔-pot; facing a bet, call or fold. The bot has no idea what you hold &mdash; it plays its own equity vs a random hand against the pot odds, and bluffs a little. Your job is the same as always: put chips in when it&rsquo;s +EV, not when the hand looks pretty. Session P/L is your trajectory.</p>
+    <div class="felt">
+      <div class="seat"><div class="lab">BOT</div><div class="board" id="pl-bot" style="margin:0;justify-content:center"></div></div>
+      <div class="potline" id="pl-pot">—</div>
+      <div class="board" id="pl-board"></div>
+      <div class="seat"><div class="lab">YOU</div><div class="board" id="pl-you" style="margin:0;justify-content:center"></div></div>
+      <div class="row" id="pl-actions" style="justify-content:center;margin-top:10px"></div>
+    </div>
+    <div style="margin-top:10px"><span class="stat">session P/L <b id="pl-pl">0</b></span><span class="stat">hands <b id="pl-hands">0</b></span>
+      <button class="btn" id="pl-deal" style="float:right">Deal a hand</button></div>
+    <div class="log" id="pl-log"></div>
+  </div>
+</div>
+
+<!-- REFERENCE -->
+<div class="pane ref" id="p-ref">
+  <div class="card">
+    <h2>Reference</h2>
+    <h3>Hand rankings (strong → weak)</h3>
+    <table class="rk">
+      <tr><td>Straight flush</td><td>five in sequence, one suit — A K Q J T of ♠</td></tr>
+      <tr><td>Four of a kind</td><td>7 7 7 7 x</td></tr>
+      <tr><td>Full house</td><td>three + a pair — K K K 9 9</td></tr>
+      <tr><td>Flush</td><td>five of a suit</td></tr>
+      <tr><td>Straight</td><td>five in sequence — the wheel A-2-3-4-5 is the weakest</td></tr>
+      <tr><td>Three of a kind</td><td>a set / trips</td></tr>
+      <tr><td>Two pair</td><td>higher pair, then lower, then kicker</td></tr>
+      <tr><td>Pair</td><td>one pair + three kickers</td></tr>
+      <tr><td>High card</td><td>nothing — highest cards play</td></tr>
+    </table>
+    <h3>Pot odds → equity needed to call</h3>
+    <table class="rk">
+      <tr><td>½ pot</td><td>call 50 into 100 → need 25%</td></tr>
+      <tr><td>⅔ pot</td><td>call 66 into 100 → need 29%</td></tr>
+      <tr><td>full pot</td><td>call 100 into 100 → need 33%</td></tr>
+      <tr><td>2× pot</td><td>call 200 into 100 → need 40%</td></tr>
+    </table>
+    <h3>Position (why the button opens wide)</h3>
+    <p class="note">Acting last is information — you see everyone before you decide, so more hands become profitable. That&rsquo;s why the button&rsquo;s opening range dwarfs UTG&rsquo;s. Position is opacity working <em>for</em> you: you have theirs, they don&rsquo;t have yours.</p>
+    <h3>Bankroll &amp; variance = the trajectory (PTO)</h3>
+    <p class="note">You can play every hand perfectly and lose for a week. PTO is exactly the discipline of judging the <em>trajectory</em>, not the local result: bet your edge in sizes small enough that variance can&rsquo;t end the run, and let the +EV compound. Tilt is dissipation — chips lost to a bruised predictor, not to the cards. The fold is inhibition: suppressing the hand you want to play so the bankroll survives.</p>
+    <h3>Glossary</h3>
+    <p class="note"><b>equity</b> — your share of the pot if all cards ran out now. <b>outs</b> — cards that make your hand. <b>range</b> — the set of hands someone could have (never one hand — a distribution). <b>EV</b> — average chips a decision wins over infinite repeats. <b>GTO</b> — an unexploitable baseline; deviate only to punish a specific leak.</p>
+  </div>
+</div>
+
+<div class="foot">Engine: <span class="kbd">pep.poker</span> (evaluator + Monte-Carlo equity, tested) · math over <span class="kbd">/poker/api/*</span> · keyless. A coach heuristic for learning, not a solver. See also <a href="/chess">Vantage (chess)</a> · <a href="/pep/games">why games build durable expertise</a>.</div>
+
+</div>
+<script>
+"use strict";
+var PREFLOP=__PREFLOP__, RANGES=__RANGES__;
+var RANKS="23456789TJQKA", SUITS="cdhs", SUIT_SYM={c:"&clubs;",d:"&diams;",h:"&hearts;",s:"&spades;"};
+
+// ---------- tabs ----------
+function showTab(name){
+  document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("on",x.dataset.t===name);});
+  document.querySelectorAll(".pane").forEach(function(x){x.classList.remove("on");});
+  var p=document.getElementById("p-"+name);if(p)p.classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){showTab(b.dataset.t);};});
+
+// ---------- difficulty mode ----------
+var MODE=(function(){try{return localStorage.getItem("poker_mode")||"beginner";}catch(e){return "beginner";}})();
+var POKER_REDEAL=[];
+function modeCfg(){
+  if(MODE==="pro")          return {tol:2.2, showRange:false, hint:false, sizes:[0.25,0.33,0.5,0.66,1,1.5,2], botValue:0.50, botBluff:0.22, botCall:0.03};
+  if(MODE==="intermediate") return {tol:1.4, showRange:true,  hint:false, sizes:[0.33,0.5,0.66,1],            botValue:0.55, botBluff:0.12, botCall:0.05};
+  return {tol:0.95, showRange:true, hint:true, sizes:[0.5,0.66,1], botValue:0.60, botBluff:0.05, botCall:0.08};
+}
+var MODE_DESC={
+  beginner:"Full guidance — the villain's style is shown, an equity hint is on tap, and grading is forgiving.",
+  intermediate:"The villain's style is shown, but no hints — standard grading, a livelier bot.",
+  pro:"The villain's style is HIDDEN — read it yourself. Tricky bet sizes, strict grading, a bot that bluffs and value-bets thin."
+};
+function setMode(m){
+  MODE=m;try{localStorage.setItem("poker_mode",m);}catch(e){}
+  document.querySelectorAll(".mode").forEach(function(b){b.classList.toggle("on",b.dataset.m===m);});
+  document.getElementById("mode-desc").textContent=MODE_DESC[m];
+  POKER_REDEAL.forEach(function(f){try{f();}catch(e){}});
+}
+document.querySelectorAll(".mode").forEach(function(b){b.onclick=function(){setMode(b.dataset.m);};});
+document.querySelectorAll(".mode").forEach(function(b){b.classList.toggle("on",b.dataset.m===MODE);});
+document.getElementById("mode-desc").textContent=MODE_DESC[MODE];
+
+// ---------- card helpers ----------
+function cardHtml(txt){ // txt like "As"
+  if(!txt){return "<div class='pc back'></div>";}
+  var r=txt[0],s=txt[1],red=(s==="d"||s==="h");
+  return "<div class='pc "+(red?"red":"")+"'>"+r+"<span class='su'>"+SUIT_SYM[s]+"</span></div>";
+}
+function handHtml(arr){return arr.map(cardHtml).join("");}
+function cardStr(c){return RANKS[Math.floor(c/4)]+SUITS[c%4];}
+function shuffled(exclude){
+  var d=[];for(var i=0;i<52;i++){if(!exclude||exclude.indexOf(i)<0)d.push(i);}
+  for(var j=d.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1));var t=d[j];d[j]=d[k];d[k]=t;}
+  return d;
+}
+// ===== In-browser poker engine (mirrors pep.poker) — no server needed =====
+function round4(x){return Math.round(x*1e4)/1e4;} function round2(x){return Math.round(x*100)/100;}
+function parseCard(s){return RANKS.indexOf(s[0].toUpperCase())*4+SUITS.indexOf(s[1].toLowerCase());}
+function parseCardsStr(s){s=(s||"").replace(/,/g," ").trim();if(!s)return [];var toks=s.indexOf(" ")>=0?s.split(/\s+/):s.match(/.{1,2}/g)||[];return toks.filter(function(t){return t&&t.length===2;}).map(parseCard);}
+var CAT_NAMES=["high card","pair","two pair","three of a kind","straight","flush","full house","four of a kind","straight flush"];
+function jStraightHigh(rset){var rs={};for(var k in rset)rs[k]=1;if(rs[12])rs[-1]=1;for(var hi=12;hi>=3;hi--){var ok=1;for(var i=0;i<5;i++){if(!rs[hi-i]){ok=0;break;}}if(ok)return hi;}return null;}
+function jScore5(cards){
+  var ranks=[],suits=[],cnt={},i;
+  for(i=0;i<5;i++){var r=Math.floor(cards[i]/4);ranks.push(r);suits.push(cards[i]%4);cnt[r]=(cnt[r]||0)+1;}
+  var keys=Object.keys(cnt).map(Number);
+  var counts=keys.map(function(r){return cnt[r];}).sort(function(a,b){return b-a;});
+  var by=keys.slice().sort(function(a,b){return (cnt[b]-cnt[a])||(b-a);});
+  var flush=(suits[0]===suits[1]&&suits[1]===suits[2]&&suits[2]===suits[3]&&suits[3]===suits[4]);
+  var rset={};ranks.forEach(function(r){rset[r]=1;});var sh=jStraightHigh(rset);
+  var desc=ranks.slice().sort(function(a,b){return b-a;});
+  var cat,tie;
+  if(flush&&sh!==null){cat=8;tie=[sh];}
+  else if(counts[0]===4){var q=by[0];cat=7;tie=[q,Math.max.apply(null,ranks.filter(function(r){return r!==q;}))];}
+  else if(counts[0]===3&&counts[1]>=2){cat=6;tie=[by[0],by[1]];}
+  else if(flush){cat=5;tie=desc;}
+  else if(sh!==null){cat=4;tie=[sh];}
+  else if(counts[0]===3){var t=by[0];cat=3;tie=[t].concat(ranks.filter(function(r){return r!==t;}).sort(function(a,b){return b-a;}));}
+  else if(counts[0]===2&&counts[1]===2){var hp=Math.max(by[0],by[1]),lp=Math.min(by[0],by[1]);cat=2;tie=[hp,lp,Math.max.apply(null,ranks.filter(function(r){return r!==hp&&r!==lp;}))];}
+  else if(counts[0]===2){var p=by[0];cat=1;tie=[p].concat(ranks.filter(function(r){return r!==p;}).sort(function(a,b){return b-a;}));}
+  else{cat=0;tie=desc;}
+  var val=cat;for(i=0;i<tie.length;i++)val=val*15+(tie[i]+1);for(i=tie.length;i<5;i++)val=val*15;
+  return val;
+}
+function jEvalBest(cards){
+  if(cards.length===5)return jScore5(cards);
+  var best=-1,n=cards.length,a,b,c,d,e;
+  for(a=0;a<n-4;a++)for(b=a+1;b<n-3;b++)for(c=b+1;c<n-2;c++)for(d=c+1;d<n-1;d++)for(e=d+1;e<n;e++){
+    var s=jScore5([cards[a],cards[b],cards[c],cards[d],cards[e]]);if(s>best)best=s;}
+  return best;
+}
+function jCat(val){return CAT_NAMES[Math.floor(val/759375)];}
+function jDeckExcl(ex){var d=[];for(var i=0;i<52;i++)if(ex.indexOf(i)<0)d.push(i);return d;}
+function jSample(arr,k){var a=arr.slice(),res=[],n=a.length;for(var i=0;i<k;i++){var j=i+Math.floor(Math.random()*(n-i));var t=a[i];a[i]=a[j];a[j]=t;res.push(a[i]);}return res;}
+function jShuffleFull(){var d=[];for(var i=0;i<52;i++)d.push(i);for(var j=51;j>0;j--){var k=Math.floor(Math.random()*(j+1));var t=d[j];d[j]=d[k];d[k]=t;}return d;}
+function jHandEquity(hero,villain,board,iters){
+  board=board||[];var vk=(villain&&villain.length===2);var known=hero.concat(board);if(vk)known=known.concat(villain);
+  var base=jDeckExcl(known),nb=5-board.length,nv=vk?0:2,draws=nb+nv,win=0,tie=0,loss=0;
+  for(var it=0;it<iters;it++){var s=jSample(base,draws);var vb=board.concat(s.slice(0,nb));var vh=vk?villain:s.slice(nb,nb+2);
+    var hs=jEvalBest(hero.concat(vb)),vs=jEvalBest(vh.concat(vb));if(hs>vs)win++;else if(hs===vs)tie++;else loss++;}
+  return {win:round4(win/iters),tie:round4(tie/iters),loss:round4(loss/iters),equity:round4((win+tie/2)/iters),iters:iters};
+}
+var _ORDER=Object.keys(PREFLOP).sort(function(a,b){return PREFLOP[b]-PREFLOP[a];});
+function _ncombos(h){return h[0]===h[1]?6:(h.charAt(2)==="s"?4:12);}
+var _TOTAL=0;_ORDER.forEach(function(h){_TOTAL+=_ncombos(h);});
+function rangeByPct(pct){var target=Math.max(1,pct*_TOTAL),acc=0,out=[];for(var i=0;i<_ORDER.length;i++){out.push(_ORDER[i]);acc+=_ncombos(_ORDER[i]);if(acc>=target)break;}return out;}
+var NAMED={tight:rangeByPct(0.10),standard:rangeByPct(0.25),loose:rangeByPct(0.45)};
+function getRange(n){return NAMED[n]?NAMED[n].slice():NAMED.standard.slice();}
+function jClassCombos(label){var r1=RANKS.indexOf(label[0]),r2=RANKS.indexOf(label[1]),out=[],s1,s2;
+  if(label[0]===label[1]){for(s1=0;s1<4;s1++)for(s2=s1+1;s2<4;s2++)out.push([r1*4+s1,r1*4+s2]);}
+  else if(label.charAt(2)==="s"){for(s1=0;s1<4;s1++)out.push([r1*4+s1,r2*4+s1]);}
+  else {for(s1=0;s1<4;s1++)for(s2=0;s2<4;s2++)if(s1!==s2)out.push([r1*4+s1,r2*4+s2]);}
+  return out;}
+function continuingRange(list,ff){var ord=list.slice().sort(function(a,b){return PREFLOP[b]-PREFLOP[a];});var total=0;ord.forEach(function(h){total+=_ncombos(h);});var keep=(1-ff)*total,acc=0,out=[];for(var i=0;i<ord.length;i++){if(acc>=keep)break;out.push(ord[i]);acc+=_ncombos(ord[i]);}return out.length?out:[ord[0]];}
+function jEquityVsRange(hero,rc,board,iters){
+  board=board||[];var known=hero.concat(board),pool=[];
+  rc.forEach(function(h){jClassCombos(h).forEach(function(c){if(known.indexOf(c[0])<0&&known.indexOf(c[1])<0)pool.push(c);});});
+  if(!pool.length)return {equity:0.5,win:0.5,tie:0,loss:0.5,iters:0};
+  var base=jDeckExcl(known),nb=5-board.length,win=0,tie=0,loss=0;
+  for(var it=0;it<iters;it++){var v=pool[Math.floor(Math.random()*pool.length)];var s=jSample(base,nb+2),bc=[];
+    for(var i=0;i<s.length;i++){if(s[i]===v[0]||s[i]===v[1])continue;bc.push(s[i]);if(bc.length===nb)break;}
+    var fb=board.concat(bc);var hs=jEvalBest(hero.concat(fb)),vs=jEvalBest([v[0],v[1]].concat(fb));
+    if(hs>vs)win++;else if(hs===vs)tie++;else loss++;}
+  return {equity:round4((win+tie/2)/iters),win:round4(win/iters),tie:round4(tie/iters),loss:round4(loss/iters),iters:iters};
+}
+function jEvaluateSpot(hero,board,pot,call,vr,iters){
+  var rc=getRange(vr),eq=jEquityVsRange(hero,rc,board,iters).equity;
+  var need=pot+call>0?round4(call/(pot+call)):0,evFold=0,evCall=eq*pot-(1-eq)*call;
+  var rs=pot,ff=Math.min(0.45,0.22+0.10*(rs/pot)),cont=continuingRange(rc,ff);
+  var eqC=jEquityVsRange(hero,cont,board,iters).equity;
+  var evRaise=ff*pot+(1-ff)*(eqC*(pot+2*rs)-rs)-0.05*pot;
+  var evs={fold:evFold,call:evCall,raise:evRaise},best="fold";if(evs.call>evs[best])best="call";if(evs.raise>evs[best])best="raise";
+  return {equity:round4(eq),need:need,ev_fold:round2(evFold),ev_call:round2(evCall),ev_raise:round2(evRaise),fold_freq:round4(ff),eq_called:round4(eqC),best:best,ev_best:round2(evs[best]),raise_kind:eqC>=0.5?"value":"semibluff",range:vr,range_size:rc.length};
+}
+function jCountOuts(hero,board,villain){
+  var known=hero.concat(board).concat(villain);
+  if(jEvalBest(hero.concat(board))>jEvalBest(villain.concat(board)))return [];
+  var outs=[];for(var c=0;c<52;c++){if(known.indexOf(c)>=0)continue;var nb=board.concat([c]);if(jEvalBest(hero.concat(nb))>jEvalBest(villain.concat(nb)))outs.push(c);}return outs;
+}
+function jDrawSpot(nb){nb=nb||3;for(var t=0;t<80;t++){var d=jShuffleFull(),hero=[d[0],d[1]],vill=[d[2],d[3]],board=d.slice(4,4+nb);
+  if(jEvalBest(hero.concat(board))>jEvalBest(vill.concat(board)))continue;var outs=jCountOuts(hero,board,vill);
+  if(outs.length>=2&&outs.length<=17){return {hero:hero.map(cardStr),villain:vill.map(cardStr),board:board.map(cardStr),outs:outs.length,out_cards:outs.map(cardStr),cards_to_come:5-nb,estimate:round4(Math.min(0.95,outs.length*(nb===3?0.04:0.02))),equity:jHandEquity(hero,vill,board,1000).equity};}}
+  return {error:"no draw spot found, try again"};}
+function jBetsize(hero,board,vr){var eq=jEquityVsRange(hero,getRange(vr),board,2000).equity;
+  var rec=eq>=0.80?"overbet":eq>=0.64?"big":eq>=0.55?"small":"check";
+  var labels={check:"Check",small:"Small (⅓ pot)",big:"Big (⅔–pot)",overbet:"Overbet (1.5×)"};
+  return {equity:round4(eq),rec:rec,rec_label:labels[rec],order:["check","small","big","overbet"],range:vr};}
+function jShowdown(hero,vill,board){var hs=jEvalBest(hero.concat(board)),vs=jEvalBest(vill.concat(board));
+  return {winner:hs>vs?"hero":vs>hs?"villain":"tie",hero_hand:jCat(hs),villain_hand:jCat(vs)};}
+// local dispatcher: same interface as the old fetch, all computed in-browser
+function api(path){
+  try{
+    var u=new URL(path,"http://p"),q=u.searchParams,ep=u.pathname,hero,board,vill,rng;
+    if(ep==="/poker/api/equity"){
+      hero=parseCardsStr(q.get("hero"));if(hero.length!==2)return Promise.resolve({error:"hero needs 2 cards"});
+      board=parseCardsStr(q.get("board"));var iters=Math.min(5000,parseInt(q.get("iters")||"3000",10));
+      rng=(q.get("range")||"").trim().toLowerCase();
+      if(rng==="tight"||rng==="standard"||rng==="loose"){var e=jEquityVsRange(hero,getRange(rng),board,iters);e.range=rng;return Promise.resolve(e);}
+      var vraw=(q.get("villain")||"").trim().toLowerCase();
+      vill=(vraw===""||vraw==="random"||vraw==="?")?null:parseCardsStr(q.get("villain"));
+      if(vill&&vill.length!==2)return Promise.resolve({error:"villain needs 2 cards or 'random'"});
+      return Promise.resolve(jHandEquity(hero,vill,board,iters));
+    }
+    if(ep==="/poker/api/spot"){
+      hero=parseCardsStr(q.get("hero"));board=parseCardsStr(q.get("board"));
+      if(hero.length!==2||[3,4,5].indexOf(board.length)<0)return Promise.resolve({error:"need hero(2)+board(3/4/5)"});
+      rng=(q.get("range")||"standard").trim().toLowerCase();if(["tight","standard","loose"].indexOf(rng)<0)rng="standard";
+      return Promise.resolve(jEvaluateSpot(hero,board,Math.max(1,parseFloat(q.get("pot")||"100")),Math.max(0,parseFloat(q.get("call")||"50")),rng,1500));
+    }
+    if(ep==="/poker/api/showdown"){
+      hero=parseCardsStr(q.get("hero"));vill=parseCardsStr(q.get("villain"));board=parseCardsStr(q.get("board"));
+      if(hero.length!==2||vill.length!==2||board.length!==5)return Promise.resolve({error:"need hero(2),villain(2),board(5)"});
+      return Promise.resolve(jShowdown(hero,vill,board));
+    }
+    if(ep==="/poker/api/draw_spot")return Promise.resolve(jDrawSpot(q.get("street")==="turn"?4:3));
+    if(ep==="/poker/api/betsize"){
+      hero=parseCardsStr(q.get("hero"));board=parseCardsStr(q.get("board"));
+      if(hero.length!==2||[3,4,5].indexOf(board.length)<0)return Promise.resolve({error:"need hero(2)+board(3/4/5)"});
+      rng=(q.get("range")||"standard").trim().toLowerCase();if(["tight","standard","loose"].indexOf(rng)<0)rng="standard";
+      return Promise.resolve(jBetsize(hero,board,rng));
+    }
+    return Promise.resolve({error:"unknown endpoint"});
+  }catch(e){return Promise.resolve({error:String(e)});}
+}
+function eqApi(hero,vill,board,iters){
+  return api("/poker/api/equity?hero="+encodeURIComponent(hero)+"&villain="+encodeURIComponent(vill||"")+
+    "&board="+encodeURIComponent(board||"")+"&iters="+(iters||3000));
+}
+function eqRangeApi(hero,rng,board,iters){
+  return api("/poker/api/equity?hero="+encodeURIComponent(hero)+"&range="+rng+
+    "&board="+encodeURIComponent(board||"")+"&iters="+(iters||3000));
+}
+function spotApi(hero,board,pot,call,rng){
+  return api("/poker/api/spot?hero="+encodeURIComponent(hero)+"&board="+encodeURIComponent(board||"")+
+    "&pot="+pot+"&call="+call+"&range="+(rng||"standard")+"&iters=2500");
+}
+var RANGE_DESC={tight:"a tight, aggressive player (only strong hands)",standard:"a normal, balanced player",loose:"a loose station (plays lots of hands)"};
+function eqColor(eq){var t=Math.max(0,Math.min(1,(eq-0.32)/(0.86-0.32)));var hue=t*130;return "hsl("+hue+",62%,55%);";}
+function eqBar(e){
+  return "<div class='eqbar'>"+
+    "<span class='w' style='width:"+(e.win*100)+"%'>"+(e.win>0.08?Math.round(e.win*100)+"% win":"")+"</span>"+
+    (e.tie>0.02?"<span class='t' style='width:"+(e.tie*100)+"%'></span>":"")+
+    "<span class='l' style='width:"+(e.loss*100)+"%'>"+(e.loss>0.08?Math.round(e.loss*100)+"% lose":"")+"</span></div>";
+}
+
+// ---------- EQUITY: heatmap ----------
+(function(){
+  var g=document.getElementById("grid"),html="";
+  for(var i=12;i>=0;i--){for(var j=12;j>=0;j--){
+    var hi=Math.max(i,j),lo=Math.min(i,j);
+    var lbl = i===j? RANKS[i]+RANKS[i] : (i>j? RANKS[hi]+RANKS[lo]+"s" : RANKS[hi]+RANKS[lo]+"o");
+    var eq=PREFLOP[lbl]||0.4;
+    html+="<div class='cell' data-lbl='"+lbl+"' style='background:"+eqColor(eq)+"'>"+lbl+"<small>"+Math.round(eq*100)+"</small></div>";
+  }}
+  g.innerHTML=html;
+  g.querySelectorAll(".cell").forEach(function(c){c.onmouseenter=function(){
+    document.getElementById("cellInfo").innerHTML="<b>"+c.dataset.lbl+"</b> — "+Math.round(PREFLOP[c.dataset.lbl]*100)+"% vs random";};});
+  var sel=document.getElementById("rangeSel");
+  Object.keys(RANGES).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=k+" open ("+RANGES[k].length+" hands)";sel.appendChild(o);});
+  sel.onchange=function(){
+    var set=RANGES[sel.value]||[];
+    g.classList.toggle("filtering",!!sel.value);
+    g.querySelectorAll(".cell").forEach(function(c){c.classList.toggle("inr",set.indexOf(c.dataset.lbl)>=0);});
+    document.getElementById("rangeNote").innerHTML= sel.value? "<b style='color:var(--gold)'>"+set.length+"</b> hands = "+(set.length/169*100).toFixed(0)+"% of all hands opened from "+sel.value+" — the rest are dimmed" : "";
+  };
+})();
+
+// ---------- EQUITY: calculator ----------
+document.getElementById("c-go").onclick=function(){
+  var out=document.getElementById("c-out");out.innerHTML="<span class='note'>running engine…</span>";
+  var hero=document.getElementById("c-hero").value,vill=document.getElementById("c-vill").value.trim(),
+      board=document.getElementById("c-board").value,vl=vill.toLowerCase();
+  var isRange=(vl==="tight"||vl==="standard"||vl==="loose");
+  var p=isRange? eqRangeApi(hero,vl,board,5000) : eqApi(hero,vill,board,5000);
+  var vsTxt=isRange?("vs "+RANGE_DESC[vl]):(vill?"vs that exact hand":"vs a random hand");
+  p.then(function(e){
+     if(e.error){out.innerHTML="<span class='no'>"+e.error+"</span>";return;}
+     out.innerHTML="<div class='big' style='margin-bottom:6px'>equity <span style='color:var(--gold)'>"+Math.round(e.equity*100)+"%</span></div>"+eqBar(e)+
+       "<div class='note'>"+vsTxt+", "+e.iters+" simulations. Equity is your transformation potential — the fraction of the pot already yours.</div>";
+   });
+};
+
+// ---------- DECIDE (you make the call) ----------
+function decideEval(pick){
+  var hero=document.getElementById("d-hero").value,board=document.getElementById("d-board").value,
+      rng=document.getElementById("d-range").value,
+      pot=parseFloat(document.getElementById("d-pot").value)||0,call=parseFloat(document.getElementById("d-call").value)||0;
+  var out=document.getElementById("d-out");out.innerHTML="<span class='note'>reading vs their range…</span>";
+  spotApi(hero,board,pot,call,rng).then(function(r){
+    if(r.error){out.innerHTML="<span class='no'>"+r.error+"</span>";return;}
+    var best=r.best,head,kind;
+    if(pick){var right=pick===best;kind=right?best:"fold";
+      head="<b style='color:"+(right?"var(--good)":"var(--bad)")+"'>"+(right?"✓ "+pick.toUpperCase()+" — right":"✗ you chose "+pick.toUpperCase())+"</b> · best is <b>"+best.toUpperCase()+"</b>. ";}
+    else{kind=best;head="<b>Best play: "+best.toUpperCase()+".</b> ";}
+    out.innerHTML=
+      "<div class='big'>"+handHtml(hero.trim().split(/\s+/))+" &nbsp;on&nbsp; "+handHtml(board.trim().split(/\s+/).filter(Boolean))+"</div>"+
+      "<div style='margin:10px 0' class='stat'>vs "+RANGE_DESC[rng]+" — <b>"+r.range_size+" hands</b></div>"+
+      "<div><span class='stat'>equity vs range <b>"+Math.round(r.equity*100)+"%</b></span>"+
+      "<span class='stat'>need to call <b>"+Math.round(r.need*100)+"%</b></span></div>"+
+      "<div style='margin-top:6px'><span class='stat'>EV fold <b>0</b></span>"+
+      "<span class='stat'>EV call <b class='"+(r.ev_call>=0?"ok":"no")+"'>"+(r.ev_call>=0?"+":"")+r.ev_call+"</b></span>"+
+      "<span class='stat'>EV raise <b class='"+(r.ev_raise>=0?"ok":"no")+"'>"+(r.ev_raise>=0?"+":"")+r.ev_raise+"</b></span></div>"+
+      "<div class='verdict "+kind+"'>"+head+verdictText(r)+"</div>";
+  });
+}
+function verdictText(r){
+  var eqp=Math.round(r.equity*100),needp=Math.round(r.need*100);
+  if(r.best==="fold")return "Your "+eqp+"% equity is under the "+needp+"% the pot charges you; calling loses "+Math.abs(r.ev_call).toFixed(0)+" on average and raising "+(r.ev_raise<0?"loses too":"isn't enough")+". Folding isn't weak — it's the inhibition that keeps the trajectory alive.";
+  if(r.best==="raise"){
+    if(r.raise_kind==="value")return "<b>Raise for value.</b> You're ahead of the hands that would call, so build the pot and get paid while you're the favorite ("+r.ev_raise+" vs "+r.ev_call+" for calling). Pot odds decided you continue; being ahead of their <em>calling</em> range is what makes it a raise.";
+    return "<b>Raise as a semi-bluff.</b> You're behind their calling range right now, but raising still wins the most: fold equity now, plus your draw's backup equity when they do call ("+r.ev_raise+" vs "+r.ev_call+").";
+  }
+  return "<b>Just call.</b> You have "+eqp+"% and only need "+needp+"%, so continuing prints +"+r.ev_call+" even though you'll lose the hand plenty. Raising ("+r.ev_raise+") doesn't beat it — you'd only fold out worse hands and get called by the ones that have you crushed. That's the call-vs-raise line: enough to continue, not enough to build the pot.";
+}
+function renderDecideCards(){
+  function cards(s){return (s||"").trim().split(/\s+/).filter(function(t){return /^[2-9tjqka][cdhs]$/i.test(t);}).map(function(t){return t[0].toUpperCase()+t[1].toLowerCase();});}
+  var h=cards(document.getElementById("d-hero").value),b=cards(document.getElementById("d-board").value);
+  document.getElementById("d-cards").innerHTML=(h.length?handHtml(h):"<span class='note'>—</span>")+(b.length?"<span style='display:inline-block;width:16px'></span>"+handHtml(b):"");
+}
+document.querySelectorAll("#p-decide button[data-da]").forEach(function(b){b.onclick=function(){decideEval(b.dataset.da);};});
+document.getElementById("d-peek").onclick=function(){decideEval(null);};
+["d-hero","d-board"].forEach(function(id){document.getElementById(id).addEventListener("input",renderDecideCards);});
+document.getElementById("d-deal").onclick=function(){
+  var d=shuffled();var hero=[d[0],d[1]];var street=[3,4,5][Math.floor(Math.random()*3)];
+  var board=d.slice(2,2+street);
+  document.getElementById("d-hero").value=hero.map(cardStr).join(" ");
+  document.getElementById("d-board").value=board.map(cardStr).join(" ");
+  var pot=[60,80,100,120,150][Math.floor(Math.random()*5)];
+  document.getElementById("d-pot").value=pot;
+  document.getElementById("d-call").value=Math.round(pot*[0.33,0.5,0.66,1][Math.floor(Math.random()*4)]);
+  renderDecideCards();
+  document.getElementById("d-out").innerHTML="<span class='note'>your move — fold, call, or raise?</span>";
+};
+renderDecideCards();
+
+// ---------- READ trainer ----------
+var rState=null,rScore=0,rTries=0;
+function dealRead(){
+  document.getElementById("r-out").innerHTML="";
+  var d=shuffled();var hero=[d[0],d[1]];var street=[3,4,5][Math.floor(Math.random()*3)];
+  var board=d.slice(2,2+street);
+  var pot=[60,90,120,150][Math.floor(Math.random()*4)];
+  var call=Math.round(pot*[0.33,0.5,0.66,1][Math.floor(Math.random()*4)]);
+  var rng=["tight","standard","loose"][Math.floor(Math.random()*3)];
+  rState={hero:hero,board:board,pot:pot,call:call,range:rng};
+  var cfg=modeCfg();
+  var disc=cfg.showRange?("They play like <b>"+RANGE_DESC[rng]+"</b>. "):"Their style is <b>unknown</b> — read it. ";
+  var lines=["Villain raised pre, bet this street.","Villain check-raised you.","Villain leads big into you.","Villain bets ⅔ pot."];
+  document.getElementById("r-spot").innerHTML=
+    "<div class='big'>"+handHtml(hero.map(cardStr))+" &nbsp; on &nbsp; "+handHtml(board.map(cardStr))+"</div>"+
+    "<div class='note'>"+lines[Math.floor(Math.random()*lines.length)]+" "+disc+"Pot <b>"+pot+"</b>, call <b>"+call+"</b> (need "+Math.round(call/(pot+call)*100)+"% equity). Fold, call, or raise?</div>";
+}
+document.querySelectorAll("#r-actions button[data-a]").forEach(function(b){b.onclick=function(){
+  if(!rState)return;var pick=b.dataset.a;var s=rState;
+  document.getElementById("r-out").innerHTML="<span class='note'>reading their range…</span>";
+  spotApi(s.hero.map(cardStr).join(" "),s.board.map(cardStr).join(" "),s.pot,s.call,s.range).then(function(r){
+    if(r.error){document.getElementById("r-out").innerHTML="<span class='no'>"+r.error+"</span>";return;}
+    var correct=r.best,right=pick===correct;rTries++;if(right)rScore++;
+    document.getElementById("r-score").textContent="score "+rScore+" / "+rTries+"  ("+Math.round(rScore/rTries*100)+"%)";
+    document.getElementById("r-out").innerHTML=
+      "<div class='verdict "+correct+"'><b>"+(right?"✓ right":"✗ residual")+"</b> — the +EV play was <b>"+correct.toUpperCase()+"</b>"+(correct==="raise"?" ("+(r.raise_kind==="value"?"for value":"as a semi-bluff")+")":"")+". "+
+      (modeCfg().showRange?"":"They were playing <b>"+s.range+"</b>. ")+
+      "Your equity vs their range <b>"+Math.round(r.equity*100)+"%</b> (need <b>"+Math.round(r.need*100)+"%</b>). EV — call "+r.ev_call+", raise "+r.ev_raise+". "+
+      (right?"You read it.":"You chose "+pick.toUpperCase()+" — that gap is the residual to learn from.")+"</div>";
+  });
+};});
+document.getElementById("r-next").onclick=dealRead;
+POKER_REDEAL.push(function(){if(rState)dealRead();});
+dealRead();
+
+// ---------- PLAY (simplified heads-up) ----------
+var P=null;
+function plLog(s){var l=document.getElementById("pl-log");l.innerHTML="<div>"+s+"</div>"+l.innerHTML;}
+function renderPlay(reveal){
+  document.getElementById("pl-you").innerHTML=handHtml(P.you.map(cardStr));
+  document.getElementById("pl-bot").innerHTML= reveal? handHtml(P.bot.map(cardStr)) : cardHtml("")+cardHtml("");
+  document.getElementById("pl-board").innerHTML=handHtml(P.board.slice(0,P.shown).map(cardStr))||"<span class='note'>preflop</span>";
+  document.getElementById("pl-pot").textContent="pot "+P.pot;
+}
+function plButtons(list){
+  var a=document.getElementById("pl-actions");a.innerHTML="";
+  list.forEach(function(x){var b=document.createElement("button");b.className="btn"+(x.g?" g":"");b.textContent=x.label;b.onclick=x.fn;a.appendChild(b);});
+}
+var STREETS=[0,3,4,5]; // cards shown at start of each betting round (pre,flop,turn,river)
+function newHand(){
+  var d=shuffled();
+  P={you:[d[0],d[1]],bot:[d[2],d[3]],board:[d[4],d[5],d[6],d[7],d[8]],
+     shown:0,street:0,pot:6,youIn:3,botIn:3,done:false};
+  document.getElementById("pl-hands").textContent=(parseInt(document.getElementById("pl-hands").textContent,10)+1);
+  plLog("<b>New hand.</b> Blinds posted, pot 6.");
+  renderPlay(false);startStreet();
+}
+function botEquity(){return eqApi(P.bot.map(cardStr).join(" "),"",P.board.slice(0,P.shown).map(cardStr).join(" "),1500);}
+function startStreet(){
+  P.shown=STREETS[P.street];renderPlay(false);
+  // postflop you act first; preflop bot acts first
+  if(P.street===0){ botFirst(); } else { youFirst(); }
+}
+function youFirst(){
+  plButtons([
+    {label:"Check",g:true,fn:function(){plLog("You check.");botAfterCheck();}},
+    {label:"Bet ⅔ pot",fn:function(){var b=Math.round(P.pot*0.66);P.pot+=b;P.youIn+=b;plLog("You bet "+b+".");botFacingBet(b);}}
+  ]);
+}
+function botFirst(){
+  plButtons([]);var cfg=modeCfg();
+  botEquity().then(function(e){
+    var bet = e.equity>cfg.botValue || Math.random()<cfg.botBluff; // value or bluff
+    if(bet){var b=Math.round(P.pot*0.66);P.pot+=b;P.botIn+=b;plLog("Bot bets "+b+".");youFacingBet(b);}
+    else{plLog("Bot checks.");youAfterCheck();}
+  });
+}
+function youAfterCheck(){
+  plButtons([
+    {label:"Check",g:true,fn:function(){plLog("You check.");nextStreet();}},
+    {label:"Bet ⅔ pot",fn:function(){var b=Math.round(P.pot*0.66);P.pot+=b;P.youIn+=b;plLog("You bet "+b+".");botFacingBet(b);}}
+  ]);
+}
+function botAfterCheck(){
+  plButtons([]);var cfg=modeCfg();
+  botEquity().then(function(e){
+    var bet = e.equity>cfg.botValue+0.03 || Math.random()<cfg.botBluff*0.8;
+    if(bet){var b=Math.round(P.pot*0.66);P.pot+=b;P.botIn+=b;plLog("Bot bets "+b+".");youFacingBet(b);}
+    else{plLog("Bot checks behind.");nextStreet();}
+  });
+}
+function youFacingBet(b){
+  var need=b/(P.pot+b);
+  plButtons([
+    {label:"Fold",g:true,fn:function(){plLog("You fold.");endHand("bot");}},
+    {label:"Call "+b,fn:function(){P.pot+=b;P.youIn+=b;plLog("You call "+b+".");nextStreet();}}
+  ]);
+}
+function botFacingBet(b){
+  plButtons([]);var cfg=modeCfg();
+  botEquity().then(function(e){
+    var need=b/(P.pot+b);
+    if(e.equity>=need || Math.random()<cfg.botCall){P.pot+=b;P.botIn+=b;plLog("Bot calls "+b+".");nextStreet();}
+    else{plLog("Bot folds.");endHand("you");}
+  });
+}
+function nextStreet(){
+  if(P.done)return;
+  if(P.street>=3){showdown();return;}
+  P.street++;startStreet();
+}
+function showdown(){
+  P.shown=5;renderPlay(true);
+  api("/poker/api/showdown?hero="+P.you.map(cardStr).join(" ")+"&villain="+P.bot.map(cardStr).join(" ")+"&board="+P.board.map(cardStr).join(" "))
+   .then(function(r){
+     var msg;
+     if(r.winner==="hero"){settle("you");msg="You win with "+r.hero_hand+" vs "+r.villain_hand+".";}
+     else if(r.winner==="villain"){settle("bot");msg="Bot wins with "+r.villain_hand+" vs "+r.hero_hand+".";}
+     else{settle("split");msg="Split pot ("+r.hero_hand+").";}
+     plLog("<b>Showdown.</b> "+msg);
+   });
+}
+function endHand(winner){P.done=true;renderPlay(winner==="you"?false:true);settle(winner);plLog(winner==="you"?"You take the pot.":"Bot takes the pot.");}
+function settle(winner){
+  P.done=true;var pl=document.getElementById("pl-pl");var cur=parseInt(pl.textContent,10);
+  var delta = winner==="you"? (P.pot-P.youIn) : winner==="bot"? (-P.youIn) : Math.round(P.pot/2-P.youIn);
+  pl.textContent=(cur+delta);pl.className=(cur+delta)>=0?"ok":"no";
+  plButtons([{label:"Next hand →",fn:newHand}]);
+}
+document.getElementById("pl-deal").onclick=newHand;
+plButtons([{label:"Deal the first hand →",fn:newHand}]);
+
+// ---------- LEARN tab ----------
+(function(){
+  var LK="poker_learn";
+  function lget(){try{return JSON.parse(localStorage.getItem(LK)||"{}");}catch(e){return {};}}
+  function lset(o){try{localStorage.setItem(LK,JSON.stringify(o));}catch(e){}}
+  function refresh(){
+    var st=lget(),done=0,tot=0;
+    document.querySelectorAll(".lesson[data-l]").forEach(function(el){
+      var id=el.dataset.l;if(id==="ready")return;tot++;
+      var on=!!st[id];el.classList.toggle("done",on);if(on)done++;
+      var chk=el.querySelector(".chk");if(chk)chk.classList.toggle("on",on);
+    });
+    var pct=tot?Math.round(100*done/tot):0;
+    document.getElementById("learn-bar").style.width=pct+"%";
+    var h=document.getElementById("learn-head");
+    if(done>=tot&&tot){h.innerHTML="<b>All nine done.</b> You've got the whole game — now it's reps. Head to Decide, Read, and Play.<div class='pbar2'><span id='learn-bar' style='width:100%'></span></div>";}
+  }
+  document.querySelectorAll(".chk[data-c]").forEach(function(c){c.onclick=function(){
+    var st=lget();st[c.dataset.c]=!st[c.dataset.c];lset(st);refresh();};});
+  document.querySelectorAll("[data-goto]").forEach(function(a){a.onclick=function(e){e.preventDefault();showTab(a.dataset.goto);};});
+  refresh();
+
+  // hand-ranking list
+  var RANKDEMO=[
+    ["Straight flush",["Ts","Js","Qs","Ks","As"]],["Four of a kind",["7c","7d","7h","7s","Kd"]],
+    ["Full house",["Kc","Kd","Kh","9c","9d"]],["Flush",["As","Js","9s","6s","3s"]],
+    ["Straight",["5c","6d","7h","8s","9c"]],["Three of a kind",["Qc","Qd","Qh","Ac","2d"]],
+    ["Two pair",["Ac","Ad","Kc","Kd","3h"]],["Pair",["Ac","Ad","Kc","Qd","Jh"]],
+    ["High card",["Ac","Kd","Qh","Js","9c"]]
+  ];
+  document.getElementById("ranklist").innerHTML=RANKDEMO.map(function(r){
+    return "<div class='rankrow'><div class='nm'>"+r[0]+"</div><div class='hand'>"+handHtml(r[1])+"</div></div>";}).join("");
+
+  // "who wins?" quiz
+  var qw=null;
+  function dealQuiz(){
+    var d=shuffled();qw={a:[d[0],d[1]],b:[d[2],d[3]],board:d.slice(4,9)};
+    document.getElementById("q-rank").innerHTML=
+      "<div class='narr'>Shared board: <span class='hand' style='display:inline-flex;gap:4px;vertical-align:middle'>"+handHtml(qw.board.map(cardStr))+"</span></div>"+
+      "<div class='seatmini' style='margin:10px 0'>"+
+        "<div class='s'><div class='lab'>Player A</div><div class='hand'>"+handHtml(qw.a.map(cardStr))+"</div></div>"+
+        "<div class='s'><div class='lab'>Player B</div><div class='hand'>"+handHtml(qw.b.map(cardStr))+"</div></div></div>"+
+      "<div class='row'><button class='btn g' data-w='a'>A wins</button>"+
+        "<button class='btn g' data-w='b'>B wins</button>"+
+        "<button class='btn g' data-w='tie'>Tie</button>"+
+        "<button class='btn' id='qw-next' style='margin-left:auto'>New hand →</button></div>"+
+      "<div id='qw-out' style='margin-top:8px'></div>";
+    document.querySelectorAll("#q-rank button[data-w]").forEach(function(b){b.onclick=function(){answerQuiz(b.dataset.w);};});
+    document.getElementById("qw-next").onclick=dealQuiz;
+  }
+  function answerQuiz(pick){
+    document.getElementById("qw-out").innerHTML="<span class='note'>checking…</span>";
+    api("/poker/api/showdown?hero="+qw.a.map(cardStr).join(" ")+"&villain="+qw.b.map(cardStr).join(" ")+"&board="+qw.board.map(cardStr).join(" "))
+      .then(function(r){
+        var correct=r.winner==="hero"?"a":r.winner==="villain"?"b":"tie";var right=pick===correct;
+        document.getElementById("qw-out").innerHTML="<div class='verdict "+(right?"call":"fold")+"'><b>"+(right?"✓ right":"✗ not quite")+"</b> — "+
+          (correct==="tie"?"it's a tie":("Player "+correct.toUpperCase()+" wins"))+". A makes <b>"+r.hero_hand+"</b>, B makes <b>"+r.villain_hand+"</b> — each using their best 5 of 7 cards.</div>";
+      });
+  }
+  dealQuiz();
+
+  // guided hand walkthrough
+  var gh=null;
+  var GH=[
+    function(){return "You're dealt your two <b>hole cards</b> (bottom row). Only you can see them; the bot has two hidden cards of its own.";},
+    function(){return "<b>Preflop.</b> Before any shared cards come, players bet. Say everyone calls, and we go on to the flop.";},
+    function(){return "<b>The flop:</b> three <b>community</b> cards dealt face up. Both players share them. Another round of betting.";},
+    function(){return "<b>The turn:</b> a fourth shared card. Hands are firming up, bets get bigger.";},
+    function(){return "<b>The river:</b> the fifth and last shared card. Final betting round — no more cards after this.";}
+  ];
+  function ghRender(){
+    document.getElementById("gh-you").innerHTML=handHtml(gh.you.map(cardStr));
+    document.getElementById("gh-bot").innerHTML= gh.step>=5? handHtml(gh.bot.map(cardStr)) : cardHtml("")+cardHtml("");
+    var shown= gh.step<=1?0:gh.step===2?3:gh.step===3?4:5;
+    document.getElementById("gh-board").innerHTML= shown? handHtml(gh.board.slice(0,shown).map(cardStr)) : "<span class='note'>— no cards yet —</span>";
+  }
+  function ghDeal(){
+    var d=shuffled();gh={you:[d[0],d[1]],bot:[d[2],d[3]],board:d.slice(4,9),step:0};
+    document.getElementById("gh-narr").innerHTML=GH[0]();document.getElementById("gh-next").disabled=false;ghRender();
+  }
+  function ghNext(){
+    if(!gh)return;gh.step++;
+    if(gh.step<=4){document.getElementById("gh-narr").innerHTML=GH[gh.step]();ghRender();}
+    else{ghRender();document.getElementById("gh-next").disabled=true;
+      api("/poker/api/showdown?hero="+gh.you.map(cardStr).join(" ")+"&villain="+gh.bot.map(cardStr).join(" ")+"&board="+gh.board.map(cardStr).join(" "))
+       .then(function(r){var w=r.winner==="hero"?"You win":r.winner==="villain"?"The bot wins":"Split pot";
+         document.getElementById("gh-narr").innerHTML="<b>Showdown.</b> Both hands are revealed; the best 5-card hand wins. You made <b>"+r.hero_hand+"</b>, the bot <b>"+r.villain_hand+"</b>. <b style='color:var(--gold)'>"+w+".</b> Deal again for a different shape.";});
+    }
+  }
+  document.getElementById("gh-deal").onclick=ghDeal;
+  document.getElementById("gh-next").onclick=ghNext;
+
+  // equity demo
+  document.getElementById("eq-demo-btn").onclick=function(){
+    var el=document.getElementById("eq-demo");el.textContent="dealing it out 5,000 times…";
+    eqApi("As Ah","Ks Kh","",5000).then(function(e){
+      el.innerHTML="Aces win <b style='color:var(--good)'>"+Math.round(e.equity*100)+"%</b> of the time; kings only <b>"+Math.round((1-e.equity)*100)+"%</b>. That's all equity is — run it to the river thousands of times and count the wins. A huge edge, yet kings still win 1 in 5: <b>nothing is ever a lock</b>, which is why the money math matters.";
+    });
+  };
+})();
+
+// ---------- PRACTICE room ----------
+(function(){
+  var PR={dec:0,sumAcc:0,streak:0,sumLoss:0,overfold:0,overcall:0,missed:0,cur:null};
+  var RANGES3=["tight","standard","loose"];
+  function label(a){
+    if(a>=90)return ["Sharp — solver-like discipline","var(--good)"];
+    if(a>=80)return ["Solid — small leaks","var(--good)"];
+    if(a>=68)return ["Improving — a few costly spots","var(--gold)"];
+    if(a>=55)return ["Loose — the price is beating you","var(--hot)"];
+    return ["Leaky — folding winners / paying off","var(--bad)"];
+  }
+  function prLife(){try{return JSON.parse(localStorage.getItem("poker_practice")||"{}");}catch(e){return {};}}
+  function prLifeSave(o){try{localStorage.setItem("poker_practice",JSON.stringify(o));}catch(e){}}
+  function prShowLife(){var l=prLife();document.getElementById("pr-life").innerHTML= l.dec? "lifetime: <b>"+Math.round(l.sumAcc/l.dec)+"%</b> over "+l.dec+" graded decisions":"";}
+  function paint(){
+    var acc= PR.dec? Math.round(PR.sumAcc/PR.dec):0;
+    var col="hsl("+(acc/100*130)+",62%,55%)";
+    var a=document.getElementById("pr-acc");a.textContent=PR.dec?acc+"%":"—";a.style.color=PR.dec?col:"var(--ink)";
+    document.getElementById("pr-bar").style.width=acc+"%";document.getElementById("pr-bar").style.background=col;
+    var lab=label(acc);
+    if(PR.dec){document.getElementById("pr-label").textContent=lab[0];document.getElementById("pr-label").style.color=lab[1];}
+    document.getElementById("pr-dec").textContent=PR.dec;
+    document.getElementById("pr-streak").textContent=PR.streak;
+    document.getElementById("pr-evloss").textContent=PR.dec?(PR.sumLoss/PR.dec).toFixed(1):"0";
+    var tip="";
+    if(PR.dec>=5){
+      if(PR.overcall>PR.overfold&&PR.overcall>=2)tip="Leak: calling too wide ("+PR.overcall+"×) — you're paying off when the price is wrong. Fold more.";
+      else if(PR.overfold>PR.overcall&&PR.overfold>=2)tip="Leak: folding winners ("+PR.overfold+"×) — you're giving up +EV spots. Call more.";
+      else if(PR.missed>=2)tip="Leak: missing value ("+PR.missed+"×) — raise your strong hands, don't just call.";
+      else tip="No dominant leak so far — keep going.";
+    }
+    document.getElementById("pr-leak").textContent=tip;
+  }
+  function prActions(on){document.querySelectorAll("#pr-actions button[data-a]").forEach(function(b){b.disabled=!on;});}
+  function prDeal(){
+    var cfg=modeCfg();
+    var d=shuffled();var hero=[d[0],d[1]];var street=[3,4,5][Math.floor(Math.random()*3)];
+    var board=d.slice(2,2+street);
+    var pot=[60,80,100,120,150,200][Math.floor(Math.random()*6)];
+    var call=Math.max(10,Math.round(pot*cfg.sizes[Math.floor(Math.random()*cfg.sizes.length)]));
+    var rng=RANGES3[Math.floor(Math.random()*3)];
+    PR.cur={hero:hero,board:board,pot:pot,call:call,range:rng};
+    var lines=["Villain bets into you.","Villain raised pre and keeps firing.","Villain check-raises you.","Villain leads big.","Villain bets big."];
+    var sn=street===3?"flop":street===4?"turn":"river";
+    var disc = cfg.showRange? ("You're up against <b>"+RANGE_DESC[rng]+"</b>. ") : "You <b>don't know their style</b> — read it from the board and the price. ";
+    document.getElementById("pr-spot").innerHTML=
+      "<div class='big'>"+handHtml(hero.map(cardStr))+" &nbsp;on the "+sn+"&nbsp; "+handHtml(board.map(cardStr))+"</div>"+
+      "<div class='narr' style='margin-top:8px'>"+lines[Math.floor(Math.random()*lines.length)]+" "+disc+"Pot <b>"+pot+"</b>, call <b>"+call+"</b> (need "+Math.round(call/(pot+call)*100)+"% to break even). Your move?"+
+      (cfg.hint?" <button class='btn g' id='pr-hint' style='margin-top:8px'>💡 equity hint</button><span id='pr-hintout' class='note'></span>":"")+"</div>";
+    document.getElementById("pr-out").innerHTML="";prActions(true);
+    if(cfg.hint){document.getElementById("pr-hint").onclick=function(){
+      this.disabled=true;document.getElementById("pr-hintout").textContent=" …";
+      spotApi(hero.map(cardStr).join(" "),board.map(cardStr).join(" "),pot,call,rng).then(function(r){
+        document.getElementById("pr-hintout").innerHTML=" your equity ≈ <b>"+Math.round(r.equity*100)+"%</b>, you need <b>"+Math.round(r.need*100)+"%</b> — call if it's higher.";});
+    };}
+  }
+  function prAnswer(pick){
+    if(!PR.cur)return;prActions(false);var s=PR.cur;var cfg=modeCfg();
+    document.getElementById("pr-out").innerHTML="<span class='note'>grading vs their range…</span>";
+    spotApi(s.hero.map(cardStr).join(" "),s.board.map(cardStr).join(" "),s.pot,s.call,s.range).then(function(r){
+      if(r.error){document.getElementById("pr-out").innerHTML="<span class='no'>"+r.error+"</span>";prActions(true);return;}
+      var evChosen=r["ev_"+pick];
+      var loss=Math.max(0,r.ev_best-evChosen);
+      var acc=Math.round(100*(1-Math.min(1,loss/Math.max(1,s.pot)*cfg.tol)));
+      PR.dec++;PR.sumAcc+=acc;PR.sumLoss+=loss;PR.streak=acc>=85?PR.streak+1:0;
+      if(r.best!=="fold"&&pick==="fold")PR.overfold++;
+      if(r.best==="fold"&&pick!=="fold")PR.overcall++;
+      if(r.best==="raise"&&pick==="call")PR.missed++;
+      var l=prLife();l.dec=(l.dec||0)+1;l.sumAcc=(l.sumAcc||0)+acc;prLifeSave(l);
+      var kind=acc>=85?"call":acc>=55?"raise":"fold";
+      var col=acc>=85?"var(--good)":acc>=55?"var(--gold)":"var(--bad)";
+      document.getElementById("pr-out").innerHTML=
+        "<div class='verdict "+kind+"'><b style='color:"+col+"'>"+acc+"%</b> — best was <b>"+r.best.toUpperCase()+"</b>"+(r.best==="raise"?" <span class='note'>("+(r.raise_kind==="value"?"for value":"semi-bluff")+")</span>":"")+", you chose <b>"+pick.toUpperCase()+"</b>. "+
+        (cfg.showRange?"":"They were playing <b>"+s.range+"</b>. ")+
+        "Equity vs their range <b>"+Math.round(r.equity*100)+"%</b> (need "+Math.round(r.need*100)+"%). EV — fold <b>0</b>, call <b>"+r.ev_call+"</b>, raise <b>"+r.ev_raise+"</b>."+
+        (loss>0.5?" You gave up ~<b>"+loss.toFixed(0)+"</b> chips of EV"+(acc<55?" — a real leak.":"."):" Clean.")+"</div>";
+      var log=document.getElementById("pr-log");
+      log.innerHTML="<div>"+handHtml(s.hero.map(cardStr))+" vs "+s.range+" — you <b>"+pick+"</b>, best <b>"+r.best+"</b> — <b style='color:"+col+"'>"+acc+"%</b></div>"+log.innerHTML;
+      paint();prShowLife();
+    });
+  }
+  document.querySelectorAll("#pr-actions button[data-a]").forEach(function(b){b.onclick=function(){prAnswer(b.dataset.a);};});
+  document.getElementById("pr-next").onclick=prDeal;
+  document.getElementById("pr-reset").onclick=function(){
+    PR={dec:0,sumAcc:0,streak:0,sumLoss:0,overfold:0,overcall:0,missed:0,cur:null};
+    paint();document.getElementById("pr-out").innerHTML="";document.getElementById("pr-log").innerHTML="";
+    document.getElementById("pr-spot").innerHTML="<div class='narr'>New session. Press <b>Start / Next spot</b>.</div>";prActions(false);
+  };
+  prActions(false);prShowLife();
+  POKER_REDEAL.push(function(){if(PR.cur)prDeal();});
+})();
+
+// ---------- DRAWS trainer ----------
+(function(){
+  var cur=null,guess=8,solved=0,tries=0;
+  function setGuess(g){guess=Math.max(1,Math.min(20,g));document.getElementById("dr-guess").textContent=guess;}
+  document.getElementById("dr-minus").onclick=function(){setGuess(guess-1);};
+  document.getElementById("dr-plus").onclick=function(){setGuess(guess+1);};
+  function deal(){
+    document.getElementById("dr-out").innerHTML="";document.getElementById("dr-spot").textContent="dealing…";
+    api("/poker/api/draw_spot").then(function(s){
+      if(s.error){document.getElementById("dr-spot").textContent=s.error;return;}
+      cur=s;
+      document.getElementById("dr-you").innerHTML=handHtml(s.hero);
+      document.getElementById("dr-vill").innerHTML=handHtml(s.villain);
+      document.getElementById("dr-board").innerHTML=handHtml(s.board);
+      var street=s.cards_to_come===2?"flop":"turn";
+      document.getElementById("dr-spot").innerHTML="You're on the <b>"+street+"</b> and <b>behind</b>. Count the cards that would make you the winner — then check.";
+      document.getElementById("dr-guessrow").style.display="";setGuess(8);
+    });
+  }
+  document.getElementById("dr-deal").onclick=deal;
+  document.getElementById("dr-check").onclick=function(){
+    if(!cur)return;tries++;var diff=Math.abs(guess-cur.outs);var right=diff===0;
+    if(diff<=1)solved++;
+    document.getElementById("dr-score").textContent="solved "+solved+" / "+tries;
+    var est=Math.round(cur.estimate*100),tru=Math.round(cur.equity*100);
+    document.getElementById("dr-out").innerHTML=
+      "<div class='verdict "+(diff<=1?"call":"fold")+"'><b>"+(right?"✓ exactly "+cur.outs:(diff<=1?"close — "+cur.outs+" outs":"✗ it's "+cur.outs+" outs"))+"</b> (you said "+guess+"). "+
+      "Outs: "+cur.out_cards.map(function(c){return cardHtml(c);}).join("")+"<br>"+
+      "Rule of "+(cur.cards_to_come===2?"4":"2")+": "+cur.outs+" × "+(cur.cards_to_come===2?"4":"2")+" ≈ <b>"+est+"%</b>. The engine's true equity is <b>"+tru+"%</b> — "+(Math.abs(est-tru)<=5?"the shortcut nails it":"the shortcut is close")+".</div>";
+  };
+})();
+
+// ---------- SIZING trainer ----------
+(function(){
+  var cur=null,score=0,tries=0;
+  function deal(){
+    var cfg=modeCfg();
+    document.getElementById("sz-out").innerHTML="";
+    var d=shuffled();var hero=[d[0],d[1]];var street=[3,4,5][Math.floor(Math.random()*3)];
+    var board=d.slice(2,2+street);
+    var rng=cfg.showRange?["tight","standard","loose"][Math.floor(Math.random()*3)]:"standard";
+    cur={hero:hero,board:board,range:rng};
+    document.getElementById("sz-you").innerHTML=handHtml(hero.map(cardStr));
+    document.getElementById("sz-board").innerHTML=handHtml(board.map(cardStr));
+    document.getElementById("sz-rangelab").innerHTML=cfg.showRange?RANGE_DESC[rng]:"an unknown player";
+    document.getElementById("sz-spot").innerHTML="You can bet the "+(street===3?"flop":street===4?"turn":"river")+". How big?";
+    document.getElementById("sz-guessrow").style.display="";
+  }
+  document.getElementById("sz-deal").onclick=deal;
+  document.querySelectorAll("#sz-guessrow button[data-sz]").forEach(function(b){b.onclick=function(){
+    if(!cur)return;var pick=b.dataset.sz;
+    document.getElementById("sz-out").innerHTML="<span class='note'>checking your equity vs their range…</span>";
+    api("/poker/api/betsize?hero="+cur.hero.map(cardStr).join(" ")+"&board="+cur.board.map(cardStr).join(" ")+"&range="+cur.range).then(function(r){
+      if(r.error){document.getElementById("sz-out").innerHTML="<span class='no'>"+r.error+"</span>";return;}
+      var order=r.order,gi=order.indexOf(pick),ri=order.indexOf(r.rec),dist=Math.abs(gi-ri);
+      tries++;if(dist===0)score++;
+      document.getElementById("sz-score").textContent="score "+score+" / "+tries;
+      var eqp=Math.round(r.equity*100);
+      var why = r.rec==="overbet"?"You crush their range ("+eqp+"%) — get max value; a size that big still gets called by enough worse.":
+                r.rec==="big"?"You beat most of their range ("+eqp+"%) — bet big for value.":
+                r.rec==="small"?"Thin value ("+eqp+"%) — a small bet gets called by worse without blowing up the pot.":
+                "Marginal ("+eqp+"%) — check for pot control; betting mostly folds out what you beat and gets called by what beats you.";
+      document.getElementById("sz-out").innerHTML=
+        "<div class='verdict "+(dist===0?"call":dist===1?"raise":"fold")+"'><b>"+(dist===0?"✓ right":dist===1?"close":"✗ off")+"</b> — best is <b>"+r.rec_label+"</b>, you picked <b>"+pick+"</b>. "+why+"</div>";
+    });
+  };});
+  POKER_REDEAL.push(function(){if(cur)deal();});
+})();
+
+// ---------- POSITION trainer (opening + BB defense) ----------
+(function(){
+  var RFI_POS=["UTG","MP","CO","BTN","SB"];
+  var POSD={UTG:"under the gun — first to act, play tight",MP:"middle position",CO:"the cutoff — second to last to act",BTN:"the button — last to act, play wide",SB:"the small blind"};
+  var BB_OPENERS=[["UTG","tight"],["CO","standard"],["BTN","loose"]];
+  var OPENER_DESC={UTG:"an early-position player (tight range)",CO:"the cutoff (medium range)",BTN:"the button (wide range)"};
+  var pMode="rfi",cur=null,score=0,tries=0;
+  function handClass(c1,c2){
+    var r1=Math.floor(c1/4),r2=Math.floor(c2/4),hi=Math.max(r1,r2),lo=Math.min(r1,r2);
+    if(r1===r2)return RANKS[r1]+RANKS[r1];
+    return RANKS[hi]+RANKS[lo]+((c1%4)===(c2%4)?"s":"o");
+  }
+  function setActions(html){var a=document.getElementById("ps-actions");a.style.display="";a.innerHTML=html;
+    a.querySelectorAll("button[data-pa]").forEach(function(b){b.onclick=function(){answer(b.dataset.pa);};});}
+  function deal(){
+    document.getElementById("ps-out").innerHTML="";
+    var d=shuffled();var hero=[d[0],d[1]];
+    document.getElementById("ps-hand").innerHTML=handHtml(hero.map(cardStr));
+    if(pMode==="rfi"){
+      cur={mode:"rfi",hero:hero,pos:RFI_POS[Math.floor(Math.random()*RFI_POS.length)]};
+      cur.cls=handClass(hero[0],hero[1]);
+      document.getElementById("ps-poslab").textContent=cur.pos;
+      document.getElementById("ps-spot").innerHTML="Everyone folded to you in <b>"+cur.pos+"</b> ("+POSD[cur.pos]+"). Open or fold?";
+      setActions("<button class='btn g' data-pa='open'>Open (raise)</button><button class='btn g' data-pa='fold'>Fold</button>");
+    }else{
+      var o=BB_OPENERS[Math.floor(Math.random()*BB_OPENERS.length)];
+      cur={mode:"bb",hero:hero,openerPos:o[0],range:o[1]};
+      document.getElementById("ps-poslab").textContent="BB";
+      document.getElementById("ps-spot").innerHTML="You're in the <b>big blind</b> with 1 BB already in. "+OPENER_DESC[o[0]]+" raises and it folds to you. You get a discount to call and close the action — fold, call, or 3-bet?";
+      setActions("<button class='btn g' data-pa='fold'>Fold</button><button class='btn g' data-pa='call'>Call</button><button class='btn g' data-pa='3bet'>3-bet</button>");
+    }
+  }
+  function answer(pick){
+    if(!cur)return;
+    if(cur.mode==="rfi"){
+      var inRange=(RANGES[cur.pos]||[]).indexOf(cur.cls)>=0;
+      var correct=inRange?"open":"fold",right=pick===correct;
+      tries++;if(right)score++;document.getElementById("ps-score").textContent="score "+score+" / "+tries;
+      var pct=Math.round((RANGES[cur.pos]||[]).length/169*100),tag=cur.pos==="UTG"?" (the tightest seat)":cur.pos==="BTN"?" (the widest seat)":"";
+      document.getElementById("ps-out").innerHTML=
+        "<div class='verdict "+(right?"call":"fold")+"'><b>"+(right?"✓ right":"✗ "+correct.toUpperCase())+"</b> — <b>"+cur.cls+"</b> is "+(inRange?"a standard <b>open</b>":"a <b>fold</b>")+" from "+cur.pos+". That seat opens ~<b>"+pct+"%</b> of hands"+tag+". "+
+        (inRange?"":"Too weak to open this early — often fine from later position, which is the whole point.")+"</div>";
+    }else{
+      document.getElementById("ps-out").innerHTML="<span class='note'>checking your equity vs their opening range…</span>";
+      eqRangeApi(cur.hero.map(cardStr).join(" "),cur.range,"",3000).then(function(e){
+        var eq=e.equity, need=0.40; // ~pot-odds discount + out-of-position tax
+        var correct = eq>=0.60?"3bet":(eq>=need?"call":"fold"),right=pick===correct;
+        tries++;if(right)score++;document.getElementById("ps-score").textContent="score "+score+" / "+tries;
+        var why = correct==="3bet"?"strong enough to <b>3-bet</b> for value":correct==="call"?"good enough to <b>call</b> and see a flop — the BB defends wide because of the discount":"too weak to continue even with the discount — <b>fold</b>";
+        document.getElementById("ps-out").innerHTML=
+          "<div class='verdict "+(right?"call":"fold")+"'><b>"+(right?"✓ right":"✗ "+correct.toUpperCase())+"</b> — vs "+OPENER_DESC[cur.openerPos]+" your equity is <b>"+Math.round(eq*100)+"%</b>. You only need ~"+Math.round(need*100)+"% (a discount, but you're out of position), so it's "+why+".</div>";
+      });
+    }
+  }
+  document.getElementById("ps-deal").onclick=deal;
+  document.querySelectorAll("#p-position button[data-pmode]").forEach(function(b){b.onclick=function(){
+    pMode=b.dataset.pmode;
+    document.querySelectorAll("#p-position button[data-pmode]").forEach(function(x){x.classList.toggle("on",x===b);});
+    cur=null;document.getElementById("ps-out").innerHTML="";var a=document.getElementById("ps-actions");a.innerHTML="";a.style.display="none";
+    document.getElementById("ps-hand").innerHTML="";document.getElementById("ps-poslab").textContent="POSITION";
+    document.getElementById("ps-spot").innerHTML="Press <b>Deal a hand</b>.";
+  };});
+})();
+</script>
+</body></html>

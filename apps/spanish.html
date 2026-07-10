@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Español — 30-Day Sprint to B1/B2</title>
+<style>
+:root{--bg:#120d0b;--panel:#1c1512;--panel2:#241a16;--ink:#f0e6da;--dim:#a89685;--faint:#6f6053;--red:#e0563e;--gold:#e6b043;--green:#6fbf7f;--rule:#382a24}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55;font-size:16px}
+header{max-width:1080px;margin:0 auto;padding:22px 26px 0}
+h1{font-size:1.55em;letter-spacing:-.4px}h1 .r{color:var(--red)}h1 .g{color:var(--gold)}
+.sub{color:var(--dim);font-size:.9em;margin-top:2px}
+nav{display:flex;gap:4px;flex-wrap:wrap;max-width:1080px;margin:16px auto 0;padding:0 26px;border-bottom:1px solid var(--rule)}
+nav button{background:none;border:none;color:var(--dim);font-size:.95em;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
+nav button:hover{color:var(--ink)}nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
+main{max-width:1080px;margin:0 auto;padding:22px 26px 100px}
+h2{font-size:1.3em;margin-bottom:4px}.muted{color:var(--dim);font-size:.9em}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.btn{background:var(--panel2);border:1px solid var(--rule);color:var(--ink);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95em}
+.btn:hover{border-color:var(--gold)}
+.btn.p{background:var(--red);border-color:var(--red);color:#fff}.btn.p:hover{filter:brightness(1.1)}
+.btn.g{background:var(--green);border-color:var(--green);color:#0e2a14}
+.btn.sm{padding:6px 12px;font-size:.85em}
+input,select,textarea{background:#100b09;border:1px solid var(--rule);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:1em;font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.speak{background:none;border:none;color:var(--gold);cursor:pointer;font-size:1.3em}
+/* plan */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.plan-grid{grid-template-columns:1fr}.flash{padding:34px 18px!important}}
+.task{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.task:last-child{border:none}
+.task .box{width:22px;height:22px;border:2px solid var(--faint);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9em;margin-top:1px}
+.task.done .box{background:var(--green);border-color:var(--green);color:#0e2a14}
+.task.done .t{color:var(--faint);text-decoration:line-through}
+.task .t{font-weight:600}.task .d{color:var(--dim);font-size:.82em;font-weight:400}
+.book{color:var(--gold);font-size:.75em;text-transform:uppercase;letter-spacing:.5px}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin:6px 0 4px}
+.stat{text-align:center}.stat .n{font-size:2em;font-weight:800;color:var(--gold);line-height:1}.stat .l{color:var(--dim);font-size:.78em}
+.ring{--p:0;width:88px;height:88px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%),#2a201b 0);display:flex;align-items:center;justify-content:center}
+.ring .in{width:70px;height:70px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1em}
+.week{border-left:2px solid var(--red);padding:2px 0 2px 14px;margin-bottom:12px}
+.week b{color:var(--gold)}
+/* flash / SRS */
+.flash{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:44px 30px;text-align:center;min-height:230px;display:flex;flex-direction:column;justify-content:center;cursor:pointer}
+.flash .es{font-size:2.4em;font-weight:700}
+.flash .cat{color:var(--faint);font-size:.75em;text-transform:uppercase;letter-spacing:1.5px;margin-top:8px}
+.flash .en{color:var(--gold);font-size:1.5em;margin-top:16px}
+.flash .hint{color:var(--faint);font-size:.82em;margin-top:20px;text-transform:uppercase;letter-spacing:1px}
+.grades{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.bar{height:8px;background:#2a201b;border-radius:5px;overflow:hidden;margin:12px 0}
+.bar>i{display:block;height:100%;background:var(--green)}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--rule);border-radius:20px;padding:3px 11px;font-size:.8em;color:var(--dim);margin:2px}
+.q{font-size:1.5em;font-weight:700;margin:6px 0}
+.correct{color:var(--green);font-weight:700}.wrong{color:var(--red);font-weight:700}
+.tbl{width:100%;border-collapse:collapse;margin-top:8px}.tbl td{padding:6px 10px;border-bottom:1px solid var(--rule)}.tbl td:first-child{color:var(--dim)}
+.gcard h3{color:var(--gold);font-size:1.15em;margin-bottom:6px}
+.gcard .ex{color:var(--dim);font-size:.92em;margin-top:8px;padding-left:12px;border-left:2px solid var(--rule)}
+.gcard .ex b{color:var(--ink)}
+.chip{background:var(--panel2);border:1px solid var(--rule);color:var(--dim);padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.85em;font-weight:600}
+.chip.on{background:var(--gold);color:#2a1e08;border-color:var(--gold)}
+.mini{color:var(--faint);font-size:.8em}
+a{color:var(--gold)}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="r">Espa</span><span class="g">ñol</span> · 30-Day Sprint</h1>
+  <div class="sub">Toward B1/B2 in a month — wired to your four books. Morning &amp; night routine, SRS vocab, conjugation &amp; cognate drills, dictation.</div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script>
+/* ============ STORAGE ============ */
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem('es_'+k))??d}catch(e){return d}},set:(k,v)=>localStorage.setItem('es_'+k,JSON.stringify(v))};
+const dayNum=()=>Math.floor(Date.now()/864e5);
+const todayKey=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+
+/* ============ TTS ============ */
+let esVoice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();esVoice=vs.find(v=>/es-ES/i.test(v.lang))||vs.find(v=>/^es/i.test(v.lang))||null;}
+if('speechSynthesis'in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(t,rate){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';if(esVoice)u.voice=esVoice;u.rate=rate||.9;speechSynthesis.speak(u);}
+
+/* ============ DATA: VOCAB (high-frequency core) ============ */
+const VOCAB=[
+["yo","I","fn"],["tú","you (informal)","fn"],["él","he","fn"],["ella","she","fn"],["nosotros","we","fn"],["ellos","they","fn"],["usted","you (formal)","fn"],["me","me / myself","fn"],["te","you / yourself","fn"],["se","oneself","fn"],["nos","us","fn"],["lo","it / him","fn"],["le","to him/her","fn"],["el","the (m)","fn"],["la","the (f)","fn"],["los","the (m pl)","fn"],["un","a (m)","fn"],["una","a (f)","fn"],
+["de","of / from","fn"],["en","in / on","fn"],["a","to / at","fn"],["con","with","fn"],["por","for / by / through","fn"],["para","for / in order to","fn"],["sin","without","fn"],["sobre","on / about","fn"],["entre","between","fn"],["hasta","until / up to","fn"],["desde","from / since","fn"],["hacia","toward","fn"],
+["y","and","fn"],["o","or","fn"],["pero","but","fn"],["porque","because","fn"],["que","that / which","fn"],["si","if","fn"],["aunque","although","fn"],["cuando","when","fn"],["como","like / as","fn"],["mientras","while","fn"],["también","also","fn"],["tampoco","neither","fn"],["no","no / not","fn"],["sí","yes","fn"],
+["qué","what","q"],["quién","who","q"],["cuándo","when","q"],["dónde","where","q"],["cómo","how","q"],["cuánto","how much","q"],["por qué","why","q"],["cuál","which","q"],
+["muy","very","adv"],["más","more","adv"],["menos","less","adv"],["ya","already / now","adv"],["todavía","still / yet","adv"],["siempre","always","adv"],["nunca","never","adv"],["aquí","here","adv"],["allí","there","adv"],["ahora","now","adv"],["después","after / then","adv"],["antes","before","adv"],["bien","well","adv"],["mal","badly","adv"],["así","like this / so","adv"],["entonces","then / so","adv"],["casi","almost","adv"],["solo","only / alone","adv"],["mucho","a lot","adv"],["poco","little","adv"],["demasiado","too much","adv"],["tan","so","adv"],["hoy","today","adv"],["mañana","tomorrow / morning","adv"],["ayer","yesterday","adv"],["temprano","early","adv"],["tarde","late / afternoon","adv"],["quizás","maybe","adv"],
+["ser","to be (essence)","v"],["estar","to be (state)","v"],["tener","to have","v"],["hacer","to do / make","v"],["poder","to be able / can","v"],["decir","to say / tell","v"],["ir","to go","v"],["ver","to see","v"],["dar","to give","v"],["saber","to know (facts)","v"],["querer","to want / love","v"],["llegar","to arrive","v"],["pasar","to pass / happen","v"],["deber","to owe / must","v"],["poner","to put","v"],["parecer","to seem","v"],["quedar","to stay / remain","v"],["creer","to believe","v"],["hablar","to speak","v"],["llevar","to carry / wear","v"],["dejar","to leave / let","v"],["seguir","to follow / continue","v"],["encontrar","to find","v"],["llamar","to call","v"],["venir","to come","v"],["pensar","to think","v"],["salir","to leave / go out","v"],["volver","to return","v"],["tomar","to take / drink","v"],["conocer","to know (people)","v"],["vivir","to live","v"],["sentir","to feel","v"],["mirar","to look / watch","v"],["contar","to count / tell","v"],["empezar","to begin","v"],["esperar","to wait / hope","v"],["buscar","to look for","v"],["entender","to understand","v"],["trabajar","to work","v"],["necesitar","to need","v"],["comer","to eat","v"],["beber","to drink","v"],["escribir","to write","v"],["leer","to read","v"],["aprender","to learn","v"],["comprar","to buy","v"],["abrir","to open","v"],["recibir","to receive","v"],["gustar","to be pleasing (to like)","v"],["amar","to love","v"],
+["casa","house","n"],["tiempo","time / weather","n"],["día","day","n"],["vez","time (instance)","n"],["año","year","n"],["hombre","man","n"],["mujer","woman","n"],["cosa","thing","n"],["vida","life","n"],["mundo","world","n"],["país","country","n"],["agua","water","n"],["lugar","place","n"],["mano","hand","n"],["parte","part","n"],["niño","child / boy","n"],["ojo","eye","n"],["momento","moment","n"],["trabajo","work / job","n"],["noche","night","n"],["gente","people","n"],["palabra","word","n"],["amigo","friend","n"],["ciudad","city","n"],["hora","hour / time","n"],["nombre","name","n"],["libro","book","n"],["comida","food / meal","n"],["dinero","money","n"],["camino","road / way","n"],["corazón","heart","n"],["historia","story / history","n"],["puerta","door","n"],["problema","problem","n"],["padre","father","n"],["madre","mother","n"],["amor","love","n"],["fuego","fire","n"],["cielo","sky / heaven","n"],["sol","sun","n"],["luz","light","n"],["calle","street","n"],["coche","car","n"],["escuela","school","n"],["semana","week","n"],["mes","month","n"],["familia","family","n"],["hijo","son / child","n"],["cara","face","n"],["cuerpo","body","n"],["pueblo","town / people","n"],["verdad","truth","n"],["miedo","fear","n"],["sueño","dream / sleep","n"],
+["bueno","good","adj"],["malo","bad","adj"],["grande","big","adj"],["pequeño","small","adj"],["nuevo","new","adj"],["viejo","old","adj"],["mismo","same","adj"],["otro","other / another","adj"],["todo","all / everything","adj"],["primero","first","adj"],["último","last","adj"],["mejor","better / best","adj"],["peor","worse / worst","adj"],["largo","long","adj"],["alto","tall / high","adj"],["bajo","short / low","adj"],["joven","young","adj"],["feliz","happy","adj"],["triste","sad","adj"],["fácil","easy","adj"],["difícil","difficult","adj"],["importante","important","adj"],["fuerte","strong","adj"],["bonito","pretty","adj"],["hermoso","beautiful","adj"],["caliente","hot","adj"],["frío","cold","adj"],["lleno","full","adj"],["cierto","true / certain","adj"],["claro","clear / light","adj"],["oscuro","dark","adj"],["libre","free","adj"],
+["uno","one","num"],["dos","two","num"],["tres","three","num"],["cuatro","four","num"],["cinco","five","num"],["seis","six","num"],["siete","seven","num"],["ocho","eight","num"],["nueve","nine","num"],["diez","ten","num"],["cien","hundred","num"],["mil","thousand","num"],
+["hola","hello","x"],["adiós","goodbye","x"],["gracias","thank you","x"],["por favor","please","x"],["perdón","sorry / excuse me","x"],["de nada","you're welcome","x"],["buenos días","good morning","x"],["buenas noches","good night","x"],["¿qué tal?","how's it going?","x"],["lo siento","I'm sorry","x"],["claro que sí","of course","x"],["tal vez","maybe","x"]
+];
+const CATLBL={fn:"function",q:"question",adv:"adverb",v:"verb",n:"noun",adj:"adjective",num:"number",x:"phrase"};
+
+/* ============ DATA: SENTENCES (dictation + reading) ============ */
+const SENTS=[
+["Hola, ¿cómo estás?","Hi, how are you?"],
+["Me llamo Ana y soy de México.","My name is Ana and I'm from Mexico."],
+["¿Dónde está el baño, por favor?","Where is the bathroom, please?"],
+["Quiero un café con leche.","I want a coffee with milk."],
+["No entiendo, ¿puedes repetir más despacio?","I don't understand, can you repeat more slowly?"],
+["Hoy hace mucho calor en la ciudad.","Today it's very hot in the city."],
+["Tengo que trabajar mañana por la mañana.","I have to work tomorrow morning."],
+["Me gusta leer libros por la noche.","I like to read books at night."],
+["¿Cuánto cuesta este libro?","How much does this book cost?"],
+["Vamos a la playa el sábado con la familia.","We're going to the beach on Saturday with the family."],
+["Ella siempre llega tarde a clase.","She always arrives late to class."],
+["Aprender español es más fácil de lo que pensaba.","Learning Spanish is easier than I thought."],
+["Cuando era niño, vivía cerca del mar.","When I was a child, I lived near the sea."],
+["Ayer comí en un restaurante muy bueno.","Yesterday I ate at a very good restaurant."],
+["Espero que tengas un buen día.","I hope you have a good day."],
+["Si tuviera tiempo, viajaría por todo el mundo.","If I had time, I would travel all over the world."],
+["El alquimista le dijo que siguiera su Leyenda Personal.","The alchemist told him to follow his Personal Legend."],
+["Cuando quieres algo, todo el universo conspira para ayudarte.","When you want something, the whole universe conspires to help you."],
+["No importa lo que hagas; hazlo con el corazón.","No matter what you do, do it with your heart."],
+["Debemos aprender de los errores del pasado.","We must learn from the mistakes of the past."],
+["¿Has terminado ya la tarea de hoy?","Have you finished today's homework yet?"],
+["Estoy leyendo una historia muy interesante.","I'm reading a very interesting story."],
+["Nunca es tarde para empezar de nuevo.","It's never too late to start again."],
+["Me gustaría hablar con más confianza.","I would like to speak with more confidence."],
+["Tienes que practicar todos los días para mejorar.","You have to practice every day to improve."],
+["¿Qué hiciste el fin de semana pasado?","What did you do last weekend?"],
+["Aunque llueva, iremos al parque.","Even if it rains, we'll go to the park."],
+["La vida es lo que pasa mientras haces otros planes.","Life is what happens while you make other plans."],
+["Todo lo que sucede una vez puede que nunca vuelva a suceder.","Everything that happens once may never happen again."],
+["Sigue tu sueño, pero mira también el camino.","Follow your dream, but watch the road too."]
+];
+
+/* ============ DATA: VERBS ============ */
+const PERS=["yo","tú","él/ella","nosotros","vosotros","ellos/ellas"];
+const END={
+ present:{ar:["o","as","a","amos","áis","an"],er:["o","es","e","emos","éis","en"],ir:["o","es","e","imos","ís","en"]},
+ pret:{ar:["é","aste","ó","amos","asteis","aron"],er:["í","iste","ió","imos","isteis","ieron"]},
+ imperf:{ar:["aba","abas","aba","ábamos","abais","aban"],er:["ía","ías","ía","íamos","íais","ían"]}
+};
+const FUT=["é","ás","á","emos","éis","án"];
+const FUTS={tener:"tendr",hacer:"har",poder:"podr",poner:"pondr",venir:"vendr",decir:"dir",querer:"querr",saber:"sabr",salir:"saldr"};
+const IRR={
+ ser:{present:["soy","eres","es","somos","sois","son"],pret:["fui","fuiste","fue","fuimos","fuisteis","fueron"],imperf:["era","eras","era","éramos","erais","eran"]},
+ estar:{present:["estoy","estás","está","estamos","estáis","están"],pret:["estuve","estuviste","estuvo","estuvimos","estuvisteis","estuvieron"]},
+ ir:{present:["voy","vas","va","vamos","vais","van"],pret:["fui","fuiste","fue","fuimos","fuisteis","fueron"],imperf:["iba","ibas","iba","íbamos","ibais","iban"]},
+ tener:{present:["tengo","tienes","tiene","tenemos","tenéis","tienen"],pret:["tuve","tuviste","tuvo","tuvimos","tuvisteis","tuvieron"]},
+ hacer:{present:["hago","haces","hace","hacemos","hacéis","hacen"],pret:["hice","hiciste","hizo","hicimos","hicisteis","hicieron"]},
+ poder:{present:["puedo","puedes","puede","podemos","podéis","pueden"],pret:["pude","pudiste","pudo","pudimos","pudisteis","pudieron"]},
+ decir:{present:["digo","dices","dice","decimos","decís","dicen"],pret:["dije","dijiste","dijo","dijimos","dijisteis","dijeron"]},
+ ver:{present:["veo","ves","ve","vemos","veis","ven"],pret:["vi","viste","vio","vimos","visteis","vieron"],imperf:["veía","veías","veía","veíamos","veíais","veían"]},
+ dar:{present:["doy","das","da","damos","dais","dan"],pret:["di","diste","dio","dimos","disteis","dieron"]},
+ querer:{present:["quiero","quieres","quiere","queremos","queréis","quieren"],pret:["quise","quisiste","quiso","quisimos","quisisteis","quisieron"]},
+ venir:{present:["vengo","vienes","viene","venimos","venís","vienen"],pret:["vine","viniste","vino","vinimos","vinisteis","vinieron"]},
+ saber:{present:["sé","sabes","sabe","sabemos","sabéis","saben"],pret:["supe","supiste","supo","supimos","supisteis","supieron"]},
+ poner:{present:["pongo","pones","pone","ponemos","ponéis","ponen"],pret:["puse","pusiste","puso","pusimos","pusisteis","pusieron"]}
+};
+const VERBS=[
+ ["hablar","to speak",0],["trabajar","to work",0],["tomar","to take/drink",0],["comprar","to buy",0],["comer","to eat",0],["beber","to drink",0],["aprender","to learn",0],["vivir","to live",0],["escribir","to write",0],["abrir","to open",0],["recibir","to receive",0],
+ ["ser","to be",1],["estar","to be",1],["ir","to go",1],["tener","to have",1],["hacer","to do/make",1],["poder","can",1],["decir","to say",1],["ver","to see",1],["dar","to give",1],["querer","to want",1],["venir","to come",1],["saber","to know",1],["poner","to put",1]
+];
+function conj(inf,tense,i){
+ if(IRR[inf]&&IRR[inf][tense])return IRR[inf][tense][i];
+ if(tense==="future"){const s=FUTS[inf]||inf;return s+FUT[i];}
+ const g=inf.slice(-2);const set=END[tense][g]||END[tense].er;return inf.slice(0,-2)+set[i];
+}
+
+/* ============ DATA: GRAMMAR ============ */
+const GRAM=[
+["Ser vs Estar — two 'to be's","<b>Ser</b> = identity, origin, essence, time, characteristics (permanent-ish). <b>Estar</b> = location, temporary states, feelings, ongoing action.","Soy alto. (I am tall) · Estoy cansado. (I am tired) · La fiesta es en mi casa (event) vs La casa está aquí (location)."],
+["Preterite vs Imperfect — two pasts","<b>Preterite</b> = a completed action, a single event ('what happened'). <b>Imperfect</b> = background, habit, ongoing, description ('what was going on / used to').","Ayer <b>comí</b> pizza (one event). · De niño <b>comía</b> pizza cada viernes (habit). · <b>Llovía</b> cuando <b>salí</b> (background + event)."],
+["Por vs Para","<b>Por</b> = cause, 'through/by', duration, exchange ('because of / by means of'). <b>Para</b> = purpose, destination, deadline, recipient ('in order to / for').","Gracias por tu ayuda. · Estudio para aprender. · Salgo para Madrid. · Lo hice por ti (for your sake) vs para ti (to give you)."],
+["The Subjunctive — mood of the unreal","Use after WEIRDO triggers: <b>W</b>ishes, <b>E</b>motions, <b>I</b>mpersonal opinions, <b>R</b>ecommendations, <b>D</b>oubt/denial, <b>O</b>jalá — plus 'que' + a different subject.","Espero que <b>vengas</b>. · Quiero que <b>seas</b> feliz. · Ojalá <b>llueva</b>. · No creo que <b>tenga</b> razón. · Es importante que <b>estudies</b>."],
+["Object pronouns","Direct (lo/la/los/las) = 'it/them'. Indirect (me/te/le/nos/os/les) = 'to whom'. Order: <b>indirect before direct</b>, both before the verb. le/les → <b>se</b> before lo/la.","¿El libro? Lo tengo. · Te lo doy (I give it to you). · Se lo dije (I said it to him)."],
+["Reflexive verbs","The subject acts on itself; pronoun matches subject (me/te/se/nos/os/se). Many daily-routine + emotion verbs.","Me llamo… (I call myself) · Me levanto a las siete. · Se durmió. · Nos vemos mañana."],
+["Gustar & friends","Not 'I like X' but 'X is pleasing to me': verb agrees with the <b>thing</b>, person marked by indirect pronoun. Same: encantar, importar, faltar, doler.","Me gusta el café. · Me gustan los libros (plural thing). · Le encanta bailar. · Me duele la cabeza."],
+["The future, the easy way","<b>ir a + infinitive</b> = 'going to'. <b>acabar de + inf</b> = 'to have just'. The true future adds -é,-ás,-á,-emos,-éis,-án to the infinitive.","Voy a comer. · Acabo de llegar (I just arrived). · Comeré mañana. · Tendré (irregular stem tendr-)."],
+["Present perfect","<b>haber</b> (he, has, ha, hemos, habéis, han) + past participle (-ado / -ido). 'Have done'.","He comido. · ¿Has visto la película? · Hemos aprendido mucho. Irregulars: hecho, dicho, visto, escrito, abierto."],
+["Comparatives & superlatives","más/menos … que (more/less than). tan … como (as … as). Superlative: el/la más … de. Irregulars: mejor, peor, mayor, menor.","Más alto que tú. · Tan rápido como el viento. · El mejor libro del año. · Menos difícil de lo que parece."],
+["The personal 'a'","When the direct object is a specific <b>person</b> (or beloved pet), put <b>a</b> before it. No translation in English.","Veo a María. · Busco a mi amigo. · (but) Veo la casa — no 'a' for things."],
+["Accents & stress","Default stress: word ends in vowel/n/s → 2nd-last syllable; else last. A written accent marks the exception — and distinguishes pairs.","hablo vs habló · el (the) vs él (he) · si (if) vs sí (yes) · tu vs tú · que vs qué."],
+["Conditional & 'si' clauses","Conditional = infinitive + -ía endings ('would'). Real 'si': si + present, present/future. Unreal: si + <b>imperfect subjunctive</b>, conditional.","Comería más (I would eat more). · Si estudias, aprobarás. · Si tuviera dinero, viajaría."],
+["Commands (imperative)","Affirmative tú = the él-form (habla, come). Negative + all usted/nosotros forms use the <b>subjunctive</b>. Pronouns attach to affirmative, precede negative.","¡Habla! · ¡No hables! · ¡Dígame! · ¡Vámonos! · Hazlo (do it) vs No lo hagas."]
+];
+
+/* ============ DATA: COGNATES (Madrigal-style) ============ */
+const COGRULES=[
+["-tion → -ción","information → información, nation → nación, action → acción"],
+["-sion → -sión","television → televisión, decision → decisión, mission → misión"],
+["-ty → -dad","university → universidad, liberty → libertad, reality → realidad"],
+["-ic / -ical → -ico","music → música, public → público, logical → lógico"],
+["-ous → -oso","famous → famoso, curious → curioso, delicious → delicioso"],
+["-ble → -ble","possible → posible, terrible → terrible, probable → probable"],
+["-ance/-ence → -ancia/-encia","importance → importancia, science → ciencia, patience → paciencia"],
+["-ist → -ista","artist → artista, dentist → dentista, tourist → turista"],
+["-ary → -ario","necessary → necesario, ordinary → ordinario, contrary → contrario"],
+["-ct → -cto","perfect → perfecto, correct → correcto, contact → contacto"],
+["-phy → -fía","philosophy → filosofía, geography → geografía, photography → fotografía"],
+["-ment → -mento","moment → momento, monument → monumento, instrument → instrumento"]
+];
+const COGDRILL=[
+["information","información"],["education","educación"],["action","acción"],["nation","nación"],["conversation","conversación"],
+["television","televisión"],["decision","decisión"],["profession","profesión"],
+["university","universidad"],["liberty","libertad"],["reality","realidad"],["community","comunidad"],
+["music","música"],["public","público"],["logical","lógico"],["romantic","romántico"],
+["famous","famoso"],["curious","curioso"],["delicious","delicioso"],["nervous","nervioso"],
+["possible","posible"],["terrible","terrible"],["responsable","responsable"],
+["importance","importancia"],["science","ciencia"],["experience","experiencia"],["patience","paciencia"],
+["artist","artista"],["tourist","turista"],["optimist","optimista"],
+["necessary","necesario"],["ordinary","ordinario"],
+["perfect","perfecto"],["correct","correcto"],["contact","contacto"],["product","producto"],
+["philosophy","filosofía"],["geography","geografía"],
+["moment","momento"],["instrument","instrumento"],["document","documento"]
+];
+
+/* ============ NAV ============ */
+const TABS=[["plan","☀️ Plan"],["vocab","🗂️ Vocab SRS"],["verbs","🔀 Verbs"],["cognates","🔑 Cognates"],["grammar","📘 Grammar"],["listen","🔊 Listen"]];
+let tab=LS.get('tab','plan');
+const nav=document.getElementById('nav'),main=document.getElementById('main');
+nav.innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" class="${k==tab?'on':''}">${l}</button>`).join('');
+nav.onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.k;LS.set('tab',tab);[...nav.children].forEach(c=>c.classList.toggle('on',c.dataset.k==tab));render();};
+function esc(s){return(s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function render(){({plan:renderPlan,vocab:renderVocab,verbs:renderVerbs,cognates:renderCog,grammar:renderGram,listen:renderListen}[tab])();}
+
+/* ============ PLAN ============ */
+const TASKS=[
+ ["m1","Madrigal's Magic Key","2 lessons (45 total → finished in ~3 weeks at this pace)","MADRIGAL","☀️"],
+ ["m2","Frequency Dictionary","40 new words → add them in Vocab SRS","FREQ DICT","☀️"],
+ ["m3","Verbs drill","20 conjugations — rotate the tense","DRILL","☀️"],
+ ["m4","Cognates","2 rounds — a rule + rapid-fire drill","MADRIGAL","☀️"],
+ ["m5","Speak aloud","20–30 min OUTPUT: shadow a clip, tutor (iTalki), or narrate your day","SPEAKING","☀️"],
+ ["n1","Short Stories in Spanish","1 full story — read, then re-read ALOUD","STORIES","🌙"],
+ ["n2","El Alquimista","6–8 pages — underline unknowns → SRS","EL ALQUIMISTA","🌙"],
+ ["n3","Vocab SRS","clear every due card + 40 more new words","DRILL","🌙"],
+ ["n4","Listen / dictation","10 sentences — hear, write, check","DRILL","🌙"],
+ ["n5","Immersion","45–60 min Spanish audio/video (Dreaming Spanish, a podcast, a show)","INPUT","🌙"]
+];
+const BOOKS=[["madrigal","Madrigal's Magic Key","lesson",45,2],["stories","Short Stories in Spanish","story",8,1],["alq","El Alquimista","page",180,5],["freq","Frequency Dictionary","word",2500,20]];
+function sprintDay(){let sd=LS.get('startd',null);if(sd===null){sd=dayNum();LS.set('startd',sd);}return Math.max(1,dayNum()-sd+1);}
+function bookVal(id){return LS.get('books',{})[id]||0;}
+function setBook(id,v){const b=LS.get('books',{});b[id]=Math.max(0,v);LS.set('books',b);renderPlan();}
+function booksHTML(){const day=sprintDay();return BOOKS.map(([id,title,unit,total,step])=>{const cur=bookVal(id),exp=Math.round(total*Math.min(day/30,1)),pct=Math.min(100,Math.round(cur/total*100)),beh=exp-cur;const st=cur>=total?`<span style="color:var(--green)">finished ✓</span>`:cur>=exp?`<span style="color:var(--green)">on pace</span>`:`<span style="color:var(--gold)">behind ~${beh} ${unit}${beh==1?'':'s'}</span>`;return `<div style="margin-bottom:12px"><div class="row" style="justify-content:space-between"><div><b>${title}</b> <span class="mini">${cur}/${total} ${unit}s · ${st}</span></div><div class="row" style="gap:6px"><button class="btn sm" onclick="setBook('${id}',${cur-step})">−${step}</button><button class="btn sm p" onclick="setBook('${id}',${cur+step})">+${step}</button></div></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;}).join('');}
+function planData(){return LS.get('plan',{done:{}});}
+function streakOf(p){let s=0,d=dayNum();for(;;){const k=new Date((d-s)*864e5).toISOString().slice(0,10);if((p.done[k]||[]).length>0)s++;else break;}return s;}
+function renderPlan(){
+ const p=planData(),tk=todayKey();const done=p.done[tk]||[];
+ const pct=Math.round(done.length/TASKS.length*100);
+ const totalDays=Object.values(p.done).filter(a=>a.length>0).length;
+ const wordsLearned=Object.keys(LS.get('srs',{})).length;
+ main.innerHTML=`
+ <div class="card">
+   <div class="row" style="justify-content:space-between">
+     <div><h2>Day ${sprintDay()} of 30 · <span class="muted">${tk}</span></h2><div class="muted">${done.length}/${TASKS.length} tasks today — a hard ~5-hour immersion day</div></div>
+     <div class="ring" style="--p:${pct}"><div class="in">${pct}%</div></div>
+   </div>
+   <div class="stats" style="margin-top:12px">
+     <div class="stat"><div class="n">${streakOf(p)}</div><div class="l">day streak 🔥</div></div>
+     <div class="stat"><div class="n">${totalDays}</div><div class="l">days studied</div></div>
+     <div class="stat"><div class="n">${wordsLearned}</div><div class="l">words in SRS</div></div>
+   </div>
+ </div>
+ <div class="plan-grid">
+   <div class="card"><h2>☀️ Morning</h2><div id="mlist"></div></div>
+   <div class="card"><h2>🌙 Night</h2><div id="nlist"></div></div>
+ </div>
+ <div class="card">
+   <h2>📖 Book progress</h2>
+   <div class="mini" style="margin-bottom:10px">Log where you are; the bar shows whether you’re on pace to finish inside the month. Madrigal at 2 lessons/day finishes with a week to spare.</div>
+   ${booksHTML()}
+ </div>
+ <div class="card">
+   <h2>The 4-week arc → B1/B2</h2>
+   <div class="mini" style="margin-bottom:8px">Non-negotiable every day: <b>speak aloud</b> and <b>flood your ears</b>. The books are input; output + listening are what actually move B1/B2.</div>
+   <div class="week"><b>Week 1 — Foundations.</b> Madrigal lessons 1–14 (cognates = instant vocabulary), present tense of ser/estar/tener + regular verbs, first ~600 frequency words, daily shadowing. Goal: build simple true sentences out loud.</div>
+   <div class="week"><b>Week 2 — The past & stories.</b> Preterite vs imperfect, next 500–800 words, start Short Stories. Goal: narrate what happened yesterday; read a whole short story.</div>
+   <div class="week"><b>Week 3 — Subjunctive & El Alquimista.</b> Subjunctive triggers, por/para, object pronouns, begin El Alquimista. Goal: express wishes, doubts, opinions; read real literary Spanish.</div>
+   <div class="week"><b>Week 4 — Fluency push.</b> Finish El Alquimista, conditional + 'si' clauses, review all SRS, think/journal in Spanish daily. Goal: hold a B1/B2 conversation, read without constant lookups.</div>
+   <div class="mini">Tip: reset a day’s checklist by unchecking. Streak counts any day with ≥1 task done.</div>
+ </div>`;
+ const draw=slot=>TASKS.filter(t=>t[4]==slot).map(t=>`<div class="task ${done.includes(t[0])?'done':''}" data-id="${t[0]}"><div class="box">✓</div><div><div class="t">${t[1]} <span class="book">${t[3]}</span></div><div class="d">${t[2]}</div></div></div>`).join('');
+ document.getElementById('mlist').innerHTML=draw("☀️");
+ document.getElementById('nlist').innerHTML=draw("🌙");
+ main.querySelectorAll('.task').forEach(el=>el.onclick=()=>{
+   const id=el.dataset.id,p=planData(),tk=todayKey();p.done[tk]=p.done[tk]||[];
+   const i=p.done[tk].indexOf(id);if(i<0)p.done[tk].push(id);else p.done[tk].splice(i,1);
+   LS.set('plan',p);renderPlan();
+ });
+}
+
+/* ============ VOCAB SRS ============ */
+const INT=[0,1,2,4,8,16,30];const NEW_PER=40;
+function deck(){return VOCAB.concat(LS.get('custom',[]));}
+let vq=null,vi=0,vShown=false;
+function buildVQ(){
+ const s=LS.get('srs',{}),t=dayNum(),D=deck();
+ const due=D.filter(c=>s[c[0]]&&s[c[0]].due<=t);
+ const nw=D.filter(c=>!s[c[0]]).slice(0,NEW_PER);
+ for(let i=due.length-1;i>0;i--){const j=(i*13+7)%(i+1);[due[i],due[j]]=[due[j],due[i]];}
+ vq=due.concat(nw);vi=0;vShown=false;
+}
+function renderVocab(){
+ if(!vq)buildVQ();
+ const s=LS.get('srs',{}),D=deck();
+ const learned=D.filter(c=>s[c[0]]&&s[c[0]].box>=3).length;
+ if(vi>=vq.length){
+   main.innerHTML=`<div class="card" style="text-align:center"><h2>¡Bien hecho! 🎉</h2><p class="muted">No cards left in this session. ${D.length} words total · ${learned} well-known (box 3+).</p><div class="row" style="justify-content:center;margin-top:12px"><button class="btn p" onclick="buildVQ();renderVocab()">Go again</button></div></div>${addBox()}${browseBox()}`;
+   wireAdd();return;
+ }
+ const c=vq[vi],st=s[c[0]]||{box:0};
+ main.innerHTML=`
+  <div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="muted">Card ${vi+1} / ${vq.length} · box ${st.box||0}</div><div class="muted">${D.length} words · ${learned} strong</div></div>
+  <div class="bar"><i style="width:${Math.round(vi/vq.length*100)}%"></i></div>
+  <div class="flash" onclick="revealV()">
+    <div class="es">${esc(c[0])} <button class="speak" onclick="event.stopPropagation();speak('${c[0].replace(/'/g,"\\'")}')">🔊</button></div>
+    <div class="cat">${CATLBL[c[2]]||''}</div>
+    ${vShown?`<div class="en">${esc(c[1])}</div>`:`<div class="hint">tap to reveal — say it first</div>`}
+  </div>
+  ${vShown?`<div class="grades">
+     <button class="btn" onclick="gradeV(0)">Again</button>
+     <button class="btn g" onclick="gradeV(1)">Good</button>
+     <button class="btn" onclick="gradeV(2)">Easy</button>
+   </div>`:`<div class="row" style="justify-content:center;margin-top:14px"><button class="btn p" onclick="revealV()">Reveal</button></div>`}
+  ${addBox()}${browseBox()}`;
+ wireAdd();
+ if(!vShown)speak(c[0]);
+}
+function revealV(){vShown=true;renderVocab();}
+function gradeV(g){
+ const c=vq[vi],s=LS.get('srs',{}),t=dayNum();let st=s[c[0]]||{box:0};
+ if(g==0){st.box=0;vq.push(c);}
+ else{st.box=Math.min((st.box||0)+(g==2?2:1),6);}
+ st.due=t+INT[st.box];s[c[0]]=st;LS.set('srs',s);
+ vi++;vShown=false;renderVocab();
+}
+function addBox(){return `<div class="card" style="margin-top:16px"><h2 style="font-size:1.05em">➕ Add words (from the Frequency Dictionary or your books)</h2>
+  <div class="muted" style="margin:4px 0 8px">One per line as <b>español = english</b>. They join your SRS deck immediately.</div>
+  <textarea id="bulk" rows="4" style="width:100%" placeholder="p. ej.\nla suerte = luck\naprovechar = to take advantage of"></textarea>
+  <div class="row" style="margin-top:8px"><button class="btn p" id="addbtn">Add to deck</button><span id="addmsg" class="mini"></span></div></div>`;}
+function wireAdd(){const b=document.getElementById('addbtn');if(!b)return;b.onclick=()=>{
+  const lines=(document.getElementById('bulk').value||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const cur=LS.get('custom',[]);let n=0;
+  lines.forEach(l=>{const m=l.split(/=|—|\t| - /);if(m.length>=2){const es=m[0].trim(),en=m.slice(1).join(' ').trim();if(es&&en&&!deck().some(c=>c[0]==es)){cur.push([es,en,'x']);n++;}}});
+  LS.set('custom',cur);document.getElementById('addmsg').textContent=`Added ${n} word(s).`;document.getElementById('bulk').value='';buildVQ();
+ };}
+function browseBox(){const D=deck(),s=LS.get('srs',{});
+ return `<div class="card"><h2 style="font-size:1.05em">📚 Deck (${D.length})</h2><div style="max-height:220px;overflow:auto;margin-top:8px">`+
+  D.map(c=>`<span class="pill" title="box ${(s[c[0]]||{}).box??'—'}">${esc(c[0])} · ${esc(c[1])}</span>`).join('')+
+  `</div><div class="row" style="margin-top:10px"><button class="btn sm" onclick="if(confirm('Reset all SRS progress?')){LS.set('srs',{});buildVQ();renderVocab();}">Reset SRS progress</button></div></div>`;}
+
+/* ============ VERBS ============ */
+let vbState=null;
+function renderVerbs(){
+ const tense=LS.get('vtense','present');
+ if(!vbState||vbState.tense!=tense)newVerb(tense);
+ const {inf,en,i,tense:tn}=vbState;
+ main.innerHTML=`
+  <div class="card">
+   <div class="row" style="gap:6px;margin-bottom:12px">
+    ${["present","pret","imperf","future"].map(t=>`<span class="chip ${t==tense?'on':''}" onclick="LS.set('vtense','${t}');vbState=null;renderVerbs()">${({present:'Present',pret:'Preterite',imperf:'Imperfect',future:'Future'})[t]}</span>`).join('')}
+   </div>
+   <div class="muted">Conjugate — type the form, then check.</div>
+   <div class="q">${esc(inf)} <span class="muted" style="font-size:.6em">(${en})</span> · <span style="color:var(--gold)">${PERS[i]}</span> <button class="speak" onclick="speak('${inf}')">🔊</button></div>
+   <div class="row"><input id="vans" style="flex:1;min-width:160px" placeholder="type the conjugation…" autocomplete="off" autofocus><button class="btn p" onclick="checkVerb()">Check</button><button class="btn" onclick="vbState=null;renderVerbs()">Skip →</button></div>
+   <div id="vres" style="margin-top:12px"></div>
+  </div>
+  <div class="card"><h2 style="font-size:1.05em">Full table — ${esc(inf)} · ${({present:'present',pret:'preterite',imperf:'imperfect',future:'future'})[tense]}</h2>
+   <table class="tbl">${PERS.map((p,k)=>`<tr><td>${p}</td><td><b>${conj(inf,tense,k)}</b></td></tr>`).join('')}</table>
+   <div class="mini" style="margin-top:8px">Regular endings are generated; ${Object.keys(IRR).length} core irregulars are stored verified. Stem-changers beyond these aren’t drilled yet.</div>
+  </div>`;
+ const inp=document.getElementById('vans');inp.focus();inp.onkeydown=e=>{if(e.key=='Enter')checkVerb();};
+}
+function newVerb(tense){const v=VERBS[Math.floor(rnd()*VERBS.length)];vbState={inf:v[0],en:v[1],i:Math.floor(rnd()*6),tense};}
+let _seed=Date.now()%9973;function rnd(){_seed=(_seed*48271)%2147483647;return _seed/2147483647;}
+function norm(s){return(s||'').trim().toLowerCase();}
+function checkVerb(){
+ const {inf,tense,i}=vbState;const ans=norm(document.getElementById('vans').value);const right=conj(inf,tense,i);
+ const ok=norm(right)===ans;
+ document.getElementById('vres').innerHTML=ok
+  ?`<span class="correct">✓ ¡Correcto!</span> ${inf} → <b>${right}</b> <button class="speak" onclick="speak('${right}')">🔊</button> <button class="btn sm" onclick="vbState=null;renderVerbs()">Next →</button>`
+  :`<span class="wrong">✗</span> You wrote “${esc(ans||'—')}”. It’s <b>${right}</b> <button class="speak" onclick="speak('${right}')">🔊</button> <button class="btn sm" onclick="vbState=null;renderVerbs()">Next →</button>`;
+ if(ok)speak(right);
+}
+
+/* ============ COGNATES ============ */
+let cog=null;
+function renderCog(){
+ if(!cog)cog=COGDRILL[Math.floor(rnd()*COGDRILL.length)];
+ main.innerHTML=`
+  <div class="card"><h2>🔑 Madrigal’s Magic Key — cognate machine</h2>
+   <div class="muted">Thousands of English words become Spanish by rule. Learn the pattern, unlock the whole family.</div>
+   <div style="margin-top:12px">${COGRULES.map(r=>`<div class="task" style="cursor:default"><div class="box" style="border:none;color:var(--gold)">→</div><div><div class="t">${r[0]}</div><div class="d">${r[1]}</div></div></div>`).join('')}</div>
+  </div>
+  <div class="card"><h2 style="font-size:1.05em">Drill — make it Spanish</h2>
+   <div class="q">${esc(cog[0])}</div>
+   <div class="row"><input id="cans" style="flex:1;min-width:160px" placeholder="the Spanish cognate…" autocomplete="off"><button class="btn p" onclick="checkCog()">Check</button><button class="btn" onclick="cog=null;renderCog()">Skip →</button></div>
+   <div id="cres" style="margin-top:12px"></div>
+  </div>`;
+ const inp=document.getElementById('cans');inp.focus();inp.onkeydown=e=>{if(e.key=='Enter')checkCog();};
+}
+function checkCog(){
+ const ans=norm(document.getElementById('cans').value),right=cog[1];const ok=norm(right)===ans;
+ document.getElementById('cres').innerHTML=ok
+  ?`<span class="correct">✓ ¡Sí!</span> ${cog[0]} → <b>${right}</b> <button class="speak" onclick="speak('${right}')">🔊</button> <button class="btn sm" onclick="cog=null;renderCog()">Next →</button>`
+  :`<span class="wrong">✗</span> It’s <b>${right}</b> <button class="speak" onclick="speak('${right}')">🔊</button> <button class="btn sm" onclick="cog=null;renderCog()">Next →</button>`;
+ if(ok)speak(right);
+}
+
+/* ============ GRAMMAR ============ */
+function renderGram(){
+ main.innerHTML=`<div class="muted" style="margin-bottom:12px">The B1/B2 essentials. Read one a day; they’re what turn vocabulary into sentences.</div>`+
+  GRAM.map(g=>`<div class="card gcard"><h3>${g[0]}</h3><div>${g[1]}</div><div class="ex">${g[2]}</div></div>`).join('');
+}
+
+/* ============ LISTEN ============ */
+let li=0,liShown=false;
+function renderListen(){
+ const rate=LS.get('rate',0.9),s=SENTS[li];
+ main.innerHTML=`
+  <div class="card" style="text-align:center">
+   <div class="row" style="justify-content:center;gap:14px"><div class="muted">Sentence ${li+1} / ${SENTS.length}</div>
+     <label class="mini">speed <input type="range" min="0.5" max="1.1" step="0.05" value="${rate}" oninput="LS.set('rate',+this.value)"></label></div>
+   <div style="margin:26px 0"><button class="btn p" onclick="speak(SENTS[${li}][0],LS.get('rate',0.9))" style="font-size:1.2em">🔊 Play</button>
+     <button class="btn" onclick="speak(SENTS[${li}][0],0.6)">🐢 Slow</button></div>
+   ${liShown?`<div class="q">${esc(s[0])}</div><div class="en" style="color:var(--gold);font-size:1.1em">${esc(s[1])}</div>`:`<div class="hint" style="color:var(--faint)">listen, say it back, then reveal</div>`}
+   <div class="row" style="justify-content:center;margin-top:18px">
+     ${liShown?`<button class="btn" onclick="liShown=false;li=(li+1)%SENTS.length;renderListen();speak(SENTS[li][0],LS.get('rate',0.9))">Next →</button>`
+       :`<button class="btn g" onclick="liShown=true;renderListen()">Reveal</button>`}
+     <button class="btn" onclick="li=(li-1+SENTS.length)%SENTS.length;liShown=false;renderListen()">← Prev</button>
+   </div>
+  </div>
+  <div class="mini">These lean on your books — several are from <b>El Alquimista</b>. Dictation is the fastest route to real listening comprehension: hear it, write it, check it.</div>`;
+}
+
+render();
+</script>
+</body>
+</html>

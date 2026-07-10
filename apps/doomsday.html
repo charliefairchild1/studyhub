@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Doomsday Practice</title>
+<style>
+body {
+  font-family: Arial;
+  background-color: #f0f0f0;
+  margin: 20px;
+}
+h1 {
+  color: navy;
+}
+.box {
+  background-color: white;
+  border: 1px solid gray;
+  padding: 15px;
+  margin-bottom: 15px;
+  width: 600px;
+}
+button {
+  padding: 8px;
+  margin: 3px;
+  font-size: 14px;
+}
+.dayBtn {
+  width: 90px;
+}
+table {
+  border-collapse: collapse;
+}
+td, th {
+  border: 1px solid gray;
+  padding: 5px;
+}
+#result {
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h1>Doomsday Day of the Week Practice</h1>
+<p>By: Charlie Fairchild</p>
+
+<p>
+<button onclick="showTab('practice')">Practice</button>
+<button onclick="showTab('chart')">Date Chart</button>
+<button onclick="showTab('help')">How To</button>
+<button onclick="downloadPage()">Download this app</button>
+</p>
+
+<!-- PRACTICE -->
+<div id="practice" class="box">
+  <h2>Practice</h2>
+  <p>What day of the week was this date?</p>
+  <p>
+    Mode:
+    <select id="mode" onchange="newQ()">
+      <option value="full">Date -> Day</option>
+      <option value="anchor">Month -> Doomsday Date</option>
+      <option value="year">Year -> Doomsday</option>
+    </select>
+    Years: <input type="number" id="y1" value="1900" size="4"> to <input type="number" id="y2" value="2099" size="4">
+    <button onclick="newQ()">New Question</button>
+  </p>
+
+  <p id="question" style="font-size:24px;"></p>
+
+  <div id="buttons"></div>
+
+  <p id="result"></p>
+
+  <button onclick="showWork()">Show Work</button>
+  <button onclick="giveUp()">Give Up</button>
+
+  <p id="work" style="background-color:#ffffcc; padding:10px; display:none;"></p>
+
+  <hr>
+  <p>Score: <span id="right">0</span> right out of <span id="total">0</span></p>
+  <p>Streak: <span id="streak">0</span></p>
+</div>
+
+<!-- CHART -->
+<div id="chart" class="box" style="display:none;">
+  <h2>Date Chart</h2>
+  <p>Pick a month to see all the dates and how far they are from doomsday.</p>
+  <p>
+    Month:
+    <select id="chartMonth" onchange="makeChart()"></select>
+    <input type="checkbox" id="chartLeap" onchange="makeChart()"> leap year
+  </p>
+  <table id="chartTable"></table>
+</div>
+
+<!-- HELP -->
+<div id="help" class="box" style="display:none;">
+  <h2>How To Do It</h2>
+  <p>Every year has a "doomsday" which is a day of the week. Some dates in each month always
+  land on that day. If you know those dates you can count to the day you want.</p>
+
+  <p>Steps:</p>
+  <ol>
+    <li>Get the century day. 1900s = Wednesday, 2000s = Tuesday, 1800s = Friday, 1700s = Sunday.</li>
+    <li>Take the last 2 digits of the year (call it y). Do (y + (y divided by 4, no remainder) + century day) and take the remainder when you divide by 7.</li>
+    <li>That number is the doomsday. 0=Sunday, 1=Monday, ... 6=Saturday.</li>
+    <li>Find the doomsday date for the month (see chart). Count days from there to your date.</li>
+  </ol>
+
+  <p>The doomsday dates to memorize:</p>
+  <ul>
+    <li>Jan 3 (or Jan 4 on leap years)</li>
+    <li>Feb 28 (or 29 on leap years)</li>
+    <li>March 14</li>
+    <li>4/4, 6/6, 8/8, 10/10, 12/12</li>
+    <li>5/9, 9/5, 7/11, 11/7 (think "9 to 5 at the 7 eleven")</li>
+  </ul>
+</div>
+
+<script>
+
+var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+var daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+// the doomsday date for each month (jan and feb change on leap years)
+function getAnchor(m, leap) {
+  if (m == 1) { if (leap) return 4; else return 3; }
+  if (m == 2) { if (leap) return 29; else return 28; }
+  var arr = [0,0,0,14,4,9,6,11,8,5,10,7,12];
+  return arr[m];
+}
+
+function isLeap(y) {
+  if (y % 400 == 0) return true;
+  if (y % 100 == 0) return false;
+  if (y % 4 == 0) return true;
+  return false;
+}
+
+function centuryDay(y) {
+  var c = Math.floor(y / 100);
+  return (5 * (c % 4) + 2) % 7;
+}
+
+function doomsday(y) {
+  var yy = y % 100;
+  return (yy + Math.floor(yy / 4) + centuryDay(y)) % 7;
+}
+
+function getDay(y, m, d) {
+  var anchor = getAnchor(m, isLeap(y));
+  var dd = doomsday(y);
+  var ans = (dd + (d - anchor)) % 7;
+  while (ans < 0) ans = ans + 7;
+  return ans;
+}
+
+// global stuff for current question
+var qType = "";
+var qy = 0;
+var qm = 0;
+var qd = 0;
+var qAnswer = 0;
+var answered = false;
+
+var rightCount = 0;
+var totalCount = 0;
+var streakCount = 0;
+
+// lets you save this whole page as an html file
+function downloadPage() {
+  var html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  var blob = new Blob([html], {type: "text/html"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "doomsday.html";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function showTab(name) {
+  document.getElementById("practice").style.display = "none";
+  document.getElementById("chart").style.display = "none";
+  document.getElementById("help").style.display = "none";
+  document.getElementById(name).style.display = "block";
+}
+
+function newQ() {
+  answered = false;
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("work").style.display = "none";
+  document.getElementById("work").innerHTML = "";
+
+  var mode = document.getElementById("mode").value;
+  qType = mode;
+  var y1 = parseInt(document.getElementById("y1").value);
+  var y2 = parseInt(document.getElementById("y2").value);
+  if (isNaN(y1)) y1 = 1900;
+  if (isNaN(y2)) y2 = 2099;
+  if (y2 < y1) { var t = y1; y1 = y2; y2 = t; }
+
+  qy = y1 + Math.floor(Math.random() * (y2 - y1 + 1));
+
+  var html = "";
+
+  if (mode == "full") {
+    qm = 1 + Math.floor(Math.random() * 12);
+    var max = daysInMonth[qm - 1];
+    if (qm == 2 && isLeap(qy)) max = 29;
+    qd = 1 + Math.floor(Math.random() * max);
+    qAnswer = getDay(qy, qm, qd);
+    document.getElementById("question").innerHTML = months[qm - 1] + " " + qd + ", " + qy;
+    // day buttons
+    for (var i = 0; i < 7; i++) {
+      html = html + '<button class="dayBtn" onclick="checkDay(' + i + ')">' + days[i] + '</button>';
+    }
+  }
+  else if (mode == "anchor") {
+    qm = 1 + Math.floor(Math.random() * 12);
+    qAnswer = getAnchor(qm, isLeap(qy));
+    document.getElementById("question").innerHTML = months[qm - 1] + " " + qy + " - which date is doomsday?";
+    // make some number choices
+    var choices = [qAnswer];
+    while (choices.length < 6) {
+      var n = 1 + Math.floor(Math.random() * daysInMonth[qm - 1]);
+      if (choices.indexOf(n) == -1) choices.push(n);
+    }
+    choices.sort(function(a,b){return a-b;});
+    for (var j = 0; j < choices.length; j++) {
+      html = html + '<button onclick="checkDay(' + choices[j] + ')">' + choices[j] + '</button>';
+    }
+  }
+  else {
+    qAnswer = doomsday(qy);
+    document.getElementById("question").innerHTML = "Year " + qy + " - what is the doomsday?";
+    for (var k = 0; k < 7; k++) {
+      html = html + '<button class="dayBtn" onclick="checkDay(' + k + ')">' + days[k] + '</button>';
+    }
+  }
+
+  document.getElementById("buttons").innerHTML = html;
+}
+
+function checkDay(val) {
+  if (answered) return;
+  answered = true;
+  totalCount = totalCount + 1;
+
+  if (val == qAnswer) {
+    rightCount = rightCount + 1;
+    streakCount = streakCount + 1;
+    document.getElementById("result").innerHTML = "Correct!";
+    document.getElementById("result").style.color = "green";
+  } else {
+    streakCount = 0;
+    var ans;
+    if (qType == "anchor") ans = qAnswer;
+    else ans = days[qAnswer];
+    document.getElementById("result").innerHTML = "Wrong. The answer is " + ans;
+    document.getElementById("result").style.color = "red";
+  }
+
+  document.getElementById("right").innerHTML = rightCount;
+  document.getElementById("total").innerHTML = totalCount;
+  document.getElementById("streak").innerHTML = streakCount;
+}
+
+function giveUp() {
+  if (answered) { newQ(); return; }
+  answered = true;
+  totalCount = totalCount + 1;
+  streakCount = 0;
+  var ans;
+  if (qType == "anchor") ans = qAnswer;
+  else ans = days[qAnswer];
+  document.getElementById("result").innerHTML = "The answer is " + ans;
+  document.getElementById("result").style.color = "black";
+  document.getElementById("total").innerHTML = totalCount;
+  document.getElementById("streak").innerHTML = streakCount;
+}
+
+function showWork() {
+  var w = document.getElementById("work");
+  if (w.style.display == "block") { w.style.display = "none"; return; }
+
+  var text = "";
+  var c = centuryDay(qy);
+  var yy = qy % 100;
+  var dd = doomsday(qy);
+
+  if (qType == "year" || qType == "full") {
+    text = text + "Century day for " + Math.floor(qy/100) + "00s = " + days[c] + "<br>";
+    text = text + "Last 2 digits = " + yy + ", divided by 4 = " + Math.floor(yy/4) + "<br>";
+    text = text + "(" + yy + " + " + Math.floor(yy/4) + " + " + c + ") mod 7 = " + dd + " = " + days[dd] + "<br>";
+  }
+  if (qType == "anchor" || qType == "full") {
+    var a = getAnchor(qm, isLeap(qy));
+    text = text + months[qm-1] + " doomsday date is the " + a + "<br>";
+  }
+  if (qType == "full") {
+    var a2 = getAnchor(qm, isLeap(qy));
+    text = text + "Count from the " + a2 + " to the " + qd + ", then mod 7 = " + days[qAnswer] + "<br>";
+  }
+
+  w.innerHTML = text;
+  w.style.display = "block";
+}
+
+// chart tab
+function setupChart() {
+  var sel = document.getElementById("chartMonth");
+  var h = "";
+  for (var i = 0; i < 12; i++) {
+    h = h + '<option value="' + (i+1) + '">' + months[i] + '</option>';
+  }
+  sel.innerHTML = h;
+}
+
+function makeChart() {
+  var m = parseInt(document.getElementById("chartMonth").value);
+  var leap = document.getElementById("chartLeap").checked;
+  var max = daysInMonth[m-1];
+  if (m == 2 && leap) max = 29;
+  var anchor = getAnchor(m, leap);
+
+  var html = "<tr><th>Date</th><th>Days from doomsday</th></tr>";
+  for (var d = 1; d <= max; d++) {
+    var off = (d - anchor) % 7;
+    while (off < 0) off = off + 7;
+    var note = "";
+    if (off == 0) note = " (this IS a doomsday)";
+    html = html + "<tr><td>" + months[m-1] + " " + d + "</td><td>" + off + note + "</td></tr>";
+  }
+  document.getElementById("chartTable").innerHTML = html;
+}
+
+// start
+setupChart();
+makeChart();
+newQ();
+
+</script>
+
+</body>
+</html>

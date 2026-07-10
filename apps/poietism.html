@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Study — Philosophy, Science & Poietism</title>
+<style>
+:root{--bg:#100e0a;--panel:#191510;--panel2:#211b13;--ink:#ece3d1;--dim:#9a8e77;--faint:#6b6252;--accent:#d9a441;--accent2:#7fae8b;--rule:#332b20;--lens:#c8922f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.6;font-size:16px}
+.serif{font-family:"Iowan Old Style",Palatino,Georgia,serif}
+header{padding:26px 30px 0;max-width:1180px;margin:0 auto}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.9em;letter-spacing:-.5px}
+h1 .a{color:var(--accent)}
+.tag{color:var(--dim);font-size:.9em;margin-top:4px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 0;border-bottom:1px solid var(--rule);max-width:1180px;padding:0 30px}
+nav button{background:none;border:none;color:var(--dim);font-size:.95em;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+main{max-width:1180px;margin:0 auto;padding:24px 30px 100px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+input.search{background:var(--panel);border:1px solid var(--rule);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:.95em;min-width:240px;flex:1}
+.chip{background:var(--panel);border:1px solid var(--rule);color:var(--dim);padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.85em;font-weight:600}
+.chip.on{background:var(--accent);color:#1a1509;border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;cursor:pointer;transition:.15s;position:relative}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.25em;margin-bottom:3px}
+.card .era{color:var(--faint);font-size:.78em;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.card .td{color:var(--dim);font-size:.9em;margin-top:9px}
+.card .dot{position:absolute;top:16px;right:16px;width:9px;height:9px;border-radius:50%}
+.d-phil{background:var(--accent)}.d-sci{background:var(--accent2)}.d-logic{background:#8f9ad9}
+.lensbadge{display:inline-block;margin-top:11px;font-size:.72em;color:var(--lens);border:1px solid #4a3a1c;background:#241c0d;padding:2px 8px;border-radius:12px;font-weight:700;letter-spacing:.5px}
+/* detail modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow:auto;z-index:50}
+.modal.on{display:flex}
+.sheet{background:var(--panel2);border:1px solid var(--rule);border-radius:18px;max-width:680px;width:100%;padding:34px 38px}
+.sheet .era{color:var(--faint);font-size:.8em;text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.sheet h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2em;margin:4px 0 2px}
+.sheet .school{color:var(--accent2);font-size:.92em;margin-bottom:18px}
+.sheet p{margin:0 0 15px;color:#ddd3bf}
+.sheet ul{margin:6px 0 18px 20px;color:var(--dim)} .sheet li{margin-bottom:5px}
+.lensbox{background:#1d1608;border:1px solid #4a3a1c;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 20px;margin-top:6px}
+.lensbox .h{color:var(--accent);font-weight:700;font-size:.78em;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.lensbox p{color:#e6d9bf;margin:0}
+.x{position:sticky;top:0;float:right;background:none;border:none;color:var(--dim);font-size:1.6em;cursor:pointer;line-height:1}
+/* reading / ideas */
+.reading{max-width:720px;margin:0 auto}
+.reading .serif{font-size:18px;line-height:1.7}
+.reading h2{color:var(--accent);font-size:1em;letter-spacing:2px;text-transform:uppercase;margin:38px 0 12px;font-weight:700}
+.reading p{margin:0 0 18px;color:#ddd3bf}
+.pill{display:inline-flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px 18px;margin:0 0 12px;width:100%}
+.big{font-size:2.4em;font-family:"Iowan Old Style",Palatino,Georgia,serif;color:var(--accent);line-height:1;min-width:52px;text-align:center}
+.pill .t{font-weight:700} .pill .s{color:var(--dim);font-size:.9em}
+.idea{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px 24px;margin-bottom:14px}
+.idea h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.35em;color:var(--accent);margin-bottom:4px}
+.idea .who{color:var(--faint);font-size:.8em;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:700}
+.idea p{color:var(--dim);margin-bottom:0}
+.idea .fit{color:#e6d9bf;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+.idea .fit b{color:var(--accent)}
+/* languages */
+.lang{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px 24px;margin-bottom:14px}
+.lang .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.lang h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.5em}
+.diff{color:var(--faint);font-size:.82em}
+.stars{color:var(--accent);letter-spacing:2px}
+.lang .un{color:var(--dim);margin:8px 0 12px;font-size:.95em}
+.samp{background:#0d0b07;border-radius:10px;padding:12px 16px;font-family:"Iowan Old Style",Palatino,Georgia,serif}
+.samp .o{color:var(--accent2);font-size:1.05em}.samp .e{color:var(--dim);font-style:italic;font-size:.9em;margin-top:4px}.samp .b{color:var(--faint);font-size:.78em;margin-top:6px}
+.langlens{color:#e6d9bf;font-size:.9em;margin-top:12px;padding-left:12px;border-left:2px solid var(--accent)}
+.reco{background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:20px 24px;margin-bottom:22px}
+.reco .q{font-weight:700;margin-bottom:12px}
+.reco .opts{display:flex;flex-wrap:wrap;gap:8px}
+.reco .out{margin-top:16px;color:#e6d9bf;display:none}
+.reco .out.on{display:block}
+.reco .out .rl{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.5em;color:var(--accent)}
+/* study */
+.flash{max-width:600px;margin:0 auto;text-align:center}
+.fcard{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:52px 34px;min-height:280px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:.15s}
+.fcard:hover{border-color:var(--accent)}
+.fcard .q{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.5em}
+.fcard .a{color:var(--dim);margin-top:18px;font-size:1.05em;line-height:1.55}
+.fcard .hint{color:var(--faint);font-size:.8em;margin-top:22px;text-transform:uppercase;letter-spacing:1px}
+.fbtns{display:flex;gap:10px;justify-content:center;margin-top:18px}
+.fbtns button{background:var(--panel);border:1px solid var(--rule);color:var(--ink);padding:11px 22px;border-radius:10px;cursor:pointer;font-weight:600}
+.fbtns button:hover{border-color:var(--accent)}
+.count{color:var(--faint);margin-top:14px;font-size:.85em}
+a.link{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.legend{color:var(--faint);font-size:.8em;margin-left:auto;display:flex;gap:14px;align-items:center}
+.legend span{display:inline-flex;gap:5px;align-items:center}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.demo{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px 24px;margin-bottom:18px}
+.demo h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.3em;color:var(--accent);margin-bottom:5px}
+.demo .cap{color:var(--dim);font-size:.9em;margin-bottom:16px}
+.pad{position:relative;width:100%;max-width:340px;aspect-ratio:1;margin:0 auto;background:radial-gradient(circle at 72% 26%,#241d10,#14110b);border:1px solid var(--rule);border-radius:12px;touch-action:none;cursor:crosshair;overflow:hidden}
+.pad .axis{position:absolute;color:var(--faint);font-size:.68em;text-transform:uppercase;letter-spacing:1px;pointer-events:none}
+.anchor{position:absolute;transform:translate(-50%,-50%);color:var(--faint);font-size:.72em;pointer-events:none;white-space:nowrap;transition:color .1s}
+.anchor.near{color:var(--accent);font-weight:700}
+.dot2{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 14px var(--accent);pointer-events:none}
+.readout{margin-top:16px;color:#e6d9bf;text-align:center;min-height:2.6em;line-height:1.5}
+.readout b{color:var(--accent)}
+.specbar{position:relative;height:54px;border-radius:10px;margin:14px 0 8px;cursor:ew-resize;touch-action:none;background:linear-gradient(90deg,#0f2cff,#0092e0,#00c2c2,#00cf7a,#3ad100)}
+.specdiv{position:absolute;top:-7px;bottom:-7px;width:3px;background:#fff;box-shadow:0 0 8px #000;transform:translateX(-50%)}
+.specdiv .lab{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:.7em;color:#fff;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0}
+.heapviz{display:flex;flex-wrap:wrap;gap:2px;max-height:112px;overflow:hidden;margin:12px 0;align-content:flex-start}
+.grain{width:6px;height:6px;border-radius:50%;background:var(--accent2);display:inline-block}
+</style>
+</head>
+<body>
+<header>
+  <h1>The <span class="a">Study</span></h1>
+  <div class="tag">Philosophy · science · evolution · logic — and where <b>Poietism</b>, your philosophy, sits inside all of it.</div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const D_PHIL='phil',D_SCI='sci',D_LOGIC='logic';
+const THINKERS=[
+ {n:'Heraclitus',era:'c. 500 BCE · Presocratic',school:'Process / flux',dom:D_PHIL,
+  td:'Reality is ceaseless change; the world an ever-living fire; time a child at play.',
+  ideas:['You cannot step in the same river twice — all things flow','The logos: a hidden order in the flux','Strife and tension are the source of all things','Fr. B52: time is a child playing draughts; the kingdom is the child’s'],
+  lens:'The direct ancestor of Poietism. Reality as becoming rather than being; uncertainty as generative rather than defective; the playing child = the wager affirmed without guilt. The book’s epigraph is his.'},
+ {n:'Parmenides',era:'c. 475 BCE · Eleatic',school:'Being / monism',dom:D_PHIL,
+  td:'Being is one, whole, unchanging; change and plurality are illusions of the senses.',
+  ideas:['What is, is; what is not, cannot be','Change is logically impossible','Trust reason over the deceiving senses'],
+  lens:'The anti-Poietist pole. Parmenides is the patron of the changeless "sure thing." Poietism takes Heraclitus’ side of this 2,500-year-old quarrel: becoming is real, being is the slow case.'},
+ {n:'Plato',era:'c. 380 BCE · Classical',school:'Idealism',dom:D_PHIL,
+  td:'Behind the shifting world of appearances lie eternal, perfect, changeless Forms.',
+  ideas:['The Theory of Forms','The allegory of the cave','Knowledge as recollection','The tripartite soul'],
+  lens:'Patron of the "controller" stance — prefer the eternal and certain over the risky flux. Poietism inverts the priority: the shadow-world of becoming is the real one, and the sure Form is the wish.'},
+ {n:'Aristotle',era:'c. 350 BCE · Classical',school:'Empiricism',dom:D_PHIL,
+  td:'Knowledge grows from observing the world; things move from potential to actual.',
+  ideas:['Potentiality → actuality','The four causes','The golden mean','Founder of formal logic'],
+  lens:'Potentiality→actuality directly prefigures PTO: Potential → Transformation → Output. Ally on becoming — though Poietism drops his fixed final cause (the guaranteed telos) for an open trajectory.'},
+ {n:'Epicurus',era:'c. 300 BCE · Hellenistic',school:'Atomism',dom:D_PHIL,
+  td:'The world is atoms and void; happiness is tranquil pleasure; death is nothing to us.',
+  ideas:['The clinamen — atoms randomly "swerve"','Pleasure as absence of pain (ataraxia)','Free will from indeterminacy','Death is nothing to fear'],
+  lens:'The clinamen — chance built into physics itself — is an ancient ancestor of "uncertainty is fundamental, not a measurement error." Randomness makes room for freedom.'},
+ {n:'The Stoics',era:'c. 300 BCE–180 CE',school:'Stoicism',dom:D_PHIL,
+  td:'Live according to nature; master what is in your control; accept the rest.',
+  ideas:['The dichotomy of control','Amor fati — love your fate','Virtue as the only true good','The cosmos as rational order (logos)'],
+  lens:'The root of "affirm the throw." Poietism keeps the affirmation but refuses the resignation: you affirm fate AND aim it. Not "accept what comes" — "want it, then bend it toward building."'},
+ {n:'The Skeptics',era:'c. 300 BCE · Pyrrho',school:'Skepticism',dom:D_PHIL,
+  td:'Certainty is unreachable; suspend judgment (epochē) and find peace in doubt.',
+  ideas:['Nothing can be known for certain','Suspend judgment on all claims','Tranquility follows from letting go of dogma'],
+  lens:'The fallibilist streak. Poietism agrees certainty is unreachable — but does not stop there. You still must bet. Hold beliefs loosely, then place them anyway.'},
+ {n:'Augustine',era:'c. 400 CE · Patristic',school:'Christian Platonism',dom:D_PHIL,
+  td:'The restless inner self, memory and time, the will divided against itself.',
+  ideas:['Time exists in the mind (past/present/future as memory, attention, expectation)','Original sin and the divided will','The City of God vs the City of Man'],
+  lens:'The cosmic ledger. Sin as a debt owed — the same knot of guilt-and-debt (German Schuld = both) the book turns on when it explains why we feel we owe the universe.'},
+ {n:'Thomas Aquinas',era:'c. 1270 · Scholastic',school:'Scholasticism',dom:D_PHIL,
+  td:'A vast synthesis of Aristotle and Christianity into one ordered, rational cosmos.',
+  ideas:['The Five Ways (arguments for God)','Natural law','Faith and reason as compatible','Being as a hierarchy'],
+  lens:'The great systematizer of a fixed cosmic order — the closed, guaranteed universe Poietism trades in for an open, unfinished one where the dice are still rolling.'},
+ {n:'René Descartes',era:'1637 · Early Modern',school:'Rationalism',dom:D_PHIL,
+  td:'Doubt everything, and find one thing you cannot doubt: that you are thinking.',
+  ideas:['Cogito, ergo sum','Method of radical doubt','Mind–body dualism','Certainty as the foundation of knowledge'],
+  lens:'The arch-controller: the dream of an indubitable foundation. Poietism denies the foundation exists — there is no bedrock certainty to stand on. We build, and bet, on shifting ground.'},
+ {n:'Baruch Spinoza',era:'1677 · Early Modern',school:'Rationalism',dom:D_PHIL,
+  td:'God and Nature are one substance; everything follows by strict necessity.',
+  ideas:['Deus sive Natura (God, i.e. Nature)','Strict determinism','Freedom = understanding necessity','Sub specie aeternitatis'],
+  lens:'A determinist — yet his "acquiescence in necessity" is a rigorous amor fati. To understand what must be, and to affirm it, is the Stoic-Nietzschean thread Poietism inherits.'},
+ {n:'Blaise Pascal',era:'1670 · Early Modern',school:'Fideism',dom:D_PHIL,
+  td:'Reason has limits; the heart has reasons; and belief itself is a bet.',
+  ideas:['Pascal’s Wager','"The heart has its reasons…"','The thinking reed','Co-founder of probability theory'],
+  lens:'Literally the wager. Belief modeled as a bet under uncertainty, weighing stakes against odds — the decision-theoretic skeleton of Poietism, and its patron saint.'},
+ {n:'David Hume',era:'1739 · Enlightenment',school:'Empiricism',dom:D_PHIL,
+  td:'Reason serves the passions; causation is habit; the self is a bundle of moments.',
+  ideas:['"Reason is, and ought only to be, the slave of the passions"','The problem of induction','Causation as habitual expectation, not necessity','The bundle theory of the self'],
+  lens:'Central ally. Reason as the servant of the drives (= reason is the gambler’s tool), and induction as a wager we can never justify but must make. Hume is Poietism’s epistemic backbone.'},
+ {n:'Immanuel Kant',era:'1781 · Enlightenment',school:'Transcendental idealism',dom:D_PHIL,
+  td:'The mind actively structures experience; we never see the thing-in-itself.',
+  ideas:['The synthetic a priori','The categories of understanding','The phenomenal vs the noumenal','The categorical imperative'],
+  lens:'Half-ally, half-rival. Poietism keeps "the mind structures experience" (this is predictive processing avant la lettre) but drops Kant’s guarantee of certainty — the structure is a best guess, not a fixed a priori.'},
+ {n:'G.W.F. Hegel',era:'1807 · German Idealism',school:'Dialectics',dom:D_PHIL,
+  td:'Reality and reason unfold historically through contradiction and resolution.',
+  ideas:['The dialectic (thesis / antithesis / synthesis)','Spirit (Geist) realizing itself in history','Becoming as fundamental','The cunning of reason'],
+  lens:'Process ally — reality as dynamic becoming, driven by tension (echoing Heraclitus). But Poietism rejects the guaranteed destination: there is no Absolute waiting at the end to redeem the throws.'},
+ {n:'Arthur Schopenhauer',era:'1818 · Post-Kantian',school:'Voluntarism',dom:D_PHIL,
+  td:'Beneath the world of appearance drives a blind, striving, insatiable Will.',
+  ideas:['The World as Will and Representation','The intellect as servant of the will','Life as suffering driven by endless wanting','Aesthetic and ascetic escape'],
+  lens:'Names the beast beneath reason. The Will is the driver; the intellect its instrument — the direct precursor to "reason is the gambler’s tool, not its master."'},
+ {n:'Friedrich Nietzsche',era:'1883 · 19th c.',school:'Existentialism / vitalism',dom:D_PHIL,
+  td:'God is dead; affirm this life, this fate, the whole roll of the dice, and create.',
+  ideas:['Amor fati — love of fate','The three metamorphoses: camel, lion, child','Eternal recurrence','The innocence of becoming','The will to power'],
+  lens:'THE central ancestor. The camel bears the ledger, the lion says No, the child plays and throws the dice without guilt — the exact arc of a gambling mind that builds a cage to escape the wager, then throws off the cage to choose the wager again, with open eyes.'},
+ {n:'Søren Kierkegaard',era:'1843 · 19th c.',school:'Existentialism',dom:D_PHIL,
+  td:'Truth is subjective; the deepest commitments require a leap beyond proof.',
+  ideas:['The leap of faith','Anxiety as "the dizziness of freedom"','The three stages: aesthetic, ethical, religious','Subjectivity as truth'],
+  lens:'The wager as existential leap. Where reason runs out, you must commit under irreducible uncertainty — the felt inside of placing a bet you cannot verify first.'},
+ {n:'Charles S. Peirce',era:'1878 · Pragmatism',school:'Pragmatism',dom:D_PHIL,
+  td:'Meaning lies in practical effects; all knowledge is fallible and self-correcting.',
+  ideas:['Pragmatism (meaning = practical consequences)','Fallibilism','Abduction — inference to the best explanation','Truth as the limit of inquiry'],
+  lens:'Fallibilism + abduction (inference to the best bet). Truth is a long wager settled, if ever, by the community of inquiry running the experiment — knowledge as unrefuted, provisional bets.'},
+ {n:'William James',era:'1896 · Pragmatism',school:'Pragmatism',dom:D_PHIL,
+  td:'Ideas are true if they work; sometimes we’re entitled to believe ahead of proof.',
+  ideas:['"The Will to Believe"','Truth as what "works"','Radical empiricism','The stream of consciousness'],
+  lens:'"The Will to Believe" is Poietism almost by name: when the stakes are real and the choice is forced, belief is a wager you are entitled to place before the evidence is in.'},
+ {n:'A.N. Whitehead',era:'1929 · 20th c.',school:'Process philosophy',dom:D_PHIL,
+  td:'Reality is made of events and processes, not enduring substances.',
+  ideas:['Process philosophy','"Actual occasions" of experience','Reality as becoming, not being','The fallacy of misplaced concreteness'],
+  lens:'The metaphysics of becoming, fully systematized. A "thing" is a slow process; Poietism’s claim that a rock is a transformation winning against dissipation is pure Whitehead.'},
+ {n:'Ludwig Wittgenstein',era:'1921 / 1953',school:'Analytic',dom:D_PHIL,
+  td:'The limits of my language are the limits of my world; meaning is use.',
+  ideas:['"Whereof one cannot speak, thereof one must be silent"','Language games','Meaning as use','Family resemblance'],
+  lens:'Marks where the sure statement runs out. Past the edge of what can be said with certainty, we don’t know — we act, which is a form of betting.'},
+ {n:'Karl Popper',era:'1959 · Phil. of science',school:'Critical rationalism',dom:D_PHIL,
+  td:'Science advances by bold conjectures exposed to the risk of refutation.',
+  ideas:['Falsifiability as the mark of science','Conjecture and refutation','No verification, only failed falsification','The open society'],
+  lens:'Science as disciplined betting. A bold conjecture is a wager; the experiment is the residual that can bust it. Knowledge is the set of bets reality hasn’t refuted yet — hold them, keep testing.'},
+ {n:'Sartre & Camus',era:'1943–1951 · 20th c.',school:'Existentialism / absurdism',dom:D_PHIL,
+  td:'In a universe without given meaning, we are radically free — and must choose anyway.',
+  ideas:['Existence precedes essence','Radical freedom and responsibility','The Absurd','Revolt: "one must imagine Sisyphus happy"'],
+  lens:'Affirming a meaningless world and choosing anyway — amor fati without God. Camus’ revolt is exactly "aim the throw" inside an indifferent universe: no guaranteed meaning, so make one by how you bet.'},
+ {n:'Charles Darwin',era:'1859 · 19th c.',school:'Evolutionary biology',dom:D_SCI,
+  td:'Life’s diversity arises from heritable variation filtered by natural selection.',
+  ideas:['Natural selection','Descent with modification','Variation + selection over deep time','Sexual selection'],
+  lens:'The engine that built the betting animal. Variation = the throws of the dice; selection = the residual, quietly keeping the winners. Evolution is nature gambling with lives across deep time.'},
+ {n:'Stephen Jay Gould',era:'1989 · 20th c.',school:'Evolutionary theory',dom:D_SCI,
+  td:'Rewind the tape of life and it plays out utterly differently — contingency rules.',
+  ideas:['Contingency ("replay the tape")','Punctuated equilibrium','Spandrels (byproducts, not adaptations)','The improbability of any given outcome'],
+  lens:'Contingency = deep uncertainty inside evolution itself. "Replay the tape, get something else" means there is no guaranteed direction — the exact spirit of PTO’s trajectory-not-destiny, and of the Fermi chapter.'},
+ {n:'François Jacob',era:'1977 · Molecular biology',school:'Evolutionary biology',dom:D_SCI,
+  td:'Evolution is a tinkerer, not an engineer — it builds by addition from what’s at hand.',
+  ideas:['Evolution as bricolage (tinkering)','Builds by co-opting existing parts','Cannot design from scratch, only modify','Constraint of history on form'],
+  lens:'The source of your additive-not-subtractive insight. Evolution adds and re-purposes; it can only slowly fade what it no longer needs, never cleanly delete — the snake’s buried leg bones, and the human gambling drive that no law can remove, only redirect.'},
+ {n:'Kahneman & Tversky',era:'1979 · 20th c.',school:'Behavioral science',dom:D_SCI,
+  td:'Human judgment under uncertainty runs on fast heuristics — and predictable biases.',
+  ideas:['Heuristics and biases','Prospect theory','Loss aversion','System 1 / System 2 thinking'],
+  lens:'The empirical map of how the betting animal actually bets — and systematically misjudges risk (loss aversion, the gambler’s fallacy). This is the messy hardware any Poietist ethics or economics (Koin) must design around, not wish away.'},
+ {n:'Friston & Clark',era:'2010s · Contemporary',school:'Cognitive science',dom:D_SCI,
+  td:'The brain is a prediction machine that acts to minimize its own surprise.',
+  ideas:['The free-energy principle','Predictive processing','Perception as "controlled hallucination"','Active inference'],
+  lens:'The scientific spine of "the animal that bets." Mind = predictor; perception = a hallucination reined in by the senses; learning happens at the residual, the gap between forecast and fact. Poietism’s epistemology is this, made into an ethics.'},
+ {n:'Kurt Gödel',era:'1931 · Logic',school:'Mathematical logic',dom:D_LOGIC,
+  td:'Any consistent system rich enough for arithmetic holds truths it cannot prove.',
+  ideas:['The incompleteness theorems','Truth exceeds provability','Limits of formal systems','Undecidable propositions'],
+  lens:'Even mathematics cannot reach the sure thing all the way down. The certainty Descartes wanted is provably unavailable — the limit of the closed system, established from inside it. You bet past the edge of proof.'},
+ {n:'Bayes & Laplace',era:'1763 / 1812',school:'Probability',dom:D_LOGIC,
+  td:'Probability is a degree of belief, updated rationally as evidence arrives.',
+  ideas:['Bayes’ theorem','Probability as degree of belief','Updating priors with evidence','Laplace’s "probability is common sense reduced to calculus"'],
+  lens:'The literal mathematics of the wager: how a rational bettor updates when the residual comes in. "Hold beliefs like open positions, fold when the evidence turns" is Bayesian updating stated as a way of life.'},
+ {n:'Claude Shannon',era:'1948 · Information theory',school:'Mathematics',dom:D_LOGIC,
+  td:'Information is surprise: the more unexpected a message, the more it carries.',
+  ideas:['Information theory','Entropy as uncertainty','The bit','Information = reduction of uncertainty'],
+  lens:'Surprise, quantified. Information lives exactly where prediction fails — in the residual. Shannon makes rigorous the Poietist claim that the certain, fully-predicted signal carries nothing new; only the surprising does.'},
+];
+
+const IDEAS=[
+ {t:'Becoming, not Being',who:'Heraclitus · Hegel · Whitehead',
+  d:'The oldest quarrel in philosophy: is reality fundamentally a set of fixed things (being), or a flow of processes (becoming)? Parmenides and Plato chose being — the changeless behind the changing. Heraclitus chose becoming — flux all the way down.',
+  fit:'<b>Poietism sides with becoming.</b> What’s real is the transformation; a "thing" is only a slow process winning, for now, against dissipation. This is why it measures trajectory (which way you are becoming) rather than momentary state.'},
+ {t:'The Wager',who:'Pascal · James · Bayes',
+  d:'When you must act or believe before the evidence is complete, you are placing a bet — weighing stakes against odds. Pascal formalized it for belief in God; decision theory generalized it; Bayesian probability gives the math for updating as evidence lands.',
+  fit:'<b>The core structure of Poietism.</b> Belief and action are bets held under uncertainty. Hold them seriously enough to act on, loosely enough to fold when the residual turns against you.'},
+ {t:'Prediction & Mind',who:'Schopenhauer · Hume · Friston',
+  d:'What is a mind? The modern answer: a prediction engine. It models the world, forecasts what’s next, and updates on the error. Perception is a controlled hallucination; motivation (dopamine) tracks surprise, not pleasure; reason is an instrument the drives use.',
+  fit:'<b>Poietism’s picture of the human.</b> We are, from the cell up, built to bet and to love it. Reason is the gambler’s tool, not its master — Hume and Schopenhauer said it; Friston’s neuroscience shows it.'},
+ {t:'Evolution as Tinkering',who:'Darwin · Jacob · Gould',
+  d:'Evolution builds by variation and selection, but crucially it is a tinkerer, not an engineer: it adds and re-purposes existing parts and can only slowly fade what it no longer needs. It never cleanly deletes. History constrains form.',
+  fit:'<b>Your additive-not-subtractive insight, and the design rule it implies.</b> The snake keeps its buried leg bones; humans keep the gambling drive. You cannot abolish an instinct — individual or civilizational. The whole task is to <em>aim</em> it, not erase it.'},
+ {t:'Fallibilism',who:'Hume · Peirce · Popper',
+  d:'Even our best knowledge is provisional. Hume showed induction can’t be justified; Peirce made fallibility a method; Popper reframed science as conjecture exposed to refutation — never proven, only not-yet-refuted.',
+  fit:'<b>Poietism’s epistemology.</b> Knowledge is a portfolio of unrefuted bets. Certainty is a wish; the honest stance is to keep testing and stay ready to fold.'},
+ {t:'Amor Fati',who:'Stoics · Spinoza · Nietzsche · Camus',
+  d:'"Love your fate." Not mere acceptance but active affirmation — to want the necessity and the chance of your life as a single thing, and to prefer a real world with real risk over a safe cage where nothing can happen.',
+  fit:'<b>Half of Poietism’s ethic: affirm the throw.</b> The other half — <em>aim</em> it — is what keeps this from collapsing into Stoic resignation. You don’t just accept the dice; you choose to roll, and you roll toward building.'},
+ {t:'The Residual',who:'Shannon · Popper · Friston',
+  d:'Information lives where prediction fails. A fully-expected signal carries nothing; only surprise is informative (Shannon). Learning is the update forced by the gap between forecast and fact — the residual.',
+  fit:'<b>Why Poietism prizes the uncertain over the certain.</b> The mind that drives its prediction error to zero has learned nothing new; it sits in a silent room. Court the surprise — then submit it to a test.'},
+ {t:'The Arbitrary Border',who:'Whorf · Wittgenstein · the sorites paradox',
+  d:'The world arrives as a continuum; language hands it back in discrete boxes — and we forget we packed it. There is no line in nature where blue ends and green begins, where a hill becomes a mountain, or where one emotion stops and the next starts. Emotions are points in a continuous space (pleasantness × intensity), not separate items in a drawer: the same racing heart is dread on a cliff and thrill on a coaster.',
+  fit:'<b>A category is a bet, not a joint of reality.</b> The predicting mind draws discrete borders because boxes are cheaper to act on than an infinite gradient — useful wagers, held loosely. The error is forgetting we drew the line and treating the map’s border as a fact of the territory (races, diagnoses, "natural kinds"). Move the borders yourself in the <b>The Border</b> tab.'},
+ {t:'Ethics under Uncertainty',who:'Poietism · PTO',
+  d:'How should a betting animal live, given it cannot know outcomes in advance? Not by pretending to certainty, and not by paralysis.',
+  fit:'<b>Poietism’s four commitments:</b> <b>affirm</b> the wager (want the open question); <b>bet constructively</b> (aim the appetite at building, via PTO: maximize transformation over dissipation); <b>floor the downside</b> (so boldness is survivable); <b>redirect, don’t abolish</b> old instincts.'},
+ {t:'The Economics of Friendship',who:'Koin · generalized reciprocity',
+  d:'Inside the circle of trust we already run a non-market economy: needs are covered, status comes from contribution not hoarding, respect can’t be bought. Money is the cold tool we invented for cooperating with strangers past that circle.',
+  fit:'<b>Poietism’s politics, pursued as Koin.</b> Use a public ledger of who genuinely lifted whom to extend the warmth of friendship past Dunbar’s horizon — floor the downside, decouple status from wealth, redirect the wager toward construction. Give the oldest, best kind of human more room.'},
+];
+
+const LANGS=[
+ {n:'German',stars:4,diff:'Moderate–hard (cases, compounds, verb-final) · living, huge resources',
+  un:'German Idealism → Existentialism → the founding of Analytic philosophy — and the golden age of physics & mathematics.',
+  who:'Kant · Hegel · Nietzsche · Schopenhauer · Marx · Husserl · Heidegger · Wittgenstein · Frege · the Frankfurt School — plus Einstein, Planck, Heisenberg, Gauss, Riemann, Hilbert, Gödel, Cantor.',
+  s:{o:'Man muss noch Chaos in sich haben, um einen tanzenden Stern gebären zu können.',e:'One must still have chaos in oneself to give birth to a dancing star.',b:'— Nietzsche, Thus Spoke Zarathustra'},
+  lens:'For you, the highest-payoff language. Nietzsche’s wordplay — Schuld meaning both guilt and debt, the very pun the book turns on — only fully lands in the original German.'},
+ {n:'Ancient Greek',stars:5,diff:'Hard (dead, complex grammar, dialects) · a real commitment',
+  un:'The origin of Western philosophy and science — everything downstream is a footnote to it.',
+  who:'Heraclitus · Parmenides · Plato · Aristotle · Epicurus · the Stoics — plus Euclid, Archimedes, Ptolemy, and the New Testament (Koine).',
+  s:{o:'αἰὼν παῖς ἐστι παίζων, πεσσεώων· παιδὸς ἡ βασιληίη.',e:'Time is a child playing draughts; the kingdom belongs to the child.',b:'— Heraclitus, fragment B52'},
+  lens:'Your book’s epigraph, and the deepest root of Poietism. Reading Heraclitus’ fragments in the original is as close to the source as the philosophy has.'},
+ {n:'Latin',stars:3,diff:'Moderate (inflected but regular) · vast learning infrastructure',
+  un:'~1,500 years of Western scholarship — Roman, medieval, and early-modern science alike.',
+  who:'Cicero · Seneca · Lucretius · Augustine · Aquinas — plus Descartes, Spinoza (Ethica), Newton (Principia), Leibniz, Bacon, Kepler, Copernicus.',
+  s:{o:'Cogito, ergo sum.',e:'I think, therefore I am.',b:'— Descartes, Principia Philosophiae'},
+  lens:'The efficient classical pick: it also unlocks every Romance language and the roots of nearly all scientific, legal, and medical vocabulary.'},
+ {n:'French',stars:2,diff:'Easiest for English speakers (shared vocabulary, familiar script)',
+  un:'Early-modern rationalism plus nearly all of 20th-century continental philosophy — the gentlest entry with the largest modern payoff.',
+  who:'Montaigne · Descartes · Pascal · Rousseau · Voltaire — plus Sartre, Camus, Merleau-Ponty, Bergson, Foucault, Derrida, Deleuze; Lavoisier, Laplace, Poincaré, the Curies.',
+  s:{o:'Le cœur a ses raisons que la raison ne connaît point.',e:'The heart has its reasons of which reason knows nothing.',b:'— Pascal, Pensées'},
+  lens:'Start here if you want momentum: the fastest to reading fluency, and it opens the whole modern continental tradition — including Camus’ absurd revolt, an Poietist cousin.'},
+];
+const LANG_MORE=[
+ ['Italian','Galileo (who wrote in Italian), Machiavelli, Vico, Gramsci, Eco — the Renaissance and the birth of modern science.'],
+ ['Arabic (classical)','The Islamic Golden Age: Avicenna, Averroes, al-Farabi, al-Khwarizmi (algebra) — who preserved and advanced Greek thought.'],
+ ['Sanskrit','The Upanishads, the Vedas, and Buddhist & Hindu philosophy — Nagarjuna, Shankara, the whole Indian tradition.'],
+ ['Classical Chinese','Laozi, Zhuangzi, Confucius, Mencius — the Dao and the entire East Asian philosophical world.'],
+];
+const RECO=[
+ ['Nietzsche, Kant, Hegel — the German tradition','German','You want the golden age of Continental philosophy and the roots of the analytic school. German is the single highest-payoff choice for a philosophy reader.'],
+ ['Plato, Aristotle, Heraclitus — the Greeks','Ancient Greek','You want the origin. It’s the hardest of these, but it puts you at the wellspring — and at the direct root of your own Poietism.'],
+ ['Aquinas, Spinoza, Descartes, Newton','Latin','You want the medieval-to-early-modern spine of Western thought and science. Latin is the efficient key, and it bonuses you every Romance language.'],
+ ['Sartre, Foucault, Camus — the moderns','French','You want 20th-century continental philosophy, and the quickest path to reading fluency. French is the gentlest on-ramp with the biggest modern return.'],
+ ['Just tell me the single best one','German','For a reader chasing philosophy and the history of ideas: German. It carries the most weight per year of study. Learn Ancient Greek second, for the roots.'],
+];
+
+/* ---------------- RENDER ---------------- */
+const main=document.getElementById('main'), navEl=document.getElementById('nav');
+const TABS=[['aleatorism','Poietism'],['thinkers','Thinkers'],['ideas','Big Ideas'],['border','The Border'],['languages','Languages'],['study','Study']];
+let tab='aleatorism', filter='all', q='';
+navEl.innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" class="${k==tab?'on':''}">${l}</button>`).join('');
+navEl.onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.k;[...navEl.children].forEach(c=>c.classList.toggle('on',c.dataset.k==tab));render();};
+
+function render(){
+  if(tab=='aleatorism')return renderAle();
+  if(tab=='thinkers')return renderThinkers();
+  if(tab=='ideas')return renderIdeas();
+  if(tab=='border')return renderBorder();
+  if(tab=='languages')return renderLangs();
+  if(tab=='study')return renderStudy();
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+function renderAle(){
+  main.innerHTML=`<div class="reading">
+    <div class="serif" style="font-size:1.15em;color:var(--dim);font-style:italic;margin-bottom:26px">Your philosophy — the affirmed wager. The descriptive case is the book <em>The Animal That Bets</em>; this is its prescriptive half. <a class="link" href="paper.html">Read the full paper →</a></div>
+    <h2>The one line</h2>
+    <p class="serif" style="font-size:1.3em;color:var(--ink)">We are the animal that bets. Poietism is the decision to bet <em style="color:var(--accent)">well</em>.</p>
+    <h2>Three stances, one choice</h2>
+    <div class="pill"><div class="big">1</div><div><div class="t">The fatalist</div><div class="s">The dice decide, so nothing matters. — surrenders.</div></div></div>
+    <div class="pill"><div class="big">2</div><div><div class="t">The controller</div><div class="s">The dice must be abolished, so nothing is risked. — suffocates.</div></div></div>
+    <div class="pill" style="border-color:var(--accent)"><div class="big">3</div><div><div class="t" style="color:var(--accent)">The Poietist</div><div class="s">Affirm the throw — and aim it.</div></div></div>
+    <h2>The four commitments</h2>
+    <p><b style="color:var(--accent)">Affirm the wager.</b> Want the uncertain over the certain; the certain is the silent room where nothing new can happen. Boredom in the safe and sated is a predictor with nothing left to bet on.</p>
+    <p><b style="color:var(--accent)">Bet constructively.</b> The instinct is fixed; only its object is a choice. Aim the appetite for high-variance reward at building, making, healing, discovering — and starve the channels that fire the same circuit while producing nothing. Measure by PTO: transformation over dissipation.</p>
+    <p><b style="color:var(--accent)">Floor the downside.</b> An animal that can lose everything is forced into paralysis or desperation. Guarantee the floor and you turn a frightened maximizer into a creature that can take the productive risks a cage never allows.</p>
+    <p><b style="color:var(--accent)">Redirect; don’t abolish.</b> Evolution is a tinkerer — it adds and fades, never cleanly deletes. The snake keeps its buried leg bones; we keep the gambling drive. You cannot legislate an instinct away. You can only aim it somewhere better.</p>
+    <h2>Where it comes from</h2>
+    <p>Heraclitus (the playing child, the flux) · the Stoics & Nietzsche (amor fati, the throw of the dice) · Pascal & James (belief as a wager) · Hume (reason as the servant of the drives) · Popper (knowledge as unrefuted conjecture) · and the sciences — Darwin, Gould, Jacob, and the predictive-processing picture of the mind. See the <b>Thinkers</b> and <b>Big Ideas</b> tabs; each carries an Poietism lens.</p>
+    <h2>What it is not</h2>
+    <p>Not nihilism (you choose which way to aim the throw). Not recklessness (you floor the downside). Not a fantasy of control (you befriend uncertainty, not abolish it). Not relativism (bets can be better or worse, and the residual — reality’s answer — is the judge).</p>
+  </div>`;
+}
+
+function renderThinkers(){
+  const doms={all:'All',phil:'Philosophy',sci:'Science & Evolution',logic:'Logic & Math'};
+  const list=THINKERS.filter(t=>(filter=='all'||t.dom==filter)&&(!q||(t.n+t.school+t.td+t.ideas.join(' ')).toLowerCase().includes(q)));
+  main.innerHTML=`<div class="controls">
+    <input class="search" placeholder="Search thinkers, ideas, schools…" value="${esc(q)}" oninput="setQ(this.value)">
+    ${Object.entries(doms).map(([k,l])=>`<span class="chip ${filter==k?'on':''}" onclick="setFilter('${k}')">${l}</span>`).join('')}
+    <span class="legend"><span><i class="d-phil" style="background:var(--accent)"></i>Philosophy</span><span><i class="d-sci" style="background:var(--accent2)"></i>Science</span><span><i class="d-logic" style="background:#8f9ad9"></i>Logic/Math</span></span>
+  </div>
+  <div class="grid">${list.map((t,i)=>card(t,THINKERS.indexOf(t))).join('')}</div>
+  ${list.length?'':'<p style="color:var(--dim)">No matches.</p>'}`;
+}
+function card(t,i){return `<div class="card" onclick="openSheet(${i})">
+  <span class="dot d-${t.dom}"></span>
+  <div class="era">${t.era}</div>
+  <h3>${t.n}</h3>
+  <div class="td">${t.td}</div>
+  <span class="lensbadge">◈ Poietism lens</span>
+</div>`;}
+function openSheet(i){const t=THINKERS[i];document.getElementById('sheet').innerHTML=`
+  <button class="x" onclick="closeSheet()">×</button>
+  <div class="era">${t.era}</div>
+  <h2>${t.n}</h2>
+  <div class="school">${t.school}</div>
+  <p class="serif" style="font-size:1.1em">${t.td}</p>
+  <p style="color:var(--faint);font-size:.78em;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Key ideas</p>
+  <ul>${t.ideas.map(x=>`<li>${x}</li>`).join('')}</ul>
+  <div class="lensbox"><div class="h">◈ The Poietism lens</div><p>${t.lens}</p></div>`;
+  document.getElementById('modal').classList.add('on');}
+function closeSheet(){document.getElementById('modal').classList.remove('on');}
+function setQ(v){q=v.toLowerCase();render();const inp=main.querySelector('.search');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+function setFilter(k){filter=k;render();}
+
+function renderIdeas(){
+  main.innerHTML=`<div class="reading" style="max-width:820px">
+   <p style="color:var(--dim);margin-bottom:20px">The nine pillars — each a real strand in the history of thought, and each a load-bearing wall of Poietism.</p>
+   ${IDEAS.map(x=>`<div class="idea"><h3>${x.t}</h3><div class="who">${x.who}</div><p>${x.d}</p><div class="fit">${x.fit}</div></div>`).join('')}
+  </div>`;
+}
+
+function renderLangs(){
+  main.innerHTML=`<div class="reading" style="max-width:820px">
+    <p style="color:var(--dim);margin-bottom:18px">Which languages best open philosophy & science <em>in the original</em>? (For <b>current</b> science you need none of them — it’s published in English. These are for philosophy and the history of ideas.)</p>
+    <div class="reco">
+      <div class="q">What do you most want to read?</div>
+      <div class="opts">${RECO.map((r,i)=>`<span class="chip" onclick="reco(${i})">${r[0]}</span>`).join('')}</div>
+      <div class="out" id="recoOut"></div>
+    </div>
+    ${LANGS.map(l=>`<div class="lang">
+      <div class="top"><h3>${l.n}</h3><div class="stars">${'★'.repeat(l.stars)}${'☆'.repeat(5-l.stars)} <span class="diff">${l.diff}</span></div></div>
+      <div class="un">${l.un}</div>
+      <div style="color:var(--faint);font-size:.85em;margin-bottom:10px"><b style="color:var(--dim)">Unlocks:</b> ${l.who}</div>
+      <div class="samp"><div class="o">${l.s.o}</div><div class="e">${l.s.e}</div><div class="b">${l.s.b}</div></div>
+      <div class="langlens">${l.lens}</div>
+    </div>`).join('')}
+    <div class="idea"><h3 style="font-size:1.1em">Also worth it</h3>
+      ${LANG_MORE.map(([n,d])=>`<p style="margin-bottom:8px"><b style="color:var(--accent2)">${n}.</b> <span style="color:var(--dim)">${d}</span></p>`).join('')}
+    </div>
+  </div>`;
+}
+function reco(i){const r=RECO[i];const out=document.getElementById('recoOut');
+  out.innerHTML=`Learn <span class="rl">${r[1]}</span><br><span style="color:var(--dim)">${r[2]}</span>`;out.classList.add('on');}
+
+/* study / flashcards */
+let deck=[],di=0,flipped=false;
+function buildDeck(){
+  deck=[];
+  THINKERS.forEach(t=>{deck.push({q:t.n,a:t.td+'\n\n◈ '+t.lens,tag:t.era});
+    deck.push({q:t.ideas[0],a:'— '+t.n+' ('+t.school+')',tag:t.era});});
+  IDEAS.forEach(x=>deck.push({q:x.t,a:x.d.replace(/<[^>]+>/g,''),tag:x.who}));
+  // shuffle (index-based, deterministic-ish)
+  for(let i=deck.length-1;i>0;i--){const j=(i*7+3)%(i+1);[deck[i],deck[j]]=[deck[j],deck[i]];}
+}
+function renderStudy(){
+  if(!deck.length)buildDeck();
+  const c=deck[di];
+  main.innerHTML=`<div class="flash">
+    <div class="fcard" onclick="flip()">
+      <div class="q">${esc(c.q)}</div>
+      ${flipped?`<div class="a">${esc(c.a).replace(/\n/g,'<br>')}</div>`:`<div class="hint">tap to reveal</div>`}
+    </div>
+    <div class="fbtns">
+      <button onclick="prevC(event)">← Prev</button>
+      <button onclick="flip(event)">${flipped?'Hide':'Reveal'}</button>
+      <button onclick="nextC(event)">Next →</button>
+    </div>
+    <div class="count">Card ${di+1} of ${deck.length} · ${esc(c.tag||'')}</div>
+    <div style="color:var(--faint);font-size:.8em;margin-top:8px">A shuffled deck drawn from every thinker and idea. Recall first, then reveal.</div>
+  </div>`;
+}
+function flip(e){if(e)e.stopPropagation();flipped=!flipped;renderStudy();}
+function nextC(e){if(e)e.stopPropagation();di=(di+1)%deck.length;flipped=false;renderStudy();}
+function prevC(e){if(e)e.stopPropagation();di=(di-1+deck.length)%deck.length;flipped=false;renderStudy();}
+document.addEventListener('keydown',e=>{if(tab!='study')return;if(e.key==' '||e.key=='Enter'){e.preventDefault();flip();}if(e.key=='ArrowRight')nextC();if(e.key=='ArrowLeft')prevC();});
+
+/* ---------------- THE BORDER (interactive) ---------------- */
+const EMO_A=[
+ {n:'excited',x:.68,y:.92},{n:'elated',x:.82,y:.80},{n:'happy',x:.90,y:.52},
+ {n:'content',x:.84,y:.30},{n:'serene',x:.76,y:.13},{n:'calm',x:.62,y:.06},
+ {n:'relaxed',x:.72,y:.20},{n:'bored',x:.34,y:.15},{n:'sleepy',x:.24,y:.06},
+ {n:'sad',x:.20,y:.32},{n:'depressed',x:.13,y:.22},{n:'miserable',x:.12,y:.45},
+ {n:'distressed',x:.17,y:.64},{n:'afraid',x:.22,y:.82},{n:'tense',x:.31,y:.72},
+ {n:'angry',x:.15,y:.90},{n:'alarmed',x:.30,y:.95},{n:'alert',x:.50,y:.88},{n:'astonished',x:.55,y:.96}
+];
+let emoV=.5,emoAr=.5,colDiv=52,heapN=400;
+function renderBorder(){
+  main.innerHTML=`<div class="reading" style="max-width:760px">
+    <p style="color:var(--dim);margin-bottom:14px">A flaw at the root of language: the world is a continuum, but words come in boxes. There is no objective place to draw the lines — so we draw them where it helps, and then forget we drew them. Three borders you can move with your own hand:</p>
+
+    <div class="demo">
+      <h3>1 · Emotions aren’t separate things</h3>
+      <div class="cap">Drag the dot. Every feeling is one point in a continuous space — left↔right is unpleasant↔pleasant, up↔down is calm↔intense. The named "emotions" are only regions we chalked onto it. Near a border, the <em>same body-state</em> gets two different names.</div>
+      <div class="pad" id="pad">
+        <div class="axis" style="left:50%;top:5px;transform:translateX(-50%)">▲ intense</div>
+        <div class="axis" style="left:50%;bottom:5px;transform:translateX(-50%)">calm ▼</div>
+        <div class="axis" style="left:6px;top:50%;transform:translateY(-50%)">◀ unpleasant</div>
+        <div class="axis" style="right:6px;top:50%;transform:translateY(-50%)">pleasant ▶</div>
+        ${EMO_A.map((a,i)=>`<div class="anchor" id="an${i}" style="left:${a.x*100}%;top:${(1-a.y)*100}%">${a.n}</div>`).join('')}
+        <div class="dot2" id="edot" style="left:50%;top:50%"></div>
+      </div>
+      <div class="readout" id="eread">Drag the dot into the field.</div>
+      <div style="color:var(--faint);font-size:.82em;margin-top:8px">Other languages cut this same space differently — Portuguese <em>saudade</em>, German <em>Schadenfreude</em>, Danish <em>hygge</em>, Japanese <em>amae</em> each name a region English left blank. None is more "correct." <span style="opacity:.7">(The circumplex model of affect — Russell, 1980.)</span></div>
+    </div>
+
+    <div class="demo">
+      <h3>2 · Where does blue become green?</h3>
+      <div class="cap">Drag the white line to the exact spot where "blue" ends and "green" begins. Nothing in the light changes as you move it — only the word does.</div>
+      <div class="specbar" id="spec"><div class="specdiv" id="sdiv" style="left:52%"><div class="lab">blue | green</div></div></div>
+      <div class="readout" id="sread"></div>
+    </div>
+
+    <div class="demo">
+      <h3>3 · When is it a heap?</h3>
+      <div class="cap">Slide the grains. Remove one grain from a heap and it’s still a heap — repeat, and the heap is gone, though no single grain ever ended it. The boundary you feel isn’t in the sand.</div>
+      <input type="range" min="1" max="3000" value="${heapN}" id="heap" oninput="updHeap(this.value)">
+      <div class="heapviz" id="hviz"></div>
+      <div class="readout" id="hread"></div>
+    </div>
+
+    <div class="idea" style="border-color:var(--accent)"><p class="fit" style="border:none;padding:0;color:#e6d9bf"><b style="color:var(--accent)">The Poietism lens.</b> A category is a <b>bet</b> — a compression the predicting mind lays over a continuous world because boxes are cheaper to act on than a gradient. Often a good bet (<em>predator</em>, <em>food</em>, <em>cliff-edge</em>). But it is a wager, not a joint of reality — and the deep error is forgetting we drew the line, then treating the map’s border as a fact of the territory: races, diagnoses, "natural kinds," the sharp names we give a feeling. Hold every border as loosely as every other bet, and redraw it the moment the world stops respecting your boxes.</p></div>
+  </div>`;
+  const pad=document.getElementById('pad');let drag=false;
+  const emove=ev=>{const r=pad.getBoundingClientRect();let fx=(ev.clientX-r.left)/r.width,fy=(ev.clientY-r.top)/r.height;fx=Math.max(0,Math.min(1,fx));fy=Math.max(0,Math.min(1,fy));emoV=fx;emoAr=1-fy;const d=document.getElementById('edot');d.style.left=fx*100+'%';d.style.top=fy*100+'%';updEmo();};
+  pad.addEventListener('pointerdown',e=>{drag=true;pad.setPointerCapture(e.pointerId);emove(e);});
+  pad.addEventListener('pointermove',e=>{if(drag)emove(e);});
+  pad.addEventListener('pointerup',()=>drag=false);pad.addEventListener('pointercancel',()=>drag=false);
+  const spec=document.getElementById('spec');let sdrag=false;
+  const smove=ev=>{const r=spec.getBoundingClientRect();let p=(ev.clientX-r.left)/r.width;p=Math.max(0,Math.min(1,p));colDiv=p*100;document.getElementById('sdiv').style.left=colDiv+'%';updSpec();};
+  spec.addEventListener('pointerdown',e=>{sdrag=true;spec.setPointerCapture(e.pointerId);smove(e);});
+  spec.addEventListener('pointermove',e=>{if(sdrag)smove(e);});
+  spec.addEventListener('pointerup',()=>sdrag=false);spec.addEventListener('pointercancel',()=>sdrag=false);
+  updEmo();updSpec();updHeap(heapN);
+}
+function updEmo(){
+  const d=EMO_A.map(a=>({n:a.n,dist:Math.hypot(a.x-emoV,a.y-emoAr)})).sort((p,q)=>p.dist-q.dist);
+  EMO_A.forEach((a,i)=>{const el=document.getElementById('an'+i);if(el)el.classList.toggle('near',a.n==d[0].n||a.n==d[1].n);});
+  const gap=d[1].dist-d[0].dist;
+  const el=document.getElementById('eread');if(!el)return;
+  el.innerHTML=(d[0].dist<0.10&&gap>0.10)
+    ? `Squarely <b>${d[0].n}</b> — a clear region. Now drag toward its edge and watch the name lose its grip.`
+    : `You’d call this <b>${d[0].n}</b> … but you’re nearly as close to <b>${d[1].n}</b>. Same body-state, two words — the border between them is a name, not a wall.`;
+}
+function updSpec(){
+  const p=colDiv,el=document.getElementById('sread');if(!el)return;let msg;
+  if(p<28)msg=`You drew the line far left — now almost everything counts as "green." A Russian speaker would already have split the blue on the left into <b>siniy</b> and <b>goluboy</b>: two basic colours where you have one.`;
+  else if(p>72)msg=`Far right — now almost everything is "blue." Homer’s Greek had no separate word for this stretch at all; the sea was "wine-dark."`;
+  else msg=`About here is where English speakers waver. But the light is a smooth ramp of wavelength — <b>nothing</b> in it marks this spot. You put the border here; the Himba of Namibia would put it somewhere that looks plainly wrong to you.`;
+  el.innerHTML=msg;
+}
+function updHeap(v){heapN=+v;const viz=document.getElementById('hviz');if(!viz)return;
+  const show=Math.min(heapN,240);viz.innerHTML='<span class="grain"></span>'.repeat(show);
+  const el=document.getElementById('hread');
+  el.innerHTML=(heapN<=3)?`<b>${heapN}</b> grain${heapN>1?'s':''}. Obviously not a heap.`
+    :(heapN>=1500)?`<b>${heapN}</b> grains. Obviously a heap. But slide down one grain at a time — which one will be the grain that stops it being a heap?`
+    :`<b>${heapN}</b> grains. Heap? Perhaps? Take one away — still whatever it just was. No single grain flips it. The boundary you feel isn’t in the sand; it’s in the word.`;
+}
+
+render();
+</script>
+</body>
+</html>

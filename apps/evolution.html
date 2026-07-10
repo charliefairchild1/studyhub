@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evolution — PEP Math Playground</title>
+<style>
+  :root {
+    --bg:#0a0d14; --surface:#14181f; --surface2:#0f1318;
+    --text:#e2e6ed; --dim:#7a8092; --accent:#81c784; --accent2:#4fc3f7;
+    --warn:#ffb74d; --border:#1e2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:14px;align-items:center;font-size:11px}
+  nav .brand{color:var(--accent);font-weight:bold;font-size:15px}
+  nav .tag{color:var(--dim)}
+  nav .nav-links{margin-left:auto;display:flex;gap:12px}
+  #main{position:fixed;top:44px;left:0;right:340px;bottom:0;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:hidden}
+  .section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;overflow:hidden}
+  .section-title{color:var(--dim);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+  .section canvas{flex:1;width:100%;background:var(--bg);border-radius:4px}
+  #panel{position:fixed;top:44px;right:0;bottom:0;width:340px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px 18px 90px}
+  h2{color:var(--accent);font-size:13px;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase}
+  h3{color:var(--accent2);font-size:11px;margin:14px 0 6px;letter-spacing:0.08em;text-transform:uppercase}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+  .row label{color:var(--dim);min-width:105px}
+  .row input[type=range]{flex:1}
+  .row .val{color:var(--accent);min-width:42px;text-align:right;font-size:10px}
+  button{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .metric{background:var(--surface2);border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between}
+  .metric b{color:var(--accent)}
+  .pep-note{font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.55}
+  .pep-note b{color:var(--accent)}
+  .climate-btn.cold{border-color:#4fc3f7}
+  .climate-btn.warm{border-color:#ffb74d}
+  .climate-btn.wet{border-color:#81c784}
+  .climate-btn.dry{border-color:#e53935}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">PEP</span><span class="tag">evolution — 5 primitives in one canvas</span>
+  <div class="nav-links">
+    <a href="index.html">&larr; Math playground</a>
+    <a href="globe.html" style="color:#fbbf24">🌍 Globe</a>
+    <a href="language-evolution.html" style="color:#a78bfa">🗣 Language</a>
+    <a href="spreading.html" style="color:#4fc3f7">⟳ Spreading</a>
+    <a href="#">PEP engine →</a>
+  </div>
+</nav>
+<div id="main">
+  <div class="section">
+    <div class="section-title">Trait space (body-size × fur-thickness) — heatmap = fitness</div>
+    <canvas id="land"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title">Ancestry tree (time →)</div>
+    <canvas id="tree"></canvas>
+  </div>
+</div>
+<div id="panel">
+  <h2>Evolution</h2>
+  <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:12px">
+    Lineages mutate, drift across trait space, get selected by the fitness landscape. Change climate → landscape shifts → lineages that were winning start dying. Two lineages ending up at the same peak = <i>convergent evolution</i>.
+  </div>
+
+  <h3>Climate</h3>
+  <div class="btn-row">
+    <button class="climate-btn cold active" data-climate="cold">❄ cold</button>
+    <button class="climate-btn warm" data-climate="warm">☀ warm</button>
+    <button class="climate-btn wet" data-climate="wet">💧 wet</button>
+    <button class="climate-btn dry" data-climate="dry">🔥 dry</button>
+    <button class="climate-btn" data-climate="bimodal">◑ bimodal</button>
+  </div>
+  <div class="btn-row">
+    <button id="play" class="active">⏸ Pause</button>
+    <button id="reset">Reset lineage</button>
+    <button id="wipe">Mass extinction</button>
+  </div>
+
+  <h3>Parameters</h3>
+  <div class="row">
+    <label>Mutation σ</label>
+    <input id="mut" type="range" min="0.005" max="0.1" step="0.005" value="0.03">
+    <span class="val" id="mut-v">0.030</span>
+  </div>
+  <div class="row">
+    <label>Selection power</label>
+    <input id="sel" type="range" min="0.5" max="6" step="0.1" value="2.5">
+    <span class="val" id="sel-v">2.5</span>
+  </div>
+  <div class="row">
+    <label>Branch rate</label>
+    <input id="br" type="range" min="0" max="0.3" step="0.01" value="0.12">
+    <span class="val" id="br-v">0.12</span>
+  </div>
+  <div class="row">
+    <label>Carry capacity</label>
+    <input id="cap" type="range" min="20" max="200" step="5" value="80">
+    <span class="val" id="cap-v">80</span>
+  </div>
+
+  <h3>State</h3>
+  <div class="metric"><span>Generation</span><b id="m-gen">0</b></div>
+  <div class="metric"><span>Alive</span><b id="m-alive">1</b></div>
+  <div class="metric"><span>Extinct</span><b id="m-ext">0</b></div>
+  <div class="metric"><span>Peak fitness</span><b id="m-peak">0.00</b></div>
+
+  <div class="pep-note">
+    <b>Five PEP primitives, one canvas.</b> Ancestry edges =
+    <b style="color:#4fc3f7">weighted graph</b>. Drift along lineage =
+    <b style="color:#81c784">spreading</b>. Fitness = prediction of
+    environment; selection = <b style="color:#ffb74d">residual</b>
+    update. Climate buttons = <b style="color:#ba68c8">state</b>
+    modulation rescaling the landscape. Species below threshold
+    fade and die = <b style="color:#f06292">opacity / haze</b>.
+    This page is why evolution and PEP fit together.
+  </div>
+
+  <h3>Try this</h3>
+  <div style="font-size:10px;color:var(--dim);line-height:1.6">
+    <b style="color:var(--accent2)">Stabilizing selection:</b> cold + low mutation + high selection power. Species converge on the single peak.<br>
+    <b style="color:var(--accent2)">Punctuated equilibrium:</b> stable for a while, then switch climate. Watch mass extinction, then rapid radiation into the new peak.<br>
+    <b style="color:var(--accent2)">Bimodal:</b> two peaks compete. Slight mutation drift decides which lineage wins.
+  </div>
+</div>
+
+<script>
+(() => {
+  const landC = document.getElementById('land');
+  const treeC = document.getElementById('tree');
+  const lctx = landC.getContext('2d');
+  const tctx = treeC.getContext('2d');
+  let ld, td;
+  function resizeOne(c, ctx) {
+    const r = c.getBoundingClientRect();
+    c.width = r.width*devicePixelRatio;
+    c.height = r.height*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    return { w: r.width, h: r.height };
+  }
+  function resizeAll() {
+    ld = resizeOne(landC, lctx);
+    td = resizeOne(treeC, tctx);
+  }
+  window.addEventListener('resize', resizeAll);
+
+  let climate = 'cold';
+  const params = { mut: 0.03, sel: 2.5, br: 0.12, cap: 80 };
+  let running = true;
+  let gen = 0, extinct = 0;
+
+  // Fitness landscape functions
+  function fitness(x, y) {
+    // x, y in [0,1]
+    if (climate === 'cold') {
+      // peak at (0.3, 0.8) — small body, thick fur
+      return gauss(x, 0.3, 0.16) * gauss(y, 0.8, 0.14);
+    }
+    if (climate === 'warm') {
+      // peak at (0.7, 0.2) — large body, thin fur
+      return gauss(x, 0.7, 0.16) * gauss(y, 0.2, 0.14);
+    }
+    if (climate === 'wet') {
+      // peak at (0.5, 0.5)
+      return gauss(x, 0.5, 0.16) * gauss(y, 0.5, 0.15);
+    }
+    if (climate === 'dry') {
+      // peak at (0.8, 0.7)
+      return gauss(x, 0.8, 0.12) * gauss(y, 0.7, 0.12);
+    }
+    if (climate === 'bimodal') {
+      return Math.max(
+        gauss(x, 0.25, 0.12) * gauss(y, 0.75, 0.12),
+        gauss(x, 0.75, 0.12) * gauss(y, 0.25, 0.12)
+      );
+    }
+    return 0.5;
+  }
+  function gauss(v, mu, s) {
+    const d = v - mu;
+    return Math.exp(-(d*d)/(2*s*s));
+  }
+
+  // Lineage: { id, parentId, x, y, age, alive, color, children, born, diedAt }
+  let nextId = 1;
+  let pop = [];
+
+  function init() {
+    pop = [{ id: nextId++, parentId: null, x: 0.5, y: 0.5, age: 0, alive: true, color: hsl(180), born: 0, diedAt: null, gen: 0 }];
+    gen = 0; extinct = 0;
+  }
+  function hsl(h) { return `hsl(${h}, 70%, 60%)`; }
+
+  function step() {
+    gen++;
+    const alive = pop.filter(p => p.alive);
+    const newborns = [];
+    for (const p of alive) {
+      const f = fitness(p.x, p.y);
+      p.age++;
+      // survival probability ∝ f^sel, normalized
+      if (Math.random() > Math.pow(f, 1/params.sel) * (1 - 0.02*p.age)) {
+        p.alive = false;
+        p.diedAt = gen;
+        extinct++;
+        continue;
+      }
+      // drift
+      p.x = Math.max(0, Math.min(1, p.x + (Math.random()-0.5)*params.mut*2));
+      p.y = Math.max(0, Math.min(1, p.y + (Math.random()-0.5)*params.mut*2));
+      // branch?
+      if (Math.random() < params.br && alive.length + newborns.length < params.cap) {
+        newborns.push({
+          id: nextId++, parentId: p.id,
+          x: Math.max(0, Math.min(1, p.x + (Math.random()-0.5)*params.mut*3)),
+          y: Math.max(0, Math.min(1, p.y + (Math.random()-0.5)*params.mut*3)),
+          age: 0, alive: true,
+          color: hsl((parseFloat(p.color.slice(4)) + (Math.random()-0.5)*30) % 360),
+          born: gen, diedAt: null, gen: p.gen+1,
+        });
+      }
+    }
+    pop = pop.concat(newborns);
+    // if all dead, reseed from nearby center
+    if (pop.filter(p=>p.alive).length === 0) {
+      pop.push({ id: nextId++, parentId: null, x: 0.5, y: 0.5, age: 0, alive: true, color: hsl(180 + Math.random()*180), born: gen, diedAt: null, gen: 0 });
+    }
+  }
+
+  function drawLand() {
+    const { w, h } = ld;
+    // heatmap
+    const img = lctx.createImageData(w, h);
+    for (let py=0;py<h;py++) {
+      const y = 1 - py/h;
+      for (let px=0;px<w;px++) {
+        const x = px/w;
+        const f = fitness(x, y);
+        const [r,g,b] = heatrgb(f);
+        const i = (py*w + px)*4;
+        img.data[i] = r; img.data[i+1] = g; img.data[i+2] = b; img.data[i+3] = 255;
+      }
+    }
+    lctx.putImageData(img, 0, 0);
+    // lineage links
+    lctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    lctx.lineWidth = 0.5;
+    const byId = new Map(pop.map(p=>[p.id,p]));
+    for (const p of pop) {
+      if (p.parentId == null) continue;
+      const par = byId.get(p.parentId);
+      if (!par) continue;
+      lctx.beginPath();
+      lctx.moveTo(par.x*w, (1-par.y)*h);
+      lctx.lineTo(p.x*w, (1-p.y)*h);
+      lctx.stroke();
+    }
+    // species
+    for (const p of pop) {
+      if (!p.alive) continue;
+      const f = fitness(p.x, p.y);
+      const r = 3 + f*5;
+      lctx.fillStyle = p.color;
+      lctx.globalAlpha = 0.7 + f*0.3;
+      lctx.beginPath();
+      lctx.arc(p.x*w, (1-p.y)*h, r, 0, Math.PI*2);
+      lctx.fill();
+      lctx.globalAlpha = 1;
+    }
+    // axis labels
+    lctx.fillStyle = 'rgba(255,255,255,0.75)';
+    lctx.font = '11px monospace';
+    lctx.fillText('← small body    large body →', 6, h-6);
+    lctx.save();
+    lctx.translate(14, h-14);
+    lctx.rotate(-Math.PI/2);
+    lctx.fillText('← thin fur    thick fur →', 0, 0);
+    lctx.restore();
+  }
+  function heatrgb(f) {
+    const t = Math.max(0, Math.min(1, f));
+    const stops = [[14,18,24], [30,60,90], [60,120,140], [140,190,120], [230,220,90], [250,150,60], [240,80,60]];
+    const s = t*(stops.length-1);
+    const i = Math.min(stops.length-2, Math.floor(s));
+    const u = s - i;
+    const c0 = stops[i], c1 = stops[i+1];
+    return [c0[0]+(c1[0]-c0[0])*u|0, c0[1]+(c1[1]-c0[1])*u|0, c0[2]+(c1[2]-c0[2])*u|0];
+  }
+
+  function drawTree() {
+    const { w, h } = td;
+    tctx.fillStyle = '#0a0d14';
+    tctx.fillRect(0,0,w,h);
+    if (pop.length === 0) return;
+    // timeline: x = born/gen
+    const tmax = Math.max(gen, 1);
+    const byId = new Map(pop.map(p=>[p.id,p]));
+    // assign y to leaves via in-order traversal of tree
+    const children = new Map();
+    for (const p of pop) {
+      if (p.parentId != null) {
+        if (!children.has(p.parentId)) children.set(p.parentId, []);
+        children.get(p.parentId).push(p);
+      }
+    }
+    const roots = pop.filter(p => p.parentId == null);
+    // assign y positions
+    const yPos = new Map();
+    let slot = 0;
+    const leafCount = countLeaves(roots, children);
+    const totalLeaves = Math.max(1, leafCount);
+    function countLeaves(ns, ch) {
+      let c = 0;
+      for (const n of ns) {
+        const kids = ch.get(n.id);
+        if (!kids || kids.length === 0) c++;
+        else c += countLeaves(kids, ch);
+      }
+      return c;
+    }
+    function assign(node) {
+      const kids = children.get(node.id);
+      if (!kids || kids.length === 0) {
+        const y = (slot + 0.5) / totalLeaves * (h - 24) + 12;
+        yPos.set(node.id, y);
+        slot++;
+        return y;
+      }
+      const ys = kids.map(assign);
+      const y = ys.reduce((a,b)=>a+b,0)/ys.length;
+      yPos.set(node.id, y);
+      return y;
+    }
+    for (const r of roots) assign(r);
+    // draw edges
+    for (const p of pop) {
+      if (p.parentId == null) continue;
+      const par = byId.get(p.parentId);
+      if (!par) continue;
+      const x0 = par.born/tmax * (w-40) + 20;
+      const x1 = p.born/tmax * (w-40) + 20;
+      const y0 = yPos.get(par.id);
+      const y1 = yPos.get(p.id);
+      tctx.strokeStyle = p.alive ? 'rgba(129,199,132,0.6)' : 'rgba(122,128,146,0.2)';
+      tctx.lineWidth = p.alive ? 1.2 : 0.6;
+      tctx.beginPath();
+      tctx.moveTo(x0, y0);
+      tctx.lineTo(x0, y1);
+      tctx.lineTo(x1, y1);
+      tctx.stroke();
+      // extend alive line to present
+      if (p.alive) {
+        const xEnd = (gen/tmax)*(w-40) + 20;
+        tctx.strokeStyle = p.color;
+        tctx.lineWidth = 1.5;
+        tctx.beginPath();
+        tctx.moveTo(x1, y1);
+        tctx.lineTo(xEnd, y1);
+        tctx.stroke();
+      } else {
+        // dead: draw to diedAt, then X
+        const xDied = ((p.diedAt||p.born)/tmax)*(w-40) + 20;
+        tctx.strokeStyle = 'rgba(180,120,120,0.5)';
+        tctx.beginPath();
+        tctx.moveTo(x1, y1);
+        tctx.lineTo(xDied, y1);
+        tctx.stroke();
+        tctx.fillStyle = 'rgba(180,120,120,0.8)';
+        tctx.fillText('×', xDied+2, y1+3);
+      }
+    }
+    // axis
+    tctx.fillStyle = 'rgba(255,255,255,0.3)';
+    tctx.font = '10px monospace';
+    tctx.fillText('gen ' + gen, w-52, h-4);
+    tctx.fillText('start', 4, h-4);
+  }
+
+  function updateMetrics() {
+    const alive = pop.filter(p=>p.alive);
+    let peak = 0;
+    for (const p of alive) peak = Math.max(peak, fitness(p.x, p.y));
+    document.getElementById('m-gen').textContent = gen;
+    document.getElementById('m-alive').textContent = alive.length;
+    document.getElementById('m-ext').textContent = extinct;
+    document.getElementById('m-peak').textContent = peak.toFixed(2);
+  }
+
+  function loop() {
+    if (running) step();
+    drawLand();
+    drawTree();
+    updateMetrics();
+    setTimeout(loop, 150);
+  }
+
+  // controls
+  document.querySelectorAll('.climate-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.climate-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      climate = b.dataset.climate;
+    });
+  });
+  ['mut','sel','br','cap'].forEach(k => {
+    const el = document.getElementById(k);
+    const val = document.getElementById(k+'-v');
+    el.addEventListener('input', () => {
+      params[k] = parseFloat(el.value);
+      val.textContent = params[k].toFixed(k==='mut'?3:k==='cap'?0:2);
+    });
+  });
+  document.getElementById('play').onclick = e => {
+    running = !running;
+    e.target.textContent = running ? '⏸ Pause' : '▶ Play';
+    e.target.classList.toggle('active', running);
+  };
+  document.getElementById('reset').onclick = init;
+  document.getElementById('wipe').onclick = () => {
+    // kill 80% at random
+    for (const p of pop) if (p.alive && Math.random() < 0.85) { p.alive = false; p.diedAt = gen; extinct++; }
+  };
+
+  resizeAll();
+  init();
+  loop();
+})();
+</script>
+<script src="/math/demo-nav.js"></script>
+</body>
+</html>

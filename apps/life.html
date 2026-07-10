@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cellular Automata — PEP Math Playground</title>
+<style>
+  :root {
+    --bg: #0a0d14; --surface: #14181f; --surface2: #0f1318;
+    --text: #e2e6ed; --dim: #7a8092; --accent: #4fc3f7; --accent2: #81c784;
+    --warn: #ffb74d; --danger: #ef4444; --border: #1e2430;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+         background: var(--bg); color: var(--text); overflow: hidden; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+        padding: 10px 20px; display: flex; gap: 14px; align-items: center; font-size: 11px; }
+  nav .brand { color: var(--accent); font-weight: bold; font-size: 15px; }
+  nav .tag { color: var(--dim); }
+  nav .nav-links { margin-left: auto; display: flex; gap: 12px; }
+
+  #grid-container { position: fixed; top: 44px; left: 0; right: 320px; bottom: 0;
+                    background: radial-gradient(ellipse at center, #18223a 0%, #0a0d14 70%);
+                    display: flex; align-items: center; justify-content: center; }
+  #grid-canvas { cursor: crosshair; background: var(--surface2); border-radius: 6px;
+                 box-shadow: 0 0 0 1px var(--border); }
+
+  #panel { position: fixed; top: 44px; right: 0; bottom: 0; width: 320px;
+           background: var(--surface); border-left: 1px solid var(--border);
+           padding: 18px; overflow-y: auto; }
+  #panel h3 { color: var(--accent); font-size: 13px; margin: 14px 0 8px;
+              letter-spacing: 0.1em; text-transform: uppercase; }
+  #panel h3:first-child { margin-top: 0; }
+  #panel .ctrl { margin-bottom: 12px; }
+  #panel label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; }
+  #panel label b { color: var(--text); font-size: 11px; }
+  #panel input[type=range] { width: 100%; }
+  #panel button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border);
+                  background: var(--surface2); color: var(--text); font-size: 11px;
+                  cursor: pointer; font-family: inherit; margin: 2px 2px 2px 0; }
+  #panel button:hover { border-color: var(--accent); }
+  #panel button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  #panel button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+  #panel select { width: 100%; background: var(--surface2); color: var(--text);
+                  border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px;
+                  font-family: inherit; font-size: 11px; }
+
+  .stat-row { display: flex; justify-content: space-between; font-size: 11px;
+              padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); font-weight: bold; }
+
+  .rule-note { background: var(--surface2); border-radius: 6px;
+               padding: 10px 12px; font-size: 10px; color: var(--dim);
+               line-height: 1.6; border-left: 2px solid var(--accent2); }
+  .rule-note b { color: var(--text); }
+
+  @media (max-width: 900px) {
+    #grid-container { right: 0; bottom: 260px; }
+    #panel { top: auto; right: 0; bottom: 0; width: 100%; height: 260px;
+             border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Cellular Automata</span>
+  <span class="tag">emergence from local rules on a tessellated grid</span>
+  <span class="nav-links">
+    <a href="index.html">← Math Playground</a>
+    <a href="globe.html">Globe</a>
+    <a href="language-evolution.html">Language</a>
+  </span>
+</nav>
+
+<div id="grid-container">
+  <canvas id="grid-canvas"></canvas>
+</div>
+
+<div id="panel">
+  <h3>Rule set</h3>
+  <div class="ctrl">
+    <select id="rule-select" onchange="applyRule()">
+      <option value="life" selected>Conway's Game of Life (B3/S23)</option>
+      <option value="highlife">HighLife (B36/S23) — replicators</option>
+      <option value="seeds">Seeds (B2/S) — constant fresh growth</option>
+      <option value="brian">Brian's Brain (3-state, noise waves)</option>
+      <option value="daynight">Day & Night (B3678/S34678) — symmetric</option>
+      <option value="maze">Maze (B3/S12345) — grows mazes</option>
+    </select>
+  </div>
+  <div id="rule-note" class="rule-note"></div>
+
+  <h3>Pattern</h3>
+  <div class="ctrl">
+    <button onclick="seedPattern('glider')">Glider</button>
+    <button onclick="seedPattern('blinker')">Blinker</button>
+    <button onclick="seedPattern('pulsar')">Pulsar</button>
+    <button onclick="seedPattern('gosper')">Gosper gun</button>
+  </div>
+  <div class="ctrl">
+    <button onclick="randomFill(0.25)">Random 25%</button>
+    <button onclick="randomFill(0.5)">Random 50%</button>
+    <button onclick="clearGrid()" class="danger">Clear</button>
+  </div>
+
+  <h3>Playback</h3>
+  <div class="ctrl">
+    <button onclick="stepGen()">Step</button>
+    <button id="play-btn" class="primary" onclick="togglePlay()">▶ Play</button>
+    <button onclick="stepMany(10)">+10</button>
+    <button onclick="stepMany(100)">+100</button>
+  </div>
+  <div class="ctrl">
+    <label><b>Speed</b> <span id="speed-val" style="float:right">8/s</span></label>
+    <input id="speed-slider" type="range" min="1" max="30" value="8" oninput="updateSpeed()">
+  </div>
+
+  <h3>Grid</h3>
+  <div class="ctrl">
+    <label><b>Cell size</b> <span id="cell-val" style="float:right">10 px</span></label>
+    <input id="cell-slider" type="range" min="4" max="18" value="10" step="1" oninput="updateCell()">
+  </div>
+  <div class="ctrl">
+    <label style="font-size:10px;color:var(--dim)">
+      <input type="checkbox" id="wrap-check" checked> wrap edges (toroidal)
+    </label>
+  </div>
+
+  <h3>State</h3>
+  <div class="stat-row"><span class="label">Generation</span><span class="value" id="stat-gen">0</span></div>
+  <div class="stat-row"><span class="label">Live cells</span><span class="value" id="stat-live">0</span></div>
+  <div class="stat-row"><span class="label">Density</span><span class="value" id="stat-den">0%</span></div>
+  <div class="stat-row"><span class="label">Peak density</span><span class="value" id="stat-peak">0%</span></div>
+
+  <h3>The math</h3>
+  <div class="rule-note">
+    <b>Each rule is a function</b> from a cell's current state + its 8 neighbors → next state. Tiny rule. But apply it simultaneously to every cell, every generation, and you get <b>gliders</b> (stable moving patterns), <b>guns</b> (emitters), <b>oscillators</b>, and complete chaos. Conway's Life is <b>Turing-complete</b> — you can build a universal computer from cells following B3/S23.<br><br>
+    The math question: given a rule, which initial states produce stable order, which produce chaos, and which produce <b>complexity</b> (order + chaos together)? Wolfram's classification.
+  </div>
+
+  <h3>PEP primitives used</h3>
+  <div class="rule-note">
+    <b>Weighted graph</b> — each cell is a node; the 8-neighborhood defines the edges (uniform weight 1).<br>
+    <b>State modulation</b> — each cell's state at <i>t+1</i> depends on its state at <i>t</i> modulated by its neighborhood's collective state. That's the primitive applied to a tessellated substrate.<br>
+    <b>Opacity / haze</b> — in Conway's Life, a live cell with fewer than 2 or more than 3 neighbors dies. That's an <b>opacity rule triggered by local conditions</b>: the cell's "encoding strength" drops below reuse threshold. Brian's Brain makes this literal — the 3-state "dying" phase IS decaying opacity.<br><br>
+    <b>Why this matters for PEP:</b> complex behavior emerging from simple local rules on a weighted graph is the whole thesis. If PEP's primitives generate this much structure on a 2D tessellation with boolean states, the same primitives on continuous-valued embedding graphs produce real cognition.
+  </div>
+
+  <h3>Sister demos</h3>
+  <div class="rule-note">
+    <a href="voronoi.html" style="color:#4fc3f7">⬡ Voronoi retrieval</a> — nearest-neighbor tessellation (retrieval primitive)<br>
+    <a href="epidemic.html" style="color:#ef5350">☣ Epidemic network</a> — SIR model on a graph (all four primitives)<br>
+    <a href="globe.html" style="color:#fbbf24">🌍 Evolution globe</a> — species with traits under climate pressure<br>
+    <a href="language-evolution.html" style="color:#a78bfa">🗣 Language evolution</a> — 55+ languages, 7 families<br>
+    <a href="index.html" style="color:var(--accent)">← back to math playground</a>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('grid-canvas');
+const ctx = canvas.getContext('2d');
+let CELL = 10;
+let cols = 0, rows = 0;
+let grid = null;  // Int8Array for single-state rules; 0 = dead, 1 = alive
+let grid3 = null; // for Brian's Brain: 0 = dead, 1 = alive, 2 = dying
+let generation = 0;
+let liveCount = 0;
+let peakDensity = 0;
+let currentRule = 'life';
+
+const RULE_NOTES = {
+  life: `<b>Conway's Game of Life</b> — B3/S23: a dead cell with exactly 3 live neighbors becomes alive (birth); a live cell stays alive with 2 or 3 neighbors (survival); otherwise it dies. The most-studied automaton in mathematics. Turing-complete.`,
+  highlife: `<b>HighLife</b> — B36/S23: same as Life, but a dead cell can also be born with 6 neighbors. Produces <b>self-replicating patterns</b> (replicator) that Life cannot. Discovered by Nathan Thompson in 1994.`,
+  seeds: `<b>Seeds</b> — B2/S: every live cell dies every step, but a dead cell with exactly 2 neighbors is born. Chaotic, always growing. All structure is temporary.`,
+  brian: `<b>Brian's Brain</b> — 3-state automaton: dead cells with 2 live neighbors become live; live cells become "dying"; dying cells become dead. Every pattern produces moving waves. Good model for neural signal propagation.`,
+  daynight: `<b>Day & Night</b> — B3678/S34678: symmetric under black/white inversion (a pattern behaves the same if you swap live and dead). Produces patterns that work identically "at night" (mostly live) and "in day" (mostly dead).`,
+  maze: `<b>Maze</b> — B3/S12345: similar to Life but live cells survive with 1-5 neighbors. Growing patterns form corridors and walls that look like mazes.`,
+};
+
+function resize() {
+  const container = document.getElementById('grid-container');
+  const rect = container.getBoundingClientRect();
+  const maxW = rect.width - 20, maxH = rect.height - 20;
+  cols = Math.floor(maxW / CELL);
+  rows = Math.floor(maxH / CELL);
+  canvas.width = cols * CELL;
+  canvas.height = rows * CELL;
+  if (!grid || grid.length !== cols * rows) {
+    const newGrid = new Int8Array(cols * rows);
+    const newGrid3 = new Int8Array(cols * rows);
+    if (grid) {
+      // Preserve center region of old grid
+      const oldCols = Math.sqrt(grid.length) | 0; // rough
+      for (let i = 0; i < Math.min(grid.length, newGrid.length); i++) {
+        newGrid[i] = grid[i];
+        newGrid3[i] = grid3 ? grid3[i] : 0;
+      }
+    }
+    grid = newGrid;
+    grid3 = newGrid3;
+  }
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function idx(r, c) {
+  const wrap = document.getElementById('wrap-check').checked;
+  if (wrap) {
+    r = ((r % rows) + rows) % rows;
+    c = ((c % cols) + cols) % cols;
+  } else {
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return -1;
+  }
+  return r * cols + c;
+}
+
+function countNeighbors(r, c, use3 = false) {
+  let n = 0;
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const k = idx(r + dr, c + dc);
+      if (k < 0) continue;
+      if (use3) { if (grid3[k] === 1) n++; }
+      else { if (grid[k] === 1) n++; }
+    }
+  }
+  return n;
+}
+
+function stepGen() {
+  generation++;
+  if (currentRule === 'brian') {
+    const next = new Int8Array(grid3.length);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        const state = grid3[i];
+        if (state === 1) next[i] = 2;             // live → dying
+        else if (state === 2) next[i] = 0;        // dying → dead
+        else {
+          const n = countNeighbors(r, c, true);
+          next[i] = (n === 2) ? 1 : 0;            // dead + 2 live neighbors → live
+        }
+      }
+    }
+    grid3 = next;
+  } else {
+    const next = new Int8Array(grid.length);
+    const birthSet = ruleBirthSet(currentRule);
+    const surviveSet = ruleSurviveSet(currentRule);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const n = countNeighbors(r, c, false);
+        const i = r * cols + c;
+        if (grid[i] === 1) next[i] = surviveSet.has(n) ? 1 : 0;
+        else next[i] = birthSet.has(n) ? 1 : 0;
+      }
+    }
+    grid = next;
+  }
+  updateStats();
+  draw();
+}
+
+function ruleBirthSet(r) {
+  return {
+    life: new Set([3]),
+    highlife: new Set([3, 6]),
+    seeds: new Set([2]),
+    daynight: new Set([3, 6, 7, 8]),
+    maze: new Set([3]),
+  }[r] || new Set();
+}
+function ruleSurviveSet(r) {
+  return {
+    life: new Set([2, 3]),
+    highlife: new Set([2, 3]),
+    seeds: new Set(),
+    daynight: new Set([3, 4, 6, 7, 8]),
+    maze: new Set([1, 2, 3, 4, 5]),
+  }[r] || new Set();
+}
+
+function stepMany(n) {
+  for (let i = 0; i < n; i++) stepGen();
+}
+
+let playTimer = null;
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (playTimer) {
+    clearInterval(playTimer); playTimer = null; btn.textContent = '▶ Play';
+  } else {
+    const speed = parseInt(document.getElementById('speed-slider').value);
+    playTimer = setInterval(stepGen, 1000 / speed);
+    btn.textContent = '■ Pause';
+  }
+}
+function updateSpeed() {
+  const speed = parseInt(document.getElementById('speed-slider').value);
+  document.getElementById('speed-val').textContent = speed + '/s';
+  if (playTimer) { clearInterval(playTimer); playTimer = setInterval(stepGen, 1000 / speed); }
+}
+function updateCell() {
+  CELL = parseInt(document.getElementById('cell-slider').value);
+  document.getElementById('cell-val').textContent = CELL + ' px';
+  resize();
+}
+
+function clearGrid() {
+  grid = new Int8Array(cols * rows);
+  grid3 = new Int8Array(cols * rows);
+  generation = 0;
+  peakDensity = 0;
+  updateStats();
+  draw();
+}
+
+function randomFill(density) {
+  clearGrid();
+  for (let i = 0; i < grid.length; i++) {
+    if (Math.random() < density) {
+      grid[i] = 1;
+      grid3[i] = 1;
+    }
+  }
+  updateStats();
+  draw();
+}
+
+// Patterns — relative coordinates (r, c)
+const PATTERNS = {
+  glider: [[0,1],[1,2],[2,0],[2,1],[2,2]],
+  blinker: [[0,0],[0,1],[0,2]],
+  pulsar: [
+    [0,2],[0,3],[0,4],[0,8],[0,9],[0,10],
+    [2,0],[3,0],[4,0],[2,5],[3,5],[4,5],[2,7],[3,7],[4,7],[2,12],[3,12],[4,12],
+    [5,2],[5,3],[5,4],[5,8],[5,9],[5,10],
+    [7,2],[7,3],[7,4],[7,8],[7,9],[7,10],
+    [8,0],[9,0],[10,0],[8,5],[9,5],[10,5],[8,7],[9,7],[10,7],[8,12],[9,12],[10,12],
+    [12,2],[12,3],[12,4],[12,8],[12,9],[12,10],
+  ],
+  gosper: [
+    [0,24],[1,22],[1,24],[2,12],[2,13],[2,20],[2,21],[2,34],[2,35],
+    [3,11],[3,15],[3,20],[3,21],[3,34],[3,35],
+    [4,0],[4,1],[4,10],[4,16],[4,20],[4,21],
+    [5,0],[5,1],[5,10],[5,14],[5,16],[5,17],[5,22],[5,24],
+    [6,10],[6,16],[6,24],[7,11],[7,15],[8,12],[8,13],
+  ],
+};
+
+function seedPattern(name) {
+  clearGrid();
+  const cells = PATTERNS[name] || [];
+  const maxR = Math.max(...cells.map(c => c[0]), 0);
+  const maxC = Math.max(...cells.map(c => c[1]), 0);
+  const r0 = Math.floor((rows - maxR) / 2);
+  const c0 = Math.floor((cols - maxC) / 2);
+  for (const [r, c] of cells) {
+    const i = idx(r + r0, c + c0);
+    if (i >= 0) { grid[i] = 1; grid3[i] = 1; }
+  }
+  updateStats();
+  draw();
+}
+
+// Click to toggle cells
+let isDragging = false;
+let dragToState = 1;
+canvas.addEventListener('mousedown', e => {
+  const rect = canvas.getBoundingClientRect();
+  const c = Math.floor((e.clientX - rect.left) / CELL);
+  const r = Math.floor((e.clientY - rect.top) / CELL);
+  const i = idx(r, c);
+  if (i < 0) return;
+  if (currentRule === 'brian') {
+    dragToState = grid3[i] === 0 ? 1 : 0;
+    grid3[i] = dragToState;
+  } else {
+    dragToState = grid[i] === 0 ? 1 : 0;
+    grid[i] = dragToState;
+  }
+  isDragging = true;
+  draw();
+  updateStats();
+});
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const c = Math.floor((e.clientX - rect.left) / CELL);
+  const r = Math.floor((e.clientY - rect.top) / CELL);
+  const i = idx(r, c);
+  if (i < 0) return;
+  if (currentRule === 'brian') grid3[i] = dragToState;
+  else grid[i] = dragToState;
+  draw();
+});
+window.addEventListener('mouseup', () => { isDragging = false; updateStats(); });
+
+function draw() {
+  ctx.fillStyle = '#0f1318';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (currentRule === 'brian') {
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const s = grid3[r * cols + c];
+        if (s === 1) ctx.fillStyle = '#4fc3f7';         // live
+        else if (s === 2) ctx.fillStyle = '#1e4a6b';    // dying
+        else continue;
+        ctx.fillRect(c * CELL, r * CELL, CELL - 1, CELL - 1);
+      }
+    }
+  } else {
+    ctx.fillStyle = '#81c784';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (grid[r * cols + c] === 1) {
+          ctx.fillRect(c * CELL, r * CELL, CELL - 1, CELL - 1);
+        }
+      }
+    }
+  }
+  // Light grid lines
+  if (CELL >= 8) {
+    ctx.strokeStyle = 'rgba(79,120,150,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let c = 0; c <= cols; c++) {
+      ctx.moveTo(c * CELL, 0); ctx.lineTo(c * CELL, rows * CELL);
+    }
+    for (let r = 0; r <= rows; r++) {
+      ctx.moveTo(0, r * CELL); ctx.lineTo(cols * CELL, r * CELL);
+    }
+    ctx.stroke();
+  }
+}
+
+function updateStats() {
+  let live = 0;
+  if (currentRule === 'brian') {
+    for (let i = 0; i < grid3.length; i++) if (grid3[i] === 1) live++;
+  } else {
+    for (let i = 0; i < grid.length; i++) if (grid[i] === 1) live++;
+  }
+  liveCount = live;
+  const density = grid.length ? live / grid.length : 0;
+  if (density > peakDensity) peakDensity = density;
+  document.getElementById('stat-gen').textContent = generation;
+  document.getElementById('stat-live').textContent = live;
+  document.getElementById('stat-den').textContent = (density * 100).toFixed(1) + '%';
+  document.getElementById('stat-peak').textContent = (peakDensity * 100).toFixed(1) + '%';
+}
+
+function applyRule() {
+  currentRule = document.getElementById('rule-select').value;
+  document.getElementById('rule-note').innerHTML = RULE_NOTES[currentRule];
+  // If switching to/from Brian's Brain, convert states
+  if (currentRule === 'brian') {
+    for (let i = 0; i < grid.length; i++) grid3[i] = grid[i];
+  } else {
+    for (let i = 0; i < grid3.length; i++) grid[i] = (grid3[i] === 1) ? 1 : 0;
+  }
+  generation = 0;
+  peakDensity = 0;
+  updateStats();
+  draw();
+}
+
+// Boot
+resize();
+applyRule();
+seedPattern('gosper');
+</script>
+</body>
+</html>
