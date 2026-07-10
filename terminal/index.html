@@ -17,7 +17,6 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{background:radial-gradient(circle at 50% -20%,#0d1622,#07090c 60%);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace}
-/* connect screen */
 .connect{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:calc(env(safe-area-inset-top) + 40px) 26px 50px;max-width:560px;margin:0 auto}
 h1{font-size:2.6em;color:var(--blue);text-shadow:0 0 26px rgba(90,162,255,.4)}
 .cur{display:inline-block;width:.5em;height:1em;background:var(--blue);vertical-align:-2px;animation:blink 1.1s steps(1) infinite;box-shadow:0 0 12px var(--blue)}
@@ -27,51 +26,103 @@ label{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:
 input{width:100%;background:#0a1017;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:12px 13px;font:inherit;font-size:.95em;margin:6px 0 14px}
 .btn{display:block;width:100%;text-align:center;background:var(--blue);color:#04101f;border:none;font-weight:800;font-size:1.1em;padding:15px;border-radius:14px;box-shadow:0 6px 30px rgba(90,162,255,.35);cursor:pointer}
 .btn.dis{background:#233247;color:#6b839c;box-shadow:none}
+.btn2{display:block;width:100%;text-align:center;background:transparent;color:var(--dim);border:1px solid var(--rule);font-weight:600;font-size:.9em;padding:12px;border-radius:12px;cursor:pointer;margin-top:10px;font-family:ui-sans-serif,system-ui,sans-serif}
 .hint{color:var(--dim);font-size:.82rem;line-height:1.5;margin-top:16px;font-family:ui-sans-serif,system-ui,sans-serif}
 .hint b{color:var(--ink)}
 .warn{color:#ffb0a0;font-size:.8rem;margin-top:12px;font-family:ui-sans-serif,system-ui,sans-serif}
-/* live terminal */
 #frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;display:none}
 #bar{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;
-  padding:calc(env(safe-area-inset-top) + 6px) 12px 6px;background:#07090cd0;backdrop-filter:blur(8px);z-index:5;font-size:.8rem;color:var(--dim)}
+  padding:calc(env(safe-area-inset-top) + 6px) 12px 6px;background:#07090ce8;backdrop-filter:blur(8px);z-index:5;font-size:.8rem;color:var(--dim)}
+#bar .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:6px;vertical-align:1px}
 #bar button{background:none;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:.82rem;cursor:pointer;margin-left:6px}
-.on{display:flex!important}.onb{display:block!important}
+.on{display:flex!important}
+/* status / help overlay over the iframe */
+#ov{position:fixed;inset:0;z-index:8;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  padding:40px 30px;background:radial-gradient(circle at 50% 30%,#0d1622,#07090cf2 70%);backdrop-filter:blur(3px)}
+#ov.on{display:flex}
+#ov .spin{width:34px;height:34px;border:3px solid var(--rule);border-top-color:var(--blue);border-radius:50%;animation:sp 0.9s linear infinite;margin-bottom:18px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ov h2{color:var(--ink);font-size:1.2rem;font-family:ui-sans-serif,system-ui,sans-serif}
+#ov p{color:var(--dim);font-size:.86rem;line-height:1.6;margin:10px 0 20px;font-family:ui-sans-serif,system-ui,sans-serif;max-width:340px}
+#ov ol{text-align:left;color:var(--dim);font-size:.86rem;line-height:1.8;margin:0 0 20px;padding-left:20px;font-family:ui-sans-serif,system-ui,sans-serif;max-width:340px}
+#ov ol b{color:var(--ink)}
+#ov .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#ov .row button{background:var(--blue);color:#04101f;border:none;font-weight:700;padding:12px 18px;border-radius:12px;cursor:pointer;font-family:ui-sans-serif,system-ui,sans-serif}
+#ov .row button.sec{background:transparent;color:var(--ink);border:1px solid var(--rule)}
 </style>
 </head>
 <body>
 <div class="connect" id="connect">
   <h1>terminal<span class="cur"></span></h1>
-  <div class="sub">A live shell to your Mac. Start the server on your Mac, then paste the URL it prints.</div>
+  <div class="sub">A live shell to your Mac over your private Tailscale network.</div>
   <label>Terminal URL</label>
   <input id="url" placeholder="https://your-mac.tailXXXX.ts.net" autocomplete="off" autocapitalize="off" spellcheck="false">
   <button class="btn dis" id="go">Connect</button>
-  <div class="hint">Paste your Mac's terminal URL (the <b>tailscale</b> one), tap Connect, and you're in your shell — no login. Type <b>claude</b> to start.</div>
-  <div class="warn">🔒 Reachable only from your own devices on your private Tailscale network. Turn Tailscale on if it won't connect.</div>
+  <button class="btn2" id="quick">⚡ Connect to my Mac (study-mac)</button>
+  <div class="hint">Tap connect and you're in your shell — no login. Type <b>claude</b> to start.</div>
+  <div class="warn">🔒 Works only on devices signed into your Tailscale network. <b>Turn Tailscale ON on this phone first.</b></div>
 </div>
 
-<div id="bar"><span>terminal</span><span><button onclick="reloadFrame()">⟲</button><button onclick="disconnect()">⚙ URL</button></span></div>
+<div id="bar"><span><span class="dot" id="dot"></span>terminal</span><span><button onclick="reloadFrame()">⟲ Reconnect</button><button onclick="showHelp()">?</button><button onclick="disconnect()">⚙</button></span></div>
 <iframe id="frame" allow="clipboard-read; clipboard-write"></iframe>
 
+<div id="ov">
+  <div id="ovBody"></div>
+</div>
+
 <script>
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+const DEFAULT_URL='https://study-mac.tailbd7efd.ts.net';
 const $=id=>document.getElementById(id);
-function connect(u){ $('frame').src=u; $('frame').style.display='block'; $('bar').classList.add('on'); $('connect').style.display='none'; }
-function disconnect(){ $('frame').src='about:blank'; $('frame').style.display='none'; $('bar').classList.remove('on'); $('connect').style.display='flex'; $('url').focus(); }
-function reloadFrame(){ const u=localStorage.getItem('term_url'); if(u){ $('frame').src='about:blank'; setTimeout(()=>$('frame').src=u,60); } }
-$('url').value=localStorage.getItem('term_url')||'';
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+
+let connectedAt=0;
+function connect(u){
+  localStorage.setItem('term_url',u);
+  $('frame').src=u; $('frame').style.display='block'; $('bar').classList.add('on'); $('connect').style.display='none';
+  connectedAt=Date.now();
+  showConnecting();
+}
+function disconnect(){ $('frame').src='about:blank'; $('frame').style.display='none'; $('bar').classList.remove('on'); hideOv(); $('connect').style.display='flex'; $('url').focus(); }
+function reloadFrame(){ const u=localStorage.getItem('term_url'); if(u){ $('frame').src='about:blank'; connectedAt=Date.now(); showConnecting(); setTimeout(()=>$('frame').src=u,80); } }
+
+/* overlay: shows a spinner briefly, then (if you tap "still black") full help */
+function showOv(html){ $('ovBody').innerHTML=html; $('ov').classList.add('on'); }
+function hideOv(){ $('ov').classList.remove('on'); }
+function showConnecting(){
+  $('dot').style.background='var(--gold)';
+  showOv(`<div class="spin"></div><h2>Connecting to your Mac…</h2>
+    <p>This should take a second. If you just see black, your phone probably isn't reaching the Mac.</p>
+    <div class="row"><button onclick="markIn()">I'm in ✓</button><button class="sec" onclick="showHelp()">Still black?</button></div>`);
+  // auto-assume connected after a few seconds so the overlay doesn't block a working shell
+  clearTimeout(window._ovT); window._ovT=setTimeout(()=>{ if($('ov').classList.contains('on')) markIn(); }, 6000);
+}
+function markIn(){ hideOv(); $('dot').style.background='var(--green)'; }
+function showHelp(){
+  $('dot').style.background='var(--red)';
+  showOv(`<h2>Terminal won't load?</h2>
+    <ol>
+      <li>Open the <b>Tailscale</b> app on this phone and make sure it's <b>Connected</b> (toggle ON).</li>
+      <li>Your <b>Mac must be awake</b> and on the same Tailscale account.</li>
+      <li>Then tap <b>Reconnect</b> below.</li>
+    </ol>
+    <p>Still stuck? Tap <b>Change URL</b> and re-enter your Mac's tailscale address, or on the Mac run <b>~/projects/studyhub/stable-terminal.sh</b>.</p>
+    <div class="row"><button onclick="reloadFrame()">⟲ Reconnect</button><button class="sec" onclick="disconnect()">Change URL</button></div>`);
+}
+
+$('url').value=localStorage.getItem('term_url')||DEFAULT_URL;
 function syncBtn(){ const ok=/^https?:\/\//.test($('url').value.trim()); $('go').classList.toggle('dis',!ok); return ok; }
 $('url').addEventListener('input',syncBtn);
 $('url').addEventListener('keydown',e=>{ if(e.key==='Enter') $('go').click(); });
-$('go').onclick=()=>{ const u=$('url').value.trim(); if(!/^https?:\/\//.test(u)){ $('url').focus(); return; } localStorage.setItem('term_url',u); connect(u); };
+$('go').onclick=()=>{ const u=$('url').value.trim(); if(!/^https?:\/\//.test(u)){ $('url').focus(); return; } connect(u); };
+$('quick').onclick=()=>{ $('url').value=DEFAULT_URL; connect(DEFAULT_URL); };
 syncBtn();
-// auto-connect if we already have a URL
+
 const saved=localStorage.getItem('term_url'); if(saved) connect(saved);
-// iOS kills the terminal's connection when the app is backgrounded — when we come
-// back, reload the iframe so it reconnects into your (persistent) tmux session.
+
+// iOS drops the connection when the app is backgrounded — reconnect into the persistent tmux session on return
 function refreshIfConnected(){ if($('frame').style.display==='block' && localStorage.getItem('term_url')) reloadFrame(); }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshIfConnected(); });
 window.addEventListener('pageshow',e=>{ if(e.persisted) refreshIfConnected(); });
-window.addEventListener('focus',refreshIfConnected);
 </script>
 </body>
 </html>

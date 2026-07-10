@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Gauntlet — an ethics game</title>
+<meta name="theme-color" content="#14110c">
+<style>
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--rule:#352c22;
+  --trans:#7fae8b;--diss:#d98f8f;--lives:#6fa8d9;--trust:#d9b46f}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;line-height:1.5;
+  padding:calc(env(safe-area-inset-top) + 52px) 16px calc(env(safe-area-inset-bottom) + 40px)}
+.wrap{max-width:640px;margin:0 auto}
+.eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.1em;font-weight:600;line-height:1.1}
+h1 em{font-style:italic;color:var(--gold)}
+.lede{color:var(--dim);margin:12px 0 20px;font-size:1.02em}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:20px}
+.btn{background:var(--gold);color:#1a1206;border:none;border-radius:12px;padding:14px 20px;font:700 1.02em/1 inherit;cursor:pointer;width:100%}
+.btn:active{transform:translateY(1px)}
+.ghost{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:12px;padding:12px 18px;font:600 .95em/1 inherit;cursor:pointer}
+/* HUD */
+.hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;gap:6px;justify-content:center;
+  padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;background:#14110cea;backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.meter{flex:1;max-width:150px;text-align:center}
+.meter .lab{font-family:ui-monospace,monospace;font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.meter .val{font-family:"Iowan Old Style",Georgia,serif;font-size:1.15rem;font-weight:600}
+.meter.ledger .val{color:var(--gold)}
+.flash{animation:fl .6s ease}
+@keyframes fl{0%{transform:scale(1.5);text-shadow:0 0 16px currentColor}100%{transform:scale(1)}}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.prog .bar{flex:1;height:6px;background:#0e0b07;border-radius:4px;overflow:hidden}
+.prog .bar>i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .4s ease}
+.prog .n{font-family:ui-monospace,monospace;font-size:.78em;color:var(--faint);white-space:nowrap}
+.tag{display:inline-block;font-family:ui-monospace,monospace;font-size:.7em;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--rule);border-radius:20px;padding:4px 10px;margin-bottom:12px}
+.scene{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.3em;line-height:1.4;margin-bottom:6px}
+.detail{color:var(--dim);margin:10px 0 18px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--panel2);border:1px solid var(--rule);border-radius:13px;padding:15px 16px;text-align:left;cursor:pointer;
+  color:var(--ink);font:inherit;font-size:1.02em;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gold)}.opt:active{background:#2c2218}
+.opt .oh{font-weight:600;display:flex;gap:9px;align-items:flex-start}
+.opt .ok{color:var(--faint);font-family:ui-monospace,monospace;font-size:.9em;margin-top:1px}
+.reflect{margin-top:18px;padding:15px 16px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;animation:fade .35s ease}
+.reflect .rl{font-family:ui-monospace,monospace;font-size:.68em;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.reflect .rt{color:var(--ink);font-style:italic}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-family:ui-monospace,monospace;font-size:.74em;padding:4px 9px;border-radius:20px;border:1px solid var(--rule)}
+.chip.up{color:var(--trans);border-color:#3a4a3e}.chip.down{color:var(--diss);border-color:#4a3a3a}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.next{margin-top:16px}
+.fingerprint{text-align:center;margin:6px 0 20px}
+.fingerprint .big{font-family:"Iowan Old Style",Georgia,serif;font-size:1.9em;color:var(--gold);line-height:1.15}
+.fingerprint .who{color:var(--dim);margin-top:8px;font-style:italic}
+.bars{margin:18px 0}
+.brow{margin-bottom:14px}.brow .bl{display:flex;justify-content:space-between;font-size:.9em;margin-bottom:5px}
+.brow .bl .nm{font-weight:600}.brow .bl .pc{color:var(--faint);font-family:ui-monospace,monospace}
+.track{height:9px;background:#0e0b07;border-radius:5px;overflow:hidden}.track>i{display:block;height:100%;border-radius:5px;width:0;transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.summary{color:var(--dim);margin:16px 0;font-size:1.02em}.summary b{color:var(--ink)}
+.actions{display:flex;gap:10px;margin-top:22px}.actions .btn{flex:1}
+.foot{color:var(--faint);font-size:.82em;text-align:center;margin-top:26px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translateX(-50%) translateY(20px);
+  background:#2c2218;border:1px solid var(--gold);color:var(--gold);padding:11px 18px;border-radius:24px;font-size:.9em;font-weight:600;opacity:0;pointer-events:none;transition:.3s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%)}
+a.hubback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);
+  color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;
+  text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)}
+</style></head>
+<body>
+<a href="../index.html" class="hubback">&lsaquo; Hub</a>
+<div class="hud" id="hud" style="display:none"></div>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ The Gauntlet — ethics as a game, scored by the Poietism rule ============
+   Every choice moves TRANSFORMATION (potential turned into something constructive) and
+   DISSIPATION (waste, harm, potential thrown away). Your ledger = Transformation − Dissipation.
+   Lives and Trust are the world's memory — later dilemmas change based on them.            */
+const app=document.getElementById('app'), hud=document.getElementById('hud');
+let W;  // world state
+function fresh(){ return {trans:0, diss:0, lives:0, trust:50, i:0, flags:{}, fw:{util:0,deon:0,virt:0,just:0}}; }
+
+const SCENES=[
+ { tag:'Spring · The Broken Bridge',
+   text:()=>'The river bridge collapsed in the thaw. Rebuilding it drains most of the year’s budget, but the eastern farms are cut off from the market and the clinic.',
+   detail:'Build now, or hold the coin for whatever the year brings?',
+   opts:[
+    {t:'Rebuild it — reconnect the farms and the clinic.', fw:{util:2,virt:1}, dT:3, dD:0, dLives:2, dTrust:8, flag:'built',
+     r:'Potential unlocked: crops reach market, the sick reach care. Coin spent, but turned into flow, not stored as fear.'},
+    {t:'Patch a footpath and bank the budget for emergencies.', fw:{deon:1,just:1}, dT:1, dD:1, dLives:-1, dTrust:-4,
+     r:'Prudent, but a walled-off reserve is dammed potential. The farms wither a little while the coin sleeps.'}]},
+
+ { tag:'Summer · The Medicine Thief',
+   text:()=>'A father is caught stealing fever medicine from the clinic for his child. The law says a cell. The clinic can spare it. The town is watching what you do.',
+   detail:'Rules keep trust. Mercy keeps a family. Which builds more?',
+   opts:[
+    {t:'Forgive the debt, enroll him in work-for-care.', fw:{virt:2,util:1}, dT:3, dD:0, dLives:1, dTrust:6, flag:'merciful',
+     r:'You convert a crime into a contribution — his labor, his loyalty. Dissipation (a jailed man, a sick child) becomes transformation.'},
+    {t:'Jail him — the law must mean something.', fw:{deon:3}, dT:0, dD:2, dLives:-1, dTrust:-2,
+     r:'The rule holds, but a father idles in a cell and a child stays sick. Order preserved; potential spent to preserve it.'},
+    {t:'Let it slide quietly, say nothing.', fw:{util:1}, dT:1, dD:1, dTrust:-3,
+     r:'No one is punished, but no one is changed either. The problem is deferred, not transformed.'}]},
+
+ { tag:'Summer · The Factory Offer',
+   text:()=>'A company will build a factory: three hundred jobs, real prosperity — but its runoff will slowly foul the same river you may have just rebuilt toward.',
+   detail:'Jobs are potential realized. A poisoned river is potential destroyed.',
+   opts:[
+    {t:'Accept it — the town needs the work.', fw:{util:3}, dT:3, dD:3, dLives:1, dTrust:2, flag:'factory',
+     r:'A huge burst of transformation shadowed by an equal, slower dissipation downstream. The Poietism question: does the making outrun the ruin?'},
+    {t:'Refuse — some things aren’t for sale.', fw:{deon:2,virt:1}, dT:0, dD:1, dTrust:-2,
+     r:'You protect the river but leave the jobs — and their potential — unmade. Purity has its own quiet cost.'},
+    {t:'Demand they fund cleanup tech first (costs you leverage).', fw:{just:2,virt:1}, dT:4, dD:0, dLives:1, dTrust:5, req:W=>W.trust>=52, flag:'cleanfactory',
+     r:'The hardest, best road: jobs AND a living river. It only works because the town already trusts you enough to hold the line.'}]},
+
+ { tag:'Autumn · The Loud Stranger',
+   text:()=>'A charismatic agitator fills the square nightly, blaming outsiders for every hardship. Some of it lands. The crowds are getting angry.',
+   detail:'Silence him, out-argue him, or let it burn itself out?',
+   opts:[
+    {t:'Ban him from the square.', fw:{util:1}, dT:0, dD:3, dTrust:-6, flag:'censored',
+     r:'You stop the words but not the anger — and you spend trust to do it. Force disperses potential without transforming it.'},
+    {t:'Debate him in the open, every night.', fw:{virt:3,just:1}, dT:3, dD:1, dTrust:4, req:W=>W.trust>=45,
+     r:'Riskier and slower, but you turn heat into light — the crowd’s energy metabolized into argument instead of a mob.'},
+    {t:'Ignore it and govern quietly.', fw:{deon:1}, dT:0, dD:2, dTrust:-3,
+     r:'Left alone, resentment compounds. Neglected potential rarely stays neutral for long.'}]},
+
+ { tag:'Winter · The Scarce Vaccine',
+   text:()=>'A fever sweeps in. You have vaccine for perhaps a third of the town.',
+   detail:'However you ration it, you are choosing who is exposed.',
+   opts:[
+    {t:'Children and the frail first.', fw:{virt:2,util:1}, dT:2, dD:1, dLives:3, dTrust:5,
+     r:'You protect the most potential-years and the least defended. Compassion and consequence agree for once.'},
+    {t:'A blind lottery — everyone equal.', fw:{just:3}, dT:1, dD:1, dLives:1, dTrust:3,
+     r:'Fairness all could consent to behind the veil — though chance wastes some doses on the already-strong.'},
+    {t:'Key workers first — keep the town running.', fw:{util:3}, dT:2, dD:2, dLives:0, dTrust:-2,
+     r:'You keep the machine of the town alive, betting its function saves more later. Cold, arguable, real.'}]},
+
+ { tag:'Winter · The Councilor’s Secret',
+   text:()=>W.flags.merciful ? 'The councilor who once vouched for your mercy is skimming the relief fund. Exposing her is right — and it will look like betrayal.'
+                              : 'A trusted councilor is quietly skimming the relief fund. Exposing her is right — and it will cost you an ally.',
+   detail:'Loyalty preserved is trust dissipated elsewhere.',
+   opts:[
+    {t:'Expose her publicly, return the funds.', fw:{just:3,deon:1}, dT:3, dD:0, dLives:1, dTrust:7, req:W=>true,
+     r:'Painful, but you convert a hidden rot into restored coin and public faith. Sunlight is transformation.'},
+    {t:'Handle it privately, let her resign.', fw:{virt:1,deon:1}, dT:2, dD:1, dTrust:1,
+     r:'You recover the funds and spare the spectacle — a quieter repair, a little justice left unspoken.'},
+    {t:'Cover for her — you need the alliance.', fw:{util:1}, dT:0, dD:3, dTrust:-8, flag:'complicit',
+     r:'The rot stays in the walls and now it’s yours too. Potential quietly leaking where no one can see it.'}]},
+
+ { tag:'Spring · The Wild Invention',
+   text:()=>W.flags.factory && !W.flags.cleanfactory
+      ? 'A tinkerer brings a machine that could double the harvest — or fail spectacularly. Between the factory’s costs and the risk, the treasury is thin.'
+      : 'A tinkerer brings a machine that could double the harvest — or fail spectacularly and cost a season.',
+   detail:'The boldest transformations are gambles. Poietism cares about trajectory, not safety.',
+   opts:[
+    {t:'Fund it fully — swing for the future.', fw:{util:2,virt:1}, dT:5, dD:2, dLives:1, dTrust:3, req:W=>W.trust>=55||W.flags.built,
+     r:'The highest-potential play on the board. It only clears because you built enough trust and standing to risk a bold bet.'},
+    {t:'Fund a small trial first.', fw:{just:1,virt:1}, dT:2, dD:0, dTrust:2,
+     r:'Measured transformation — you buy information before you buy the future. Slower, surer, smaller.'},
+    {t:'Decline — the town can’t afford a failure now.', fw:{deon:1}, dT:0, dD:1, dTrust:-1,
+     r:'Safe. But a declined gamble is potential you chose to leave in the ground.'}]},
+
+ { tag:'The Reckoning',
+   text:()=>{
+     const net=W.trans-W.diss;
+     if(net>=14) return 'A year gone. The square is full — not with anger this time, but with people who came to thank you. They ask you to stay another year.';
+     if(net>=6)  return 'A year gone. The town is steadier than you found it, though scars remain. They ask what you’d do differently.';
+     return 'A year gone. The town is quieter now — some of it emptied out, some of it simply worn. They ask if it was worth it.';},
+   detail:'One last choice — how you leave shapes what remains.',
+   opts:[
+    {t:'Hand power to an elected council and teach them your ledger.', fw:{just:2,virt:2}, dT:4, dD:0, dTrust:6,
+     r:'The final transformation: you turn your own authority into something that outlives you. Potential compounded past yourself.'},
+    {t:'Stay — no one else can hold it together yet.', fw:{util:1,virt:1}, dT:1, dD:2, dTrust:-2,
+     r:'Maybe true, maybe pride. Power held too tightly is potential that never gets to leave your hands.'},
+    {t:'Walk away and let the town find its own feet.', fw:{deon:1}, dT:2, dD:1, dTrust:-1,
+     r:'You refuse to be indispensable. A risk — but freedom handed over is its own kind of making.'}]},
+];
+
+function start(){ W=fresh(); hud.style.display='flex'; render(); }
+
+function render(){
+  const s=SCENES[W.i];
+  drawHud();
+  const pct=Math.round(W.i/SCENES.length*100);
+  const opts=s.opts.filter(o=>!o.req||o.req(W));
+  const keys=['A','B','C','D'];
+  app.innerHTML=`
+    <div class="prog"><div class="bar"><i style="width:${pct}%"></i></div><div class="n">${W.i+1} / ${SCENES.length}</div></div>
+    <div class="card">
+      <span class="tag">${s.tag}</span>
+      <div class="scene">${s.text()}</div>
+      <div class="detail">${s.detail}</div>
+      <div class="opts" id="opts">${opts.map((o,i)=>
+        `<button class="opt" data-i="${s.opts.indexOf(o)}"><span class="oh"><span class="ok">${keys[i]}</span><span>${o.t}</span></span></button>`).join('')}</div>
+      <div id="after"></div>
+    </div>`;
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>choose(+b.dataset.i));
+  window.scrollTo(0,0);
+}
+
+function choose(i){
+  const s=SCENES[W.i], o=s.opts[i];
+  const before={trans:W.trans,diss:W.diss,lives:W.lives,trust:W.trust};
+  W.trans+=o.dT||0; W.diss+=o.dD||0; W.lives+=o.dLives||0; W.trust=Math.max(0,Math.min(100,W.trust+(o.dTrust||0)));
+  for(const k in o.fw) W.fw[k]+=o.fw[k];
+  if(o.flag) W.flags[o.flag]=true;
+  drawHud(before);
+  document.querySelectorAll('.opt').forEach(b=>{ b.style.pointerEvents='none';
+    if(+b.dataset.i===i){b.style.borderColor='var(--gold)';b.style.background='#2c2218';} else b.style.opacity='.4'; });
+  const chips=[
+    o.dT?`<span class="chip up">transformation +${o.dT}</span>`:'',
+    o.dD?`<span class="chip down">dissipation +${o.dD}</span>`:'',
+    o.dLives?`<span class="chip ${o.dLives>0?'up':'down'}">lives ${o.dLives>0?'+':''}${o.dLives}</span>`:'',
+    o.dTrust?`<span class="chip ${o.dTrust>0?'up':'down'}">trust ${o.dTrust>0?'+':''}${o.dTrust}</span>`:''
+  ].join('');
+  document.getElementById('after').innerHTML=`
+    <div class="reflect"><div class="rl">The Poietism ledger</div><div class="rt">${o.r}</div>
+      <div class="chips">${chips}</div></div>
+    <div class="next"><button class="btn" id="nextBtn">${W.i<SCENES.length-1?'Next season &rsaquo;':'See how the year turned out &rsaquo;'}</button></div>`;
+  document.getElementById('nextBtn').onclick=advance;
+  document.getElementById('after').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function advance(){ W.i++; if(W.i>=SCENES.length) result(); else render(); }
+
+function drawHud(before){
+  const net=W.trans-W.diss;
+  const cells=[
+    ['ledger','Ledger',(net>0?'+':'')+net],
+    ['','Transform',W.trans],
+    ['','Dissipate',W.diss],
+    ['','Trust',W.trust]
+  ];
+  hud.innerHTML=cells.map(c=>`<div class="meter ${c[0]}"><div class="lab">${c[1]}</div><div class="val" style="${c[1]==='Transform'?'color:var(--trans)':c[1]==='Dissipate'?'color:var(--diss)':c[1]==='Trust'?'color:var(--trust)':''}">${c[2]}</div></div>`).join('');
+  if(before){ // flash the changed meters
+    const chg=[]; if(W.trans!==before.trans)chg.push(1); if(W.diss!==before.diss)chg.push(2); if(W.trust!==before.trust)chg.push(3); chg.push(0);
+    hud.querySelectorAll('.meter .val').forEach((v,idx)=>{ if(chg.includes(idx)) v.classList.add('flash'); });
+  }
+}
+
+function result(){
+  const net=W.trans-W.diss;
+  hud.style.display='none';
+  let title,who,verdict;
+  if(net>=16){ title='The Great Maker'; who='You governed as Poietism dreams: potential poured into the world faster than it could drain away.';
+    verdict='Your ledger is overwhelmingly constructive. You didn’t just avoid harm — you turned crisis after crisis into something that hadn’t existed before.'; }
+  else if(net>=8){ title='The Builder'; who='More was made than was lost. A good, human year.';
+    verdict='On balance you transformed far more than you dissipated. Not flawless — but the town is more alive for your having held the reins.'; }
+  else if(net>=1){ title='The Careful Steward'; who='You broke roughly even, tilted toward the good.';
+    verdict='You kept the town intact and inched it forward. A defensible year — though Poietism would ask where you played it too safe.'; }
+  else if(net>=-6){ title='The Dissipator'; who='Good intentions, but more potential drained than was made.';
+    verdict='Order was kept, but at the cost of the very potential you were meant to grow. The Poietism verdict: motion without enough making.'; }
+  else { title='The Ruin'; who='The ledger ran deep into waste.';
+    verdict='Choice by choice, potential leaked out of the town faster than you rebuilt it. A hard mirror — worth replaying with the ledger in mind.'; }
+
+  const fwNames={util:'Consequences',deon:'Duty',virt:'Character',just:'Fairness'};
+  const fwTot=Object.values(W.fw).reduce((a,b)=>a+b,0)||1;
+  const ranked=Object.keys(W.fw).sort((a,b)=>W.fw[b]-W.fw[a]);
+  const fwColor={util:'var(--trans)',deon:'var(--lives)',virt:'var(--gold)',just:'#b98fd9'};
+
+  app.innerHTML=`
+    <div class="eyebrow">The year in the ledger</div>
+    <div class="fingerprint"><div class="big">${title}</div><div class="who">${who}</div></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:6px">
+        <div><div style="font-family:Georgia,serif;font-size:2em;color:var(--gold)">${net>0?'+':''}${net}</div><div class="lab" style="font-family:ui-monospace,monospace;font-size:.7em;color:var(--faint);letter-spacing:1px">NET LEDGER</div></div>
+        <div><div style="font-family:Georgia,serif;font-size:2em;color:var(--lives)">${W.lives>0?'+':''}${W.lives}</div><div style="font-family:ui-monospace,monospace;font-size:.7em;color:var(--faint);letter-spacing:1px">LIVES</div></div>
+        <div><div style="font-family:Georgia,serif;font-size:2em;color:var(--trust)">${W.trust}</div><div style="font-family:ui-monospace,monospace;font-size:.7em;color:var(--faint);letter-spacing:1px">TRUST</div></div>
+      </div>
+      <div class="summary">${verdict}</div>
+      <div style="border-top:1px solid var(--rule);margin:16px 0 14px"></div>
+      <div class="lab" style="font-family:ui-monospace,monospace;font-size:.7em;color:var(--faint);letter-spacing:2px;margin-bottom:12px">THE LENS YOU REACHED FOR MOST</div>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="start()">Play again</button>
+      <button class="ghost" onclick="share('${title}',${net})">Share</button>
+    </div>
+    <p class="foot">Played by the Poietism rule: the good is to <b>make</b> — to turn potential into constructive transformation faster than it dissipates into waste. Your framework mix is just how you got there.</p>`;
+  document.getElementById('bars').innerHTML=ranked.map(k=>{
+    const pc=Math.round(W.fw[k]/fwTot*100);
+    return `<div class="brow"><div class="bl"><span class="nm" style="color:${fwColor[k]}">${fwNames[k]}</span><span class="pc">${pc}%</span></div>
+      <div class="track"><i data-w="${pc}" style="background:${fwColor[k]}"></i></div></div>`;
+  }).join('');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.track>i').forEach(i=>i.style.width=i.dataset.w+'%')));
+  window.scrollTo(0,0);
+}
+
+function share(title,net){
+  const line=`The Gauntlet — I governed as “${title}” with a Poietism ledger of ${net>0?'+':''}${net} (transformation minus dissipation).`;
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(line).then(()=>toast('Copied ✓'),()=>toast(line)); }
+  else toast(title);
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2000);}
+
+function intro(){
+  hud.style.display='none';
+  app.innerHTML=`
+    <div class="eyebrow">Philosophy · an ethics game</div>
+    <h1>The <em>Gauntlet</em></h1>
+    <p class="lede">You hold moral power over a small town for one turbulent year. Eight dilemmas, each with consequences that carry forward — the choices you make change the ones you face.</p>
+    <div class="card">
+      <p style="color:var(--dim);margin-bottom:14px">This one keeps score — by the <b style="color:var(--gold)">Poietism rule</b>:</p>
+      <div style="display:flex;gap:11px;align-items:baseline;margin-bottom:10px"><span style="width:9px;height:9px;border-radius:50%;background:var(--trans);flex-shrink:0;transform:translateY(1px)"></span><div><b>Transformation</b> — potential turned into something constructive.</div></div>
+      <div style="display:flex;gap:11px;align-items:baseline;margin-bottom:16px"><span style="width:9px;height:9px;border-radius:50%;background:var(--diss);flex-shrink:0;transform:translateY(1px)"></span><div><b>Dissipation</b> — potential wasted, drained, or destroyed.</div></div>
+      <p style="color:var(--dim);margin-bottom:18px;font-size:.95em">Your <b style="color:var(--gold)">ledger</b> is transformation minus dissipation. Lives and trust are the town’s memory — spend trust and some paths close to you. There’s no perfect run.</p>
+      <button class="btn" onclick="start()">Take the reins</button>
+    </div>
+    <p class="foot">A companion to the Ethics Arena — that one shows <i>which lens</i> you use; this one asks what you <i>build</i> with it.</p>`;
+}
+intro();
+</script>
+</body></html>
