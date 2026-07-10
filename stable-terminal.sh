@@ -19,14 +19,11 @@ if ! pgrep -f "tailscaled --tun=userspace" >/dev/null 2>&1; then
 fi
 ts up --hostname=study-mac >/dev/null 2>&1 || true   # already authenticated → no-op
 
-# 2. stable password (generated + saved once)
-PASSFILE="$HOME/.study_term_pass"
-[ -f "$PASSFILE" ] || openssl rand -hex 5 > "$PASSFILE"
-PASS=$(cat "$PASSFILE")
-
-# 3. the terminal itself
+# 3. the terminal itself — NO basic-auth (browsers don't send it over the ws
+#    upgrade → "User code denied connection" → reconnect loop). Tailscale's
+#    tailnet-only serve is the access control. Persistent tmux session "phone".
 pgrep -f "ttyd -p $PORT" >/dev/null 2>&1 || \
-  nohup /opt/homebrew/bin/ttyd -p $PORT -W -c "user:$PASS" zsh -l >/tmp/ttyd.log 2>&1 &
+  nohup /opt/homebrew/bin/ttyd -p $PORT -W /opt/homebrew/bin/tmux new-session -A -s phone >/tmp/ttyd.log 2>&1 &
 sleep 1
 
 # 4. publish it over the tailnet with HTTPS
@@ -37,8 +34,7 @@ URL=$(ts serve status 2>/dev/null | grep -Eo 'https://[^ ]+' | head -1)
 echo
 echo "=================================================================="
 echo "  📱 PERMANENT URL :  ${URL:-https://study-mac.<tailnet>.ts.net}"
-echo "     LOGIN         :  user"
-echo "     PASSWORD      :  $PASS   (stable)"
+echo "     LOGIN         :  none — Tailscale tailnet-only access"
 echo
 echo "  Paste the URL into the Terminal app once — it never changes."
 echo "  Stop:  tailscale --socket=$SOCK serve --https=443 off ; pkill -f 'ttyd -p $PORT'"
