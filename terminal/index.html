@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Terminal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07090c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Terminal">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#07090c;--ink:#cfe3ff;--dim:#6b839c;--blue:#5aa2ff;--green:#4bd07f;--gold:#d9a441;--red:#ff6b6b;--rule:#182233}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:radial-gradient(circle at 50% -20%,#0d1622,#07090c 60%);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace}
+/* connect screen */
+.connect{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:calc(env(safe-area-inset-top) + 40px) 26px 50px;max-width:560px;margin:0 auto}
+h1{font-size:2.6em;color:var(--blue);text-shadow:0 0 26px rgba(90,162,255,.4)}
+.cur{display:inline-block;width:.5em;height:1em;background:var(--blue);vertical-align:-2px;animation:blink 1.1s steps(1) infinite;box-shadow:0 0 12px var(--blue)}
+@keyframes blink{50%{opacity:0}}
+.sub{color:var(--dim);line-height:1.5;margin:8px 0 24px}
+label{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:1px}
+input{width:100%;background:#0a1017;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:12px 13px;font:inherit;font-size:.95em;margin:6px 0 14px}
+.btn{display:block;width:100%;text-align:center;background:var(--blue);color:#04101f;border:none;font-weight:800;font-size:1.1em;padding:15px;border-radius:14px;box-shadow:0 6px 30px rgba(90,162,255,.35);cursor:pointer}
+.btn.dis{background:#233247;color:#6b839c;box-shadow:none}
+.hint{color:var(--dim);font-size:.82rem;line-height:1.5;margin-top:16px;font-family:ui-sans-serif,system-ui,sans-serif}
+.hint b{color:var(--ink)}
+.warn{color:#ffb0a0;font-size:.8rem;margin-top:12px;font-family:ui-sans-serif,system-ui,sans-serif}
+/* live terminal */
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;display:none}
+#bar{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;
+  padding:calc(env(safe-area-inset-top) + 6px) 12px 6px;background:#07090cd0;backdrop-filter:blur(8px);z-index:5;font-size:.8rem;color:var(--dim)}
+#bar button{background:none;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:.82rem;cursor:pointer;margin-left:6px}
+.on{display:flex!important}.onb{display:block!important}
+</style>
+</head>
+<body>
+<div class="connect" id="connect">
+  <h1>terminal<span class="cur"></span></h1>
+  <div class="sub">A live shell to your Mac. Start the server on your Mac, then paste the URL it prints.</div>
+  <label>Terminal URL</label>
+  <input id="url" placeholder="https://xxxx.trycloudflare.com" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button class="btn dis" id="go">Connect</button>
+  <div class="hint">On your Mac, run <b>~/projects/studyhub/terminal-server.sh</b> — it prints a URL + password. Paste the URL here; when it loads, log in with <b>user</b> + that password, then type <b>claude</b>.</div>
+  <div class="warn">⚠ This connects to your computer's shell. Keep the URL + password private.</div>
+</div>
+
+<div id="bar"><span>terminal</span><span><button onclick="reloadFrame()">⟲</button><button onclick="disconnect()">⚙ URL</button></span></div>
+<iframe id="frame" allow="clipboard-read; clipboard-write"></iframe>
+
+<script>
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+const $=id=>document.getElementById(id);
+function connect(u){ $('frame').src=u; $('frame').style.display='block'; $('bar').classList.add('on'); $('connect').style.display='none'; }
+function disconnect(){ $('frame').src='about:blank'; $('frame').style.display='none'; $('bar').classList.remove('on'); $('connect').style.display='flex'; $('url').focus(); }
+function reloadFrame(){ const u=localStorage.getItem('term_url'); if(u){ $('frame').src='about:blank'; setTimeout(()=>$('frame').src=u,60); } }
+$('url').value=localStorage.getItem('term_url')||'';
+function syncBtn(){ const ok=/^https?:\/\//.test($('url').value.trim()); $('go').classList.toggle('dis',!ok); return ok; }
+$('url').addEventListener('input',syncBtn);
+$('url').addEventListener('keydown',e=>{ if(e.key==='Enter') $('go').click(); });
+$('go').onclick=()=>{ const u=$('url').value.trim(); if(!/^https?:\/\//.test(u)){ $('url').focus(); return; } localStorage.setItem('term_url',u); connect(u); };
+syncBtn();
+// auto-connect if we already have a URL
+const saved=localStorage.getItem('term_url'); if(saved) connect(saved);
+</script>
+</body>
+</html>
