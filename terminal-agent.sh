@@ -28,4 +28,4 @@ PASS=$(cat "$PASSFILE")
 # 4. run the terminal attached to a persistent tmux session, so disconnecting
 #    (app backgrounded, network blip) resumes the SAME session on reconnect —
 #    your claude session keeps running. Foreground so launchd supervises it.
-exec $TTYD -p $PORT -W -c "user:$PASS" /opt/homebrew/bin/tmux new-session -A -s phone
+exec $TTYD -p $PORT -W /opt/homebrew/bin/tmux new-session -A -s phone

@@ -43,10 +43,10 @@ input{width:100%;background:#0a1017;border:1px solid var(--rule);color:var(--ink
   <h1>terminal<span class="cur"></span></h1>
   <div class="sub">A live shell to your Mac. Start the server on your Mac, then paste the URL it prints.</div>
   <label>Terminal URL</label>
-  <input id="url" placeholder="https://xxxx.trycloudflare.com" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <input id="url" placeholder="https://your-mac.tailXXXX.ts.net" autocomplete="off" autocapitalize="off" spellcheck="false">
   <button class="btn dis" id="go">Connect</button>
-  <div class="hint">On your Mac, run <b>~/projects/studyhub/terminal-server.sh</b> — it prints a URL + password. Paste the URL here; when it loads, log in with <b>user</b> + that password, then type <b>claude</b>.</div>
-  <div class="warn">⚠ This connects to your computer's shell. Keep the URL + password private.</div>
+  <div class="hint">Paste your Mac's terminal URL (the <b>tailscale</b> one), tap Connect, and you're in your shell — no login. Type <b>claude</b> to start.</div>
+  <div class="warn">🔒 Reachable only from your own devices on your private Tailscale network. Turn Tailscale on if it won't connect.</div>
 </div>
 
 <div id="bar"><span>terminal</span><span><button onclick="reloadFrame()">⟲</button><button onclick="disconnect()">⚙ URL</button></span></div>
