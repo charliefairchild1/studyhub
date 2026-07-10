@@ -1,5 +1,5 @@
-const CACHE = 'studyhub-v5';
-const APPS = ['highlights','praxa','chess','poker','spanish','vaya','two-selves','poietism','doomsday',
+const CACHE = 'studyhub-v6';
+const APPS = ['highlights','praxa','cartographer','journal','habits','terminal','chess','poker','spanish','vaya','two-selves','poietism','doomsday',
   'animal-book','animal-essay','poietism-pamphlet','poietism-paper','poietism-naming',
   'koin','koin-welcome','koin-pamphlet','koin-essential','koin-teaching','koin-kids',
   'transformation-map','portfolio-planner','spacex-invest','spacex-pto','hex',

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Habits</title>
+<style>
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#4bd07f;--rule:#352c22}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;min-height:100vh;padding:calc(env(safe-area-inset-top) + 20px) 16px 60px}
+.wrap{max-width:620px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back{color:var(--dim);text-decoration:none;font-size:.9rem}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2em;margin:8px 0 2px}
+.sub{color:var(--dim);font-size:.9em;margin-bottom:16px}
+.add{display:flex;gap:8px;margin-bottom:18px}
+.add input{flex:1;background:var(--panel);border:1px solid var(--rule);color:var(--ink);border-radius:12px;padding:11px 13px;font:inherit}
+.add button{background:var(--gold);color:#1a1509;border:none;border-radius:12px;padding:0 18px;font-weight:800;cursor:pointer}
+.habit{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:13px 14px;margin-bottom:10px}
+.hrow{display:flex;align-items:center;gap:12px}
+.chk{width:38px;height:38px;border-radius:50%;border:2px solid var(--faint);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2em;cursor:pointer;transition:.12s}
+.chk.on{background:var(--green);border-color:var(--green);color:#0e2a14}
+.chk:active{transform:scale(.9)}
+.hname{flex:1;font-weight:700}
+.hstreak{color:#ff9a3c;font-size:.85em;font-weight:700}
+.del{background:none;border:none;color:var(--faint);font-size:1.1em;cursor:pointer;padding:4px}
+.heat{display:flex;gap:3px;margin-top:10px}
+.heat i{flex:1;height:16px;border-radius:3px;background:#0e0b07}
+.heat i.on{background:var(--green)}
+.heat i.today{outline:1px solid var(--gold)}
+.empty{color:var(--dim);text-align:center;padding:30px 10px;font-size:.95em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../index.html">‹ hub</a></div>
+  <h1>Habits</h1>
+  <div class="sub" id="sub"></div>
+  <div class="add"><input id="new" placeholder="New habit — e.g. Read 20 min" autocomplete="off"><button onclick="addHabit()">Add</button></div>
+  <div id="list"></div>
+</div>
+<script>
+function today(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
+function dayKey(offset){ const d=new Date(); d.setDate(d.getDate()-offset); return new Date(d.getTime()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
+function load(){ try{return JSON.parse(localStorage.getItem('sh_habits'))||{list:[],log:{}}}catch(e){return {list:[],log:{}}} }
+function save(o){ localStorage.setItem('sh_habits',JSON.stringify(o)); }
+function addHabit(){ const v=document.getElementById('new').value.trim(); if(!v) return; const d=load();
+  d.list.push({id:'h'+Date.now(),name:v}); save(d); document.getElementById('new').value=''; render(); }
+document.getElementById('new').addEventListener('keydown',e=>{ if(e.key==='Enter') addHabit(); });
+function toggle(id){ const d=load(); const tk=today(); d.log[tk]=d.log[tk]||[];
+  const i=d.log[tk].indexOf(id); if(i<0) d.log[tk].push(id); else d.log[tk].splice(i,1); save(d); render(); }
+function del(id){ if(!confirm('Delete this habit?')) return; const d=load(); d.list=d.list.filter(h=>h.id!==id); save(d); render(); }
+function streak(d,id){ let n=0; for(let o=0;;o++){ const k=dayKey(o); const done=(d.log[k]||[]).includes(id);
+  if(o===0 && !done) continue; // today not yet done doesn't break a prior streak
+  if(done) n++; else break; } return n; }
+function render(){ const d=load(); const tk=today(); const doneToday=(d.log[tk]||[]).length;
+  document.getElementById('sub').textContent = d.list.length? (doneToday+' of '+d.list.length+' done today'+(doneToday===d.list.length&&d.list.length?' — 🎉 all clear!':'')) : 'Add a habit to start building your streak.';
+  if(!d.list.length){ document.getElementById('list').innerHTML='<div class="empty">No habits yet.<br>The point of a floor under your day: a few things you do no matter what.</div>'; return; }
+  document.getElementById('list').innerHTML=d.list.map(h=>{ const on=(d.log[tk]||[]).includes(h.id); const st=streak(d,h.id);
+    let heat=''; for(let o=13;o>=0;o--){ const k=dayKey(o); const hit=(d.log[k]||[]).includes(h.id); heat+='<i class="'+(hit?'on':'')+(o===0?' today':'')+'"></i>'; }
+    return '<div class="habit"><div class="hrow"><div class="chk '+(on?'on':'')+'" onclick="toggle(\''+h.id+'\')">'+(on?'✓':'')+'</div>'+
+      '<div class="hname">'+h.name.replace(/</g,'&lt;')+'</div>'+(st>0?'<div class="hstreak">🔥 '+st+'</div>':'')+'<button class="del" onclick="del(\''+h.id+'\')">✕</button></div>'+
+      '<div class="heat">'+heat+'</div></div>'; }).join('');
+}
+render();
+</script>
+</body>
+</html>

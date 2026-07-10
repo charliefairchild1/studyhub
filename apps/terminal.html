@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Terminal</title>
+<style>
+:root{--bg:#07090c;--ink:#cfe3ff;--dim:#6b839c;--blue:#5aa2ff;--green:#4bd07f;--gold:#d9a441;--red:#ff6b6b;--rule:#182233}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 50% -20%,#0d1622,#07090c 60%);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;min-height:100vh;padding:calc(env(safe-area-inset-top) + 34px) 20px 60px}
+.wrap{max-width:620px;margin:0 auto}
+.back{color:var(--dim);text-decoration:none;font-size:.85rem}
+h1{font-size:2.4em;color:var(--blue);text-shadow:0 0 24px rgba(90,162,255,.4);margin:14px 0 4px}
+.sub{color:var(--dim);line-height:1.5;margin-bottom:22px}
+.open{display:block;text-align:center;background:var(--blue);color:#04101f;text-decoration:none;font-weight:800;font-size:1.1em;padding:15px;border-radius:14px;box-shadow:0 6px 30px rgba(90,162,255,.35);margin:8px 0 6px}
+.open.dis{background:#233247;color:#6b839c;box-shadow:none}
+input{width:100%;background:#0a1017;border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:11px 13px;font:inherit;font-size:.9em}
+.lab{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin:16px 0 5px}
+.card{background:#0b1119;border:1px solid var(--rule);border-radius:14px;padding:15px 17px;margin:14px 0;font-family:ui-sans-serif,system-ui,sans-serif}
+.card h2{color:var(--gold);font-size:.95rem;margin-bottom:8px}
+.card p,.card li{color:#b9cfe6;font-size:.9rem;line-height:1.55}
+.card ol{margin-left:18px}
+.term{background:#04070a;border:1px solid var(--rule);border-radius:8px;padding:9px 12px;font-size:.82rem;color:var(--green);margin:8px 0;overflow-x:auto}
+.warn{background:#20120f;border:1px solid #5a2a22;color:#ffb0a0;border-radius:12px;padding:12px 15px;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.85rem;line-height:1.5;margin:14px 0}
+.warn b{color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">‹ hub</a>
+  <h1>Terminal</h1>
+  <div class="sub">A live shell to your Mac, from your phone — run <b>claude</b>, edit code, anything. Your Mac must be on and running the terminal server.</div>
+
+  <div class="lab">Your terminal URL</div>
+  <input id="url" placeholder="https://xxxx.trycloudflare.com" autocomplete="off">
+  <a class="open dis" id="open" href="#">Open terminal →</a>
+  <div style="color:var(--dim);font-size:.8rem;margin-top:4px">Saved on this device. Paste the URL your Mac printed when you started the server.</div>
+
+  <div class="card"><h2>Start it on your Mac (one command)</h2>
+    <p>In a terminal on your Mac, run:</p>
+    <div class="term">~/projects/studyhub/terminal-server.sh</div>
+    <p>It prints a <b>URL</b> and a <b>password</b>. Paste the URL above, tap Open, and log in with <code>user</code> + that password. Leave that Mac terminal open — closing it ends the session.</p>
+  </div>
+
+  <div class="warn"><b>⚠ Security:</b> this URL is a door to your computer's shell. Anyone who has both the URL and password can run commands as you. Keep them private, and stop the server (Ctrl-C in that Mac window) when you're done. The password is random each start.</div>
+
+  <div class="card"><h2>Then, on your phone</h2>
+    <ol><li>Tap <b>Open terminal</b> above.</li><li>Log in: <code>user</code> / the printed password.</li><li>You're in your Mac's shell. Type <code>claude</code> to start coding with your Max plan.</li></ol>
+    <p style="margin-top:8px;color:var(--dim)">Tip: for a terminal that works from anywhere without your Mac needing a public tunnel, a dedicated SSH app (Blink, Termius) over Tailscale is the sturdier long-term setup — ask and I'll wire that instead.</p>
+  </div>
+</div>
+<script>
+const u=document.getElementById('url'), o=document.getElementById('open');
+u.value=localStorage.getItem('sh_termurl')||'';
+function sync(){ const v=u.value.trim(); localStorage.setItem('sh_termurl',v);
+  if(/^https?:\/\//.test(v)){ o.classList.remove('dis'); o.href=v; o.target='_blank'; }
+  else { o.classList.add('dis'); o.removeAttribute('href'); } }
+u.addEventListener('input',sync); sync();
+o.addEventListener('click',e=>{ if(o.classList.contains('dis')){ e.preventDefault(); u.focus(); } });
+</script>
+</body>
+</html>

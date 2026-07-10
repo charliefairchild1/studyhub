@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Journal</title>
+<style>
+:root{--bg:#14110c;--panel:#1c1712;--panel2:#241c14;--ink:#ece3d1;--dim:#9b8f78;--faint:#6b6252;--gold:#d9a441;--green:#7fae8b;--red:#d98c8c;--rule:#352c22}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 70% -10%,#221a10,#14110c 55%);color:var(--ink);font-family:"Iowan Old Style",Palatino,Georgia,serif;min-height:100vh;padding:calc(env(safe-area-inset-top) + 20px) 18px 60px}
+.wrap{max-width:620px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;font-family:ui-sans-serif,system-ui,sans-serif}
+.back{color:var(--dim);text-decoration:none;font-size:.9rem}
+.streak{color:#ff9a3c;font-weight:700;font-size:.9rem}
+h1{font-size:2em;margin:10px 0 2px}
+.date{color:var(--dim);font-style:italic;margin-bottom:16px}
+.prompt{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:12px 16px;color:var(--gold);font-style:italic;margin-bottom:16px}
+.moods{display:flex;gap:10px;margin:6px 0 16px;font-family:ui-sans-serif,system-ui,sans-serif}
+.moods button{font-size:1.5em;background:none;border:2px solid transparent;border-radius:12px;padding:4px 8px;cursor:pointer;filter:grayscale(.6);opacity:.6}
+.moods button.on{filter:none;opacity:1;border-color:var(--gold);background:var(--panel)}
+textarea{width:100%;background:var(--panel);border:1px solid var(--rule);color:var(--ink);border-radius:12px;padding:14px;font:inherit;font-size:1.05em;line-height:1.6;resize:vertical}
+.big{min-height:200px}
+.lab{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--faint);margin:16px 0 5px;font-weight:700}
+.pto{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pto .m .lab{color:var(--green)}.pto .w .lab{color:var(--red)}
+.pto textarea{min-height:70px;font-size:.95em}
+.saved{font-family:ui-sans-serif,system-ui,sans-serif;color:var(--green);font-size:.82rem;height:1.2em;margin-top:8px}
+.past{margin-top:30px}
+.past h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.78rem;text-transform:uppercase;letter-spacing:2px;color:var(--faint);margin-bottom:10px}
+.entry{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:12px 15px;margin-bottom:8px;cursor:pointer}
+.entry .ed{color:var(--dim);font-size:.8rem;font-family:ui-sans-serif,system-ui,sans-serif;display:flex;justify-content:space-between}
+.entry .ep{color:var(--ink);margin-top:4px;font-size:.95em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../index.html">‹ hub</a><span class="streak" id="streak"></span></div>
+  <h1>Journal</h1>
+  <div class="date" id="date"></div>
+  <div class="prompt" id="prompt"></div>
+
+  <div class="lab">How's the day feeling?</div>
+  <div class="moods" id="moods"></div>
+
+  <textarea class="big" id="text" placeholder="Write freely…"></textarea>
+
+  <div class="pto" style="margin-top:16px">
+    <div class="m"><div class="lab">▲ What I made / built today</div><textarea id="made" placeholder="transformation…"></textarea></div>
+    <div class="w"><div class="lab">▼ What I let dissipate</div><textarea id="wasted" placeholder="waste…"></textarea></div>
+  </div>
+  <div class="saved" id="saved"></div>
+
+  <div class="past">
+    <h2>Past entries</h2>
+    <div id="entries"></div>
+  </div>
+</div>
+<script>
+const PROMPTS=["What did you turn potential into today?","What are you betting on right now — and is it building?","Where did you spend energy that made nothing?","What surprised you today? (that's where the learning is.)","What would the last child — who plays without guilt — do tomorrow?","What did you avoid, and what was the aversion protecting?","Who lifted you today, and whom did you lift?","If no one is keeping score, what did you make anyway?","What did you learn at the gap between what you expected and what happened?","What's one border you drew today that you could redraw?"];
+const MOODS=["😞","😕","😐","🙂","😄"];
+function today(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
+function load(){ try{return JSON.parse(localStorage.getItem('sh_journal'))||{}}catch(e){return {}} }
+function save(o){ localStorage.setItem('sh_journal',JSON.stringify(o)); }
+const tk=today();
+const dObj=new Date(); document.getElementById('date').textContent=dObj.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+document.getElementById('prompt').textContent=PROMPTS[(dObj.getFullYear()*372+dObj.getMonth()*31+dObj.getDate())%PROMPTS.length];
+let data=load(); let cur=data[tk]||{text:'',mood:null,made:'',wasted:''};
+document.getElementById('text').value=cur.text||'';
+document.getElementById('made').value=cur.made||'';
+document.getElementById('wasted').value=cur.wasted||'';
+document.getElementById('moods').innerHTML=MOODS.map((m,i)=>'<button data-m="'+i+'" class="'+(cur.mood===i?'on':'')+'">'+m+'</button>').join('');
+document.querySelectorAll('.moods button').forEach(b=>b.onclick=()=>{ cur.mood=+b.dataset.m; document.querySelectorAll('.moods button').forEach(x=>x.classList.toggle('on',x===b)); persist(); });
+let t=null;
+['text','made','wasted'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{ cur[id]=document.getElementById(id).value; if(t)clearTimeout(t); t=setTimeout(persist,500); }));
+function persist(){ data=load(); if(cur.text||cur.made||cur.wasted||cur.mood!=null){ data[tk]=cur; } save(data);
+  document.getElementById('saved').textContent='✓ saved'; setTimeout(()=>document.getElementById('saved').textContent='',1500);
+  renderStreak(); renderEntries(); }
+function streak(){ const d=load(); let n=0,day=new Date(); for(;;){ const k=new Date(day.getTime()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); const e=d[k]; if(e&&(e.text||e.made||e.wasted)){n++;day.setDate(day.getDate()-1);}else break; } return n; }
+function renderStreak(){ const n=streak(); document.getElementById('streak').textContent=n>0?('🔥 '+n+' day'+(n>1?'s':'')):''; }
+function renderEntries(){ const d=load(); const keys=Object.keys(d).filter(k=>k!==tk).sort().reverse();
+  document.getElementById('entries').innerHTML = keys.length? keys.map(k=>{ const e=d[k]; const dt=new Date(k+'T12:00');
+    return '<div class="entry" data-k="'+k+'"><div class="ed"><span>'+dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+'</span><span>'+(e.mood!=null?MOODS[e.mood]:'')+'</span></div><div class="ep">'+((e.text||e.made||'…').slice(0,80)).replace(/</g,'&lt;')+'</div></div>'; }).join('') : '<div style="color:var(--dim);font-size:.9em">Your past days will collect here.</div>';
+  document.querySelectorAll('.entry').forEach(el=>el.onclick=()=>viewEntry(el.dataset.k)); }
+function viewEntry(k){ const e=load()[k]; const dt=new Date(k+'T12:00');
+  alert(dt.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+(e.mood!=null?' '+MOODS[e.mood]:'')+'\n\n'+(e.text||'')+(e.made?'\n\n▲ Made: '+e.made:'')+(e.wasted?'\n▼ Wasted: '+e.wasted:'')); }
+renderStreak(); renderEntries();
+</script>
+</body>
+</html>

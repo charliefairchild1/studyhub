@@ -148,6 +148,12 @@ h1{text-shadow:0 0 30px rgba(217,164,65,.15)}
       </div>
     </div>
 
+    <div class="sec">Daily</div>
+    <div class="grid">
+      <a class="tile" href="apps/journal.html" data-app="journal"><div class="ic">📓</div><div class="nm">Journal</div><div class="ds">Reflect + a PTO check-in.</div></a>
+      <a class="tile" href="apps/habits.html" data-app="habits"><div class="ic">✅</div><div class="nm">Habits</div><div class="ds">Build streaks that stick.</div></a>
+    </div>
+
     <div class="sec">Today's quests</div>
     <div class="card" id="quests"></div>
 
@@ -200,13 +206,14 @@ function todayKey(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6
 
 /* ---------- registry ---------- */
 const CATS=[
+ ['Daily','📓',[['journal','📓','Journal','reflect + a PTO check-in'],['habits','✅','Habits','build streaks that stick']]],
  ['Games','🎮',[['chess','♟️','Chess','influence maps, PTO eval, play the engine'],['poker','🂡','Poker','equity, EV coach, range trainer, a bot']]],
  ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
  ['Mind','🧠',[['two-selves','🧠','Two Selves','conscious vs. subconscious'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
  ['Writing','✍️',[['animal-book','📖','The Animal That Bets','the book'],['animal-essay','📝','…the Essay','the short version'],['poietism-pamphlet','📜','Poietism Field Guide','20+ pages'],['poietism-paper','📄','Poietism Paper','the core essay'],['poietism-naming','🔤','Naming Poietism','how the name was chosen']]],
  ['Economics','⚖️',[['koin','⚖️','Koin','give-take economics'],['koin-welcome','👋','Welcome','a gentle intro'],['koin-essential','✦','Essentials','in brief'],['koin-kids','🧒','For Kids','the friendliest'],['koin-teaching','📖','Teaching','how to explain it'],['koin-pamphlet','📜','Manifesto','custody vs. contribution']]],
  ['Investing','📈',[['transformation-map','🌐','Transformation Map','invest by trajectory'],['portfolio-planner','📊','Portfolio Planner','core + satellite'],['spacex-pto','🛰️','SpaceX · PTO','valuation scenarios'],['spacex-invest','🚀','SpaceX Plan','DCA projection']]],
- ['Tools','🛠️',[['praxa','⌨️','Praxa','a local, keyless terminal AI coding agent']]],
+ ['Tools','🛠️',[['praxa','⌨️','Praxa','a local, keyless terminal AI coding agent'],['cartographer','🧭','Cartographer','map a decision — transformation vs. dissipation'],['terminal','⌥','Terminal','a live terminal to your Mac — code from your phone']]],
  ['Math','🔬',[['life','◼︎','Life'],['evolution','🧬','Evolution'],['voronoi','🕸️','Voronoi'],['math-neural','🔀','Neural'],['math-spreading','💫','Spreading'],['math-predictor','🎯','Predictor'],['math-kuramoto','🌀','Kuramoto'],['math-reaction','🐆','Reaction'],['math-sandpile','⛰️','Sandpile'],['math-percolation','💧','Percolation'],['math-galton','🔔','Galton'],['math-globe','🌍','Globe'],['math-language-evolution','🗨️','Language'],['math-annealing','🔥','Annealing'],['math-bayes','📊','Bayes'],['math-entropy','🌡️','Entropy'],['math-diffusion','🌫️','Diffusion'],['math-network','🔗','Network'],['math-gradient','📉','Gradient'],['math-fourier','〰️','Fourier'],['math-epidemic','🦠','Epidemic'],['math-pendulum','⚖️','Pendulum'],['math-attractor','🦋','Attractor'],['math-cycles','🔁','Cycles'],['math-markov','⛓️','Markov'],['math-mcmc','🎲','MCMC'],['math-gp','📈','GP'],['math-novelty','✨','Novelty'],['math-haze','🌁','Haze'],['math-modulation','🎚️','Modulation'],['hex','⬡','Hex']]],
 ];
 const APP={}; CATS.forEach(([cat,ci,items])=>items.forEach(it=>APP[it[0]]={icon:it[1],name:it[2],cat}));

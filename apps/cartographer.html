@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Cartographer — an assistant that maps, and won't point</title>
+<style>
+  :root{--bg:#0c0d10;--ink:#e8eaed;--dim:#9aa0aa;--line:#20242c;--panel:#13151a;
+    --t:#5aa9e6;--d:#d98a6a;--edge:#8a93a3;--accent:#cfd6e0}
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:14.5px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+  header{padding:20px 22px 16px;border-bottom:1px solid var(--line);max-width:1000px;margin:0 auto}
+  h1{margin:0;font-size:21px;font-weight:600} h1 span{color:var(--edge)}
+  .sub{color:var(--dim);font-size:13px;margin-top:6px;max-width:780px} .sub a{color:var(--t)}
+  main{max-width:1000px;margin:0 auto;padding:14px 22px 70px}
+  .creed{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 16px;margin:12px 0;font-size:13px;color:var(--dim);line-height:1.7}
+  .creed b{color:var(--ink)} .creed ol{margin:6px 0 0;padding-left:20px} .creed li{margin:4px 0}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);margin:22px 0 9px}
+  input[type=text],textarea{width:100%;background:#0a0b0e;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 11px;font:inherit}
+  textarea{min-height:48px;resize:vertical}
+  .row{display:flex;gap:8px;align-items:center;margin:6px 0}
+  .btn{background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn:hover{border-color:var(--edge)}
+  .x{background:none;border:0;color:var(--dim);cursor:pointer;font-size:15px;padding:0 4px}
+  .dims{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
+  .dim{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:178px}
+  .dim .nm{font-size:12.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .dim .kind{font-size:10.5px;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:1px 7px}
+  .dim .kind.t{color:var(--t);border-color:var(--t)} .dim .kind.d{color:var(--d);border-color:var(--d)}
+  .dim .wl{font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between}
+  .dim input[type=range]{width:100%}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-size:11px;font-weight:600}
+  td input{width:52px;background:#0a0b0e;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:5px;text-align:center;font:inherit}
+  .grid2{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:8px}
+  canvas{width:100%;height:320px;display:block;background:#0a0b0e;border:1px solid var(--line);border-radius:10px}
+  .map-note{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6}
+  .verdict{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--edge);border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.7}
+  .verdict b{color:var(--ink)}
+  .priors{background:#0e0f13;border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-top:12px;font-size:12.5px;color:var(--dim);line-height:1.65}
+  .priors b{color:var(--ink)} .priors li{margin:5px 0}
+  .priors .keep{color:var(--edge)}
+  .lens{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);margin:6px 0}
+</style></head>
+<body>
+<header>
+  <h1>The <span>Cartographer</span> — an assistant that maps, and won't point</h1>
+  <div class="sub">You asked for an AI without opinion. A fully opinion-free one is incoherent (every framing is a choice), so this is the honest version: <b>non-directive</b>. It gives you the coordinate system and the arithmetic; you give every value and the pick. It will not name a destination — because, per PTO, <i>the direction isn't knowable from inside the system. It's a boundary condition only you hold.</i></div>
+</header>
+<main>
+  <div class="creed">
+    <b>What it does and won't do</b>
+    <ol>
+      <li>It <b>maps</b> your options as transformation (what each opens) vs dissipation (what each costs) — using <b>your</b> numbers, never its own.</li>
+      <li>It makes its <b>coordinate system editable</b>: the dimensions below are a starting suggestion — delete, reweight, or add your own.</li>
+      <li>It <b>computes, it does not choose.</b> It will show you the frontier and refuse to crown a winner.</li>
+      <li>It <b>lists the priors it couldn't remove</b> (bottom), so the residual opinion is visible, not smuggled.</li>
+    </ol>
+  </div>
+
+  <h2>1 · The decision</h2>
+  <textarea id="decision" placeholder="What are you deciding? e.g. 'Which project do I put the next three months into?'"></textarea>
+
+  <h2>2 · The options <span style="text-transform:none;letter-spacing:0;color:var(--dim)">(the paths)</span></h2>
+  <div id="opts"></div>
+  <button class="btn" id="addOpt" style="margin-top:6px">+ option</button>
+
+  <h2>3 · The coordinate system <span style="text-transform:none;letter-spacing:0;color:var(--dim)">— your dimensions, your weights (this is the one place I supply a default; change it)</span></h2>
+  <div class="dims" id="dims"></div>
+  <div class="row" style="margin-top:8px"><input type="text" id="newDim" placeholder="add a dimension of your own…"><button class="btn" id="addDim">+ add</button></div>
+
+  <h2>4 · Score each path <span style="text-transform:none;letter-spacing:0;color:var(--dim)">0–10, by your lights</span></h2>
+  <div style="overflow-x:auto"><table id="grid"></table></div>
+
+  <h2>5 · The map <span style="text-transform:none;letter-spacing:0;color:var(--dim)">— drawn from your numbers</span></h2>
+  <div class="grid2">
+    <div><canvas id="map"></canvas><div class="map-note" id="mapnote"></div></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="priors" id="priors"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let opts=["Path A","Path B"];
+let dims=[
+  {nm:"Growth / transformation it enables", kind:"t", w:3},
+  {nm:"Optionality (doors it opens)",        kind:"t", w:2},
+  {nm:"Fit with what you actually value",     kind:"t", w:3},
+  {nm:"Cost / effort",                        kind:"d", w:2},
+  {nm:"Irreversibility",                      kind:"d", w:2},
+  {nm:"Risk / downside",                      kind:"d", w:2},
+];
+let score={};  // score[optIndex][dimIndex] = 0..10
+let showPTO=true;
+
+function ensureScores(){ opts.forEach((_,i)=>{ score[i]=score[i]||{}; dims.forEach((_,j)=>{ if(score[i][j]==null) score[i][j]=5; }); }); }
+
+function renderOpts(){
+  $('opts').innerHTML=opts.map((o,i)=>
+    '<div class="row"><input type="text" data-i="'+i+'" class="optname" value="'+o.replace(/"/g,'&quot;')+'">'
+    +(opts.length>2?'<button class="x" data-del="'+i+'">✕</button>':'')+'</div>').join('');
+  document.querySelectorAll('.optname').forEach(el=>el.oninput=e=>{opts[+e.target.dataset.i]=e.target.value; renderGrid(); compute();});
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{opts.splice(+b.dataset.del,1); score={}; ensureScores(); renderOpts(); renderGrid(); compute();});
+}
+function renderDims(){
+  $('dims').innerHTML=dims.map((d,j)=>
+    '<div class="dim"><div class="nm"><span>'+d.nm+'</span><button class="x" data-deld="'+j+'">✕</button></div>'
+    +'<span class="kind '+d.kind+'" data-kind="'+j+'">'+(d.kind==="t"?"↑ transformation":"↓ dissipation")+'</span>'
+    +'<div class="wl"><span>weight</span><span>'+d.w+'</span></div>'
+    +'<input type="range" min="0" max="5" value="'+d.w+'" data-w="'+j+'"></div>').join('');
+  document.querySelectorAll('[data-w]').forEach(s=>s.oninput=e=>{dims[+e.target.dataset.w].w=+e.target.value; renderDims(); compute();});
+  document.querySelectorAll('[data-kind]').forEach(k=>k.onclick=()=>{const j=+k.dataset.kind; dims[j].kind=dims[j].kind==="t"?"d":"t"; renderDims(); compute();});
+  document.querySelectorAll('[data-deld]').forEach(b=>b.onclick=()=>{dims.splice(+b.dataset.deld,1); score={}; ensureScores(); renderDims(); renderGrid(); compute();});
+}
+function renderGrid(){
+  ensureScores();
+  let h='<tr><th>path \\ dimension</th>'+dims.map(d=>'<th><span style="color:'+(d.kind==="t"?"var(--t)":"var(--d)")+'">'+d.nm+'</span></th>').join('')+'</tr>';
+  opts.forEach((o,i)=>{ h+='<tr><td>'+o+'</td>'+dims.map((d,j)=>'<td><input type="number" min="0" max="10" value="'+score[i][j]+'" data-s="'+i+'_'+j+'"></td>').join('')+'</tr>'; });
+  $('grid').innerHTML=h;
+  document.querySelectorAll('[data-s]').forEach(inp=>inp.oninput=e=>{const [i,j]=e.target.dataset.s.split('_').map(Number); score[i][j]=Math.max(0,Math.min(10,+e.target.value||0)); compute();});
+}
+function td(i){ // transformation & dissipation for option i, from the user's numbers
+  let T=0,tw=0,D=0,dw=0;
+  dims.forEach((d,j)=>{ const v=score[i][j]||0; if(d.kind==="t"){T+=d.w*v; tw+=d.w;} else {D+=d.w*v; dw+=d.w;} });
+  return {T: tw?T/tw:0, D: dw?D/dw:0};
+}
+function compute(){ drawMap(); renderVerdict(); }
+
+function drawMap(){
+  const cv=$('map'), g=cv.getContext('2d'); const W=cv.width=cv.clientWidth, H=cv.height=320; g.clearRect(0,0,W,H);
+  const pad=34, x=t=>pad+(t/10)*(W-pad-14), y=d=>H-pad-(d/10)*(H-pad-14);
+  // PTO iso-lines (T - D = const), faint — only if the user keeps that lens
+  if(showPTO){ g.strokeStyle="#1b2733"; for(let c=-8;c<=8;c+=2){ g.beginPath();
+    // line where T - D = c  ->  D = T - c
+    let a=[0, -c], b=[10, 10-c]; g.moveTo(x(a[0]),y(Math.max(0,Math.min(10,a[1])))); g.lineTo(x(b[0]),y(Math.max(0,Math.min(10,b[1])))); g.stroke(); } }
+  // axes
+  g.strokeStyle="#2a313c"; g.beginPath(); g.moveTo(pad,14); g.lineTo(pad,H-pad); g.lineTo(W-14,H-pad); g.stroke();
+  g.fillStyle="var(--t)"; g.font="11px ui-sans-serif"; g.textAlign="center"; g.fillText("transformation →", (W+pad)/2, H-10);
+  g.save(); g.translate(13,(H)/2); g.rotate(-Math.PI/2); g.fillStyle="var(--d)"; g.fillText("dissipation →",0,0); g.restore();
+  // options
+  opts.forEach((o,i)=>{ const p=td(i); const px=x(p.T), py=y(p.D);
+    g.fillStyle="#0a0b0e"; g.strokeStyle="var(--edge)"; g.lineWidth=2; g.beginPath(); g.arc(px,py,7,0,7); g.fill(); g.stroke();
+    g.fillStyle="var(--ink)"; g.textAlign="left"; g.font="12px ui-sans-serif"; g.fillText(o, px+11, py+4); });
+  $('mapnote').innerHTML='Up-and-right is high transformation, low dissipation. There is no star on this map. '+(showPTO?'The faint diagonals are equal-<b>PTO</b> lines (transformation − dissipation) — <i>your</i> objective, from this project; ':'')+'where you go on the frontier is a value only you hold.';
+}
+
+function renderVerdict(){
+  const rows=opts.map((o,i)=>{ const p=td(i); return {o, T:p.T, D:p.D, pto:p.T-p.D}; });
+  let body='<b>The map, not a verdict.</b><br>';
+  rows.forEach(r=>{ body+='<div style="margin:5px 0">'+r.o+' — <span style="color:var(--t)">T '+r.T.toFixed(1)+'</span> · <span style="color:var(--d)">D '+r.D.toFixed(1)+'</span>'+(showPTO?' · PTO '+(r.pto>=0?'+':'')+r.pto.toFixed(1):'')+'</div>'; });
+  // describe, don't decide: who's on the frontier (no one dominated on both axes)
+  const frontier=rows.filter(r=> !rows.some(o=> o!==r && o.T>=r.T && o.D<=r.D && (o.T>r.T||o.D<r.D)));
+  body+='<div style="margin-top:9px;border-top:1px solid var(--line);padding-top:8px">';
+  if(frontier.length===rows.length) body+='Every path is on the frontier — none is better on <i>both</i> axes. The choice is a pure trade of transformation against dissipation, and that trade is yours.';
+  else body+='On the frontier (nothing beats them on both axes): <b>'+frontier.map(r=>r.o).join(', ')+'</b>. The others are dominated <i>by your own numbers</i> — not by me. Among the frontier, I have nothing to add: the weighting that breaks the tie is the boundary condition only you carry.';
+  body+='</div><div style="margin-top:8px;color:var(--dim)">I won\'t tell you which. If you want, change a weight and watch the map move — the recommendation was always living in those numbers, which are yours.</div>';
+  $('verdict').innerHTML=body;
+}
+
+function renderPriors(){
+  $('priors').innerHTML='<b>The priors I couldn\'t remove</b> — the residual opinion, made visible instead of smuggled:'
+    +'<ul>'
+    +'<li>That <b>mapping helps</b> more than just deciding — a bias toward analysis. (Some choices are better made by feel; this tool quietly assumes yours isn\'t one of them.)</li>'
+    +'<li>That the <b>starting dimensions</b> above are reasonable — I picked the initial coordinate system. You can delete all six.</li>'
+    +'<li>That <b>your stated weights are your real ones</b> — I reflect what you type, which may not be what you\'d endorse on reflection.</li>'
+    +'<li>That <b>PTO (transformation − dissipation)</b> is the objective worth plotting — it\'s <i>yours</i>, from this project; I adopted it. <span class="lens">turn it off: <input type="checkbox" id="ptoTog" '+(showPTO?'checked':'')+'></span></li>'
+    +'<li class="keep">That I <b>should withhold the pick</b> — this is the one opinion I keep, and it isn\'t neutral. It\'s the claim that direction isn\'t knowable from inside the system, so naming a destination would be me pretending to know what only you can. If you reject that, you don\'t want this tool — you want an opinionated one, which is a legitimate choice I can\'t make for you.</li>'
+    +'</ul>';
+  const tog=$('ptoTog'); if(tog) tog.onchange=e=>{showPTO=e.target.checked; renderPriors(); compute();};
+}
+
+$('addOpt').onclick=()=>{opts.push("Path "+String.fromCharCode(65+opts.length)); ensureScores(); renderOpts(); renderGrid(); compute();};
+$('addDim').onclick=()=>{const v=$('newDim').value.trim(); if(!v)return; dims.push({nm:v,kind:"t",w:2}); $('newDim').value=""; score={}; ensureScores(); renderDims(); renderGrid(); compute();};
+$('newDim').onkeydown=e=>{if(e.key==="Enter")$('addDim').click();};
+renderOpts(); renderDims(); renderGrid(); renderPriors(); compute();
+</script>
+</body></html>
