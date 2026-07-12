@@ -28,4 +28,7 @@ PASS=$(cat "$PASSFILE")
 # 4. run the terminal attached to a persistent tmux session, so disconnecting
 #    (app backgrounded, network blip) resumes the SAME session on reconnect —
 #    your claude session keeps running. Foreground so launchd supervises it.
-exec $TTYD -p $PORT -W /opt/homebrew/bin/tmux new-session -A -s phone
+# caffeinate wraps ttyd: the Mac is held awake (no idle/system/disk sleep) for
+# exactly as long as the terminal server runs — which is always, since launchd
+# keeps it alive. No sudo needed. -i idle, -s system(on AC), -m disk.
+exec /usr/bin/caffeinate -i -s -m $TTYD -p $PORT -W /opt/homebrew/bin/tmux new-session -A -s phone

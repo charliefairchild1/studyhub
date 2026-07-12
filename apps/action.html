@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Action">
+<meta name="theme-color" content="#0a0e1a">
+<title>Action — Analytical Mechanics</title>
+<style>
+:root{
+  --bg:#0a0e1a;--panel:#111726;--panel2:#18203400;--card:#131b2e;--line:#243149;
+  --ink:#e7ecf6;--mut:#93a1bd;--faint:#5e6c8a;--cyan:#4fd1e0;--violet:#a78bfa;--gold:#f5c451;--green:#5ad19a;--red:#f0736a;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 640px at 78% -12%,#16223f 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  background:linear-gradient(180deg,rgba(10,14,26,.96),rgba(10,14,26,.82) 70%,transparent);backdrop-filter:blur(10px);
+  display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));
+  display:grid;place-items:center;font-weight:800;color:#06121f;font-size:20px;box-shadow:0 3px 14px rgba(79,209,224,.3)}
+header h1{font-size:17px;margin:0;font-weight:750;letter-spacing:.2px}
+header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}
+.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--cyan);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:linear-gradient(135deg,var(--cyan),#3aa9c9);color:#06121f;border-color:transparent}
+.btn.vio{background:linear-gradient(135deg,var(--violet),#7c5cf0);color:#0c0720;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}
+.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+
+/* modules / lessons list */
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}
+.mod .mh .ic{font-size:17px}
+.mod .mh .t{font-weight:750;font-size:15px}
+.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.lesson:active{transform:scale(.995)}
+.lesson.done{border-color:#2e5c47}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0e1626;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#3aa87a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}
+.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .go{color:var(--faint);font-size:19px}
+.lesson .lab{font-size:11px;color:var(--violet);border:1px solid #3a2d63;border-radius:20px;padding:2px 8px;font-weight:700}
+
+/* lesson view */
+.reader h2{font-family:Georgia,"Times New Roman",serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.reader p{color:#cdd6e8;margin:12px 0}
+.reader b{color:var(--ink)}
+.reader ul{color:#cdd6e8;padding-left:20px}.reader li{margin:5px 0}
+.eq{font-family:Georgia,"Times New Roman",serif;font-size:1.28em;text-align:center;margin:16px 0;color:#eef2fb;line-height:1.5;overflow-x:auto;padding:4px 0}
+.eq.box{background:#0e1626;border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:0 12px 12px 0;padding:14px 12px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .35em}
+.frac .d{padding:1px .35em 0}
+.callout{background:#141d16;border:1px solid #2b4a35;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d7;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+.callout.v{background:#17132a;border-color:#3a2d63;color:#ddd4f5}.callout.v .l{color:var(--violet)}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--cyan)}
+.simwrap{background:#0b1120;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#070b14}
+.simctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:90px}
+.simctl input[type=range]{width:100%;accent-color:var(--cyan)}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}
+.readout b{color:var(--cyan);font-weight:600}
+.readout .g{color:var(--green)}.readout .r{color:var(--gold)}
+
+/* drills */
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#132417}
+.opt.wrong{border-color:var(--red);background:#241416}
+.opt:disabled{opacity:.85}
+.numin{display:flex;gap:8px}.numin input{flex:1;background:#0c1424;border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:12px;font:inherit;font-family:ui-monospace,monospace}
+
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(10,14,26,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--cyan)}
+nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-hero{text-align:center;padding:8px 0 4px}
+.prog-hero .ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0e1626;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}
+.badge.on{border-color:var(--gold);color:var(--gold)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#06121f;border:1px solid var(--cyan);color:var(--cyan);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:80px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(10,14,26,.92);color:#4fd1e0;border:1px solid #243149;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+<header>
+  <div class="logo">∫</div>
+  <div><h1 id="hTitle">Action</h1><div class="sub" id="hSub">Lagrangian &amp; Hamiltonian mechanics</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xpN">0</b></div>
+</header>
+
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Learn</button>
+  <button data-t="lab"><span class="ic">🧪</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Drills</button>
+  <button data-t="you"><span class="ic">📈</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const D=(x)=>x+"̇";            // dotted variable, e.g. D('θ') = θ̇
+const DD=(x)=>x+"̈";           // double-dot, θ̈
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+
+/* ------------------------------------------------------------------ progress */
+let P=load();
+function load(){try{return JSON.parse(localStorage.getItem("action_progress"))||{done:{},drill:{}};}catch(e){return {done:{},drill:{}};}}
+function save(){localStorage.setItem("action_progress",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ================================================================== CURRICULUM */
+const MODULES=[
+ {ic:"√",t:"Part I · The Math You Need",lessons:[
+   {id:"deriv",n:"Derivatives — the rate of change",sub:"velocity is just the slope of position",sim:"slope"},
+   {id:"partial",n:"Partial derivatives",sub:"functions of many variables, one knob at a time"},
+   {id:"variation",n:"Calculus of variations",sub:"the one idea the whole subject rests on",lab:1,sim:"leastaction"},
+ ]},
+ {ic:"ℒ",t:"Part II · Lagrangian Mechanics",lessons:[
+   {id:"gencoord",n:"Generalized coordinates",sub:"why we leave Newton's arrows behind"},
+   {id:"leastaction",n:"The principle of least action",sub:"nature picks the path that makes S stationary",lab:1,sim:"leastaction"},
+   {id:"euler",n:"The Euler–Lagrange equation",sub:"turn a Lagrangian into an equation of motion"},
+   {id:"pendulum",n:"Worked example: the pendulum",sub:"from L all the way to the swing",lab:1,sim:"pendulum"},
+   {id:"noether",n:"Symmetry & conservation",sub:"Noether: every symmetry hides a conserved quantity"},
+ ]},
+ {ic:"ℋ",t:"Part III · Hamiltonian Mechanics",lessons:[
+   {id:"momentum",n:"Momentum & the Legendre transform",sub:"trade q̇ for p, trade L for H"},
+   {id:"hamilton",n:"Hamilton's equations",sub:"two first-order equations replace one second-order"},
+   {id:"phase",n:"Phase space & flow",sub:"the whole state of a system as one point",lab:1,sim:"phase"},
+ ]},
+ {ic:"∞",t:"Part IV · Putting It Together",lessons:[
+   {id:"chaos",n:"The double pendulum & chaos",sub:"two links, and predictability dies",lab:1,sim:"double"},
+   {id:"capstone",n:"Least action is everywhere",sub:"light, gravity — and your own master equation"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);
+const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ------------------------------------------------------------------ lesson text */
+const C={};
+C.deriv=`<p>All of mechanics is about how things <b>change</b>, so we start with the tool that measures change: the <b>derivative</b>.</p>
+<p>If a particle sits at position <kbd>x(t)</kbd>, its <b>velocity</b> is the rate that position changes — the slope of the <kbd>x</kbd>-vs-<kbd>t</kbd> graph:</p>
+<div class="eq box">v = ${frac("dx","dt")} = ${D('x')}</div>
+<p>That little dot is Newton's shorthand for “derivative with respect to time.” One more derivative gives <b>acceleration</b>, ${DD('x')} = dv/dt. Drag the point below and watch the slope — the tangent line — <i>be</i> the velocity.</p>
+<div id="__sim"></div>
+<p>Everything that follows is built from three moves: take a derivative, set something to zero, and read off the physics.</p>`;
+
+C.partial=`<p>Real systems depend on several things at once. A <b>partial derivative</b> asks: how does a quantity change when I wiggle <i>one</i> variable and freeze the rest? We write it with a curly ∂.</p>
+<p>For <kbd>f(x,y) = x²y + y³</kbd>:</p>
+<div class="eq box">${frac("∂f","∂x")} = 2xy <span style="color:var(--faint)">(treat y as a constant)</span><br><br>${frac("∂f","∂y")} = x² + 3y² <span style="color:var(--faint)">(treat x as a constant)</span></div>
+<p>In mechanics a Lagrangian depends on position <kbd>q</kbd> <i>and</i> velocity ${D('q')} at the same time, so we'll constantly take ∂/∂q (freeze the velocity) and ∂/∂${D('q')} (freeze the position). They are different questions with different answers — keep them straight and the rest is bookkeeping.</p>
+<div class="callout"><span class="l">Why it matters</span>The Euler–Lagrange equation you're about to meet is literally ∂L/∂q minus the time-derivative of ∂L/∂${D('q')}. If you can take those two partials, you can do Lagrangian mechanics.</div>`;
+
+C.variation=`<p>Here is the whole engine of the subject. An ordinary function eats a <i>number</i> and returns a number. A <b>functional</b> eats an entire <i>function</i> — a whole path — and returns a number.</p>
+<p>The functional we care about is the <b>action</b>. Given a path <kbd>q(t)</kbd> from A to B, it adds up a quantity <kbd>L</kbd> (the Lagrangian) along the whole path:</p>
+<div class="eq box">S[q] = ∫<sub>A</sub><sup>B</sup> L(q, ${D('q')}, t) dt</div>
+<p>Calculus of variations asks: <b>which path makes S stationary?</b> — a minimum, maximum, or saddle where tiny wiggles δq of the path don't change S to first order. Demand δS = 0 with the endpoints pinned, and out falls a single equation the path must obey (next lesson).</p>
+<p>Below is the idea made physical. The dots are a path in <b>height vs time</b> for a thrown ball. Drag them into any shape you like, watch the action <b>S</b> change, then hit <b>Relax</b> — gradient descent slides the path downhill in S until it settles onto the one nature actually takes.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The punchline</span>You didn't tell it Newton's law. You only told it to make S stationary — and it <i>discovered</i> the parabola of free fall. That is the principle of least action, and it is how modern physics states its laws.</div>`;
+
+C.gencoord=`<p>Newton works in x, y, z arrows and forces. That gets ugly fast: a bead on a wire, a pendulum, a double pendulum — each has awkward constraint forces you don't care about.</p>
+<p>Lagrange's move: describe the system by however many <b>generalized coordinates</b> <kbd>q₁, q₂, …</kbd> it actually has freedom in. A pendulum has <i>one</i> — the angle <kbd>θ</kbd>. A bead on a wire has one — distance along the wire. The constraints are baked in for free.</p>
+<div class="eq">pendulum: q = θ &nbsp;&nbsp;•&nbsp;&nbsp; double pendulum: q = (θ₁, θ₂)</div>
+<p>Then you write just two energies as functions of the q's:</p>
+<ul><li><b>Kinetic energy T</b> — the energy of motion, e.g. ½m${D('x')}²</li>
+<li><b>Potential energy V</b> — the energy of position, e.g. mgy for gravity</li></ul>
+<p>and form the <b>Lagrangian</b>:</p>
+<div class="eq box">L = T − V</div>
+<p>That minus sign is not a typo and not obvious — it's the deep fact that makes least action reproduce Newton. Take it on faith for one more lesson; the pendulum will prove it pays off.</p>`;
+
+C.leastaction=`<p>The <b>principle of least action</b> (Hamilton's principle) is the whole of classical mechanics in one line:</p>
+<div class="eq box">δS = δ ∫ L dt = 0</div>
+<p>Of all conceivable paths a system could take between two fixed instants, the real one is the path that makes the action <b>stationary</b>. Not the shortest, not the fastest — the one where first-order wiggles leave S unchanged.</p>
+<p>Replay the explorer with this framing: every shape you drag is a “conceivable path.” Their actions differ. The true motion is the special one sitting at the bottom of that landscape.</p>
+<div id="__sim"></div>
+<div class="callout v"><span class="l">Your thread</span>This is exactly the shape of your own master equation, δ∫[T − Φ(T+D)]dτ = 0 — a system following the stationary path of a T-vs-dissipation functional. Same mathematics, different Lagrangian. We'll close the loop in the capstone.</div>`;
+
+C.euler=`<p>Demand δS = 0 for the action ∫L dt and — after an integration by parts that pins the endpoints — you get the <b>Euler–Lagrange equation</b>. This is the payoff of the whole subject:</p>
+<div class="eq box">${frac("d","dt")}<span style="font-size:1.1em">(</span>${frac("∂L","∂"+D('q'))}<span style="font-size:1.1em">)</span> − ${frac("∂L","∂q")} = 0</div>
+<p>Read it as a recipe. For each coordinate q:</p>
+<ul>
+<li>Take ∂L/∂${D('q')} — this turns out to be the <b>momentum</b>.</li>
+<li>Take its time derivative d/dt — the rate the momentum changes.</li>
+<li>Subtract ∂L/∂q — this turns out to be the <b>force</b>.</li>
+<li>Set it to zero: momentum-rate = force. That's Newton's second law, <i>derived</i>, in coordinates that fit the problem.</li>
+</ul>
+<p>One scalar function L, one mechanical recipe, any coordinate system. No free-body diagrams, no constraint forces. Next we run the recipe on a real system.</p>`;
+
+C.pendulum=`<p>A mass m on a rigid rod of length ℓ, swinging by angle θ. One coordinate: q = θ.</p>
+<p><b>Kinetic:</b> the bob moves on a circle of radius ℓ, so its speed is ℓ${D('θ')}, giving T = ½mℓ²${D('θ')}².<br>
+<b>Potential:</b> height is −ℓcosθ below the pivot, so V = −mgℓcosθ.</p>
+<div class="eq box">L = T − V = ½mℓ²${D('θ')}² + mgℓcosθ</div>
+<p>Now turn the crank. ∂L/∂${D('θ')} = mℓ²${D('θ')}, and d/dt of that is mℓ²${DD('θ')}. And ∂L/∂θ = −mgℓsinθ. Euler–Lagrange says the first minus the second is zero:</p>
+<div class="eq box">mℓ²${DD('θ')} + mgℓsinθ = 0 &nbsp;⇒&nbsp; ${DD('θ')} = −${frac("g","ℓ")} sinθ</div>
+<p>That is the pendulum's equation of motion — the same one Newton gives, obtained here by pure bookkeeping on one energy function. Below it's integrated live. Push the bob, change gravity and length, and watch the energies trade back and forth.</p>
+<div id="__sim"></div>`;
+
+C.noether=`<p>Look again at Euler–Lagrange. Suppose the Lagrangian <b>doesn't depend on some coordinate q</b> (only on its velocity ${D('q')}). Then ∂L/∂q = 0, so:</p>
+<div class="eq box">${frac("d","dt")}<span style="font-size:1.1em">(</span>${frac("∂L","∂"+D('q'))}<span style="font-size:1.1em">)</span> = 0 &nbsp;⇒&nbsp; ${frac("∂L","∂"+D('q'))} = constant</div>
+<p>A coordinate that L ignores is called <b>cyclic</b>, and its momentum is <b>conserved</b>. This is <b>Noether's theorem</b> in miniature: every continuous symmetry gives a conserved quantity.</p>
+<ul>
+<li>L unchanged if you <b>shift position</b> → <b>linear momentum</b> conserved.</li>
+<li>L unchanged if you <b>rotate</b> → <b>angular momentum</b> conserved.</li>
+<li>L unchanged as <b>time</b> passes → <b>energy</b> conserved.</li>
+</ul>
+<div class="callout"><span class="l">Deep cut</span>Conservation laws aren't separate rules bolted onto mechanics — they're <i>shadows of symmetry</i>. This single idea runs straight through to particle physics.</div>`;
+
+C.momentum=`<p>Lagrangian mechanics lives in (q, ${D('q')}) — position and velocity. Hamiltonian mechanics re-coordinates to (q, p) — position and <b>momentum</b>, defined as exactly the thing Euler–Lagrange kept handing us:</p>
+<div class="eq box">p ≡ ${frac("∂L","∂"+D('q'))}</div>
+<p>For the pendulum, p = mℓ²${D('θ')} — angular momentum. To swap the velocity out for p we use the <b>Legendre transform</b>, which builds a new function, the <b>Hamiltonian</b>:</p>
+<div class="eq box">H = p${D('q')} − L</div>
+<p>Grind it through for the pendulum and something beautiful happens:</p>
+<div class="eq box">H = ${frac("p²","2mℓ²")} − mgℓcosθ = T + V</div>
+<p>The Hamiltonian is the <b>total energy</b>, written in terms of position and momentum. Where L = T − V ran the dynamics, H = T + V will now <i>be</i> the dynamics.</p>`;
+
+C.hamilton=`<p>Rewriting mechanics with H in place of L collapses one second-order equation into <b>two first-order</b> ones — <b>Hamilton's equations</b>:</p>
+<div class="eq box">${D('q')} = ${frac("∂H","∂p")} &nbsp;&nbsp;&nbsp;&nbsp; ${D('p')} = −${frac("∂H","∂q")}</div>
+<p>The first says how position flows from momentum; the second says how momentum flows from the force (−∂H/∂q). Run them on the pendulum, H = p²/2mℓ² − mgℓcosθ:</p>
+<div class="eq box">${D('θ')} = ${frac("p","mℓ²")} &nbsp;&nbsp;&nbsp;&nbsp; ${D('p')} = −mgℓsinθ</div>
+<p>Exactly the pendulum again — but now as a <b>flow</b> in the (θ, p) plane instead of a wiggling angle. That reframing is the whole point, and it opens the door to statistical mechanics, quantum mechanics, and chaos.</p>
+<div class="callout"><span class="l">Symmetry, restated</span>If H doesn't contain q, then ${D('p')} = 0 and p is conserved — Noether again, now almost trivially.</div>`;
+
+C.phase=`<p>A Hamiltonian system's entire state is one point <b>(q, p)</b>. The plane of all such points is <b>phase space</b>, and as time runs, the point traces a curve — the system's whole future and past in one picture.</p>
+<p>Because energy H is conserved, each trajectory <b>stays on a contour of constant H</b>. For the pendulum that gives two regimes, both visible below:</p>
+<ul>
+<li><b>Libration</b> — closed loops near the center: the bob swings back and forth.</li>
+<li><b>Rotation</b> — wavy lines top and bottom: enough energy to go over the top, round and round.</li>
+<li>The <b>separatrix</b> between them is the knife-edge of just barely reaching the top.</li>
+</ul>
+<p>Tap anywhere to launch a trajectory from that state and watch it ride its energy contour.</p>
+<div id="__sim"></div>`;
+
+C.chaos=`<p>Add one more link. Two rods, two angles (θ₁, θ₂) — the Lagrangian is longer but the machine is identical: write T − V, apply Euler–Lagrange, integrate.</p>
+<p>Yet the behavior changes in kind. The double pendulum is <b>chaotic</b>: two starts that differ by a hair diverge exponentially. It's fully deterministic — every step follows from the equations — and still effectively unpredictable.</p>
+<div id="__sim"></div>
+<p>Tap <b>Race twins</b> to launch two pendulums from almost-identical angles. They track together… then, suddenly, they don't. That gap is the boundary between “deterministic” and “predictable” — they are not the same thing.</p>
+<div class="callout"><span class="l">Worth sitting with</span>The equations are exact and the future is fixed, yet knowing it would require infinite precision about now. Determinism does not buy you prediction.</div>`;
+
+C.capstone=`<p>You've met one idea wearing three costumes: <b>make an integral stationary.</b> It isn't only mechanics.</p>
+<ul>
+<li><b>Light</b> (Fermat): light takes the path of stationary <i>travel time</i> — refraction falls out.</li>
+<li><b>Gravity</b> (Einstein): free-fall follows the path of stationary <i>proper time</i> — a geodesic in curved spacetime.</li>
+<li><b>Fields, quantum amplitudes, economics of control</b>: all posed as “extremize an action.”</li>
+</ul>
+<p>And your own <b>master equation</b> sits in exactly this family:</p>
+<div class="eq box">δ ∫ [ T − Φ(T + D) ] dτ = 0</div>
+<p>It's a Hamilton's principle with a chosen Lagrangian: <kbd>T</kbd> the constructive transformation, <kbd>D</kbd> the dissipation, <kbd>Φ</kbd> the spectral cost. Demanding stationarity picks out the trajectory that maximizes constructive transformation relative to what it dissipates — the Poietism path, derived the same way nature derives free fall.</p>
+<div class="callout v"><span class="l">Where you are now</span>You can read a Lagrangian, turn it into equations of motion, pass to the Hamiltonian, and see the whole state as a flow in phase space. That's the working core of analytical mechanics — and the language your own physics is written in. From here: central forces &amp; orbits, small oscillations &amp; normal modes, rigid bodies, then fields.</div>`;
+
+/* ================================================================== SIMS */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const loop=t=>{if(!run)return;fn(t);id=requestAnimationFrame(loop);};id=requestAnimationFrame(loop);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fitCanvas(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+
+/* --- slope of a curve --- */
+function simSlope(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div></div>`;
+  const cv=$("canvas",el);let t0=0.45;
+  function draw(){
+    const {x,w,h}=fitCanvas(cv,220);
+    const f=t=>0.9-1.7*(t-0.5)*(t-0.5);      // x(t): a hump
+    const df=t=>-3.4*(t-0.5);
+    const X=t=>20+t*(w-40), Y=v=>h-20-v*(h-40);
+    x.clearRect(0,0,w,h);
+    x.strokeStyle="#243149";x.lineWidth=1;x.beginPath();x.moveTo(20,h-20);x.lineTo(w-20,h-20);x.moveTo(20,20);x.lineTo(20,h-20);x.stroke();
+    x.fillStyle="#5e6c8a";x.font="11px ui-monospace";x.fillText("t",w-16,h-16);x.fillText("x",8,24);
+    x.strokeStyle="#4fd1e0";x.lineWidth=2;x.beginPath();
+    for(let i=0;i<=100;i++){const t=i/100;const px=X(t),py=Y(f(t));i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    const m=df(t0),bx=X(t0),by=Y(f(t0));
+    const dt=0.22;x.strokeStyle="#f5c451";x.lineWidth=2;x.beginPath();
+    x.moveTo(X(t0-dt),Y(f(t0)-m*dt));x.lineTo(X(t0+dt),Y(f(t0)+m*dt));x.stroke();
+    x.fillStyle="#a78bfa";x.beginPath();x.arc(bx,by,7,0,7);x.fill();
+    $("#ro",el).innerHTML=`position x = <b>${f(t0).toFixed(2)}</b> &nbsp; slope = velocity <b>${D('x')}</b> = <span class="r">${m.toFixed(2)}</span> &nbsp;<span style="color:var(--faint)">— drag the dot</span>`;
+  }
+  const move=e=>{const r=cv.getBoundingClientRect();const px=(e.touches?e.touches[0].clientX:e.clientX)-r.left;t0=Math.max(0.05,Math.min(0.95,(px-20)/(r.width-40)));draw();};
+  cv.addEventListener("pointerdown",e=>{move(e);cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener("pointermove",e=>{if(e.pressure>0||e.buttons)move(e);});
+  draw();window.addEventListener("resize",draw);cleanups.push(()=>window.removeEventListener("resize",draw));
+}
+
+/* --- least action explorer (height vs time) --- */
+function simLeastAction(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+    <div class="readout" id="ro"></div>
+    <div class="simctl">
+      <button class="btn sm pri" id="relax">▶ Relax to least action</button>
+      <button class="btn sm" id="showtrue">Show true path</button>
+      <button class="btn sm" id="reset">Reset</button>
+    </div></div>`;
+  const cv=$("canvas",el);
+  const N=14, T=2.0, g=9.0, m=1;
+  const yA=0.15, yB=0.15;                   // endpoints (height, normalized)
+  let y=[]; function init(){y=[];for(let i=0;i<=N;i++){const t=i/N;y[i]=yA+(yB-yA)*t;}} init();
+  let showTrue=false, relaxing=false, drag=-1;
+  const dt=T/N;
+  function trueY(i){const t=i*dt;const v0=(yB-yA)/T*g*0+ (g*T)/2; /*from y0+v0 T -½gT²=yB*/const V0=((yB-yA)+0.5*g*T*T*0.02)/T;return yA+ (( (yB-yA)/T + 0.5*(g*0.02)*T)*t) - 0.5*(g*0.02)*t*t;}
+  // scaled gravity for nice on-screen curvature
+  const gs=0.9;
+  function trueYs(i){const t=i*dt;const v0=((yB-yA)+0.5*gs*T*T)/T;return yA+v0*t-0.5*gs*t*t;}
+  function action(arr){let S=0;for(let i=0;i<N;i++){const v=(arr[i+1]-arr[i])/dt;const KE=0.5*m*v*v;const PE=m*gs*arr[i];S+=(KE-PE)*dt;}return S;}
+  function step(){ // gradient descent on interior points
+    const a=0.06;let moved=0;const ny=y.slice();
+    for(let j=1;j<N;j++){const grad=m*(y[j]-y[j-1])/dt - m*(y[j+1]-y[j])/dt - m*gs*dt;ny[j]=y[j]-a*grad/dt;moved+=Math.abs(grad);}
+    y=ny;return moved;
+  }
+  function draw(){
+    const {x,w,h}=fitCanvas(cv,240);
+    const X=i=>20+ (i/N)*(w-40);
+    const lo=-0.1,hi=1.2, Y=v=>h-16-((v-lo)/(hi-lo))*(h-32);
+    x.clearRect(0,0,w,h);
+    x.strokeStyle="#243149";x.beginPath();x.moveTo(20,Y(0));x.lineTo(w-20,Y(0));x.stroke();
+    x.fillStyle="#5e6c8a";x.font="11px ui-monospace";x.fillText("time →",w-56,h-4);x.fillText("height",4,14);
+    if(showTrue){x.strokeStyle="#5ad19a";x.lineWidth=2;x.setLineDash([5,4]);x.beginPath();for(let i=0;i<=N;i++){const px=X(i),py=Y(trueYs(i));i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();x.setLineDash([]);}
+    x.strokeStyle="#4fd1e0";x.lineWidth=2.5;x.beginPath();for(let i=0;i<=N;i++){const px=X(i),py=Y(y[i]);i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    for(let i=0;i<=N;i++){const px=X(i),py=Y(y[i]);const end=(i===0||i===N);x.fillStyle=end?"#5e6c8a":"#a78bfa";x.beginPath();x.arc(px,py,end?5:6.5,0,7);x.fill();}
+    const S=action(y),St=action(y.map((_,i)=>trueYs(i)));
+    $("#ro",el).innerHTML=`action S = <b>${S.toFixed(2)}</b> &nbsp;·&nbsp; true path S = <span class="g">${St.toFixed(2)}</span> &nbsp; ${S-St<0.02?'<span class="g">← stationary!</span>':'<span style="color:var(--faint)">(drag points down toward it)</span>'}`;
+  }
+  function loop(){if(relaxing){const mv=step();if(mv<0.02){relaxing=false;$("#relax",el).textContent="▶ Relax to least action";}}draw();}
+  raf(loop);
+  const pos=e=>{const r=cv.getBoundingClientRect();return {px:(e.touches?e.touches[0].clientX:e.clientX)-r.left,py:(e.touches?e.touches[0].clientY:e.clientY)-r.top,r};};
+  cv.addEventListener("pointerdown",e=>{const {px,py,r}=pos(e);let best=-1,bd=1e9;for(let i=1;i<N;i++){const gx=20+(i/N)*(r.width-40);const gy=(r.height-16)-((y[i]+0.1)/1.3)*(r.height-32);const d=(gx-px)**2+(gy-py)**2;if(d<bd){bd=d;best=i;}}if(bd<900){drag=best;relaxing=false;cv.setPointerCapture(e.pointerId);}});
+  cv.addEventListener("pointermove",e=>{if(drag<0)return;const {py,r}=pos(e);const lo=-0.1,hi=1.2;y[drag]=lo+(1-(py-16)/(r.height-32))*(hi-lo);});
+  cv.addEventListener("pointerup",()=>drag=-1);
+  $("#relax",el).onclick=()=>{relaxing=!relaxing;$("#relax",el).textContent=relaxing?"⏸ Relaxing…":"▶ Relax to least action";};
+  $("#showtrue",el).onclick=()=>{showTrue=!showTrue;};
+  $("#reset",el).onclick=()=>{init();showTrue=false;relaxing=false;$("#relax",el).textContent="▶ Relax to least action";};
+}
+
+/* --- pendulum from its Lagrangian --- */
+function simPendulum(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+    <div class="readout" id="ro"></div>
+    <div class="simctl">
+      <label>gravity g <input type="range" id="g" min="2" max="20" step="0.5" value="9.8"></label>
+      <label>length ℓ <input type="range" id="L" min="0.6" max="1.6" step="0.05" value="1.1"></label>
+      <button class="btn sm" id="kick">Kick it</button>
+    </div></div>`;
+  const cv=$("canvas",el);let th=2.3, om=0, g=9.8, L=1.1, m=1;
+  $("#g",el).oninput=e=>g=+e.target.value; $("#L",el).oninput=e=>L=+e.target.value;
+  $("#kick",el).onclick=()=>om+=3.2;
+  let drag=false;
+  function draw(t){
+    const dt=1/60;
+    if(!drag){const a=-(g/L)*Math.sin(th);om+=a*dt;om*=0.9995;th+=om*dt;}
+    const {x,w,h}=fitCanvas(cv,240);
+    const ox=w/2, oy=40, sc=(h-90)/1.7*Math.min(1,1.2/L);
+    const bx=ox+Math.sin(th)*L*sc, by=oy+Math.cos(th)*L*sc;
+    x.clearRect(0,0,w,h);
+    x.strokeStyle="#243149";x.beginPath();x.arc(ox,oy,L*sc,0,7);x.stroke();
+    x.strokeStyle="#5e6c8a";x.lineWidth=2;x.beginPath();x.moveTo(ox,oy);x.lineTo(bx,by);x.stroke();
+    x.fillStyle="#243149";x.beginPath();x.arc(ox,oy,4,0,7);x.fill();
+    x.fillStyle="#4fd1e0";x.beginPath();x.arc(bx,by,13,0,7);x.fill();
+    const T=0.5*m*L*L*om*om, V=-m*g*L*Math.cos(th), Lg=T-V, E=T+V;
+    $("#ro",el).innerHTML=`θ=<b>${th.toFixed(2)}</b> ${D('θ')}=<b>${om.toFixed(2)}</b> &nbsp; T=<span class="g">${T.toFixed(2)}</span> V=<span class="r">${V.toFixed(2)}</span> &nbsp; L=T−V=<b>${Lg.toFixed(2)}</b> &nbsp; E=T+V=<b>${E.toFixed(2)}</b><br><span style="color:var(--faint)">drag the bob to set it, or Kick it</span>`;
+  }
+  raf(draw);
+  const setFromPointer=e=>{const r=cv.getBoundingClientRect();const w=r.width,px=(e.touches?e.touches[0].clientX:e.clientX)-r.left-w/2,py=(e.touches?e.touches[0].clientY:e.clientY)-r.top-40;th=Math.atan2(px,py);om=0;};
+  cv.addEventListener("pointerdown",e=>{drag=true;setFromPointer(e);cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener("pointermove",e=>{if(drag)setFromPointer(e);});
+  cv.addEventListener("pointerup",()=>drag=false);
+}
+
+/* --- phase space portrait --- */
+function simPhase(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+    <div class="readout" id="ro">Tap anywhere to launch a trajectory from that (θ, p).</div>
+    <div class="simctl"><button class="btn sm" id="clear">Clear</button><span style="font-size:12px;color:var(--faint)">horizontal = angle θ · vertical = momentum p</span></div></div>`;
+  const cv=$("canvas",el);const g=9.8,L=1,m=1;let trajs=[];
+  const TH=3.6, PM=7;                       // ranges
+  function toXY(w,h,th,p){return [w/2+ th/TH*(w/2-16), h/2 - p/PM*(h/2-16)];}
+  function draw(){
+    const {x,w,h}=fitCanvas(cv,260);
+    x.clearRect(0,0,w,h);
+    // energy contours
+    for(let k=0;k<7;k++){const E=(-m*g*L)+ (k+1)/7*(2.6*m*g*L);
+      x.strokeStyle=k===3?"#f0736a66":"#1c2740";x.lineWidth=k===3?1.5:1;x.beginPath();let started=false;
+      for(let th=-TH;th<=TH;th+=0.03){const val=2*m*L*L*(E+m*g*L*Math.cos(th));if(val<0){started=false;continue;}const p=Math.sqrt(val);const [X,Y]=toXY(w,h,th,p);started?x.lineTo(X,Y):x.moveTo(X,Y);started=true;}
+      x.stroke();started=false;x.beginPath();
+      for(let th=-TH;th<=TH;th+=0.03){const val=2*m*L*L*(E+m*g*L*Math.cos(th));if(val<0){started=false;continue;}const p=-Math.sqrt(val);const [X,Y]=toXY(w,h,th,p);started?x.lineTo(X,Y):x.moveTo(X,Y);started=true;}x.stroke();
+    }
+    x.strokeStyle="#243149";x.beginPath();x.moveTo(0,h/2);x.lineTo(w,h/2);x.moveTo(w/2,0);x.lineTo(w/2,h);x.stroke();
+    x.fillStyle="#5e6c8a";x.font="11px ui-monospace";x.fillText("θ",w-14,h/2-6);x.fillText("p",w/2+6,14);
+    trajs.forEach(tr=>{
+      const dt=1/60;let {th,p}=tr;
+      tr.hist=tr.hist||[];
+      for(let s=0;s<2;s++){const om=p/(m*L*L);p+=-m*g*L*Math.sin(th)*dt;th+=om*dt;}
+      if(th>Math.PI*1.9)th-=2*Math.PI;if(th<-Math.PI*1.9)th+=2*Math.PI;
+      tr.th=th;tr.p=p;tr.hist.push([th,p]);if(tr.hist.length>260)tr.hist.shift();
+      x.strokeStyle=tr.c+"88";x.lineWidth=1.5;x.beginPath();tr.hist.forEach(([a,b],i)=>{const [X,Y]=toXY(w,h,a,b);i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();
+      const [X,Y]=toXY(w,h,th,p);x.fillStyle=tr.c;x.beginPath();x.arc(X,Y,4.5,0,7);x.fill();
+    });
+  }
+  raf(draw);
+  const cols=["#4fd1e0","#a78bfa","#f5c451","#5ad19a","#f0736a"];let ci=0;
+  cv.addEventListener("pointerdown",e=>{const r=cv.getBoundingClientRect();const w=r.width,h=r.height;const th=((e.clientX-r.left)-w/2)/(w/2-16)*TH;const p=-(((e.clientY-r.top)-h/2)/(h/2-16))*PM;trajs.push({th,p,c:cols[ci++%cols.length]});if(trajs.length>6)trajs.shift();});
+  $("#clear",el).onclick=()=>trajs=[];
+}
+
+/* --- double pendulum & chaos --- */
+function simDouble(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+    <div class="readout" id="ro">Two links. Fully deterministic — and unpredictable.</div>
+    <div class="simctl"><button class="btn sm pri" id="race">Race twins</button><button class="btn sm" id="one">Single</button></div></div>`;
+  const cv=$("canvas",el);const g=9.8,L1=1,L2=1,m1=1,m2=1;
+  function mk(a1,a2){return {a1,a2,p1:0,p2:0,trail:[]};}
+  let sys=[mk(2.2,2.3)];
+  function deriv(s){
+    const {a1,a2,p1,p2}=s;const c=Math.cos(a1-a2),si=Math.sin(a1-a2);
+    const denom=m1+m2*si*si;
+    const a1d=(p1*1);const a2d=(p2*1);
+    // use angular acceleration form (equal L,m simplified standard eqns)
+    const num1=-g*(2*m1+m2)*Math.sin(a1)-m2*g*Math.sin(a1-2*a2)-2*si*m2*(p2*p2*L2+p1*p1*L1*c);
+    const den1=L1*(2*m1+m2-m2*Math.cos(2*a1-2*a2));
+    const num2=2*si*(p1*p1*L1*(m1+m2)+g*(m1+m2)*Math.cos(a1)+p2*p2*L2*m2*c);
+    const den2=L2*(2*m1+m2-m2*Math.cos(2*a1-2*a2));
+    return {da1:p1,da2:p2,dp1:num1/den1,dp2:num2/den2};
+  }
+  function stepSys(s,dt){ // RK4 on (a1,a2,w1,w2) where p=angular velocity here
+    const st={a1:s.a1,a2:s.a2,p1:s.p1,p2:s.p2};
+    const f=st=>{const d=deriv(st);return d;};
+    const k1=f(st);
+    const s2={a1:st.a1+k1.da1*dt/2,a2:st.a2+k1.da2*dt/2,p1:st.p1+k1.dp1*dt/2,p2:st.p2+k1.dp2*dt/2};const k2=f(s2);
+    const s3={a1:st.a1+k2.da1*dt/2,a2:st.a2+k2.da2*dt/2,p1:st.p1+k2.dp1*dt/2,p2:st.p2+k2.dp2*dt/2};const k3=f(s3);
+    const s4={a1:st.a1+k3.da1*dt,a2:st.a2+k3.da2*dt,p1:st.p1+k3.dp1*dt,p2:st.p2+k3.dp2*dt};const k4=f(s4);
+    s.a1+=dt/6*(k1.da1+2*k2.da1+2*k3.da1+k4.da1);s.a2+=dt/6*(k1.da2+2*k2.da2+2*k3.da2+k4.da2);
+    s.p1+=dt/6*(k1.dp1+2*k2.dp1+2*k3.dp1+k4.dp1);s.p2+=dt/6*(k1.dp2+2*k2.dp2+2*k3.dp2+k4.dp2);
+  }
+  const cols=["#4fd1e0","#f0736a"];
+  function draw(){
+    const {x,w,h}=fitCanvas(cv,280);const ox=w/2,oy=h*0.34,sc=Math.min(w,h)*0.19;
+    for(let k=0;k<4;k++)sys.forEach(s=>stepSys(s,1/240));
+    x.clearRect(0,0,w,h);
+    sys.forEach((s,idx)=>{
+      const x1=ox+Math.sin(s.a1)*L1*sc,y1=oy+Math.cos(s.a1)*L1*sc;
+      const x2=x1+Math.sin(s.a2)*L2*sc,y2=y1+Math.cos(s.a2)*L2*sc;
+      s.trail.push([x2,y2]);if(s.trail.length>140)s.trail.shift();
+      x.strokeStyle=cols[idx]+"55";x.lineWidth=1.5;x.beginPath();s.trail.forEach(([a,b],i)=>i?x.lineTo(a,b):x.moveTo(a,b));x.stroke();
+      x.strokeStyle=cols[idx];x.lineWidth=2.5;x.beginPath();x.moveTo(ox,oy);x.lineTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+      x.fillStyle=cols[idx];x.beginPath();x.arc(x1,y1,6,0,7);x.fill();x.beginPath();x.arc(x2,y2,7,0,7);x.fill();
+    });
+    x.fillStyle="#243149";x.beginPath();x.arc(ox,oy,4,0,7);x.fill();
+  }
+  raf(draw);
+  $("#race",el).onclick=()=>{sys=[mk(2.2,2.3),mk(2.2,2.3+0.01)];$("#ro",el).innerHTML='Two starts, differing by 0.01 rad. Watch them agree… then split.';};
+  $("#one",el).onclick=()=>{sys=[mk(2.2,2.3)];$("#ro",el).innerHTML='Single double-pendulum. Drag none — just watch the trail.';};
+}
+const SIMS={slope:simSlope,leastaction:simLeastAction,pendulum:simPendulum,phase:simPhase,double:simDouble};
+
+/* ================================================================== VIEWS */
+function openLesson(id){
+  clearSims();
+  const l=LESSON[id];
+  const sec=$("#tab-lesson");
+  const idxAll=ALL.findIndex(x=>x.id===id);const nxt=ALL[idxAll+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ All lessons</button></div>
+    <div class="reader card">
+      <div class="tag">Lesson ${idxAll+1} of ${ALL.length}</div>
+      <h2>${l.n}</h2>
+      <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+      <div class="row next-lesson">
+        <button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+        ${nxt?`<button class="btn vio" id="next">Next ›</button>`:""}
+      </div>
+    </div>`;
+  showTab("lesson");
+  const mount=$("#__sim",sec); if(mount&&l.sim&&SIMS[l.sim]) SIMS[l.sim](mount);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nxt)$("#next",sec).onclick=()=>openLesson(nxt.id);
+  window.scrollTo(0,0);
+}
+
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#12203a,#141b2e);border-color:#2a3a5a">
+      <div style="font-size:13px;color:var(--cyan);font-weight:700;letter-spacing:.5px">YOUR PATH TO HAMILTON'S EQUATIONS</div>
+      <div style="color:var(--mut);margin-top:6px;font-size:14px">From derivatives → the action → Euler–Lagrange → the pendulum → phase space. Tap any lesson. The 🧪 ones open an interactive.</div>
+    </div>`;
+  MODULES.forEach(m=>{
+    const done=m.lessons.filter(l=>P.done[l.id]).length;
+    const html=document.createElement("div");html.className="mod";
+    html.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}">
+        <div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>
+        ${l.lab?'<span class="lab">🧪 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(html);
+  });
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+
+function renderLab(){
+  const sec=$("#tab-lab");
+  const labs=[
+    ["leastaction","Least Action Explorer","Deform a path, watch the action — then let it relax onto the real trajectory.","∫"],
+    ["pendulum","The Pendulum","A live pendulum integrated straight from its Lagrangian. Watch T and V trade off.","🕰"],
+    ["phase","Phase-Space Portrait","Tap to launch trajectories; every one rides a contour of constant energy.","🌀"],
+    ["double","Double Pendulum & Chaos","Race two near-identical starts and watch determinism outrun prediction.","∞"],
+    ["slope","Slope = Velocity","The derivative, made draggable.","∂"],
+  ];
+  sec.innerHTML=`<div class="sec">The Lab · interactive playgrounds</div>`+
+    labs.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num">${l[3]}</div><div class="nm"><b>${l[1]}</b><small>${l[2]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{
+    clearSims();
+    sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;
+    SIMS[x.dataset.lab]($("#__sim",sec));
+    $("#lb",sec).onclick=()=>{clearSims();renderLab();};
+    window.scrollTo(0,0);
+  });
+}
+
+/* ------------------------------------------------------------------ drills */
+const DRILLS=[
+ {q:`Differentiate: ${frac("d","dx")} x³ = ?`,a:["2x","3x²","x²","3x³"],c:1,e:"Power rule: bring the 3 down, drop the exponent by one → 3x²."},
+ {q:`Partial derivative: ${frac("∂","∂y")}(x²y + y³) = ?`,a:["2xy","x² + 3y²","x² + y²","2x + 3y²"],c:1,e:"Freeze x. ∂/∂y of x²y is x²; of y³ is 3y². Sum: x² + 3y²."},
+ {q:`For L = ½m${D('x')}² − V(x), the generalized momentum p = ∂L/∂${D('x')} is:`,a:["mx","m${D('x')}","V(x)","½m${D('x')}"].map(s=>s.replace("${D('x')}",D('x'))),c:1,e:"∂/∂"+D('x')+" of ½m"+D('x')+"² is m"+D('x')+" — ordinary momentum."},
+ {q:`A coordinate q that L does <i>not</i> depend on (only its velocity) is called cyclic. What's conserved?`,a:["energy","its momentum ∂L/∂"+D('q'),"nothing","position q"],c:1,e:"∂L/∂q = 0 makes d/dt(∂L/∂"+D('q')+") = 0, so that momentum is constant — Noether."},
+ {q:`The pendulum Lagrangian is L = ½mℓ²${D('θ')}² + mgℓcosθ. Its equation of motion is:`,a:[DD('θ')+" = −(g/ℓ)sinθ",DD('θ')+" = −(g/ℓ)θ²",DD('θ')+" = (g/ℓ)cosθ","θ = −g/ℓ"],c:0,e:"Euler–Lagrange: d/dt(mℓ²"+D('θ')+") + mgℓsinθ = 0 → "+DD('θ')+" = −(g/ℓ)sinθ."},
+ {q:`The Hamiltonian H = p${D('q')} − L, for the pendulum, works out to:`,a:["T − V (the Lagrangian again)","T + V (the total energy)","zero","the momentum p"],c:1,e:"The Legendre transform gives H = p²/2mℓ² − mgℓcosθ = T + V, the energy."},
+ {q:`Hamilton's equations are ${D('q')} = ∂H/∂p and:`,a:[D('p')+" = ∂H/∂q",D('p')+" = −∂H/∂q",D('p')+" = ∂H/∂p",D('p')+" = 0"],c:1,e:"The momentum flows as "+D('p')+" = −∂H/∂q — the minus sign carries the force."},
+ {q:`Determinism vs prediction — the double pendulum is:`,a:["random, so unpredictable","deterministic yet practically unpredictable","predictable with enough care, always","not governed by equations"],c:1,e:"Every step follows exactly from the equations, but sensitivity to initial conditions means tiny errors explode — chaos."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");
+  const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Drills</div>
+    <div style="font-size:34px;font-weight:800;color:var(--cyan)">${score}/${DRILLS.length}</div>
+    <div style="color:var(--mut);font-size:13px">questions nailed — answers are checked instantly</div></div>`;
+  DRILLS.forEach((d,i)=>{
+    const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);
+    const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{
+      opts.forEach(o=>o.disabled=true);
+      if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}
+      else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;
+      save();renderDrillScoreOnly();updateXP();
+    });
+  });
+}
+function renderDrillScoreOnly(){const score=Object.values(P.drill).filter(v=>v==='ok').length;const n=$("#tab-drill .card div[style*='34px']");if(n)n.textContent=`${score}/${DRILLS.length}`;}
+
+/* ------------------------------------------------------------------ progress */
+function renderYou(){
+  const sec=$("#tab-you");
+  const dn=doneCount(),tot=ALL.length,pct=Math.round(dn/tot*100);
+  const dscore=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,circ=2*Math.PI*R,off=circ*(1-dn/tot);
+  const badges=[
+   ["🧮","Mathematician",P.done.variation],
+   ["ℒ","Lagrangian",P.done.euler&&P.done.pendulum],
+   ["ℋ","Hamiltonian",P.done.hamilton&&P.done.phase],
+   ["∞","Chaos-tamer",P.done.chaos],
+   ["🎯","Sharp",dscore>=6],
+   ["🏛","Analyst",dn>=tot],
+  ];
+  sec.innerHTML=`<div class="card prog-hero">
+      <svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#1c2740" stroke-width="10"/>
+      <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4fd1e0"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+      <text x="60" y="58" text-anchor="middle" fill="#e7ecf6" font-size="26" font-weight="800">${pct}%</text>
+      <text x="60" y="76" text-anchor="middle" fill="#93a1bd" font-size="10">${dn}/${tot} lessons</text></svg>
+      <div style="color:var(--mut);font-size:14px">${pct===100?"You've completed the core of analytical mechanics. 🏛":pct>=50?"Halfway to Hamilton — keep going.":"Every physicist started at lesson one."}</div>
+    </div>
+    <div class="card"><div class="sec">Badges</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div>
+      <div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Drills correct &nbsp;&nbsp;&nbsp; <b>${dscore} / ${DRILLS.length}</b></div>
+      <button class="btn wide" id="install" style="margin-top:12px">⤓ Install this app on your iPhone</button>
+      <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button>
+    </div>`;
+  $("#install",sec).onclick=installSheet;
+  $("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();renderAll();updateXP();}};
+}
+
+/* ------------------------------------------------------------------ install */
+let deferred=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){
+  if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}
+  if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari (the box with an ↑).\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.\n\nAction then opens full-screen and works offline.");
+  else alert("Open your browser menu and choose “Install app” / “Add to Home screen”.");
+}
+
+/* ------------------------------------------------------------------ shell */
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));
+  $$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xpN").textContent=doneCount();}
+function renderAll(){renderLearn();renderLab();renderDrill();renderYou();}
+
+updateXP();renderAll();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>
