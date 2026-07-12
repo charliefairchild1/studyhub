@@ -210,7 +210,7 @@ const CATS=[
  ['Games','🎮',[['chess','♟️','Chess','influence maps, PTO eval, play the engine'],['poker','🂡','Poker','equity, EV coach, range trainer, a bot']]],
  ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
  ['Mind','🧠',[['gauntlet','⚖️','The Gauntlet','an ethics game — rule a town by the Poietism rule'],['ethics','🎭','Ethics Arena','moral dilemmas — find your framework'],['two-selves','🧠','Two Selves','conscious vs. subconscious'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
- ['Science','⚛️',[['action','∫','Action','Lagrangian & Hamiltonian mechanics + the math to get there']]],
+ ['Science','⚛️',[['polymath','✦','Polymath','every science — physics, chemistry, biology, earth & space, math'],['action','∫','Action','Lagrangian & Hamiltonian mechanics + the math to get there']]],
  ['Writing','✍️',[['animal-book','📖','The Animal That Bets','the book'],['animal-essay','📝','…the Essay','the short version'],['poietism-pamphlet','📜','Poietism Field Guide','20+ pages'],['poietism-paper','📄','Poietism Paper','the core essay'],['poietism-naming','🔤','Naming Poietism','how the name was chosen']]],
  ['Economics','⚖️',[['koin','⚖️','Koin','give-take economics'],['koin-welcome','👋','Welcome','a gentle intro'],['koin-essential','✦','Essentials','in brief'],['koin-kids','🧒','For Kids','the friendliest'],['koin-teaching','📖','Teaching','how to explain it'],['koin-pamphlet','📜','Manifesto','custody vs. contribution']]],
  ['Investing','📈',[['transformation-map','🌐','Transformation Map','invest by trajectory'],['portfolio-planner','📊','Portfolio Planner','core + satellite'],['spacex-pto','🛰️','SpaceX · PTO','valuation scenarios'],['spacex-invest','🚀','SpaceX Plan','DCA projection']]],
@@ -226,6 +226,7 @@ const TRACKS=[
  ['investing','📈','Invest by Trajectory','From reading the world to a real plan.',['transformation-map','portfolio-planner','spacex-pto','spacex-invest']],
  ['math','🔬','Math Foundations','A guided path through the playground.',['math-predictor','math-spreading','math-neural','math-bayes','math-entropy','math-diffusion','math-reaction','life','evolution','math-network']],
  ['mechanics','∫','Analytical Mechanics','From derivatives to the Hamiltonian — Lagrangian and Hamiltonian mechanics.',['action']],
+ ['sciences','✦','Every Science','Physics, chemistry, biology, earth & space, and math — with interactive labs.',['polymath','action']],
 ];
 const RANKS=[[1,'Curious Beginner'],[3,'Apprentice'],[5,'Student'],[8,'Scholar'],[12,'Adept'],[16,'Polymath'],[22,'Master'],[30,'Sage']];
 const ACHS=[
@@ -239,6 +240,7 @@ const ACHS=[
  ['ethicist','🎭','Ethicist','Enter the Ethics Arena', s=>s.opened&&s.opened.ethics],
  ['maker','⚖️','The Maker','Play The Gauntlet', s=>s.opened&&s.opened.gauntlet],
  ['physicist','∫','Physicist','Open the mechanics app', s=>s.opened&&s.opened.action],
+ ['polymath2','✦','Polymath','Open every-science app', s=>s.opened&&s.opened.polymath],
  ['philo','🧠','Philosopher','Finish the Philosophy path', s=>trackDone(s,'philosophy')],
  ['econ','⚖️','Economist','Finish the Koin path', s=>trackDone(s,'koin')],
  ['math15','🔬','Mathematician','Explore 15 math demos', s=>Object.keys(s.opened||{}).filter(id=>APP[id]&&APP[id].cat==='Math').length>=15],

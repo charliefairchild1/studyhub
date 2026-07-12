@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Polymath">
+<meta name="theme-color" content="#0a0e14">
+<title>Polymath — Every Science</title>
+<style>
+:root{
+  --bg:#0a0e14;--panel:#111825;--card:#131c2b;--line:#233248;--ink:#e8eef7;--mut:#93a3bd;--faint:#5d6b85;
+  --phys:#4fd1e0;--chem:#f5a94f;--bio:#5ad19a;--earth:#6fa8d9;--math:#a78bfa;--gold:#f5c451;--red:#f0736a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 640px at 80% -12%,#15243f 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(10,14,20,.96),rgba(10,14,20,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:conic-gradient(from 45deg,var(--phys),var(--chem),var(--bio),var(--earth),var(--math),var(--phys));display:grid;place-items:center;font-weight:800;color:#06121f;font-size:19px;box-shadow:0 3px 14px rgba(79,209,224,.25)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--gold);font-size:15px}
+main{padding:14px 14px 24px;max-width:820px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+/* domain grid */
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dom{border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden;background:var(--card)}
+.dom:active{transform:scale(.98)}
+.dom .ic{font-size:30px}.dom .t{font-weight:750;margin-top:8px;font-size:16px}.dom .d{color:var(--mut);font-size:12.5px;margin-top:3px}
+.dom .bar{height:4px;border-radius:3px;background:#0e1626;margin-top:11px;overflow:hidden}.dom .bar>i{display:block;height:100%;border-radius:3px}
+/* topic list */
+.topic{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.topic.done{border-color:#2e5c47}
+.topic .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:14px;background:#0e1626;border:1px solid var(--line)}
+.topic.done .num{background:linear-gradient(135deg,var(--bio),#3aa87a);color:#06170e;border-color:transparent}
+.topic .nm{flex:1;min-width:0}.topic .nm b{font-weight:650}.topic .nm small{display:block;color:var(--mut);font-size:12px}
+.topic .lab{font-size:11px;color:var(--gold);border:1px solid #5c4a1e;border-radius:20px;padding:2px 8px;font-weight:700}
+.topic .go{color:var(--faint);font-size:19px}
+/* reader */
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.reader p{color:#cdd7e8;margin:12px 0}.reader b{color:var(--ink)}.reader ul{color:#cdd7e8;padding-left:20px}.reader li{margin:5px 0}
+.eq{font-family:Georgia,serif;font-size:1.2em;text-align:center;margin:14px 0;background:#0e1626;border:1px solid var(--line);border-left:3px solid var(--phys);border-radius:0 12px 12px 0;padding:12px}
+.callout{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:.95em;background:#141d16;border:1px solid #2b4a35;color:#cfe6d7}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:5px;color:var(--bio)}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+/* sims */
+.simwrap{background:#0b1120;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#070b14}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:90px}
+.simctl input[type=range]{width:100%;accent-color:var(--phys)}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--phys)}
+/* periodic table */
+.ptwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.pt{display:grid;grid-template-columns:repeat(18,minmax(30px,1fr));gap:3px;min-width:560px}
+.el{aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid #0006;font-size:9px;line-height:1;color:#0a0f16;font-weight:700;position:relative}
+.el .z{position:absolute;top:2px;left:3px;font-size:7px;opacity:.7}
+.el .s{font-size:13px;font-weight:800}
+.el.marker{background:#0e1626!important;color:var(--faint);border:1px dashed var(--line);cursor:default;font-size:8px}
+.eldetail{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#0e1626}
+.eldetail .big{display:flex;align-items:center;gap:14px}.eldetail .sym{width:58px;height:58px;border-radius:10px;display:grid;place-items:center;font-size:24px;font-weight:800;color:#0a0f16}
+.eldetail h3{margin:0;font-size:20px}.eldetail .meta{color:var(--mut);font-size:13px;margin-top:2px}
+.eldetail .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.eldetail .g{background:#0b1120;border:1px solid var(--line);border-radius:9px;padding:8px 10px}.eldetail .g b{display:block;font-size:15px}.eldetail .g span{font-size:11px;color:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;font-size:10.5px;color:var(--mut)}
+.legend span{display:inline-flex;align-items:center;gap:4px}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* punnett */
+.pun{display:grid;grid-template-columns:auto 1fr 1fr;gap:5px;max-width:280px;margin:12px auto}
+.pun .h{text-align:center;font-weight:800;color:var(--gold);padding:6px}
+.pun .cell{background:#0e1626;border:1px solid var(--line);border-radius:8px;text-align:center;padding:14px 6px;font-weight:700;font-size:1.1em}
+.pun .cell.dom{color:var(--bio)}.pun .cell.rec{color:var(--mut)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(10,14,20,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--phys)}nav .ic{font-size:19px;line-height:1}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#06121f;border:1px solid var(--phys);color:var(--phys);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0e1626;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--gold);color:var(--gold)}
+</style>
+<style>header{padding-left:80px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(10,14,20,.92);color:#f5c451;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+<header>
+  <div class="logo">✦</div>
+  <div><h1 id="hT">Polymath</h1><div class="sub" id="hS">Every science, for the philosopher</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Learned<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-domains"></section>
+  <section id="tab-labs" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-topic" class="hide"></section>
+  <section id="tab-domain" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="domains" class="on"><span class="ic">🔬</span>Sciences</button>
+  <button data-t="labs"><span class="ic">🧪</span>Labs</button>
+  <button data-t="you"><span class="ic">📈</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("polymath"))||{done:{}};}catch(e){return {done:{}};}}
+function save(){localStorage.setItem("polymath",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Learned ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const DOMAINS=[
+ {key:"phys",name:"Physics",ic:"⚛️",color:"var(--phys)",blurb:"Motion, energy, waves, fields — the rules matter obeys.",topics:[
+   {id:"p-motion",t:"Motion, forces & energy",sub:"Newton, momentum, and where mechanics goes next",body:`<p>Physics starts by asking how things <b>move</b> and why. Newton's three laws are the foundation: things keep doing what they're doing unless a <b>force</b> acts (inertia); force equals mass times acceleration (<b>F = ma</b>); and every force has an equal, opposite reaction.</p>
+<p>Energy is the deeper bookkeeping. It's never created or destroyed, only converted — <b>kinetic</b> (motion, ½mv²) trades with <b>potential</b> (stored, like mgh for height). Track energy and you can predict a system without following every force.</p>
+<div class="eq">F = ma &nbsp;&nbsp;•&nbsp;&nbsp; E = ½mv² + V</div>
+<div class="callout"><span class="l">Go deeper</span>The whole of advanced mechanics — Lagrangian & Hamiltonian — is in the companion <b>Action</b> app. It rederives F = ma from a single principle: nature takes the path of least action.</div>`},
+   {id:"p-thermo",t:"Heat, temperature & entropy",sub:"why the coffee always cools",lab:"gas",body:`<p><b>Temperature</b> is just the average kinetic energy of jiggling particles — heat is that energy in transit. The lab below <i>is</i> a gas: raise the temperature and watch the particles speed up and hammer the walls harder (that's pressure).</p>
+<p>The deep law is the <b>second law of thermodynamics</b>: entropy — disorder, the number of ways to arrange things — always increases in a closed system. That's why heat flows hot→cold, why engines can't be perfect, and why time seems to have a direction.</p>
+<div class="eq">PV = nRT</div>`},
+   {id:"p-waves",t:"Waves, light & sound",sub:"interference, and why light is a wave",lab:"waves",body:`<p>A <b>wave</b> carries energy without carrying matter — a ripple, a sound, a beam of light. Its speed = wavelength × frequency. What makes waves special is <b>superposition</b>: two waves add up, crest-on-crest reinforcing (bright/loud) and crest-on-trough cancelling (dark/silent).</p>
+<p>The lab shows two sources <b>interfering</b>. Those fringes were the proof, in 1801, that light is a wave — you can't get a striped pattern from little bullets. (A century later, quantum mechanics showed it's <i>also</i> particles. Both are true.)</p>`},
+   {id:"p-em",t:"Electricity & magnetism",sub:"two forces that turned out to be one",body:`<p>Electric charge comes in + and −; likes repel, opposites attract, via the <b>electric field</b>. Moving charge makes a <b>magnetic field</b> — and a changing magnetic field pushes charge, which is how every generator and motor works.</p>
+<p>Maxwell's great unification (1860s) showed electricity and magnetism are one thing, <b>electromagnetism</b>, and that its waves travel at the speed of light — because <b>light is an electromagnetic wave</b>. Radio, X-rays, and the color of this screen are all the same phenomenon at different frequencies.</p>`},
+   {id:"p-quantum",t:"Quantum & relativity",sub:"the two revolutions of modern physics",body:`<p>At small scales, energy comes in <b>quanta</b> — discrete lumps — and particles behave like spread-out waves of probability until measured. You can't know a particle's position and momentum both exactly (Heisenberg). Reality, down there, is genuinely probabilistic.</p>
+<p>At high speeds and big masses, Einstein's <b>relativity</b> takes over: space and time bend into one fabric, moving clocks run slow, and gravity <i>is</i> the curvature of spacetime — free-fall follows the straightest possible path through it. Reconciling these two is physics' great unfinished project.</p>
+<div class="callout" style="background:#17132a;border-color:#3a2d63;color:#ddd4f5"><span class="l" style="color:var(--math)">Your thread</span>Both revolutions are still variational: quantum amplitudes sum over all paths weighted by the action; a free-falling body extremizes proper time. Least action again — the same spine as your master equation.</div>`},
+ ]},
+ {key:"chem",name:"Chemistry",ic:"⚗️",color:"var(--chem)",blurb:"Atoms, bonds, reactions — how matter rearranges itself.",topics:[
+   {id:"c-periodic",t:"Atoms & the periodic table",sub:"the whole zoo of matter, on one chart",lab:"periodic",body:`<p>Everything is built from about 90 naturally-occurring <b>elements</b>, each a kind of atom defined by its number of protons (the <b>atomic number, Z</b>). Around the tiny dense nucleus sit electrons in shells — and it's the outermost electrons that decide all of chemistry.</p>
+<p>The <b>periodic table</b> is the single greatest cheat-sheet in science: line the elements up by Z and their properties <i>repeat</i> in periods. Columns (groups) share outer-electron counts, so they behave alike — soft reactive metals on the left, unreactive noble gases on the right. Tap any element in the lab to explore it.</p>`},
+   {id:"c-bonds",t:"Chemical bonding",sub:"why atoms stick together",body:`<p>Atoms bond to reach a stable, filled outer shell. Two main ways:</p>
+<ul><li><b>Ionic</b> — one atom hands electrons to another; the resulting + and − ions snap together (table salt, Na⁺Cl⁻).</li>
+<li><b>Covalent</b> — atoms <i>share</i> electron pairs (water, H₂O; everything in your body).</li></ul>
+<p>The shape a molecule takes from these bonds — bent water, ringed benzene, the double helix — determines what it does. Chemistry is, at bottom, the study of these rearrangements of electrons.</p>`},
+   {id:"c-reactions",t:"Reactions & the mole",sub:"counting the uncountable",body:`<p>A reaction breaks and remakes bonds, turning reactants into products — but atoms are conserved, so equations must <b>balance</b>: the same atoms go in as come out. 2H₂ + O₂ → 2H₂O.</p>
+<p>Chemists count atoms by weighing, using the <b>mole</b>: 6.022×10²³ particles (Avogadro's number), the bridge between the atomic world and the gram-scale one. That's how you know how much of one thing reacts with another.</p>
+<div class="eq" style="border-left-color:var(--chem)">2H₂ + O₂ → 2H₂O</div>`},
+   {id:"c-acids",t:"Acids, bases & equilibrium",sub:"the tug-of-war of protons",body:`<p><b>Acids</b> donate protons (H⁺), <b>bases</b> accept them; the <b>pH</b> scale (0–14) measures how many are floating free, each step a 10× change. Your blood is held near 7.4; lemon is ~2; bleach ~13.</p>
+<p>Most reactions don't go to completion — they reach <b>equilibrium</b>, a dynamic balance where forward and reverse rates match. Push it (add heat, add a reactant) and it shifts to relieve the push (Le Chatelier). Life runs on thousands of these balances held just off-center.</p>`},
+ ]},
+ {key:"bio",name:"Biology",ic:"🧬",color:"var(--bio)",blurb:"Cells, DNA, evolution — how matter came alive.",topics:[
+   {id:"b-cell",t:"The cell",sub:"the unit of life",body:`<p>Every living thing is made of <b>cells</b> — self-contained bags of chemistry that take in energy, maintain themselves, and copy themselves. A membrane holds it together; inside, molecular machines built of protein do the work.</p>
+<p>Life runs on a relentless flow of energy: plants capture sunlight (<b>photosynthesis</b>) into sugar; nearly everything else burns sugar with oxygen (<b>respiration</b>) to power its machinery. You are, thermodynamically, a structure that eats order and exhales disorder to stay alive.</p>`},
+   {id:"b-dna",t:"DNA & the central dogma",sub:"life's information system",body:`<p><b>DNA</b> is a four-letter code (A, T, G, C) spelled along a double helix. Its sequence is a set of instructions, and its two strands are complementary — which is <i>why</i> it can copy itself: unzip, and each half templates a new partner.</p>
+<p>The <b>central dogma</b>: DNA → RNA → protein. A gene is transcribed into RNA, which is translated into a chain of amino acids that folds into a protein — the molecule that actually does things. Change a letter in the DNA and you can change the protein: that's mutation, the raw material of evolution.</p>
+<div class="eq" style="border-left-color:var(--bio)">DNA &nbsp;→&nbsp; RNA &nbsp;→&nbsp; protein</div>`},
+   {id:"b-evolution",t:"Evolution by natural selection",sub:"the idea that organizes all of biology",lab:"selection",body:`<p>Darwin's engine needs only three things: <b>variation</b> (individuals differ), <b>heredity</b> (offspring resemble parents), and <b>differential survival</b> (some variants leave more offspring). Run that loop and the population <i>shifts</i> toward whatever survives and reproduces best — no designer required.</p>
+<p>The lab is that loop made visible: a population with a heritable trait under a survival pressure. Watch the trait's frequency climb generation by generation. This single mechanism explains the eye, the immune system, antibiotic resistance, and you.</p>
+<div class="callout"><span class="l">Your thread</span>Selection is a variational process too: it climbs a fitness landscape the way least-action finds a path — the Price equation is its δ. Constructive transformation, filtered by what persists.</div>`},
+   {id:"b-genetics",t:"Genetics & inheritance",sub:"predicting the next generation",lab:"punnett",body:`<p>You carry two copies of most genes, one from each parent. Versions of a gene are <b>alleles</b>; a <b>dominant</b> allele (B) masks a <b>recessive</b> one (b), so Bb looks like BB. Recessive traits only show when you inherit two copies (bb).</p>
+<p>The <b>Punnett square</b> in the lab predicts the odds. Cross two carriers (Bb × Bb) and you get the famous 3:1 ratio — three dominant to one recessive — the pattern Mendel found in his pea plants and the root of all modern genetics.</p>`},
+   {id:"b-ecology",t:"Ecology & ecosystems",sub:"life in webs, energy in flows",body:`<p>No organism lives alone. <b>Ecology</b> studies the web: producers (plants) capture energy, herbivores eat them, predators eat herbivores, decomposers recycle it all. Energy flows one way (and mostly leaks away as heat at each step, which is why food chains are short); matter cycles round and round.</p>
+<p>Populations push and pull on each other — predator and prey rise and fall in linked cycles, competitors carve up niches, and the whole system can sit in fragile balance or tip suddenly. The same math (feedback loops) runs through climate, economies, and your own body's regulation.</p>`},
+   {id:"b-brain",t:"Neurons & the brain",sub:"how meat computes",body:`<p>A <b>neuron</b> is a cell that signals. It holds an electrical charge across its membrane and, when pushed past a threshold, fires an all-or-nothing spike — the <b>action potential</b> — that races down its length and releases chemicals onto the next neuron.</p>
+<p>Eighty-six billion of them, wired through trillions of adjustable connections (synapses), and out of that comes perception, memory, and — somehow — you. How the felt inside-view arises from spiking cells is the hard problem your own work circles.</p>`},
+ ]},
+ {key:"earth",name:"Earth & Space",ic:"🌍",color:"var(--earth)",blurb:"Rocks, oceans, planets, stars — the cosmos and our place in it.",topics:[
+   {id:"e-tectonics",t:"Plate tectonics",sub:"the ground is a slow-motion fluid",body:`<p>Earth's rigid shell is broken into <b>plates</b> that drift on the hot, slowly-flowing rock beneath, driven by heat from the core. Where they pull apart, new crust forms (mid-ocean ridges); where they collide, mountains rise and one dives under the other, melting into volcanoes; where they grind past, they lock and slip — earthquakes.</p>
+<p>On human timescales the ground seems fixed. Over millions of years, continents sail across the globe, oceans open and close, and the same process recycles the crust and regulates the planet's carbon.</p>`},
+   {id:"e-climate",t:"Climate & energy balance",sub:"the planet's thermostat",lab:"climate",body:`<p>Earth's temperature is a balance: sunlight in, infrared heat out. Some sunlight bounces straight back (<b>albedo</b> — ice and clouds are bright); greenhouse gases (CO₂, water vapor) trap outgoing heat like a blanket, warming the surface above the bare-rock temperature.</p>
+<p>The lab lets you turn those two knobs and watch the equilibrium temperature settle. Nudge the greenhouse effect up and the whole balance point shifts — the physics behind climate change, in one slider.</p>`},
+   {id:"e-solar",t:"The solar system & orbits",sub:"why planets don't fall in",lab:"orbit",body:`<p>A planet is a thing perpetually <b>falling</b> toward the Sun — and perpetually missing, because it also moves sideways fast enough. That balance of gravity and momentum is an <b>orbit</b>, and it traces an ellipse (Kepler's law), sweeping faster when close, slower when far.</p>
+<p>The lab is a gravity sandbox: set a body's speed and watch the orbit. Too slow and it plunges in; too fast and it escapes forever; just right and it circles. The same law holds moons, rings, galaxies, and the machine that flung a probe past Pluto.</p>`},
+   {id:"e-stars",t:"Stars & their lives",sub:"where the atoms came from",body:`<p>A star is a ball of gas so massive that gravity crushes its core hot enough to <b>fuse</b> hydrogen into helium, releasing the energy that holds it up and makes it shine. It lives in that standoff for billions of years.</p>
+<p>When the fuel runs low, big stars fuse heavier elements — carbon, oxygen, iron — then explode as <b>supernovae</b>, seeding space with those atoms. The calcium in your bones and the iron in your blood were forged inside dying stars. You are, literally, stardust.</p>`},
+   {id:"e-cosmos",t:"The universe & cosmology",sub:"the biggest picture there is",body:`<p>The universe is <b>expanding</b> — galaxies rush apart, and rewinding that expansion points to a hot, dense beginning ~13.8 billion years ago: the <b>Big Bang</b>. We still see its afterglow, the cosmic microwave background, in every direction.</p>
+<p>Most of the cosmos is a mystery: ordinary matter is only ~5%, the rest is unseen <b>dark matter</b> and a repulsive <b>dark energy</b> accelerating the expansion. The deepest questions — why there's something rather than nothing, whether this is the only universe — sit right where physics hands off to philosophy. Your territory.</p>`},
+ ]},
+ {key:"math",name:"Mathematics",ic:"∑",color:"var(--math)",blurb:"The language every science is written in.",topics:[
+   {id:"m-calc",t:"Functions & calculus",sub:"the mathematics of change",body:`<p>A <b>function</b> is a machine: feed it a number, get one back. Graph it and you can <i>see</i> a relationship. <b>Calculus</b> is the study of how functions change: the <b>derivative</b> is the instantaneous slope (a rate — velocity, growth, marginal cost); the <b>integral</b> is the accumulated total (area, distance, total charge). They're inverses — the fundamental theorem of calculus.</p>
+<div class="callout"><span class="l">Go deeper</span>The <b>Action</b> app builds calculus all the way up to the calculus of variations — the engine of modern physics — with a draggable least-action lab. The Study hub also has ~30 live math playgrounds.</div>`},
+   {id:"m-prob",t:"Probability & statistics",sub:"reasoning under uncertainty",body:`<p><b>Probability</b> quantifies chance from 0 (never) to 1 (certain); independent chances multiply, alternatives add. <b>Statistics</b> runs it backwards — given messy data, what's really going on? The average, the spread, and the crucial question of whether a pattern is real or luck.</p>
+<p><b>Bayes' theorem</b> is the jewel: it tells you exactly how much to update a belief when evidence arrives. It's the mathematics of learning from the world — and, not coincidentally, the backbone of how brains and your own PEP framework predict.</p>`},
+   {id:"m-linalg",t:"Linear algebra",sub:"the math of many dimensions at once",body:`<p>A <b>vector</b> is a list of numbers — a point, a direction, a state. A <b>matrix</b> transforms vectors: rotating, stretching, projecting. This is how you handle thousands of variables at once, which is why linear algebra is the hidden engine under computer graphics, quantum mechanics, search engines, and every neural network.</p>
+<p>Its deepest tools — <b>eigenvectors</b>, the special directions a transformation only stretches — show up everywhere from the stability of bridges to the spectrum your master equation is built on.</p>`},
+   {id:"m-logic",t:"Logic & proof",sub:"how we know for certain",body:`<p>Mathematics is the one field that <b>proves</b> things — deduces them with certainty from explicit axioms, rather than testing them against the world. That's its power and its price: a proof is airtight but only as true as its assumptions.</p>
+<p>And there are limits: Gödel showed any rich enough system contains true statements it can't prove. Even certainty has an edge — a fact that sits squarely in the philosophy of knowledge you care about.</p>`},
+ ]},
+];
+const TOPIC={};DOMAINS.forEach(d=>d.topics.forEach(t=>{t.domain=d;TOPIC[t.id]=t;}));
+const ALLT=DOMAINS.flatMap(d=>d.topics);
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+
+/* --- kinetic gas --- */
+function simGas(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+    <div class="simctl"><label>temperature <input type="range" id="T" min="0.3" max="3" step="0.1" value="1"></label></div></div>`;
+  const cv=$("canvas",el);let temp=1;$("#T",el).oninput=e=>temp=+e.target.value;
+  const N=42,parts=[];for(let i=0;i<N;i++)parts.push({x:Math.random(),y:Math.random(),a:Math.random()*7});
+  raf(()=>{const {x,w,h}=fit(cv,200);const sp=0.004*Math.sqrt(temp)*60/60;let hits=0;
+    x.clearRect(0,0,w,h);x.fillStyle="#4fd1e0";
+    parts.forEach(p=>{const v=0.003*Math.sqrt(temp);p.x+=Math.cos(p.a)*v;p.y+=Math.sin(p.a)*v;
+      if(p.x<0){p.x=0;p.a=Math.PI-p.a;hits++;}if(p.x>1){p.x=1;p.a=Math.PI-p.a;hits++;}
+      if(p.y<0){p.y=0;p.a=-p.a;hits++;}if(p.y>1){p.y=1;p.a=-p.a;hits++;}
+      x.beginPath();x.arc(6+p.x*(w-12),6+p.y*(h-12),4,0,7);x.fill();});
+    $("#ro",el).innerHTML=`temperature <b>${temp.toFixed(1)}</b> → avg speed <b>${Math.sqrt(temp).toFixed(2)}</b> · wall hits/frame ≈ <b>${hits}</b> (that's pressure)`;
+  });
+}
+
+/* --- wave interference --- */
+function simWaves(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout">Two sources. Bright bands = crests reinforcing; dark = cancelling.</div>
+    <div class="simctl"><label>wavelength <input type="range" id="wl" min="14" max="46" step="1" value="26"></label>
+    <label>source gap <input type="range" id="gap" min="20" max="120" step="2" value="64"></label></div></div>`;
+  const cv=$("canvas",el);let wl=26,gap=64,t=0;$("#wl",el).oninput=e=>wl=+e.target.value;$("#gap",el).oninput=e=>gap=+e.target.value;
+  raf(()=>{const {x,w,h}=fit(cv,220);t+=0.15;const img=x.createImageData(w,h);const d=img.data;
+    const s1x=w/2-gap/2,s2x=w/2+gap/2,sy=24;
+    for(let py=0;py<h;py+=2)for(let px=0;px<w;px+=2){
+      const r1=Math.hypot(px-s1x,py-sy),r2=Math.hypot(px-s2x,py-sy);
+      const v=Math.sin(r1/wl*6.28-t)+Math.sin(r2/wl*6.28-t);const c=(v+2)/4;
+      const R=c*80,G=c*209,B=c*224;
+      for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){const i=((py+dy)*w+(px+dx))*4;d[i]=R;d[i+1]=G;d[i+2]=B;d[i+3]=255;}
+    }
+    x.putImageData(img,0,0);x.fillStyle="#fff";[s1x,s2x].forEach(sx=>{x.beginPath();x.arc(sx,sy,3,0,7);x.fill();});
+  });
+}
+
+/* --- periodic table --- */
+const PTDATA=`1|H|Hydrogen|1.008|nonmetal|1|1
+2|He|Helium|4.003|noble|18|1
+3|Li|Lithium|6.94|alkali|1|2
+4|Be|Beryllium|9.012|alkaline|2|2
+5|B|Boron|10.81|metalloid|13|2
+6|C|Carbon|12.011|nonmetal|14|2
+7|N|Nitrogen|14.007|nonmetal|15|2
+8|O|Oxygen|15.999|nonmetal|16|2
+9|F|Fluorine|18.998|halogen|17|2
+10|Ne|Neon|20.180|noble|18|2
+11|Na|Sodium|22.990|alkali|1|3
+12|Mg|Magnesium|24.305|alkaline|2|3
+13|Al|Aluminium|26.982|post|13|3
+14|Si|Silicon|28.085|metalloid|14|3
+15|P|Phosphorus|30.974|nonmetal|15|3
+16|S|Sulfur|32.06|nonmetal|16|3
+17|Cl|Chlorine|35.45|halogen|17|3
+18|Ar|Argon|39.95|noble|18|3
+19|K|Potassium|39.098|alkali|1|4
+20|Ca|Calcium|40.078|alkaline|2|4
+21|Sc|Scandium|44.956|transition|3|4
+22|Ti|Titanium|47.867|transition|4|4
+23|V|Vanadium|50.942|transition|5|4
+24|Cr|Chromium|51.996|transition|6|4
+25|Mn|Manganese|54.938|transition|7|4
+26|Fe|Iron|55.845|transition|8|4
+27|Co|Cobalt|58.933|transition|9|4
+28|Ni|Nickel|58.693|transition|10|4
+29|Cu|Copper|63.546|transition|11|4
+30|Zn|Zinc|65.38|transition|12|4
+31|Ga|Gallium|69.723|post|13|4
+32|Ge|Germanium|72.630|metalloid|14|4
+33|As|Arsenic|74.922|metalloid|15|4
+34|Se|Selenium|78.971|nonmetal|16|4
+35|Br|Bromine|79.904|halogen|17|4
+36|Kr|Krypton|83.798|noble|18|4
+37|Rb|Rubidium|85.468|alkali|1|5
+38|Sr|Strontium|87.62|alkaline|2|5
+39|Y|Yttrium|88.906|transition|3|5
+40|Zr|Zirconium|91.224|transition|4|5
+41|Nb|Niobium|92.906|transition|5|5
+42|Mo|Molybdenum|95.95|transition|6|5
+43|Tc|Technetium|98|transition|7|5
+44|Ru|Ruthenium|101.07|transition|8|5
+45|Rh|Rhodium|102.906|transition|9|5
+46|Pd|Palladium|106.42|transition|10|5
+47|Ag|Silver|107.868|transition|11|5
+48|Cd|Cadmium|112.414|transition|12|5
+49|In|Indium|114.818|post|13|5
+50|Sn|Tin|118.710|post|14|5
+51|Sb|Antimony|121.760|metalloid|15|5
+52|Te|Tellurium|127.60|metalloid|16|5
+53|I|Iodine|126.904|halogen|17|5
+54|Xe|Xenon|131.293|noble|18|5
+55|Cs|Caesium|132.905|alkali|1|6
+56|Ba|Barium|137.327|alkaline|2|6
+57|La|Lanthanum|138.905|lanthanide|3|9
+58|Ce|Cerium|140.116|lanthanide|4|9
+59|Pr|Praseodymium|140.908|lanthanide|5|9
+60|Nd|Neodymium|144.242|lanthanide|6|9
+61|Pm|Promethium|145|lanthanide|7|9
+62|Sm|Samarium|150.36|lanthanide|8|9
+63|Eu|Europium|151.964|lanthanide|9|9
+64|Gd|Gadolinium|157.25|lanthanide|10|9
+65|Tb|Terbium|158.925|lanthanide|11|9
+66|Dy|Dysprosium|162.500|lanthanide|12|9
+67|Ho|Holmium|164.930|lanthanide|13|9
+68|Er|Erbium|167.259|lanthanide|14|9
+69|Tm|Thulium|168.934|lanthanide|15|9
+70|Yb|Ytterbium|173.045|lanthanide|16|9
+71|Lu|Lutetium|174.967|lanthanide|17|9
+72|Hf|Hafnium|178.49|transition|4|6
+73|Ta|Tantalum|180.948|transition|5|6
+74|W|Tungsten|183.84|transition|6|6
+75|Re|Rhenium|186.207|transition|7|6
+76|Os|Osmium|190.23|transition|8|6
+77|Ir|Iridium|192.217|transition|9|6
+78|Pt|Platinum|195.084|transition|10|6
+79|Au|Gold|196.967|transition|11|6
+80|Hg|Mercury|200.592|transition|12|6
+81|Tl|Thallium|204.38|post|13|6
+82|Pb|Lead|207.2|post|14|6
+83|Bi|Bismuth|208.980|post|15|6
+84|Po|Polonium|209|post|16|6
+85|At|Astatine|210|halogen|17|6
+86|Rn|Radon|222|noble|18|6
+87|Fr|Francium|223|alkali|1|7
+88|Ra|Radium|226|alkaline|2|7
+89|Ac|Actinium|227|actinide|3|10
+90|Th|Thorium|232.038|actinide|4|10
+91|Pa|Protactinium|231.036|actinide|5|10
+92|U|Uranium|238.029|actinide|6|10
+93|Np|Neptunium|237|actinide|7|10
+94|Pu|Plutonium|244|actinide|8|10
+95|Am|Americium|243|actinide|9|10
+96|Cm|Curium|247|actinide|10|10
+97|Bk|Berkelium|247|actinide|11|10
+98|Cf|Californium|251|actinide|12|10
+99|Es|Einsteinium|252|actinide|13|10
+100|Fm|Fermium|257|actinide|14|10
+101|Md|Mendelevium|258|actinide|15|10
+102|No|Nobelium|259|actinide|16|10
+103|Lr|Lawrencium|266|actinide|17|10
+104|Rf|Rutherfordium|267|transition|4|7
+105|Db|Dubnium|268|transition|5|7
+106|Sg|Seaborgium|269|transition|6|7
+107|Bh|Bohrium|270|transition|7|7
+108|Hs|Hassium|269|transition|8|7
+109|Mt|Meitnerium|278|transition|9|7
+110|Ds|Darmstadtium|281|transition|10|7
+111|Rg|Roentgenium|282|transition|11|7
+112|Cn|Copernicium|285|transition|12|7
+113|Nh|Nihonium|286|post|13|7
+114|Fl|Flerovium|289|post|14|7
+115|Mc|Moscovium|290|post|15|7
+116|Lv|Livermorium|293|post|16|7
+117|Ts|Tennessine|294|halogen|17|7
+118|Og|Oganesson|294|noble|18|7`;
+const CATCOLOR={alkali:"#f0736a",alkaline:"#f5a94f",transition:"#f5c451",post:"#7fae8b",metalloid:"#5ad19a",nonmetal:"#4fd1e0",halogen:"#6fa8d9",noble:"#a78bfa",lanthanide:"#d98fd9",actinide:"#f08fb0"};
+const CATNAME={alkali:"Alkali metal",alkaline:"Alkaline earth",transition:"Transition metal",post:"Post-transition metal",metalloid:"Metalloid",nonmetal:"Reactive nonmetal",halogen:"Halogen",noble:"Noble gas",lanthanide:"Lanthanide",actinide:"Actinide"};
+const ELEMENTS=PTDATA.trim().split("\n").map(l=>{const[z,s,n,m,c,col,row]=l.split("|");return {z:+z,sym:s,name:n,mass:m,cat:c,col:+col,row:+row};});
+function simPeriodic(el){
+  el.innerHTML=`<div class="ptwrap"><div class="pt" id="pt"></div></div>
+    <div class="legend" id="lg"></div><div id="det"></div>`;
+  const pt=$("#pt",el);
+  ELEMENTS.forEach(e=>{const d=document.createElement("div");d.className="el";d.style.gridColumn=e.col;d.style.gridRow=e.row;d.style.background=CATCOLOR[e.cat];
+    d.innerHTML=`<span class="z">${e.z}</span><span class="s">${e.sym}</span>`;d.onclick=()=>showEl(e);pt.appendChild(d);});
+  // markers for the f-block placeholders in the main body
+  [["57–71",3,6],["89–103",3,7]].forEach(([tx,c,r])=>{const d=document.createElement("div");d.className="el marker";d.style.gridColumn=c;d.style.gridRow=r;d.textContent=tx;pt.appendChild(d);});
+  $("#lg",el).innerHTML=Object.keys(CATNAME).map(k=>`<span><i style="background:${CATCOLOR[k]}"></i>${CATNAME[k]}</span>`).join("");
+  function showEl(e){
+    $("#det",el).innerHTML=`<div class="eldetail"><div class="big">
+      <div class="sym" style="background:${CATCOLOR[e.cat]}">${e.sym}</div>
+      <div><h3>${e.name}</h3><div class="meta">${CATNAME[e.cat]} · ${e.mass} u</div></div></div>
+      <div class="grid">
+        <div class="g"><b>${e.z}</b><span>atomic number (protons)</span></div>
+        <div class="g"><b>${e.mass}</b><span>atomic mass (u)</span></div>
+        <div class="g"><b>${e.row>7?(e.cat==="lanthanide"?6:7):e.row}</b><span>period (row)</span></div>
+        <div class="g"><b>${e.row>7?"f-block":"Group "+e.col}</b><span>group (column)</span></div>
+      </div></div>`;
+    $("#det",el).scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+  showEl(ELEMENTS[5]); // Carbon, a friendly default
+}
+
+/* --- natural selection --- */
+function simSelection(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+    <div class="simctl"><label>selection pressure (dark survives) <input type="range" id="sel" min="0" max="1" step="0.05" value="0.6"></label>
+    <button class="btn sm" id="reset">Reset population</button></div></div>`;
+  const cv=$("canvas",el);let sel=0.6;$("#sel",el).oninput=e=>sel=+e.target.value;
+  let pop=[],gen=0,acc=0;
+  function init(){pop=[];for(let i=0;i<80;i++)pop.push(Math.random());gen=0;} init();
+  $("#reset",el).onclick=init;
+  function meanTrait(){return pop.reduce((a,b)=>a+b,0)/pop.length;}
+  function step(){ // trait 0..1, higher=darker; darker survives better with pressure sel
+    const survivors=pop.filter(t=>Math.random()<0.35+sel*t*0.6);
+    const next=[];const src=survivors.length?survivors:pop;
+    for(let i=0;i<80;i++){const p=src[Math.floor(Math.random()*src.length)];next.push(Math.max(0,Math.min(1,p+(Math.random()-0.5)*0.08)));}
+    pop=next;gen++;
+  }
+  raf(()=>{acc++;if(acc%18===0)step();const {x,w,h}=fit(cv,200);x.clearRect(0,0,w,h);
+    const cols=10,rows=8;pop.forEach((t,i)=>{const cx=(i%cols+0.5)/cols*w,cy=(Math.floor(i/cols)+0.5)/rows*h;const g=Math.round(210-t*160);
+      x.fillStyle=`rgb(${g-40},${g},${g-20})`;x.beginPath();x.arc(cx,cy,8,0,7);x.fill();});
+    $("#ro",el).innerHTML=`generation <b>${gen}</b> · mean trait (darkness) <b>${meanTrait().toFixed(2)}</b> — watch it climb as the darker survive`;
+  });
+}
+
+/* --- Punnett square --- */
+function simPunnett(el){
+  el.innerHTML=`<div class="simwrap">
+    <div class="simctl" style="justify-content:center">
+      <label style="flex:0">Parent 1
+        <select id="p1"><option>BB</option><option selected>Bb</option><option>bb</option></select></label>
+      <label style="flex:0">Parent 2
+        <select id="p2"><option>BB</option><option selected>Bb</option><option>bb</option></select></label>
+    </div>
+    <div id="grid"></div><div class="readout" id="ro" style="text-align:center"></div></div>`;
+  function alleles(g){return [g[0],g[1]];}
+  function draw(){
+    const a=alleles($("#p1",el).value),b=alleles($("#p2",el).value);
+    let dom=0,rec=0;const cells=[];
+    for(const y of b)for(const x of a){const g=[x,y].sort((p,q)=>p==='B'?-1:1).join("");const isDom=g.includes("B");isDom?dom++:rec++;cells.push({g,isDom});}
+    $("#grid",el).innerHTML=`<div class="pun">
+      <div class="h"></div><div class="h">${a[0]}</div><div class="h">${a[1]}</div>
+      <div class="h">${b[0]}</div><div class="cell ${cells[0].isDom?'dom':'rec'}">${cells[0].g}</div><div class="cell ${cells[1].isDom?'dom':'rec'}">${cells[1].g}</div>
+      <div class="h">${b[1]}</div><div class="cell ${cells[2].isDom?'dom':'rec'}">${cells[2].g}</div><div class="cell ${cells[3].isDom?'dom':'rec'}">${cells[3].g}</div>
+    </div>`;
+    $("#ro",el).innerHTML=`Offspring: <b style="color:var(--bio)">${dom}</b> show the dominant trait · <b>${rec}</b> show the recessive &nbsp;→&nbsp; ratio <b>${dom}:${rec}</b>`;
+  }
+  $("#p1",el).onchange=draw;$("#p2",el).onchange=draw;draw();
+}
+
+/* --- orbit --- */
+function simOrbit(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+    <div class="simctl"><label>launch speed <input type="range" id="v" min="0.4" max="2.2" step="0.05" value="1.15"></label>
+    <button class="btn sm" id="launch">Launch</button></div></div>`;
+  const cv=$("canvas",el);let v0=1.15,body=null,trail=[];$("#v",el).oninput=e=>v0=+e.target.value;
+  function launch(){body={x:0.55,y:0,vx:0,vy:v0};trail=[];} launch();$("#launch",el).onclick=launch;
+  raf(()=>{const {x,w,h}=fit(cv,260);const cx=w/2,cy=h/2,sc=Math.min(w,h)*0.34;
+    x.clearRect(0,0,w,h);
+    // integrate (units: GM=1, star at origin)
+    for(let s=0;s<3;s++){const r=Math.hypot(body.x,body.y);const a=-1/(r*r*r);body.vx+=a*body.x*0.02;body.vy+=a*body.y*0.02;body.x+=body.vx*0.02;body.y+=body.vy*0.02;}
+    trail.push([body.x,body.y]);if(trail.length>600)trail.shift();
+    x.strokeStyle="#4fd1e088";x.lineWidth=1.5;x.beginPath();trail.forEach(([px,py],i)=>{const X=cx+px*sc,Y=cy+py*sc;i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();
+    x.fillStyle="var(--gold)";x.fillStyle="#f5c451";x.beginPath();x.arc(cx,cy,10,0,7);x.fill();
+    const bx=cx+body.x*sc,by=cy+body.y*sc;x.fillStyle="#6fa8d9";x.beginPath();x.arc(bx,by,5,0,7);x.fill();
+    const r=Math.hypot(body.x,body.y);const esc=Math.sqrt(2/r);
+    $("#ro",el).innerHTML=`speed <b>${v0.toFixed(2)}</b> · escape speed here ≈ <b>${esc.toFixed(2)}</b> — ${v0<esc*0.72?'plunges in':v0>esc?'escapes forever':'stable orbit'}`;
+    if(r>6){body.x*=0.1;body.y*=0.1;}
+  });
+}
+
+/* --- climate energy balance --- */
+function simClimate(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+    <div class="simctl"><label>albedo (reflectivity) <input type="range" id="al" min="0.1" max="0.7" step="0.02" value="0.3"></label>
+    <label>greenhouse effect <input type="range" id="gh" min="0" max="0.8" step="0.02" value="0.4"></label></div></div>`;
+  const cv=$("canvas",el);let al=0.3,gh=0.4;$("#al",el).oninput=e=>al=+e.target.value;$("#gh",el).oninput=e=>gh=+e.target.value;
+  const S=1361,sig=5.67e-8;
+  raf(()=>{const {x,w,h}=fit(cv,150);
+    const absorbed=S*(1-al)/4;const Te=Math.pow(absorbed/(sig*(1-gh)),0.25)-273.15;
+    x.clearRect(0,0,w,h);const t=Math.max(0,Math.min(1,(Te+20)/70));
+    x.fillStyle=`rgb(${80+t*150},${120-t*40},${200-t*160})`;x.fillRect(0,0,w,h);
+    x.fillStyle="#fff9";x.font="13px ui-sans-serif";x.fillText("☀ in: "+Math.round(absorbed)+" W/m²",12,26);
+    x.fillStyle="#ffffffcc";x.font="bold 34px ui-sans-serif";x.textAlign="center";x.fillText(Te.toFixed(1)+"°C",w/2,h/2+12);x.textAlign="left";
+    $("#ro",el).innerHTML=`equilibrium surface temperature <b>${Te.toFixed(1)}°C</b> — Earth today ≈ 15°C. Raise the greenhouse effect and watch it climb.`;
+  });
+}
+const SIMS={gas:simGas,waves:simWaves,periodic:simPeriodic,selection:simSelection,punnett:simPunnett,orbit:simOrbit,climate:simClimate};
+const LABS=[
+ ["periodic","⚗️","Periodic Table","All 118 elements — tap any to explore.","var(--chem)"],
+ ["selection","🧬","Natural Selection","Watch a trait evolve under a survival pressure.","var(--bio)"],
+ ["punnett","🟩","Punnett Square","Cross two parents, predict the offspring.","var(--bio)"],
+ ["waves","〰️","Wave Interference","Two sources; see light behave like a wave.","var(--phys)"],
+ ["gas","🌡️","Kinetic Theory of Gas","Temperature is just particles jiggling.","var(--phys)"],
+ ["orbit","🪐","Orbits & Gravity","Falling forever — set the speed, get an orbit.","var(--earth)"],
+ ["climate","🌡️","Planetary Thermostat","Albedo + greenhouse → the temperature.","var(--earth)"],
+];
+
+/* ============================ VIEWS ============================ */
+function renderDomains(){
+  const s=$("#tab-domains");
+  s.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#141d33,#131c2b);border-color:#2a3a5a">
+    <div style="font-size:15px;font-weight:750">Know how everything works</div>
+    <div style="color:var(--mut);margin-top:5px;font-size:13.5px">A philosopher who reasons about reality should understand it. Five sciences, real interactive labs, built to grow. Pick a world.</div></div>
+  <div class="dgrid" id="dg"></div>`;
+  $("#dg",s).innerHTML=DOMAINS.map(d=>{const done=d.topics.filter(t=>P.done[t.id]).length,pc=Math.round(done/d.topics.length*100);
+    return `<div class="dom" data-d="${d.key}"><div class="ic">${d.ic}</div><div class="t" style="color:${d.color}">${d.name}</div><div class="d">${d.blurb}</div>
+      <div class="bar"><i style="width:${pc}%;background:${d.color}"></i></div></div>`;}).join("");
+  $$(".dom",s).forEach(x=>x.onclick=()=>openDomain(x.dataset.d));
+}
+function openDomain(key){
+  const d=DOMAINS.find(x=>x.key===key);const s=$("#tab-domain");
+  s.innerHTML=`<div class="backbar"><button class="b" id="bk">‹ Sciences</button></div>
+    <div style="display:flex;align-items:center;gap:12px;margin:4px 2px 14px"><div style="font-size:32px">${d.ic}</div><div><h2 style="margin:0;font-family:Georgia,serif;color:${d.color}">${d.name}</h2><div style="color:var(--mut);font-size:13px">${d.blurb}</div></div></div>
+    ${d.topics.map((t,i)=>`<div class="topic ${P.done[t.id]?'done':''}" data-t="${t.id}"><div class="num" style="${P.done[t.id]?'':'color:'+d.color}">${P.done[t.id]?'✓':i+1}</div>
+      <div class="nm"><b>${t.t}</b><small>${t.sub}</small></div>${t.lab?'<span class="lab">🧪 lab</span>':''}<span class="go">›</span></div>`).join("")}`;
+  showTab("domain");
+  $("#bk",s).onclick=()=>{showTab("domains");};
+  $$(".topic",s).forEach(x=>x.onclick=()=>openTopic(x.dataset.t,key));
+  window.scrollTo(0,0);
+}
+function openTopic(id,fromKey){
+  clearSims();const t=TOPIC[id];const s=$("#tab-topic");const d=t.domain;
+  s.innerHTML=`<div class="backbar"><button class="b" id="bk">‹ ${d.name}</button></div>
+    <div class="reader card"><div class="tag" style="color:${d.color}">${d.name}</div><h2>${t.t}</h2>
+    <div id="body">${t.body}</div>${t.lab?'<div id="__sim"></div>':''}
+    <button class="btn wide" id="done" style="margin-top:18px;${P.done[id]?'':'background:'+d.color+';color:#06121f;border-color:transparent'}">${P.done[id]?'✓ Learned — mark again':'Mark learned'}</button></div>`;
+  showTab("topic");
+  const m=$("#__sim",s);if(m&&t.lab&&SIMS[t.lab])SIMS[t.lab](m);
+  $("#bk",s).onclick=()=>{clearSims();openDomain(fromKey);};
+  $("#done",s).onclick=()=>{markDone(id);updateXP();$("#done",s).textContent="✓ Learned — mark again";$("#done",s).style.background="";$("#done",s).style.color="";$("#done",s).style.borderColor="";};
+  window.scrollTo(0,0);
+}
+function renderLabs(){
+  const s=$("#tab-labs");
+  s.innerHTML=`<div class="sec">The Labs · every science, hands-on</div>`+LABS.map(l=>`<div class="topic" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",s).forEach(x=>x.onclick=()=>{clearSims();
+    s.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Labs</button></div><div class="card"><div id="__sim"></div></div>`;
+    SIMS[x.dataset.lab]($("#__sim",s));$("#lb",s).onclick=()=>{clearSims();renderLabs();};window.scrollTo(0,0);});
+}
+function renderYou(){
+  const s=$("#tab-you");const dn=doneCount(),tot=ALLT.length,pc=Math.round(dn/tot*100);
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=DOMAINS.map(d=>[d.ic,d.name,d.topics.every(t=>P.done[t.id])]);
+  badges.push(["🎓","Polymath",dn>=tot]);
+  s.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#1c2740" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4fd1e0"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#e8eef7" font-size="26" font-weight="800">${pc}%</text>
+    <text x="60" y="76" text-anchor="middle" fill="#93a3bd" font-size="10">${dn}/${tot} topics</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've walked through every science. 🎓":"Toward knowing how everything works."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><button class="btn wide" id="install">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",s).onclick=installSheet;
+  $("#reset",s).onclick=()=>{if(confirm("Erase all progress?")){P={done:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}
+  if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");
+  else alert("Open your browser menu → “Install app” / “Add to Home screen”.");}
+
+function showTab(t){["domains","labs","you","topic","domain"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));
+  $$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({domains:renderDomains,labs:renderLabs,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderDomains();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>
