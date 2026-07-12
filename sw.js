@@ -1,4 +1,4 @@
-const CACHE = 'studyhub-v10';
+const CACHE = 'studyhub-v11';
 const APPS = ['highlights','praxa','cartographer','journal','habits','terminal','chess','poker','spanish','vaya','action','two-selves','ethics','gauntlet','poietism','doomsday',
   'animal-book','animal-essay','poietism-pamphlet','poietism-paper','poietism-naming',
   'koin','koin-welcome','koin-pamphlet','koin-essential','koin-teaching','koin-kids',
@@ -24,5 +24,15 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;   // don't intercept PEP-server / external links
-  e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).catch(() => caches.match('./index.html'))));
+  // HTML (the hub shell + app pages) = NETWORK-FIRST so updates show immediately when online;
+  // fall back to cache offline. Everything else = cache-first for speed.
+  const isHTML = e.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(e.request, cp)); return r; })
+        .catch(() => caches.match(e.request).then(h => h || caches.match('./index.html')))
+    );
+  } else {
+    e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request)));
+  }
 });
