@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Terminal</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07090c">
@@ -15,7 +15,8 @@
 <style>
 :root{--bg:#07090c;--ink:#cfe3ff;--dim:#6b839c;--blue:#5aa2ff;--green:#4bd07f;--gold:#d9a441;--red:#ff6b6b;--rule:#182233}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+/* stop iOS from turning a swipe/pinch into page zoom — let touches go to the terminal so it can scroll */
+html,body{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%}
 body{background:radial-gradient(circle at 50% -20%,#0d1622,#07090c 60%);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace}
 .connect{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:calc(env(safe-area-inset-top) + 40px) 26px 50px;max-width:560px;margin:0 auto}
 h1{font-size:2.6em;color:var(--blue);text-shadow:0 0 26px rgba(90,162,255,.4)}
@@ -30,7 +31,7 @@ input{width:100%;background:#0a1017;border:1px solid var(--rule);color:var(--ink
 .hint{color:var(--dim);font-size:.82rem;line-height:1.5;margin-top:16px;font-family:ui-sans-serif,system-ui,sans-serif}
 .hint b{color:var(--ink)}
 .warn{color:#ffb0a0;font-size:.8rem;margin-top:12px;font-family:ui-sans-serif,system-ui,sans-serif}
-#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;display:none}
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;display:none;touch-action:manipulation}
 #bar{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;
   padding:calc(env(safe-area-inset-top) + 6px) 12px 6px;background:#07090ce8;backdrop-filter:blur(8px);z-index:5;font-size:.8rem;color:var(--dim)}
 #bar .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:6px;vertical-align:1px}
