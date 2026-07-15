@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Linear Algebra">
+<meta name="theme-color" content="#140812">
+<title>Linear Algebra — a course</title>
+<style>
+:root{
+  --bg:#140812;--panel:#1e0e1a;--card:#20101c;--line:#3a2233;--ink:#f0e6ec;--mut:#c0a0b2;--faint:#7d5c6e;
+  --acc:#e07bb0;--acc2:#c04a86;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--gold:#e6b45a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#2c0f24 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(20,8,18,.96),rgba(20,8,18,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#180810;font-size:20px;box-shadow:0 3px 14px rgba(224,123,176,.32)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#180810;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#4a5c2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#190a14;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#e4d6de;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#e4d6de;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#f7ecf2;line-height:1.7;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#190a14;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.mtx{display:inline-grid;gap:1px 12px;vertical-align:middle;position:relative;padding:3px 11px;margin:0 4px;justify-items:center;align-items:center;font-size:.86em;line-height:1.25}
+.mtx::before,.mtx::after{content:"";position:absolute;top:1px;bottom:1px;width:6px;border:1.7px solid currentColor}
+.mtx::before{left:0;border-right:0;border-radius:3px 0 0 3px}
+.mtx::after{right:0;border-left:0;border-radius:0 3px 3px 0}
+.wk{background:#190a14;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#ecdde5}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#101610;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#0c0509;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#080306;cursor:grab}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:64px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(20,8,18,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#190a14;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#1e0e1a;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">⧉</div>
+  <div><h1>Linear Algebra</h1><div class="sub">vectors, matrices, and transformations</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">▦</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+function mat(rows){const cols=rows[0].length;return `<span class="mtx" style="grid-template-columns:repeat(${cols},minmax(12px,auto))">`+rows.map(r=>r.map(v=>`<span>${v}</span>`).join("")).join("")+`</span>`;}
+const col=(...v)=>mat(v.map(x=>[x]));
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("linalg_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("linalg_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Vectors",lessons:[
+   {id:"vec",n:"What a vector is",sub:"an arrow, and a list of numbers — the same thing"},
+   {id:"arith",n:"Addition & scalar multiplication",sub:"the two moves every vector allows",lab:"vecplay"},
+   {id:"dot",n:"The dot product",sub:"length, angle, and projection"},
+   {id:"span",n:"Span & linear independence",sub:"what a set of vectors can and cannot reach"},
+ ]},
+ {ic:"②",t:"Part II · Matrices as transformations",lessons:[
+   {id:"transform",n:"A matrix transforms space",sub:"a grid that stays a grid",lab:"matrix"},
+   {id:"matvec",n:"Matrix × vector",sub:"columns are where the basis vectors land"},
+   {id:"matmul",n:"Composition & the inverse",sub:"multiplying matrices, and undoing them"},
+   {id:"special",n:"Special transforms",sub:"rotation, scaling, shear, projection"},
+ ]},
+ {ic:"③",t:"Part III · Systems & structure",lessons:[
+   {id:"systems",n:"Linear systems: Ax = b",sub:"Gaussian elimination, existence & uniqueness"},
+   {id:"det",n:"The determinant",sub:"the signed area a transform scales by",lab:"determinant"},
+   {id:"rank",n:"Rank & null space",sub:"how much a matrix keeps, and what it kills"},
+ ]},
+ {ic:"④",t:"Part IV · Eigenvectors & applications",lessons:[
+   {id:"eigen",n:"Eigenvectors & eigenvalues",sub:"the directions a transform only stretches",lab:"eigen"},
+   {id:"findeig",n:"Finding them & diagonalizing",sub:"det(A − λI) = 0, then A = PDP⁻¹"},
+   {id:"apps",n:"What it's all for",sub:"PCA, PageRank, Markov chains, quantum states"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const C={};
+C.vec=`<p>A <b>vector</b> has two faces, and linear algebra is the art of holding both at once.</p>
+<p><b>The geometric face:</b> an arrow with a length and a direction. It starts at the origin and points somewhere. Slide it around without rotating or stretching and it's still the same vector — only the arrow's <i>displacement</i> matters, not where you draw it.</p>
+<p><b>The algebraic face:</b> a list of numbers, its <b>components</b> — how far it reaches along each axis. We stack them in a column:</p>
+<div class="eq box">v = ${col("3","2")} means "3 to the right, 2 up" &nbsp;—&nbsp; the arrow to the point (3, 2)</div>
+<p>The whole power of the subject comes from these being <b>the same object</b>. Geometry gives you intuition (angles, areas, rotations); the number-list lets you compute. A vector with n components lives in <b>n-dimensional space</b>, written ${sup("ℝ","n")} — and while you can only <i>picture</i> 2 or 3 dimensions, the algebra runs identically in 500.</p>
+<div class="callout"><span class="l">Notation</span>We write vectors as bold or with an arrow (<b>v</b> or v⃗). Components are v₁, v₂, …. A single ordinary number is called a <b>scalar</b> — it scales vectors but has no direction of its own.</div>`;
+
+C.arith=`<p>Vectors support exactly two operations — and remarkably, everything else in the subject is built from just these two.</p>
+<p><b>Addition</b> is componentwise. Geometrically it's <b>tip-to-tail</b>: walk along the first arrow, then along the second, and where you end up is the sum. Draw both from the origin and the sum is the diagonal of the <b>parallelogram</b> they span.</p>
+<div class="eq box">${col("a₁","a₂")} + ${col("b₁","b₂")} = ${col("a₁+b₁","a₂+b₂")}</div>
+<p><b>Scalar multiplication</b> stretches a vector. Multiply by 2 and it doubles in length, same direction; by ½ and it shrinks; by −1 and it flips to point the opposite way.</p>
+<div class="eq box">c · ${col("v₁","v₂")} = ${col("c·v₁","c·v₂")}</div>
+<div class="wk"><div class="wl">Worked example</div>
+<div class="step">a = (1, 2), b = (3, −1).</div>
+<div class="step">a + b = (1+3, 2+(−1)) = <b>(4, 1)</b>.</div>
+<div class="step">2a = (2·1, 2·2) = <b>(2, 4)</b>; &nbsp; −b = <b>(−3, 1)</b>.</div></div>
+<p>A set with these two well-behaved operations is called a <b>vector space</b>. Drag the arrows in the lab below and watch the sum's parallelogram redraw itself in real time.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why only these two</span>Addition and scaling are the operations that keep straight lines straight and the origin fixed. Everything "linear" — the entire subject — is what you can express with them.</div>`;
+
+C.dot=`<p>The <b>dot product</b> takes two vectors and returns a single number. Multiply matching components and add:</p>
+<div class="eq box">a · b = a₁b₁ + a₂b₂ + ⋯ + aₙbₙ</div>
+<p>That formula looks dry, but geometrically it is one of the deepest tools in the subject, because it also equals:</p>
+<div class="eq box">a · b = |a| · |b| · cos θ</div>
+<p>where θ is the angle between the two arrows. Three consequences pour out of this.</p>
+<p><b>Length (norm).</b> A vector dotted with itself gives its length squared (Pythagoras in disguise, since cos 0 = 1):</p>
+<div class="eq box">|a| = √(a · a) = √(a₁² + a₂² + ⋯)</div>
+<p><b>Angle.</b> Rearrange: cos θ = (a·b)/(|a||b|). The dot product <i>measures alignment</i> — big and positive when vectors point the same way, zero when they're perpendicular, negative when they oppose.</p>
+<p><b>Perpendicularity.</b> Since cos 90° = 0, two nonzero vectors are at right angles exactly when <b>a · b = 0</b>. This is the single most-used test in all of linear algebra.</p>
+<div class="wk"><div class="wl">Worked example · dot product, length, angle</div>
+<div class="step">a = (3, 4), b = (2, 1).</div>
+<div class="step">a · b = 3·2 + 4·1 = 6 + 4 = <b>10</b>.</div>
+<div class="step">|a| = √(9+16) = <b>5</b>; &nbsp; |b| = √(4+1) = √5 ≈ 2.24.</div>
+<div class="step">cos θ = 10 / (5·√5) = 10/11.18 ≈ 0.894 → θ ≈ <b>26.6°</b>.</div></div>
+<div class="callout"><span class="l">Projection</span>The dot product also gives the <b>shadow</b> of one vector on another: the length of a's projection onto b is (a·b)/|b|. This is exactly how you decompose a force into components, or find the "amount of one signal present in another."</div>`;
+
+C.span=`<p>Take some vectors and ask: mixing them with addition and scaling, <i>where can you get to</i>? A <b>linear combination</b> is any such mix:</p>
+<div class="eq box">c₁v₁ + c₂v₂ + ⋯ + cₖvₖ &nbsp;(the c's are any scalars)</div>
+<p>The set of <b>all</b> linear combinations of a collection of vectors is their <b>span</b> — the entire region they can reach.</p>
+<ul>
+<li>One nonzero vector spans a <b>line</b> through the origin.</li>
+<li>Two vectors pointing different ways span a whole <b>plane</b>.</li>
+<li>But two vectors on the <i>same line</i> still only span that line — the second adds nothing new.</li>
+</ul>
+<p>That last case is the crux. A set of vectors is <b>linearly independent</b> if none of them is a linear combination of the others — each one contributes a genuinely new direction. Equivalently, the only way to combine them to reach <b>0</b> is the trivial one (all coefficients zero):</p>
+<div class="eq box">c₁v₁ + ⋯ + cₖvₖ = 0 &nbsp;⟹&nbsp; every cᵢ = 0 &nbsp;(independence)</div>
+<p>If instead some nontrivial combination hits zero, they are <b>dependent</b> — there's redundancy.</p>
+<div class="wk"><div class="wl">Worked example</div>
+<div class="step">(1, 2) and (2, 4): the second is 2×the first → they lie on one line → <b>dependent</b>, span only a line.</div>
+<div class="step">(1, 0) and (1, 1): neither is a multiple of the other → <b>independent</b>, span the whole plane.</div></div>
+<div class="callout"><span class="l">Basis & dimension</span>A <b>basis</b> is a smallest set of independent vectors that spans a space — like (1,0) and (0,1) for the plane. The number of vectors in a basis is the space's <b>dimension</b>. Every vector has exactly one recipe in terms of a basis, which is what makes coordinates work.</div>`;
+
+C.transform=`<p>Here the subject turns from bookkeeping into geometry. A <b>linear transformation</b> is a function that moves every point of space to a new place, obeying two rules:</p>
+<div class="eq box">T(u + v) = T(u) + T(v) &nbsp;·&nbsp; T(c·v) = c·T(v)</div>
+<p>In plain terms: <b>grid lines stay straight, parallel, and evenly spaced, and the origin never moves.</b> Space can be rotated, stretched, sheared, or flattened — but never bent or torn.</p>
+<p>The astonishing fact is that any such transformation of the plane is completely captured by <b>four numbers</b> — a 2×2 <b>matrix</b>:</p>
+<div class="eq box">A = ${mat([["a","b"],["c","d"]])}</div>
+<p>Why only four? Because a linear transform is pinned down entirely by what it does to the two basis vectors <b>î</b> = (1,0) and <b>ĵ</b> = (0,1). Everything else is a combination of those, and the transform respects combinations. The lab below lets you grab the four numbers and watch the entire plane — a grid, a shape, and the basis arrows — deform live.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The mental model</span>Don't think of a matrix as a table of numbers. Think of it as a <b>verb</b> — an action on space. The next lesson shows exactly how to read that action straight off the columns.</div>`;
+
+C.matvec=`<p>To apply a matrix to a vector, use this rule — and read the meaning underneath it, because it's the key to the whole subject.</p>
+<div class="eq box">${mat([["a","b"],["c","d"]])} ${col("x","y")} = x·${col("a","c")} + y·${col("b","d")} = ${col("ax+by","cx+dy")}</div>
+<p><b>The columns of a matrix are where the basis vectors land.</b> The first column is where î = (1,0) goes; the second column is where ĵ = (0,1) goes. To transform any vector (x, y), you scale those two landing spots by x and y and add — because (x,y) = x·î + y·ĵ, and the transform preserves that combination.</p>
+<div class="wk"><div class="wl">Worked example · matrix times vector</div>
+<div class="step">A = ${mat([["2","1"],["0","3"]])}, &nbsp; v = (1, 2).</div>
+<div class="step">As a combination of columns: 1·(2, 0) + 2·(1, 3) = (2, 0) + (2, 6).</div>
+<div class="step">= <b>(4, 6)</b>. &nbsp; <span class="r">Or directly: (2·1+1·2, 0·1+3·2) = (4, 6).</span></div></div>
+<p>So "î lands at (2, 0), ĵ lands at (1, 3)" already tells you everything the matrix does — the formula is just the accountant.</p>
+<div class="callout"><span class="l">Read a matrix at a glance</span>Want to know what a transform does? Look at its columns as points. ${mat([["0","-1"],["1","0"]])} sends î to (0,1) and ĵ to (−1,0) — a 90° turn. You can now read matrices like sentences.</div>`;
+
+C.matmul=`<p>What if you do one transformation, then another? You <b>compose</b> them — and composition of transforms is exactly <b>matrix multiplication</b>.</p>
+<p>The product BA means "apply A first, then B" (right-to-left, like function notation f(g(x))). Each entry of the product is a dot product of a row of B with a column of A:</p>
+<div class="eq box">${mat([["a","b"],["c","d"]])}${mat([["e","f"],["g","h"]])} = ${mat([["ae+bg","af+bh"],["ce+dg","cf+dh"]])}</div>
+<p><b>Order matters.</b> AB and BA are usually different — rotating then stretching is not the same as stretching then rotating. Matrix multiplication is <i>not</i> commutative.</p>
+<p>Two special matrices anchor everything:</p>
+<p><b>The identity</b> I leaves every vector untouched — its columns are just î and ĵ where they already are. It's the "do nothing" transform, the number 1 of matrices:</p>
+<div class="eq box">I = ${mat([["1","0"],["0","1"]])}, &nbsp; and &nbsp; A·I = I·A = A</div>
+<p><b>The inverse</b> A⁻¹ <i>undoes</i> A — do A then A⁻¹ and you're back where you started: A⁻¹A = I. For a 2×2 there's a clean formula:</p>
+<div class="eq box">${mat([["a","b"],["c","d"]])}⁻¹ = ${frac("1","ad − bc")} ${mat([["d","−b"],["−c","a"]])}</div>
+<div class="wk"><div class="wl">Worked example · inverse</div>
+<div class="step">A = ${mat([["2","1"],["1","1"]])}. &nbsp; det = 2·1 − 1·1 = 1.</div>
+<div class="step">A⁻¹ = ${frac("1","1")}${mat([["1","−1"],["−1","2"]])} = ${mat([["1","−1"],["−1","2"]])}.</div>
+<div class="step">Check: A·A⁻¹ = ${mat([["1","0"],["0","1"]])} ✓</div></div>
+<div class="callout"><span class="l">When there's no inverse</span>The formula divides by ad − bc. If that number — the <b>determinant</b> — is zero, no inverse exists: the transform crushed space into a lower dimension and there's no way back. That single number is Part III.</div>`;
+
+C.special=`<p>Because a 2×2 matrix is just "where î and ĵ land," you can build any standard transform by placing those two arrows deliberately. The essential catalog:</p>
+<p><b>Rotation</b> by angle θ (counterclockwise). î swings to (cos θ, sin θ), ĵ to (−sin θ, cos θ):</p>
+<div class="eq box">R(θ) = ${mat([["cos θ","−sin θ"],["sin θ","cos θ"]])}</div>
+<p><b>Scaling.</b> A diagonal matrix stretches each axis independently — by ${sup("s","x")} horizontally, ${sup("s","y")} vertically:</p>
+<div class="eq box">${mat([["sx","0"],["0","sy"]])} &nbsp;—&nbsp; e.g. ${mat([["2","0"],["0","2"]])} doubles everything</div>
+<p><b>Shear.</b> Slide the plane sideways in proportion to height — î stays put, ĵ tips over. Turns squares into slanted parallelograms:</p>
+<div class="eq box">${mat([["1","k"],["0","1"]])} &nbsp;—&nbsp; a horizontal shear by k</div>
+<p><b>Projection.</b> Flatten everything onto the x-axis by sending ĵ to 0. Space collapses from 2D to a line — information is lost, and there's no undo:</p>
+<div class="eq box">${mat([["1","0"],["0","0"]])} &nbsp;—&nbsp; projection onto the x-axis</div>
+<p><b>Reflection.</b> Flip across an axis by negating one basis vector: ${mat([["1","0"],["0","−1"]])} mirrors up-down. Reflections reverse orientation (a right hand becomes a left hand).</p>
+<div class="callout"><span class="l">Try them</span>Open the Matrix Transformer in the Lab tab and dial these exact numbers in — watch a rotation spin the grid, a shear slant it, and a projection flatten it onto a line.</div>`;
+
+C.systems=`<p>Most of applied math reduces to one question: solve for the unknowns in a set of linear equations. Every such system can be packed into a single matrix equation:</p>
+<div class="eq box">Ax = b &nbsp;—&nbsp; ${mat([["2","1"],["1","−1"]])}${col("x","y")} = ${col("5","1")}</div>
+<p>Here A holds the coefficients, x the unknowns, b the right-hand sides. Reading it geometrically: "which input vector x does the transform A send to the target b?" — i.e. run the machine <b>backwards</b>.</p>
+<p><b>Gaussian elimination</b> solves it mechanically. Using three <b>row operations</b> — swap two rows, scale a row, or add a multiple of one row to another — you whittle the system to a staircase (<b>row echelon</b>) form, then read off the answer by back-substitution.</p>
+<div class="wk"><div class="wl">Worked example · solve a 2×2 system</div>
+<div class="step">2x + y = 5 &nbsp;&nbsp; (i)</div>
+<div class="step">x − y = 1 &nbsp;&nbsp; (ii)</div>
+<div class="step">Add (i)+(ii) to eliminate y: 3x = 6 → x = 2.</div>
+<div class="step">Back-substitute into (ii): 2 − y = 1 → <b>y = 1</b>. Solution: <b>(2, 1)</b>.</div></div>
+<p><b>Existence and uniqueness.</b> Not every system has one tidy answer:</p>
+<ul>
+<li><b>One solution</b> — the lines cross at a single point (A is invertible, det ≠ 0).</li>
+<li><b>No solution</b> — the lines are parallel but offset; the target is unreachable (inconsistent).</li>
+<li><b>Infinitely many</b> — the equations describe the same line; a whole family solves it.</li>
+</ul>
+<p>The next lesson names the number that decides between these — the determinant.</p>`;
+
+C.det=`<p>Every transformation scales areas by a fixed factor, and that factor is the <b>determinant</b>. Feed in the unit square (area 1); it comes out as a parallelogram whose area is |det A|.</p>
+<div class="eq box">det ${mat([["a","b"],["c","d"]])} = ad − bc</div>
+<p>The determinant is <b>signed</b>. Positive means orientation is preserved; <b>negative</b> means the transform flipped space over (like a reflection) — a left hand became a right hand. Its magnitude is the area (in 3D, the volume) scaling factor.</p>
+<div class="wk"><div class="wl">Worked example</div>
+<div class="step">A = ${mat([["3","1"],["2","4"]])}.</div>
+<div class="step">det = 3·4 − 1·2 = 12 − 2 = <b>10</b>.</div>
+<div class="step">So A stretches every area by a factor of 10, orientation preserved (sign +).</div></div>
+<p><b>What det = 0 means</b> — the single most important fact about determinants. If det A = 0, the transform squashes space flat: the unit square collapses to a line or a point, area goes to zero. Consequences, all equivalent:</p>
+<ul>
+<li>The columns are <b>linearly dependent</b> (they don't span the full space).</li>
+<li>A has <b>no inverse</b> — you can't un-flatten (the ½·1/det formula blows up).</li>
+<li>Ax = b has either <b>no</b> solution or <b>infinitely many</b>, never exactly one.</li>
+</ul>
+<p>Dial the matrix in the lab below and watch the shaded parallelogram — see its area (the determinant) shrink to zero and its color flip the moment orientation reverses.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">One number, huge reach</span>Invertibility, independence, solvability, orientation — the determinant answers all of them with a single scalar. det ≠ 0 is the golden condition of linear algebra.</div>`;
+
+C.rank=`<p>Two subspaces reveal exactly how much a matrix keeps and what it destroys.</p>
+<p><b>Rank</b> is the number of linearly independent columns — the true dimension of the output. It's the dimension of the <b>column space</b> (all vectors Ax can reach). A full-rank 2×2 covers the whole plane (rank 2); a projection that flattens everything onto a line has rank 1; the zero matrix has rank 0.</p>
+<p><b>Null space</b> (or kernel) is the set of all vectors the matrix sends to <b>zero</b>: every x with Ax = 0. For an invertible matrix only x = 0 qualifies — nothing but the origin gets crushed. But a rank-deficient matrix has a whole line (or plane) of inputs collapsed to the origin — the directions it throws away.</p>
+<div class="eq box">Rank–Nullity: &nbsp; rank(A) + dim(null space) = number of columns</div>
+<p>This conservation law says it plainly: every input dimension either <b>survives</b> into the output (counted by rank) or is <b>annihilated</b> into the null space. Nothing else can happen.</p>
+<div class="wk"><div class="wl">Worked example</div>
+<div class="step">A = ${mat([["1","2"],["2","4"]])}. &nbsp; Column 2 = 2× column 1 → dependent → <b>rank 1</b>.</div>
+<div class="step">det = 1·4 − 2·2 = 0, confirming it's not full rank.</div>
+<div class="step">Null space: A(x,y)=0 gives x+2y=0, so all multiples of (2, −1) — a whole line crushed to the origin. Nullity 1. Check: 1 + 1 = 2 columns ✓</div></div>
+<div class="callout"><span class="l">The through-line</span>det = 0 ⟺ rank &lt; full ⟺ nontrivial null space ⟺ no inverse ⟺ dependent columns. These are five names for one situation: the transform loses a dimension.</div>`;
+
+C.eigen=`<p>Most vectors, when hit by a matrix, get knocked off their line — they change direction. But for almost every transform there are a few special directions that <b>survive</b>: the vector comes out pointing the same way (or exactly reversed), merely stretched or shrunk. These are the <b>eigenvectors</b>, and the stretch factor is the <b>eigenvalue</b> λ.</p>
+<div class="eq box">A v = λ v &nbsp;&nbsp;(v ≠ 0)</div>
+<p>Read it: applying the matrix A to the eigenvector v does the same thing as merely scaling v by the number λ. The transform's <i>action</i> along that direction is pure stretch — no rotation, no shear.</p>
+<ul>
+<li>λ = 2: that direction is stretched to double length.</li>
+<li>λ = 1: fixed — vectors there don't move at all.</li>
+<li>λ = −1: flipped to point backward, same length.</li>
+<li>0 &lt; λ &lt; 1: squashed toward the origin.</li>
+</ul>
+<p>Eigenvectors are the <b>natural axes</b> of a transformation — the skeleton along which its behavior is simplest. A pure rotation has <i>no</i> real eigenvectors (everything turns), which is exactly why rotations feel different from stretches.</p>
+<p>In the lab below, a cloud of vectors is transformed. Watch which arrows stay on their own line — those glowing directions are the eigenvectors, and their scale factors are the eigenvalues.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why they run the world</span>Apply a matrix over and over (a system evolving in time) and everything gets dragged toward the eigenvector with the largest eigenvalue. That dominance is the secret behind PageRank, population growth, vibration modes, and quantum states.</div>`;
+
+C.findeig=`<p>To find eigenvalues, start from the definition and rearrange. Av = λv means Av − λv = 0, i.e. (A − λI)v = 0. For a nonzero v to exist, the matrix (A − λI) must crush something to zero — it must be non-invertible — which happens exactly when its <b>determinant is zero</b>:</p>
+<div class="eq box">det(A − λI) = 0 &nbsp;—&nbsp; the characteristic equation</div>
+<p>For a 2×2 this expands into a tidy quadratic in λ, built from the trace (a+d) and determinant (ad−bc):</p>
+<div class="eq box">λ² − (a+d)λ + (ad − bc) = 0</div>
+<div class="wk"><div class="wl">Worked example · eigenvalues & eigenvectors</div>
+<div class="step">A = ${mat([["2","1"],["1","2"]])}. &nbsp; trace = 4, det = 3.</div>
+<div class="step">λ² − 4λ + 3 = 0 → (λ−3)(λ−1) = 0 → <b>λ = 3 and λ = 1</b>.</div>
+<div class="step">For λ=3: (A−3I)v=0 → ${mat([["−1","1"],["1","−1"]])}v=0 → v = <b>(1, 1)</b>.</div>
+<div class="step">For λ=1: (A−1I)v=0 → ${mat([["1","1"],["1","1"]])}v=0 → v = <b>(1, −1)</b>.</div></div>
+<p><b>Diagonalization.</b> If a matrix has a full set of independent eigenvectors, you can rewrite it in its own natural coordinates. Put the eigenvectors as the columns of P and the eigenvalues on the diagonal of D:</p>
+<div class="eq box">A = P D P⁻¹, &nbsp; D = ${mat([["λ₁","0"],["0","λ₂"]])}</div>
+<p>This is powerful because D is trivial to work with. Want A¹⁰⁰? Then A¹⁰⁰ = P D¹⁰⁰ P⁻¹, and raising a diagonal matrix to a power just powers each eigenvalue. A brutal computation becomes three easy ones.</p>
+<div class="callout"><span class="l">Complex case</span>If λ² − (trace)λ + det = 0 has a negative discriminant, the eigenvalues are complex — the transform has a rotational part and no real eigen-direction. That's not a failure; the complex eigenvalues encode the angle and rate of the spin.</div>`;
+
+C.apps=`<p>Eigenvectors are where linear algebra stops being abstract and starts running the modern world. Four concrete places, each the same idea — <i>find the directions a matrix acts on simply</i>.</p>
+<p><b>PCA (data science).</b> Take a cloud of data and form its covariance matrix. Its <b>eigenvectors are the principal axes</b> — the directions of greatest variance — and the eigenvalues say how much information each carries. Keep the top few and you compress high-dimensional data with minimal loss. This is the engine under face recognition, gene analysis, and recommendation systems.</p>
+<p><b>PageRank (Google).</b> Model the web as a giant matrix of who links to whom. The importance of every page is the <b>dominant eigenvector</b> (λ = 1) of that matrix — the steady state of a random surfer clicking forever. Google's original fortune was, quite literally, computing one eigenvector of a matrix with billions of rows.</p>
+<p><b>Markov chains (steady states).</b> A transition matrix P moves probabilities between states each step. The long-run distribution is the eigenvector with eigenvalue 1: the vector π with Pπ = π. It predicts everything from weather patterns to how a shuffled deck settles to disease spread.</p>
+<div class="eq box">P π = π &nbsp;—&nbsp; the steady state is an eigenvector for λ = 1</div>
+<p><b>Quantum mechanics.</b> Physical observables (energy, momentum, spin) are matrices; their <b>eigenvalues are the only values you can ever measure</b>, and the eigenvectors are the states with a definite value. The discreteness of atomic energy levels — why atoms are stable and lasers work — is an eigenvalue problem. Schrödinger's famous equation is Hψ = Eψ: find the eigenvectors of the energy matrix.</p>
+<div class="callout"><span class="l">You've arrived</span>Vectors → transformations → systems → eigenvectors. That arc is the spine of machine learning, computer graphics, robotics, quantum theory, and economics. You now read all of it in the same language.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function arrow(x,x1,y1,x2,y2,color,lw){const ang=Math.atan2(y2-y1,x2-x1),hl=9;x.strokeStyle=color;x.fillStyle=color;x.lineWidth=lw||2.4;
+  x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+  x.beginPath();x.moveTo(x2,y2);x.lineTo(x2-hl*Math.cos(ang-0.42),y2-hl*Math.sin(ang-0.42));x.lineTo(x2-hl*Math.cos(ang+0.42),y2-hl*Math.sin(ang+0.42));x.closePath();x.fill();}
+
+/* --- 2D vector playground --- */
+function simVecplay(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="readout" style="color:var(--faint)">Drag either arrowhead. Magenta = a, teal = b, violet dashed = a + b.</div></div>`;
+  const cv=$("canvas",el);let a={x:3,y:1},b={x:-1,y:2.5},drag=null,W=0,H=260,S=34;
+  const s2w=(px,py)=>({x:(px-W/2)/S,y:(H/2-py)/S});
+  function evp(e){const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+  function down(e){const p=evp(e),wp=s2w(p.x,p.y);const da=Math.hypot(wp.x-a.x,wp.y-a.y),db=Math.hypot(wp.x-b.x,wp.y-b.y);
+    if(da<0.9&&da<=db)drag="a";else if(db<0.9)drag="b";if(drag){e.preventDefault();cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);}}
+  function move(e){if(!drag)return;e.preventDefault();const p=evp(e),wp=s2w(p.x,p.y);const v={x:Math.round(wp.x*2)/2,y:Math.round(wp.y*2)/2};if(drag==="a")a=v;else b=v;}
+  function up(){drag=null;}
+  cv.addEventListener("pointerdown",down);cv.addEventListener("pointermove",move);window.addEventListener("pointerup",up);
+  cleanups.push(()=>{cv.removeEventListener("pointerdown",down);cv.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up);});
+  function draw(){const o=fit(cv,H);const x=o.x;W=o.w;const cx=W/2,cy=H/2;const wx=v=>cx+v*S,wy=v=>cy-v*S;
+    x.clearRect(0,0,W,H);
+    x.strokeStyle="#2a1622";x.lineWidth=1;for(let i=-9;i<=9;i++){x.beginPath();x.moveTo(wx(i),0);x.lineTo(wx(i),H);x.stroke();x.beginPath();x.moveTo(0,wy(i));x.lineTo(W,wy(i));x.stroke();}
+    x.strokeStyle="#5a3a4c";x.lineWidth=1.4;x.beginPath();x.moveTo(0,cy);x.lineTo(W,cy);x.moveTo(cx,0);x.lineTo(cx,H);x.stroke();
+    const sum={x:a.x+b.x,y:a.y+b.y};
+    x.strokeStyle="#b78bef77";x.lineWidth=1.4;x.setLineDash([5,4]);
+    x.beginPath();x.moveTo(wx(a.x),wy(a.y));x.lineTo(wx(sum.x),wy(sum.y));x.lineTo(wx(b.x),wy(b.y));x.stroke();x.setLineDash([]);
+    arrow(x,cx,cy,wx(sum.x),wy(sum.y),"#b78bef",2.6);
+    arrow(x,cx,cy,wx(a.x),wy(a.y),"#e07bb0",3);
+    arrow(x,cx,cy,wx(b.x),wy(b.y),"#54c6b0",3);
+    const dot=a.x*b.x+a.y*b.y,la=Math.hypot(a.x,a.y),lb=Math.hypot(b.x,b.y);
+    let ang=(la&&lb)?Math.acos(Math.max(-1,Math.min(1,dot/(la*lb))))*180/Math.PI:0;
+    $("#ro",el).innerHTML=`a = (${a.x}, ${a.y}) &nbsp; b = (${b.x}, ${b.y}) &nbsp; a+b = <b>(${sum.x}, ${sum.y})</b><br>a · b = <b>${dot.toFixed(2)}</b> &nbsp; |a| = ${la.toFixed(2)} &nbsp; |b| = ${lb.toFixed(2)} &nbsp; angle = <b>${ang.toFixed(1)}°</b> ${Math.abs(dot)<1e-6?'<span style="color:var(--teal)">⟂ perpendicular</span>':''}`;
+  }
+  raf(draw);
+}
+
+/* --- shared: matrix-entry controls --- */
+function matCtl(el,m,onIn){
+  const mk=(k,v)=>`<label>${k} = <b id="v_${k}">${v.toFixed(1)}</b><input type="range" id="c_${k}" min="-2" max="2" step="0.1" value="${v}"></label>`;
+  el.innerHTML+=`<div class="simctl">${mk("a",m.a)}${mk("b",m.b)}${mk("c",m.c)}${mk("d",m.d)}</div>`;
+  ["a","b","c","d"].forEach(k=>{$("#c_"+k,el).oninput=e=>{m[k]=+e.target.value;$("#v_"+k,el).textContent=m[k].toFixed(1);onIn&&onIn();};});
+}
+
+/* --- matrix transformation of the plane (the key lab) --- */
+function simMatrix(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div></div>`;
+  const wrap=$(".simwrap",el),cv=$("canvas",el);const m={a:1,b:0.5,c:-0.3,d:1};
+  matCtl(wrap,m);
+  const shape=[[0,0],[1.5,0],[1.5,0.6],[0.6,0.6],[0.6,1.5],[0,1.5]];
+  function draw(){const o=fit(cv,300);const x=o.x,W=o.w,H=o.h;const cx=W/2,cy=H/2,S=42;const R=8;
+    const T=(px,py)=>[cx+(m.a*px+m.b*py)*S,cy-(m.c*px+m.d*py)*S];
+    x.clearRect(0,0,W,H);
+    x.strokeStyle="#241220";x.lineWidth=1;for(let i=-R;i<=R;i++){x.beginPath();x.moveTo(cx+i*S,0);x.lineTo(cx+i*S,H);x.stroke();x.beginPath();x.moveTo(0,cy-i*S);x.lineTo(W,cy-i*S);x.stroke();}
+    x.strokeStyle="#e07bb055";x.lineWidth=1;
+    for(let i=-R;i<=R;i++){let p1=T(-R,i),p2=T(R,i);x.beginPath();x.moveTo(p1[0],p1[1]);x.lineTo(p2[0],p2[1]);x.stroke();
+      let q1=T(i,-R),q2=T(i,R);x.beginPath();x.moveTo(q1[0],q1[1]);x.lineTo(q2[0],q2[1]);x.stroke();}
+    x.beginPath();shape.forEach((p,i)=>{const t=T(p[0],p[1]);i?x.lineTo(t[0],t[1]):x.moveTo(t[0],t[1]);});x.closePath();
+    x.fillStyle="rgba(224,123,176,.22)";x.strokeStyle="#e07bb0";x.lineWidth=1.5;x.fill();x.stroke();
+    x.strokeStyle="#4a2a3c";x.lineWidth=1.4;x.beginPath();x.moveTo(0,cy);x.lineTo(W,cy);x.moveTo(cx,0);x.lineTo(cx,H);x.stroke();
+    const i2=T(1,0),j2=T(0,1);
+    arrow(x,cx,cy,i2[0],i2[1],"#7ecb8a",3);
+    arrow(x,cx,cy,j2[0],j2[1],"#54c6b0",3);
+    const det=m.a*m.d-m.b*m.c;
+    $("#ro",el).innerHTML=`A = [ ${m.a.toFixed(1)}, ${m.b.toFixed(1)} ; ${m.c.toFixed(1)}, ${m.d.toFixed(1)} ] &nbsp; det = <b>${det.toFixed(2)}</b><br><span style="color:#7ecb8a">î → (${m.a.toFixed(1)}, ${m.c.toFixed(1)})</span> = column 1 &nbsp; <span style="color:#54c6b0">ĵ → (${m.b.toFixed(1)}, ${m.d.toFixed(1)})</span> = column 2`;
+  }
+  raf(draw);
+}
+
+/* --- determinant as signed area --- */
+function simDeterminant(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div></div>`;
+  const wrap=$(".simwrap",el),cv=$("canvas",el);const m={a:1.4,b:0.4,c:0.3,d:1.2};
+  matCtl(wrap,m);
+  function draw(){const o=fit(cv,280);const x=o.x,W=o.w,H=o.h;const cx=W*0.4,cy=H*0.62,S=52;
+    const T=(px,py)=>[cx+(m.a*px+m.b*py)*S,cy-(m.c*px+m.d*py)*S];
+    x.clearRect(0,0,W,H);
+    x.strokeStyle="#241220";x.lineWidth=1;for(let i=-6;i<=8;i++){x.beginPath();x.moveTo(cx+i*S,0);x.lineTo(cx+i*S,H);x.stroke();x.beginPath();x.moveTo(0,cy-i*S);x.lineTo(W,cy-i*S);x.stroke();}
+    x.strokeStyle="#4a2a3c";x.lineWidth=1.4;x.beginPath();x.moveTo(0,cy);x.lineTo(W,cy);x.moveTo(cx,0);x.lineTo(cx,H);x.stroke();
+    const det=m.a*m.d-m.b*m.c;
+    const P=[T(0,0),T(1,0),T(1,1),T(0,1)];
+    x.beginPath();P.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();
+    x.fillStyle=det>=0?"rgba(224,123,176,.28)":"rgba(183,139,239,.30)";
+    x.strokeStyle=det>=0?"#e07bb0":"#b78bef";x.lineWidth=2;x.fill();x.stroke();
+    const i2=T(1,0),j2=T(0,1);
+    arrow(x,cx,cy,i2[0],i2[1],"#7ecb8a",3);
+    arrow(x,cx,cy,j2[0],j2[1],"#54c6b0",3);
+    $("#ro",el).innerHTML=`det = ad − bc = (${m.a.toFixed(1)})(${m.d.toFixed(1)}) − (${m.b.toFixed(1)})(${m.c.toFixed(1)}) = <b>${det.toFixed(2)}</b><br>area of the parallelogram = |det| = <b>${Math.abs(det).toFixed(2)}</b> &nbsp; ${det<0?'<span style="color:var(--violet)">orientation flipped ↺</span>':det<0.05&&det>-0.05?'<span style="color:var(--red)">collapsed — not invertible</span>':'<span style="color:var(--green)">orientation preserved</span>'}`;
+  }
+  raf(draw);
+}
+
+/* --- eigenvectors --- */
+function eig(m){const tr=m.a+m.d,det=m.a*m.d-m.b*m.c,disc=tr*tr-4*det;
+  if(disc<0)return {real:false,tr,det};
+  const s=Math.sqrt(disc),l1=(tr+s)/2,l2=(tr-s)/2;
+  const evec=l=>{let v;if(Math.abs(m.b)>1e-9)v=[m.b,l-m.a];else if(Math.abs(m.c)>1e-9)v=[l-m.d,m.c];else v=(Math.abs(l-m.a)<1e-9)?[1,0]:[0,1];
+    const n=Math.hypot(v[0],v[1])||1;return [v[0]/n,v[1]/n];};
+  return {real:true,l1,l2,v1:evec(l1),v2:evec(l2)};}
+function simEigen(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div></div>`;
+  const wrap=$(".simwrap",el),cv=$("canvas",el);const m={a:2,b:1,c:1,d:2};
+  matCtl(wrap,m);
+  function draw(){const o=fit(cv,300);const x=o.x,W=o.w,H=o.h;const cx=W/2,cy=H/2,S=40;
+    const T=(px,py)=>[m.a*px+m.b*py,m.c*px+m.d*py];const wx=v=>cx+v*S,wy=v=>cy-v*S;
+    x.clearRect(0,0,W,H);
+    x.strokeStyle="#241220";x.lineWidth=1;for(let i=-7;i<=7;i++){x.beginPath();x.moveTo(wx(i),0);x.lineTo(wx(i),H);x.stroke();x.beginPath();x.moveTo(0,wy(i));x.lineTo(W,wy(i));x.stroke();}
+    x.strokeStyle="#4a2a3c";x.lineWidth=1.4;x.beginPath();x.moveTo(0,cy);x.lineTo(W,cy);x.moveTo(cx,0);x.lineTo(cx,H);x.stroke();
+    const N=40;
+    for(let k=0;k<N;k++){const th=k/N*2*Math.PI,ux=Math.cos(th),uy=Math.sin(th);const t=T(ux,uy);
+      const lt=Math.hypot(t[0],t[1])||1;const align=Math.abs((ux*t[0]+uy*t[1])/lt);
+      const g=Math.pow(align,6);const cr=Math.round(90+165*g),cg=Math.round(70+30*g),cb=Math.round(110+66*g);
+      x.strokeStyle=`rgba(${cr},${cg},${cb},${0.35+0.5*g})`;x.lineWidth=1+2.4*g;
+      x.beginPath();x.moveTo(cx,cy);x.lineTo(wx(t[0]),wy(t[1]));x.stroke();}
+    const E=eig(m);
+    if(E.real){[[E.v1,E.l1],[E.v2,E.l2]].forEach(([v,l])=>{const len=6;
+      x.strokeStyle="#e6b45a";x.lineWidth=2;x.setLineDash([6,5]);
+      x.beginPath();x.moveTo(wx(-v[0]*len),wy(-v[1]*len));x.lineTo(wx(v[0]*len),wy(v[1]*len));x.stroke();x.setLineDash([]);
+      arrow(x,cx,cy,wx(v[0]*l),wy(v[1]*l),"#e6b45a",2.6);
+      x.fillStyle="#f0e6ec";x.beginPath();x.arc(wx(v[0]),wy(v[1]),3.5,0,7);x.fill();});
+      $("#ro",el).innerHTML=`eigenvalues: λ₁ = <b>${E.l1.toFixed(2)}</b>, λ₂ = <b>${E.l2.toFixed(2)}</b><br><span style="color:var(--gold)">gold lines = eigenvectors</span> — the only directions that stay on their own line (input dot → output arrow scaled by λ). Every other vector rotates.`;
+    }else{
+      $("#ro",el).innerHTML=`trace ${E.tr.toFixed(1)}, det ${E.det.toFixed(2)} → discriminant &lt; 0.<br><span style="color:var(--violet)">Eigenvalues are complex — this transform rotates. No real vector keeps its direction.</span>`;
+    }
+  }
+  raf(draw);
+}
+const SIMS={vecplay:simVecplay,matrix:simMatrix,determinant:simDeterminant,eigen:simEigen};
+const LABS=[
+ ["matrix","▦","Matrix Transformer","Dial a 2×2 matrix and watch the whole plane deform — columns are where î and ĵ land.","var(--acc)"],
+ ["vecplay","➤","Vector Playground","Drag two vectors; see their sum's parallelogram, dot product, and angle.","var(--teal)"],
+ ["determinant","▱","Determinant as Area","The unit square becomes a parallelogram whose signed area is the determinant.","var(--violet)"],
+ ["eigen","λ","Eigenvectors","Transform a cloud of vectors and watch the eigen-directions glow.","var(--gold)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const mm=$("#__sim",sec);if(mm&&l.lab&&SIMS[l.lab])SIMS[l.lab](mm);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#2a1020,#20101c);border-color:#4a2440">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL LINEAR ALGEBRA COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Vectors → matrices as transformations → systems & the determinant → eigenvectors and where they run the world. Worked examples, interactive labs (▦), and practice. Take it in order — every idea is the last one, seen again.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">▦ lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · linear algebra you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`Dot product: (1, 2) · (3, 4) = ?`,a:["7","11","5","(3, 8)"],c:1,e:"Multiply matching components and add: 1·3 + 2·4 = 3 + 8 = 11. The result is a single number, not a vector."},
+ {q:`Length of the vector (3, 4):`,a:["7","5","12","√7"],c:1,e:"|v| = √(3² + 4²) = √(9+16) = √25 = 5. The classic 3-4-5 right triangle."},
+ {q:`Two nonzero vectors are perpendicular exactly when…`,a:["their sum is zero","their dot product is zero","they have equal length","they point the same way"],c:1,e:"a·b = |a||b|cos θ, and cos 90° = 0, so perpendicular ⟺ dot product = 0."},
+ {q:`Are (2, 4) and (1, 2) linearly independent?`,a:["Yes","No — one is a multiple of the other","Only in 3D","Can't tell"],c:1,e:"(2,4) = 2·(1,2): they lie on the same line, so they're dependent and span only a line, not the plane."},
+ {q:`For a matrix, the columns tell you…`,a:["the eigenvalues","where the basis vectors î and ĵ land","the determinant's sign","nothing geometric"],c:1,e:"Column 1 is where î=(1,0) is sent; column 2 is where ĵ=(0,1) is sent. That's the whole transformation."},
+ {q:`${mat([["2","0"],["0","3"]])}${col("1","1")} = ?`,a:["(2, 3)","(5, 5)","(2, 0)","(3, 2)"],c:0,e:"A diagonal matrix scales each axis: (2·1, 3·1) = (2, 3). It stretches x by 2 and y by 3."},
+ {q:`det ${mat([["1","2"],["3","4"]])} = ?`,a:["4","−2","10","2"],c:1,e:"ad − bc = 1·4 − 2·3 = 4 − 6 = −2. Negative means orientation is flipped."},
+ {q:`If det A = 0, then A…`,a:["is a rotation","collapses space and has no inverse","doubles all areas","must be the identity"],c:1,e:"det = 0 means the transform flattens space to a lower dimension: columns are dependent, there's no inverse, and Ax=b has no unique solution."},
+ {q:`An eigenvector v of A satisfies…`,a:["Av = 0 always","Av = λv for some scalar λ","v · A = 1","Av is perpendicular to v"],c:1,e:"Av = λv: the transform only stretches v along its own line by the factor λ (the eigenvalue), without rotating it."},
+ {q:`An eigenvalue of ${mat([["3","0"],["0","7"]])} is:`,a:["10","3","21","0"],c:1,e:"For a diagonal matrix the eigenvalues are the diagonal entries — 3 and 7 (with eigenvectors along the axes)."},
+ {q:`The system 2x+y=5, x−y=1 has solution:`,a:["(2, 1)","(1, 2)","no solution","(3, 0)"],c:0,e:"Add the equations: 3x=6 → x=2. Then 2−y=1 → y=1. The lines cross once at (2, 1)."},
+ {q:`The identity matrix ${mat([["1","0"],["0","1"]])} does what to a vector?`,a:["rotates it 90°","leaves it unchanged","sends it to zero","doubles it"],c:1,e:"Its columns are î and ĵ right where they belong, so it maps every vector to itself — the 'do nothing' transform."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["➤","Vectors",P.done.dot&&P.done.span],["▦","Transformer",P.done.transform&&P.done.matvec&&P.done.matmul],["▱","Systems",P.done.systems&&P.done.det&&P.done.rank],["λ","Eigen",P.done.eigen&&P.done.findeig],["🎯","Sharp",ds>=10],["⧉","Linear Algebra",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#301826" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e07bb0"/><stop offset="1" stop-color="#c04a86"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#f0e6ec" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#c0a0b2" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full linear algebra course. ⧉":pc>=50?"Past the halfway mark — eigenvectors are ahead.":"Vectors, matrices, and transformations — one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

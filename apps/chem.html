@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chemistry">
+<meta name="theme-color" content="#08120a">
+<title>Chemistry — a course</title>
+<style>
+:root{
+  --bg:#08120a;--panel:#0e1c12;--card:#101f14;--line:#26402c;--ink:#e9f3ea;--mut:#9db8a4;--faint:#5f7a66;
+  --acc:#6fcf7f;--acc2:#3aa876;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#0f2417 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(8,18,10,.96),rgba(8,18,10,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#06170e;font-size:20px;box-shadow:0 3px 14px rgba(111,207,127,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#06170e;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#4a5c2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0a1610;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#d5e4d8;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#d5e4d8;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#eef7ef;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#0a1610;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#0a1610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#dceadf}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#0c1a12;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#060f0a;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#040a06}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select,.simctl input[type=number]{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#0f2113}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+.eqbuild{font-family:"Cambria Math",Georgia,serif;font-size:1.25em;text-align:center;color:#eef7ef;line-height:2.2;padding:6px 2px}
+.eqbuild .cf{width:42px;text-align:center;background:#0a1610;color:var(--acc);border:1px solid var(--line);border-radius:8px;padding:4px 2px;font:inherit;font-size:.8em;margin-right:2px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(8,18,10,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0a1610;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#06170e;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">⚗</div>
+  <div><h1>Chemistry</h1><div class="sub">atoms, bonds, and reactions</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">⚗</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("chem_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("chem_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Atomic structure",lessons:[
+   {id:"atoms",n:"Atoms, isotopes & ions",sub:"protons, neutrons, electrons — and what they mean"},
+   {id:"quantum",n:"The quantum atom",sub:"shells, subshells s/p/d, and orbitals"},
+   {id:"config",n:"Electron configuration",sub:"aufbau, Pauli, and Hund's rule",lab:"econfig"},
+   {id:"periodic",n:"Periodic trends",sub:"radius, ionization energy, electronegativity — and why"},
+ ]},
+ {ic:"②",t:"Part II · Bonding",lessons:[
+   {id:"bonding",n:"Ionic, covalent, metallic",sub:"three ways atoms hold together"},
+   {id:"lewis",n:"Lewis structures",sub:"drawing where the electrons live"},
+   {id:"vsepr",n:"Molecular shapes (VSEPR)",sub:"why molecules are bent, linear, tetrahedral…",lab:"vsepr"},
+   {id:"imf",n:"Polarity & intermolecular forces",sub:"the forces that set boiling points"},
+ ]},
+ {ic:"③",t:"Part III · Reactions",lessons:[
+   {id:"reactions",n:"Reactions & balancing",sub:"reaction types and conservation of atoms",lab:"balance"},
+   {id:"mole",n:"The mole & stoichiometry",sub:"Avogadro's number and mole ratios"},
+   {id:"thermo",n:"Thermochemistry",sub:"endothermic, exothermic, and enthalpy"},
+   {id:"kinetics",n:"Reaction kinetics",sub:"rate, activation energy, catalysts"},
+ ]},
+ {ic:"④",t:"Part IV · Equilibrium & solutions",lessons:[
+   {id:"equilibrium",n:"Equilibrium & Le Chatelier",sub:"reversible reactions that push back",lab:"lechat"},
+   {id:"acids",n:"Acids, bases & pH",sub:"the pH scale, strong/weak, and buffers",lab:"ph"},
+   {id:"redox",n:"Redox & electrochemistry",sub:"electron transfer, batteries, and cells"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const C={};
+C.atoms=`<p>Everything is built from <b>atoms</b>, and every atom is built from just three particles. A dense central <b>nucleus</b> holds <b>protons</b> (charge +1) and <b>neutrons</b> (charge 0), each with a mass of about 1 atomic mass unit (u). Around it, in a cloud far larger than the nucleus, whirl the <b>electrons</b> (charge −1), each roughly 1/1836 the mass of a proton — nearly all the atom's mass is in that tiny nucleus.</p>
+<div class="eq box">atomic number Z = number of protons &nbsp;·&nbsp; mass number A = protons + neutrons</div>
+<p><b>The proton count is the identity.</b> Z alone decides which element you have: 1 proton is always hydrogen, 6 is always carbon, 79 is always gold. Change Z and you have changed the element itself. A neutral atom has exactly as many electrons as protons, so the charges cancel.</p>
+<p><b>Isotopes</b> are atoms of the same element (same Z) with different numbers of <b>neutrons</b> (different A). Carbon-12 and carbon-14 are both carbon — 6 protons — but carbon-14 carries two extra neutrons. Isotopes are chemically almost identical (chemistry is run by electrons) but differ in mass and nuclear stability. The atomic mass on the periodic table is the <b>weighted average</b> over an element's natural isotope mix.</p>
+<p><b>Ions</b> form when an atom gains or loses <i>electrons</i> — never protons. Lose an electron and you have a net positive <b>cation</b> (Na → Na⁺); gain one and you have a negative <b>anion</b> (Cl → Cl⁻). It is these electron gains, losses, and shares that are the whole of chemistry.</p>
+<div class="wk"><div class="wl">Worked example · average atomic mass of chlorine</div>
+<div class="step">Chlorine is 75.8% ³⁵Cl (mass 34.97 u) and 24.2% ³⁷Cl (mass 36.97 u).</div>
+<div class="step">average = 0.758 × 34.97 + 0.242 × 36.97 = 26.51 + 8.95 = <b>35.45 u</b></div>
+<div class="step"><span class="r">Exactly the 35.45 printed on the periodic table — a weighted average, not any real single atom.</span></div></div>
+<div class="callout"><span class="l">The whole game</span>Protons fix identity, neutrons fix isotope, electrons do chemistry. Keep those three roles straight and the rest of this course has a firm floor.</div>`;
+
+C.quantum=`<p>Electrons do not orbit the nucleus like tiny planets. Quantum mechanics says an electron's energy is <b>quantized</b> — it can only take certain discrete values — and its location is a <b>probability cloud</b>, not a path. We organize those allowed states in a strict hierarchy.</p>
+<p><b>Shells</b> (principal quantum number n = 1, 2, 3, …) are the main energy levels; higher n means higher energy and, on average, farther from the nucleus. Each shell splits into <b>subshells</b> labeled s, p, d, f, which differ in shape and energy. Each subshell contains one or more <b>orbitals</b> — specific regions — and by the <b>Pauli exclusion principle</b> each orbital holds at most <b>2 electrons</b>, and only if they have opposite spin.</p>
+<div class="eq box">s: 1 orbital (2 e⁻) &nbsp; p: 3 orbitals (6 e⁻) &nbsp; d: 5 orbitals (10 e⁻) &nbsp; f: 7 orbitals (14 e⁻)</div>
+<p>The <b>shapes</b> matter: an <b>s orbital</b> is a sphere centered on the nucleus; the three <b>p orbitals</b> are dumbbells pointing along x, y, and z; d and f orbitals have more elaborate lobed shapes. These shapes are exactly what will dictate molecular geometry in Part II.</p>
+<p>How many electrons fit in shell n? Add up its subshells and you get a clean rule:</p>
+<div class="eq box">maximum electrons in shell n = 2n²</div>
+<p>So shell 1 (just 1s) holds 2, shell 2 (2s + 2p) holds 8, shell 3 (3s + 3p + 3d) holds 18. The familiar "2, 8, 8, …" pattern of the periodic table is this counting in disguise.</p>
+<div class="callout"><span class="l">Why it's discrete</span>An electron bound to a nucleus behaves like a standing wave — only whole-number patterns fit, just as a guitar string only rings at certain frequencies. Quantization isn't a rule imposed on atoms; it falls out of treating the electron as a wave.</div>`;
+
+C.config=`<p>To write an atom's <b>electron configuration</b> — which orbitals its electrons actually occupy in the ground state — we fill orbitals by three rules, in order.</p>
+<p><b>1. Aufbau principle</b> ("building up"): electrons fill the <i>lowest-energy</i> orbitals first. Because of how subshell energies overlap, the order isn't simply by shell — 4s fills before 3d:</p>
+<div class="eq box">1s → 2s → 2p → 3s → 3p → 4s → 3d → 4p → 5s → 4d → 5p → 6s → …</div>
+<p><b>2. Pauli exclusion:</b> each orbital takes at most 2 electrons, with opposite spins (drawn ↑↓). <b>3. Hund's rule:</b> within a subshell, electrons occupy <i>separate</i> orbitals singly (all spins parallel) before any orbital is doubled up — like passengers each taking an empty seat before sharing. This minimizes repulsion.</p>
+<p>A superscript gives the electron count: 2p⁴ means four electrons in the 2p subshell. We can abbreviate the inner core with the previous noble gas in brackets: [Ne] stands for 1s² 2s² 2p⁶.</p>
+<div class="wk"><div class="wl">Worked example · electron configuration of iron (Z = 26)</div>
+<div class="step">Place 26 electrons in aufbau order: 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d⁶ (count: 2+2+6+2+6+2+6 = 26).</div>
+<div class="step">Written in shell order: <b>1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁶ 4s²</b>, or compactly <b>[Ar] 3d⁶ 4s²</b>.</div>
+<div class="step">By Hund's rule the six 3d electrons spread as five singles then one pair → four unpaired electrons (why iron is magnetic).</div></div>
+<p>A few atoms cheat for extra stability: <b>chromium</b> is [Ar] 3d⁵ 4s¹ and <b>copper</b> is [Ar] 3d¹⁰ 4s¹, because half-filled and completely-filled d subshells are especially stable. The lab below fills any element from Z = 1 to 36 and draws the orbital diagram — watch Hund's rule in action.</p>
+<div id="__sim"></div>`;
+
+C.periodic=`<p>The periodic table is arranged so that its <b>trends</b> are geometry. Elements in a column (a <b>group</b>) share the same outer-electron pattern and so behave alike; moving across a row (a <b>period</b>) fills one shell. Three trends drive most of chemistry, and all three come from one idea: <b>effective nuclear charge</b> (Z<sub>eff</sub>), the net pull the outer electrons actually feel after inner electrons shield them.</p>
+<p><b>Atomic radius.</b> <i>Down a group</i> it grows — each period adds a whole new shell farther out. <i>Across a period</i> it shrinks — protons pile up in the nucleus while electrons go into the same shell, so Z<sub>eff</sub> rises and reels the cloud in tighter.</p>
+<div class="eq box">across a period → &nbsp; radius ↓ &nbsp; ionization energy ↑ &nbsp; electronegativity ↑</div>
+<div class="eq box">down a group ↓ &nbsp; radius ↑ &nbsp; ionization energy ↓ &nbsp; electronegativity ↓</div>
+<p><b>Ionization energy</b> is the energy to rip off the outermost electron. It rises across a period (electrons held tighter by higher Z<sub>eff</sub>, closer in) and falls down a group (the outer electron is farther out and shielded, so it leaves easily). This is why metals on the left give up electrons readily and noble gases on the right cling to theirs.</p>
+<p><b>Electronegativity</b> measures how strongly an atom pulls <i>shared</i> bonding electrons toward itself. Same logic: it increases across a period and decreases down a group, peaking at <b>fluorine</b> (the most electronegative element) in the top-right. This single number, in Part II, will decide whether a bond is ionic, polar, or nonpolar.</p>
+<div class="callout"><span class="l">One cause, three trends</span>Radius, ionization energy, and electronegativity are three faces of the same tug-of-war between nuclear pull (Z<sub>eff</sub>) and distance/shielding. Learn the cause and you never have to memorize the directions.</div>`;
+
+C.bonding=`<p>Atoms bond to reach a more stable electron arrangement — usually a full outer shell of eight, the <b>octet rule</b> (hydrogen aims for two). Only the outermost <b>valence electrons</b> take part. There are three ways to get there, and electronegativity difference (ΔEN) tells you which.</p>
+<p><b>Ionic bonding</b> — metal + nonmetal, large ΔEN. Electrons are <i>transferred</i> outright: sodium hands its lone valence electron to chlorine, giving Na⁺ and Cl⁻, which then lock into a rigid crystal <b>lattice</b> by electrostatic attraction. Ionic compounds are hard, have high melting points, and conduct electricity only when molten or dissolved (the ions must be free to move).</p>
+<div class="eq box">ionic: transfer electrons &nbsp;·&nbsp; covalent: share electrons &nbsp;·&nbsp; metallic: pool electrons</div>
+<p><b>Covalent bonding</b> — nonmetal + nonmetal, small ΔEN. Neither atom can win the tug-of-war, so they <i>share</i> a pair of electrons; each shared pair is one bond (a double bond shares two pairs, a triple bond three). Covalent substances form discrete <b>molecules</b> with low melting/boiling points and generally don't conduct.</p>
+<p><b>Metallic bonding</b> — metal + metal. The atoms release their valence electrons into a shared <b>"sea" of delocalized electrons</b> flowing around fixed positive ions. That mobile sea explains why metals conduct heat and electricity, are shiny, and bend without shattering (the ions slide but the sea keeps holding them).</p>
+<div class="callout"><span class="l">A spectrum, not three boxes</span>ΔEN ≈ 0 gives a pure covalent bond; ΔEN roughly above 1.7 gives ionic; in between is a <b>polar covalent</b> bond — shared, but unequally. Bonding is a continuous scale, and the next lessons live in that middle ground.</div>`;
+
+C.lewis=`<p>A <b>Lewis structure</b> is a bookkeeping diagram of every valence electron in a molecule — bonding pairs shown as lines, unshared <b>lone pairs</b> as dots. Draw it correctly and the molecule's shape and reactivity fall out. Here is the reliable recipe.</p>
+<ol><li><b>Count</b> all valence electrons (add one per negative charge, subtract one per positive).</li>
+<li><b>Skeleton:</b> put the least electronegative atom in the center (never hydrogen), bond the others to it with single bonds.</li>
+<li><b>Fill octets</b> on the outer atoms first (with lone pairs), then the center.</li>
+<li>If the center is short of an octet, <b>form double or triple bonds</b> by sharing an outer atom's lone pair.</li></ol>
+<div class="wk"><div class="wl">Worked example · carbon dioxide, CO₂</div>
+<div class="step">Valence electrons: C(4) + 2 × O(6) = 16.</div>
+<div class="step">Skeleton O–C–O uses 4; give each O three lone pairs (12 more) = 16 used, but C has only 4 electrons — no octet.</div>
+<div class="step">Convert one lone pair on each O into a second bond: <b>O=C=O</b>. Now C shares 8, each O shares 4 and keeps 2 lone pairs. Every atom has its octet. ✓</div></div>
+<p><b>Formal charge</b> helps choose between competing structures: for each atom, formal charge = (valence electrons) − (lone-pair electrons) − ½(bonding electrons). The best structure keeps formal charges closest to zero. Some molecules need several equivalent structures at once — <b>resonance</b> (like the two ways to draw ozone, O₃) — meaning the real bonding is an average of them.</p>
+<div class="callout"><span class="l">Watch for exceptions</span>Hydrogen wants 2, not 8. Boron is happy with 6 (BF₃). Elements in period 3 and beyond (P, S, Cl) can hold <b>expanded octets</b> of 10 or 12, which is how SF₆ and PCl₅ exist at all.</div>`;
+
+C.vsepr=`<p>Once you know which atoms bond and where the lone pairs sit, you can predict a molecule's three-dimensional <b>shape</b> — and shape controls polarity, smell, and biological function. The rule is almost childishly simple: <b>VSEPR</b> (Valence-Shell Electron-Pair Repulsion) says the electron groups around a central atom spread out as far from each other as possible, because negative charges repel.</p>
+<p>Count the <b>electron domains</b> on the central atom — its <b>steric number</b> = (bonded atoms) + (lone pairs). A double or triple bond counts as one domain. That number sets the underlying geometry:</p>
+<div class="eq box">2 → linear (180°) &nbsp; 3 → trigonal planar (120°) &nbsp; 4 → tetrahedral (109.5°) &nbsp; 5 → trigonal bipyramidal &nbsp; 6 → octahedral (90°)</div>
+<p>But we name the shape by the <b>atoms</b>, not the invisible lone pairs. Start from the electron geometry and delete the lone-pair positions:</p>
+<ul><li>4 domains, 0 lone pairs → <b>tetrahedral</b> (CH₄, 109.5°)</li>
+<li>4 domains, 1 lone pair → <b>trigonal pyramidal</b> (NH₃, ~107°)</li>
+<li>4 domains, 2 lone pairs → <b>bent</b> (H₂O, ~104.5°)</li>
+<li>3 domains, 1 lone pair → <b>bent</b> (SO₂, ~119°)</li></ul>
+<p>Notice the angles shrink slightly with more lone pairs: a lone pair is fatter than a bonding pair (it's held by only one nucleus) and squeezes the bonding pairs closer together. That is why water's 104.5° is less than the ideal 109.5°. Pick a molecule below and see the geometry build.</p>
+<div id="__sim"></div>`;
+
+C.imf=`<p>Bond shape decides <b>polarity</b>, and polarity decides how molecules stick to each other — which sets melting points, boiling points, solubility, and whether something is a gas or a liquid at room temperature.</p>
+<p><b>Bond polarity.</b> When two bonded atoms differ in electronegativity, the shared electrons sit closer to the greedier atom, giving it a partial negative charge (δ−) and its partner a partial positive (δ+) — a <b>bond dipole</b>. <b>Molecular polarity</b> is the vector sum of all the bond dipoles. Here shape is everything: CO₂ has two polar C=O bonds, but because it's <i>linear</i> they point opposite ways and cancel — CO₂ is <b>nonpolar</b>. Water has two polar O–H bonds, but because it's <i>bent</i> they add up — water is strongly <b>polar</b>.</p>
+<p>Between separate molecules act the weaker <b>intermolecular forces (IMFs)</b>, in rising strength:</p>
+<div class="eq box">London dispersion &lt; dipole–dipole &lt; hydrogen bonding</div>
+<ul><li><b>London dispersion forces</b> exist between <i>all</i> molecules — fleeting, random shifts in the electron cloud create instantaneous dipoles. They get stronger with more electrons / bigger, more polarizable molecules (why I₂ is a solid but F₂ a gas).</li>
+<li><b>Dipole–dipole</b> forces act between permanently polar molecules (δ+ of one drawn to δ− of another).</li>
+<li><b>Hydrogen bonding</b> is an especially strong dipole force when H is bonded to <b>N, O, or F</b> — small, highly electronegative atoms leave the tiny proton very exposed.</li></ul>
+<div class="wk"><div class="wl">Worked example · why water boils so high</div>
+<div class="step">H₂O (18 u) boils at 100 °C, but H₂S (34 u) — heavier — boils at −60 °C.</div>
+<div class="step">H₂S has only dipole–dipole and dispersion forces; H₂O forms strong <b>hydrogen bonds</b> (H on O).</div>
+<div class="step"><span class="r">Those H-bonds take far more energy to break, so despite being lighter, water stays liquid over a huge range — the reason for oceans, and for life.</span></div></div>
+<div class="callout"><span class="l">Boiling point = IMF strength</span>Boiling means tearing molecules apart from each other, not breaking bonds inside them. Stronger IMFs → higher boiling point. To rank boiling points, rank the intermolecular forces.</div>`;
+
+C.reactions=`<p>A <b>chemical reaction</b> rearranges atoms from reactants into products, and it comes in a handful of recognizable <b>types</b>:</p>
+<ul><li><b>Synthesis</b> (combination): A + B → AB. &nbsp; 2H₂ + O₂ → 2H₂O</li>
+<li><b>Decomposition:</b> AB → A + B. &nbsp; 2H₂O₂ → 2H₂O + O₂</li>
+<li><b>Single replacement:</b> A + BC → AC + B. &nbsp; Zn + 2HCl → ZnCl₂ + H₂</li>
+<li><b>Double replacement:</b> AB + CD → AD + CB (partners swap; often a precipitate).</li>
+<li><b>Combustion:</b> fuel + O₂ → CO₂ + H₂O (+ heat).</li>
+<li><b>Acid–base (neutralization):</b> acid + base → salt + water.</li></ul>
+<p>Whatever the type, atoms are never created or destroyed (<b>conservation of mass</b>). So a valid equation must be <b>balanced</b>: the same number of each element on both sides. You may adjust only the <b>coefficients</b> (the big numbers in front) — <i>never</i> the subscripts, because changing a subscript changes the substance itself.</p>
+<div class="wk"><div class="wl">Worked example · balance the combustion of methane</div>
+<div class="step">Unbalanced: CH₄ + O₂ → CO₂ + H₂O</div>
+<div class="step">Carbon: 1 = 1 ✓. Hydrogen: 4 on the left, 2 on the right → put a 2 on H₂O. Now O on the right = 2(from CO₂) + 2(from 2H₂O) = 4.</div>
+<div class="step">Oxygen: need 4 on the left → coefficient 2 on O₂. Final: <b>CH₄ + 2O₂ → CO₂ + 2H₂O</b>. Check: C 1=1, H 4=4, O 4=4. ✓</div></div>
+<p>A good routine: balance the metals/carbons first, then hydrogen, and leave oxygen (which appears in many species) for last. The lab below hands you unbalanced reactions — set the coefficients and watch the atom counts lock.</p>
+<div id="__sim"></div>`;
+
+C.mole=`<p>Atoms are far too small and numerous to count one by one, so chemists count them in bulk with the <b>mole</b> — chemistry's "dozen," just enormously bigger. One mole is <b>Avogadro's number</b> of things:</p>
+<div class="eq box">1 mole = 6.022 × 10²³ particles</div>
+<p>The mole is defined so that one mole of an element weighs its atomic mass in <b>grams</b>. Carbon's atomic mass is 12.01, so one mole of carbon is 12.01 g and contains 6.022 × 10²³ atoms. This bridge number is the <b>molar mass</b> (g/mol), found by adding up the atomic masses in a formula (water = 2 × 1.008 + 16.00 = 18.02 g/mol).</p>
+<div class="eq box">moles = ${frac("mass (g)","molar mass (g/mol)")} &nbsp;·&nbsp; particles = moles × 6.022 × 10²³</div>
+<p><b>Stoichiometry</b> is the payoff: a balanced equation is a recipe in <i>moles</i>. Its coefficients give <b>mole ratios</b> that let you convert the amount of one substance into the amount of any other. The universal path is always: <b>grams → moles → (mole ratio) → moles → grams</b>.</p>
+<div class="wk"><div class="wl">Worked example · grams of water from 8 g of methane</div>
+<div class="step">Reaction: CH₄ + 2O₂ → CO₂ + 2H₂O. Molar mass CH₄ = 16.0 g/mol, H₂O = 18.0 g/mol.</div>
+<div class="step">Moles of CH₄ = 8.0 / 16.0 = 0.50 mol.</div>
+<div class="step">Mole ratio H₂O : CH₄ = 2 : 1, so moles H₂O = 0.50 × 2 = 1.0 mol.</div>
+<div class="step">Mass of water = 1.0 × 18.0 = <b>18 g</b>.</div></div>
+<p>When two reactants are given, one usually runs out first — the <b>limiting reactant</b> — and it caps how much product can form; the other is left in excess. Working out which reactant limits is just doing the mole calculation for each and seeing which yields less product.</p>
+<div class="callout"><span class="l">Why the mole matters</span>Balanced equations relate <i>counts</i> of molecules, but we can only weigh <i>mass</i>. The mole is the exchange rate between the world we can measure and the world where reactions actually happen.</div>`;
+
+C.thermo=`<p>Every reaction also moves <b>energy</b>, because breaking bonds costs energy and forming bonds releases it. <b>Thermochemistry</b> tracks that flow. Breaking bonds always <i>absorbs</i> energy; making bonds always <i>releases</i> it. Whether a reaction gives out or takes in net heat depends on which side's bonds are stronger.</p>
+<ul><li><b>Exothermic</b> reactions release energy to the surroundings (they feel warm). The products sit at lower energy than the reactants, so the enthalpy change is negative: <b>ΔH &lt; 0</b>. Combustion, most explosions, and hand-warmers are exothermic.</li>
+<li><b>Endothermic</b> reactions absorb energy (they feel cold). Products are higher in energy: <b>ΔH &gt; 0</b>. Photosynthesis and instant cold-packs are endothermic.</li></ul>
+<div class="eq box">ΔH = H(products) − H(reactants) &nbsp;·&nbsp; ΔH &lt; 0 exothermic, ΔH &gt; 0 endothermic</div>
+<p><b>Enthalpy (H)</b> is essentially the heat content of a substance at constant pressure; we can only measure <i>changes</i>, ΔH, usually in kJ per mole. Picture a reaction as a landscape: reactants on one hilltop, products on another, ΔH the difference in height. An exothermic reaction rolls downhill.</p>
+<p>Because energy is conserved, ΔH doesn't depend on the path taken — only on start and end. This is <b>Hess's law</b>: if a reaction can be written as a sum of steps, its ΔH is the sum of the steps' ΔH values. It lets us compute heats of reaction we could never measure directly.</p>
+<div class="callout"><span class="l">Energy vs. speed</span>A reaction being exothermic says it <i>releases</i> energy overall — it says nothing about how <i>fast</i> it goes. Diamond turning to graphite is exothermic yet takes eons. Speed is a separate question, and it's the next lesson.</div>`;
+
+C.kinetics=`<p><b>Kinetics</b> is the study of reaction <b>rate</b> — how fast reactants turn into products, measured as the change in concentration per unit time. A reaction can be wildly favorable in energy yet crawl (rusting) or be nearly instant (a firework). What sets the pace is <b>collision theory</b>.</p>
+<p>For a reaction to happen, molecules must <b>collide</b> — but not any collision will do. It must be (1) hard enough to clear a minimum energy barrier, the <b>activation energy</b> E<sub>a</sub>, and (2) in the right <b>orientation</b> for the bonds to rearrange. Most collisions fail on one count or the other, which is why reactions aren't instantaneous.</p>
+<div class="eq box">reactants → [ transition state, energy peak = E<sub>a</sub> ] → products</div>
+<p>Four levers change the rate:</p>
+<ul><li><b>Concentration (or pressure for gases):</b> more crowding → more collisions per second → faster.</li>
+<li><b>Temperature:</b> the strongest lever — hotter molecules move faster <i>and</i> a far larger fraction now have enough energy to clear E<sub>a</sub>. A rough rule of thumb: rate roughly doubles per 10 °C.</li>
+<li><b>Surface area:</b> a powder reacts faster than a lump — more exposed contact.</li>
+<li><b>Catalyst:</b> a substance that provides an alternative pathway with a <i>lower</i> E<sub>a</sub>, speeding the reaction without being consumed. Enzymes are nature's catalysts.</li></ul>
+<div class="callout"><span class="l">The key picture</span>Draw the energy profile: a hill between reactants and products whose height is E<sub>a</sub>. Temperature gives molecules the legs to climb it; a catalyst digs a lower pass through it. Neither changes ΔH — the start and end heights — only the barrier in between.</div>`;
+
+C.equilibrium=`<p>Many reactions are <b>reversible</b>: products can turn back into reactants. Run one in a closed container and the forward rate falls (reactants deplete) while the reverse rate rises (products build), until the two rates become <i>equal</i>. That is <b>chemical equilibrium</b> — a <b>dynamic</b> balance where concentrations stop changing even though both reactions still run full tilt underneath.</p>
+<p>At equilibrium the concentrations settle into a fixed ratio, captured by the <b>equilibrium constant</b> K (each concentration raised to its coefficient):</p>
+<div class="eq box">for aA + bB ⇌ cC + dD: &nbsp; K = ${frac("[C]<sup>c</sup> [D]<sup>d</sup>","[A]<sup>a</sup> [B]<sup>b</sup>")}</div>
+<p>A large K means products are favored; a small K means reactants dominate. K depends only on temperature.</p>
+<p><b>Le Chatelier's principle</b> predicts how equilibrium responds to a disturbance: <i>a system at equilibrium shifts to partially counteract any stress applied to it.</i></p>
+<ul><li><b>Add a reactant</b> (or remove a product) → shifts <b>right</b>, toward products, to use up the excess.</li>
+<li><b>Add a product</b> (or remove a reactant) → shifts <b>left</b>.</li>
+<li><b>Increase pressure</b> (decrease volume) → shifts toward the side with <b>fewer gas molecules</b>.</li>
+<li><b>Increase temperature</b> → shifts in the <b>endothermic</b> direction (heat is "used up"). For an exothermic forward reaction, heating shifts it <i>left</i>.</li></ul>
+<div class="callout"><span class="l">Industry runs on this</span>The Haber process, N₂ + 3H₂ ⇌ 2NH₃ (exothermic, 4 gas molecules → 2), is nudged toward ammonia with high pressure and moderate temperature — a direct application of Le Chatelier that feeds billions. Try the shifts in the lab below.</div>
+<div id="__sim"></div>`;
+
+C.acids=`<p><b>Acids</b> and <b>bases</b> are defined by the hydrogen ion, H⁺ (a bare proton). The <b>Brønsted–Lowry</b> view: an acid is a proton <b>donor</b>, a base a proton <b>acceptor</b>. In water, an acid raises the concentration of H⁺ (really H₃O⁺); a base raises hydroxide, OH⁻.</p>
+<p>Water itself slightly self-ionizes, and the product of the two ion concentrations is fixed at 25 °C:</p>
+<div class="eq box">K<sub>w</sub> = [H⁺][OH⁻] = 1.0 × 10⁻¹⁴</div>
+<p>Because those concentrations span many powers of ten, we compress them onto the logarithmic <b>pH scale</b>:</p>
+<div class="eq box">pH = −log₁₀[H⁺] &nbsp;·&nbsp; pOH = −log₁₀[OH⁻] &nbsp;·&nbsp; pH + pOH = 14</div>
+<p>Pure water is neutral at <b>pH 7</b>; below 7 is acidic (more H⁺), above 7 basic. Each whole pH step is a <b>tenfold</b> change in [H⁺] — pH 3 is ten times as acidic as pH 4. <b>Strong</b> acids/bases (HCl, NaOH) ionize completely; <b>weak</b> ones (acetic acid, ammonia) only partially, described by their own constant K<sub>a</sub> or K<sub>b</sub>.</p>
+<div class="wk"><div class="wl">Worked example · pH of 0.010 M HCl</div>
+<div class="step">HCl is a strong acid — it ionizes completely, so [H⁺] = 0.010 M = 1.0 × 10⁻² M.</div>
+<div class="step">pH = −log₁₀(1.0 × 10⁻²) = <b>2.00</b>.</div>
+<div class="step"><span class="r">And [OH⁻] = 10⁻¹⁴ / 10⁻² = 10⁻¹² M, so pOH = 12 — check: 2 + 12 = 14. ✓</span></div></div>
+<p>A <b>buffer</b> is a solution that resists pH change: a weak acid together with its conjugate base (e.g. acetic acid + acetate). Add acid and the base component mops up the H⁺; add base and the acid neutralizes it. Buffers are why your blood holds pH 7.4 despite constant chemical insult. The lab lets you dial concentration and watch the pH and indicator color respond.</p>
+<div id="__sim"></div>`;
+
+C.redox=`<p>The last great class of reactions is <b>reduction–oxidation</b>, or <b>redox</b> — reactions that transfer <i>electrons</i> from one species to another. The mnemonic is <b>OIL RIG</b>:</p>
+<div class="eq box">Oxidation Is Loss of electrons &nbsp;·&nbsp; Reduction Is Gain of electrons</div>
+<p>The two always happen together — electrons lost by one atom are gained by another. The species that <i>loses</i> electrons (is oxidized) is the <b>reducing agent</b>; the one that <i>gains</i> them (is reduced) is the <b>oxidizing agent</b>. We track the flow with <b>oxidation numbers</b>, a bookkeeping charge assigned to each atom; a change in oxidation number signals a redox reaction. In Zn + Cu²⁺ → Zn²⁺ + Cu, zinc goes 0 → +2 (oxidized) and copper +2 → 0 (reduced).</p>
+<p>Split a redox reaction into two <b>half-reactions</b> to see the electrons explicitly:</p>
+<div class="eq box">Zn → Zn²⁺ + 2e⁻ &nbsp;(oxidation) &nbsp;·&nbsp; Cu²⁺ + 2e⁻ → Cu &nbsp;(reduction)</div>
+<p><b>Electrochemistry</b> puts these half-reactions to work by separating them so the electrons must travel through a wire — a current. In a <b>galvanic (voltaic) cell</b> — a battery — a spontaneous redox reaction pushes electrons from the <b>anode</b> (where oxidation happens) to the <b>cathode</b> (reduction), generating a voltage. An <b>electrolytic cell</b> runs the trick backwards: an external power supply forces a non-spontaneous reaction, as in electroplating or splitting water into H₂ and O₂.</p>
+<div class="callout"><span class="l">In one phrase</span>An <b>An Ox</b>idation, a <b>Red Cat</b> reduction: oxidation at the Anode, reduction at the Cathode — in every cell, always. Redox powers your phone, rusts your car, and burns the sugar in your cells.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+const supDigits={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+const supNum=n=>String(n).split("").map(d=>supDigits[d]||d).join("");
+
+/* --- 1. electron configuration / orbital filling --- */
+const ELEM=[["","",""],
+ ["H","Hydrogen"],["He","Helium"],["Li","Lithium"],["Be","Beryllium"],["B","Boron"],["C","Carbon"],["N","Nitrogen"],["O","Oxygen"],["F","Fluorine"],["Ne","Neon"],
+ ["Na","Sodium"],["Mg","Magnesium"],["Al","Aluminium"],["Si","Silicon"],["P","Phosphorus"],["S","Sulfur"],["Cl","Chlorine"],["Ar","Argon"],["K","Potassium"],["Ca","Calcium"],
+ ["Sc","Scandium"],["Ti","Titanium"],["V","Vanadium"],["Cr","Chromium"],["Mn","Manganese"],["Fe","Iron"],["Co","Cobalt"],["Ni","Nickel"],["Cu","Copper"],["Zn","Zinc"],
+ ["Ga","Gallium"],["Ge","Germanium"],["As","Arsenic"],["Se","Selenium"],["Br","Bromine"],["Kr","Krypton"]];
+const AUFBAU=[["1s",2],["2s",2],["2p",6],["3s",2],["3p",6],["4s",2],["3d",10],["4p",6]];
+const NORB={s:1,p:3,d:5,f:7};
+function electronConfig(Z){
+  let e=Z;const obj={};const order=[];
+  for(const [lab,cap] of AUFBAU){if(e<=0)break;const c=Math.min(cap,e);obj[lab]=c;order.push(lab);e-=c;}
+  // half/full-filled d exceptions within Z<=36
+  if(Z===24){obj["4s"]=1;obj["3d"]=5;}       // Cr
+  if(Z===29){obj["4s"]=1;obj["3d"]=10;}      // Cu
+  // sort by n then l for written / drawn order
+  const lval={s:0,p:1,d:2,f:3};
+  const arr=Object.keys(obj).map(k=>[k,obj[k]]);
+  arr.sort((a,b)=>{const na=+a[0][0],nb=+b[0][0];if(na!==nb)return na-nb;return lval[a[0][1]]-lval[b[0][1]];});
+  return arr;
+}
+function simEconfig(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>element (atomic number Z) <input type="range" id="z" min="1" max="36" step="1" value="8"></label></div></div>`;
+  const cv=$("canvas",el);let Z=8;$("#z",el).oninput=e=>Z=+e.target.value;
+  function drawArrow(x,ax,top,bot,up){x.beginPath();if(up){x.moveTo(ax,bot);x.lineTo(ax,top);x.moveTo(ax,top);x.lineTo(ax-3,top+5);x.moveTo(ax,top);x.lineTo(ax+3,top+5);}else{x.moveTo(ax,top);x.lineTo(ax,bot);x.moveTo(ax,bot);x.lineTo(ax-3,bot-5);x.moveTo(ax,bot);x.lineTo(ax+3,bot-5);}x.stroke();}
+  function draw(){
+    const cfg=electronConfig(Z);const rows=cfg.length;const h=rows*38+18;
+    const {x,w}=fit(cv,h);x.clearRect(0,0,w,h);
+    const bw=26,bh=26,gap=6,x0=58;
+    x.textBaseline="middle";
+    cfg.forEach((row,i)=>{
+      const [lab,cnt]=row;const y=12+i*38;const norb=NORB[lab[1]];
+      x.fillStyle="#9db8a4";x.font="600 13px ui-monospace,monospace";x.textAlign="right";
+      x.fillText(lab+supNum(cnt),x0-8,y+bh/2);
+      for(let j=0;j<norb;j++){
+        const bx=x0+j*(bw+gap);
+        x.strokeStyle="#26402c";x.lineWidth=1.4;x.strokeRect(bx,y,bw,bh);
+        const hasUp=j<Math.min(cnt,norb);const hasDown=j<(cnt-norb);
+        x.strokeStyle="#6fcf7f";x.lineWidth=1.8;
+        const top=y+5,bot=y+bh-5;
+        if(hasUp&&hasDown){drawArrow(x,bx+bw/2-5,top,bot,true);drawArrow(x,bx+bw/2+5,top,bot,false);}
+        else if(hasUp){drawArrow(x,bx+bw/2,top,bot,true);}
+      }
+    });
+    const [sym,name]=ELEM[Z];
+    const str=cfg.map(r=>r[0]+supNum(r[1])).join(" ");
+    const unpaired=(()=>{let u=0;cfg.forEach(([lab,cnt])=>{const n=NORB[lab[1]];u+=Math.min(cnt,n)-Math.max(0,cnt-n);});return u;})();
+    let note="";if(Z===24)note=" — half-filled 3d⁵ is extra stable, so 4s lends one electron";
+    if(Z===29)note=" — full 3d¹⁰ is extra stable, so 4s lends one electron";
+    $("#ro",el).innerHTML=`Z = <b>${Z}</b> · ${name} (<b>${sym}</b>)<br>${str}<br><span style="color:var(--faint)">${unpaired} unpaired electron${unpaired===1?"":"s"} (Hund's rule)${note}</span>`;
+  }
+  raf(draw);
+}
+
+/* --- 2. VSEPR shapes --- */
+const VS=[
+ {k:"CO2",label:"CO₂",cen:"C",lig:"O",shape:"linear",ang:"180°",ax:"AX₂",bonds:[[0,1],[180,1]],lps:[],dbl:true},
+ {k:"BF3",label:"BF₃",cen:"B",lig:"F",shape:"trigonal planar",ang:"120°",ax:"AX₃",bonds:[[90,1],[210,1],[330,1]],lps:[]},
+ {k:"CH4",label:"CH₄",cen:"C",lig:"H",shape:"tetrahedral",ang:"109.5°",ax:"AX₄",bonds:[[60,1],[120,1],[235,1],[305,1]],lps:[]},
+ {k:"NH3",label:"NH₃",cen:"N",lig:"H",shape:"trigonal pyramidal",ang:"107°",ax:"AX₃E",bonds:[[210,1],[270,1],[330,1]],lps:[[90]]},
+ {k:"H2O",label:"H₂O",cen:"O",lig:"H",shape:"bent",ang:"104.5°",ax:"AX₂E₂",bonds:[[235,1],[305,1]],lps:[[55],[125]]},
+ {k:"SO2",label:"SO₂",cen:"S",lig:"O",shape:"bent",ang:"119°",ax:"AX₂E",bonds:[[230,1],[310,1]],lps:[[90]],dbl:true},
+ {k:"PCl5",label:"PCl₅",cen:"P",lig:"Cl",shape:"trigonal bipyramidal",ang:"90° & 120°",ax:"AX₅",bonds:[[90,1],[270,1],[0,1],[140,1],[220,1]],lps:[]},
+ {k:"SF6",label:"SF₆",cen:"S",lig:"F",shape:"octahedral",ang:"90°",ax:"AX₆",bonds:[[0,1],[90,1],[180,1],[270,1],[45,0.55],[225,0.55]],lps:[]},
+];
+function simVsepr(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>molecule <select id="mol">${VS.map((m,i)=>`<option value="${i}">${m.label}</option>`).join("")}</select></label></div></div>`;
+  const cv=$("canvas",el);let idx=0;$("#mol",el).onchange=e=>idx=+e.target.value;
+  function draw(){
+    const {x,w,h}=fit(cv,240);x.clearRect(0,0,w,h);
+    const m=VS[idx];const cx=w/2,cy=h/2,R=Math.min(w,h)*0.34;
+    // bonds + ligands
+    m.bonds.forEach(([ang,lf])=>{
+      const a=ang*Math.PI/180;const lx=cx+R*lf*Math.cos(a),ly=cy-R*lf*Math.sin(a);
+      x.strokeStyle="#3aa876";x.lineWidth=m.dbl?4:2.5;x.beginPath();x.moveTo(cx,cy);x.lineTo(lx,ly);x.stroke();
+      if(m.dbl){x.strokeStyle="#060f0a";x.lineWidth=1.2;x.beginPath();x.moveTo(cx,cy);x.lineTo(lx,ly);x.stroke();}
+      x.fillStyle="#101f14";x.strokeStyle="#6fcf7f";x.lineWidth=1.6;x.beginPath();x.arc(lx,ly,15,0,7);x.fill();x.stroke();
+      x.fillStyle="#e9f3ea";x.font="600 13px -apple-system,sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(m.lig,lx,ly);
+    });
+    // lone pairs (two dots) around central atom
+    m.lps.forEach(([ang])=>{
+      const a=ang*Math.PI/180;const px=cx+34*Math.cos(a),py=cy-34*Math.sin(a);
+      const perp=a+Math.PI/2;
+      [-1,1].forEach(s=>{x.fillStyle="#b78bef";x.beginPath();x.arc(px+6*s*Math.cos(perp),py-6*s*Math.sin(perp),3.5,0,7);x.fill();});
+    });
+    // central atom
+    x.fillStyle="#173a24";x.strokeStyle="#6fcf7f";x.lineWidth=2;x.beginPath();x.arc(cx,cy,19,0,7);x.fill();x.stroke();
+    x.fillStyle="#eef7ef";x.font="700 15px -apple-system,sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(m.cen,cx,cy);
+    const nlp=m.lps.length,nb=m.bonds.length;
+    $("#ro",el).innerHTML=`<b>${m.label}</b> · ${nb} bonding group${nb===1?"":"s"} + ${nlp} lone pair${nlp===1?"":"s"} → steric number ${nb+nlp} (${m.ax})<br>shape: <b style="color:var(--teal)">${m.shape}</b> &nbsp; bond angle ≈ <b>${m.ang}</b>${nlp?`<br><span style="color:var(--faint)">purple dots = lone pairs; they compress the bond angle below the ideal</span>`:""}`;
+  }
+  raf(draw);
+}
+
+/* --- 3. equation balancer --- */
+const BAL=[
+ {name:"H₂ + O₂ → H₂O",L:[{f:"H₂",e:{H:2}},{f:"O₂",e:{O:2}}],R:[{f:"H₂O",e:{H:2,O:1}}],sol:[[2,1],[2]]},
+ {name:"CH₄ + O₂ → CO₂ + H₂O",L:[{f:"CH₄",e:{C:1,H:4}},{f:"O₂",e:{O:2}}],R:[{f:"CO₂",e:{C:1,O:2}},{f:"H₂O",e:{H:2,O:1}}],sol:[[1,2],[1,2]]},
+ {name:"N₂ + H₂ → NH₃",L:[{f:"N₂",e:{N:2}},{f:"H₂",e:{H:2}}],R:[{f:"NH₃",e:{N:1,H:3}}],sol:[[1,3],[2]]},
+ {name:"Fe + O₂ → Fe₂O₃",L:[{f:"Fe",e:{Fe:1}},{f:"O₂",e:{O:2}}],R:[{f:"Fe₂O₃",e:{Fe:2,O:3}}],sol:[[4,3],[2]]},
+ {name:"C₃H₈ + O₂ → CO₂ + H₂O",L:[{f:"C₃H₈",e:{C:3,H:8}},{f:"O₂",e:{O:2}}],R:[{f:"CO₂",e:{C:1,O:2}},{f:"H₂O",e:{H:2,O:1}}],sol:[[1,5],[3,4]]},
+];
+function simBalance(el){
+  let idx=0;
+  function build(){
+    const p=BAL[idx];
+    const spanL=p.L.map((s,i)=>`<span><input class="cf" type="number" min="1" max="12" value="1" data-s="L" data-i="${i}">${s.f}</span>`).join(' <span style="color:var(--faint)">+</span> ');
+    const spanR=p.R.map((s,i)=>`<span><input class="cf" type="number" min="1" max="12" value="1" data-s="R" data-i="${i}">${s.f}</span>`).join(' <span style="color:var(--faint)">+</span> ');
+    el.innerHTML=`<div class="simwrap">
+      <div class="eqbuild">${spanL} <span style="color:var(--acc)">→</span> ${spanR}</div>
+      <div class="readout" id="ro"></div>
+      <div class="simctl">
+        <label>reaction <select id="rx">${BAL.map((b,i)=>`<option value="${i}"${i===idx?" selected":""}>${b.name}</option>`).join("")}</select></label>
+        <button class="btn sm" id="ans">Show answer</button>
+      </div></div>`;
+    $("#rx",el).onchange=e=>{idx=+e.target.value;build();};
+    $$(".cf",el).forEach(inp=>inp.oninput=check);
+    $("#ans",el).onclick=()=>{$$(".cf",el).forEach(inp=>{const s=inp.dataset.s,i=+inp.dataset.i;inp.value=p.sol[s==="L"?0:1][i];});check();};
+    check();
+  }
+  function check(){
+    const p=BAL[idx];const get=(s,i)=>{const inp=el.querySelector(`.cf[data-s="${s}"][data-i="${i}"]`);return Math.max(1,+inp.value||1);};
+    const els=new Set();p.L.concat(p.R).forEach(sp=>Object.keys(sp.e).forEach(k=>els.add(k)));
+    let ok=true;const lines=[...els].map(elm=>{
+      let lc=0,rc=0;
+      p.L.forEach((sp,i)=>lc+=get("L",i)*(sp.e[elm]||0));
+      p.R.forEach((sp,i)=>rc+=get("R",i)*(sp.e[elm]||0));
+      if(lc!==rc)ok=false;
+      return `${elm}: <b style="color:${lc===rc?"var(--green)":"var(--red)"}">${lc}</b> = ${rc}`;
+    }).join(" &nbsp; ");
+    $("#ro",el).innerHTML=`${lines}<br>${ok?`<b style="color:var(--green)">✓ Balanced — atoms conserved</b>`:`<span style="color:var(--faint)">not balanced yet — make each element's left count equal its right</span>`}`;
+  }
+  build();
+}
+
+/* --- 4. pH / strong acid-base --- */
+function phColor(pH){
+  const stops=[[0,[216,30,30]],[3,[232,100,26]],[5,[232,192,32]],[6,[201,212,0]],[7,[63,191,79]],[8,[34,181,138]],[10,[31,127,216]],[12,[80,48,192]],[14,[106,31,176]]];
+  pH=Math.max(0,Math.min(14,pH));
+  for(let i=0;i<stops.length-1;i++){const [a,ca]=stops[i],[b,cb]=stops[i+1];if(pH<=b){const t=(pH-a)/(b-a);return `rgb(${ca.map((v,j)=>Math.round(v+(cb[j]-v)*t)).join(",")})`;}}
+  return "rgb(106,31,176)";
+}
+function simPh(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl">
+     <label>solution <select id="type"><option value="acid">strong acid (HCl)</option><option value="base">strong base (NaOH)</option></select></label>
+     <label>concentration exponent (10^n M): <b id="ee">-2</b> <input type="range" id="c" min="-6" max="0" step="0.1" value="-2"></label>
+   </div></div>`;
+  const cv=$("canvas",el);let ex=-2,type="acid";
+  $("#c",el).oninput=e=>{ex=+e.target.value;$("#ee",el).textContent=ex.toFixed(1);};
+  $("#type",el).onchange=e=>type=e.target.value;
+  function draw(){
+    const {x,w,h}=fit(cv,150);x.clearRect(0,0,w,h);
+    const conc=Math.pow(10,ex);
+    let pH,H;
+    if(type==="acid"){H=conc;pH=-Math.log10(conc);}else{const OH=conc;const pOH=-Math.log10(OH);pH=14-pOH;H=Math.pow(10,-pH);}
+    // pH scale bar
+    const bx=14,by=18,bw=w-28,bh=20;
+    for(let i=0;i<bw;i++){x.fillStyle=phColor(i/bw*14);x.fillRect(bx+i,by,1,bh);}
+    x.strokeStyle="#e9f3ea";x.lineWidth=2;const mx=bx+pH/14*bw;x.beginPath();x.moveTo(mx,by-4);x.lineTo(mx,by+bh+4);x.stroke();
+    x.fillStyle="#9db8a4";x.font="10px ui-monospace,monospace";x.textAlign="center";x.textBaseline="top";
+    [0,7,14].forEach(t=>x.fillText(t,bx+t/14*bw,by+bh+6));
+    // beaker of solution color
+    const col=phColor(pH);const gx=w/2,gy=112,gr=26;
+    x.fillStyle=col;x.beginPath();x.arc(gx,gy,gr,0,7);x.fill();
+    x.strokeStyle="#26402c";x.lineWidth=2;x.stroke();
+    x.fillStyle="#eef7ef";x.font="700 22px -apple-system,sans-serif";x.textAlign="left";x.textBaseline="middle";
+    x.fillText("pH "+pH.toFixed(2),gx+gr+16,gy);
+    $("#ro",el).innerHTML=`[${type==="acid"?"H⁺":"OH⁻"}] = <b>${conc.toExponential(1)}</b> M &nbsp; → &nbsp; [H⁺] = <b>${H.toExponential(1)}</b> M &nbsp; pH = <b>${pH.toFixed(2)}</b> &nbsp; (${pH<6.9?"acidic":pH>7.1?"basic":"neutral"})<br><span style="color:var(--faint)">strong = fully ionized, so pH = −log[H⁺]; each unit is a 10× change in acidity</span>`;
+  }
+  raf(draw);
+}
+
+/* --- 5. equilibrium shift (Le Chatelier) --- */
+function simLechat(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro">N₂ + 3H₂ ⇌ 2NH₃ &nbsp; (exothermic; 4 gas molecules → 2). Apply a stress:</div>
+   <div class="simctl" style="gap:7px">
+     <button class="btn sm" data-a="rN2">+ add N₂</button>
+     <button class="btn sm" data-a="rH2">+ add H₂</button>
+     <button class="btn sm" data-a="pNH3">+ add NH₃</button>
+     <button class="btn sm" data-a="temp">↑ temperature</button>
+     <button class="btn sm" data-a="press">↑ pressure</button>
+     <button class="btn sm" data-a="reset">reset</button>
+   </div></div>`;
+  const cv=$("canvas",el);
+  let x=0.5,target=0.5,dir=0,msg="Apply a stress to shift the equilibrium.";
+  const acts={
+    rN2:["Adding a reactant (N₂) → shifts RIGHT to consume it → more NH₃.",1,0.18],
+    rH2:["Adding a reactant (H₂) → shifts RIGHT to consume it → more NH₃.",1,0.18],
+    pNH3:["Adding product (NH₃) → shifts LEFT to consume it → more reactants.",-1,0.18],
+    temp:["Heating an exothermic reaction → shifts LEFT (uses heat) → less NH₃.",-1,0.16],
+    press:["Raising pressure → shifts toward fewer gas molecules (RIGHT, 4→2) → more NH₃.",1,0.16],
+  };
+  $$("[data-a]",el).forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+    if(a==="reset"){target=0.5;dir=0;msg="Reset to equilibrium.";return;}
+    const [t,d,step]=acts[a];msg=t;dir=d;target=Math.max(0.08,Math.min(0.92,target+d*step));});
+  function draw(){
+    x+=(target-x)*0.12;
+    const {x:c,w,h}=fit(cv,150);c.clearRect(0,0,w,h);
+    const bw=90,gap=60,baseY=h-24,maxH=h-46;
+    const rH=(1-x)*maxH,pH_=x*maxH;
+    const x1=w/2-gap/2-bw,x2=w/2+gap/2;
+    c.fillStyle="#3aa876";c.fillRect(x1,baseY-rH,bw,rH);
+    c.fillStyle="#6fcf7f";c.fillRect(x2,baseY-pH_,bw,pH_);
+    c.fillStyle="#9db8a4";c.font="600 12px -apple-system,sans-serif";c.textAlign="center";c.textBaseline="top";
+    c.fillText("reactants",x1+bw/2,baseY+6);c.fillText("products (NH₃)",x2+bw/2,baseY+6);
+    // shift arrow
+    if(dir!==0){c.strokeStyle="#f0d060";c.fillStyle="#f0d060";c.lineWidth=3;const ay=26,cxm=w/2;
+      c.beginPath();c.moveTo(cxm-dir*30,ay);c.lineTo(cxm+dir*30,ay);c.stroke();
+      c.beginPath();c.moveTo(cxm+dir*30,ay);c.lineTo(cxm+dir*22,ay-6);c.lineTo(cxm+dir*22,ay+6);c.fill();}
+    $("#ro",el).innerHTML=`N₂ + 3H₂ ⇌ 2NH₃<br><b style="color:${dir>0?'var(--acc)':dir<0?'var(--red)':'var(--mut)'}">${dir>0?'→ shifts right':dir<0?'← shifts left':'at equilibrium'}</b> &nbsp; ${msg}`;
+  }
+  raf(draw);
+}
+
+const SIMS={econfig:simEconfig,vsepr:simVsepr,balance:simBalance,ph:simPh,lechat:simLechat};
+const LABS=[
+ ["econfig","⚛","Orbital Filling","Pick an element (Z 1–36) and watch its orbitals fill by Hund's rule.","var(--acc)"],
+ ["vsepr","△","Molecular Shapes","Choose a molecule and see the VSEPR geometry and bond angle.","var(--teal)"],
+ ["balance","⇌","Equation Balancer","Set coefficients and watch the atom counts lock into balance.","var(--violet)"],
+ ["ph","◐","pH & Indicators","Slide the concentration and read the pH by indicator color.","var(--acc2)"],
+ ["lechat","⇋","Le Chatelier","Stress an equilibrium and watch it shift to push back.","var(--green)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#0f2417,#101f14);border-color:#2a4a30">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL CHEMISTRY COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Atoms → bonds → reactions → equilibrium. Worked examples, five interactive labs (🔧), and practice. Take it in order; every part builds on the electrons underneath.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · chemistry you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`The electron configuration of oxygen (Z = 8) is:`,a:["1s² 2s² 2p⁴","1s² 2s² 2p⁶","1s² 2s⁴ 2p²","1s² 2p⁶"],c:0,e:"8 electrons fill 1s²(2) 2s²(2) 2p⁴(4). By Hund's rule the 2p has two unpaired electrons."},
+ {q:`Across a period (left to right), atomic radius…`,a:["increases","decreases","stays constant","doubles"],c:1,e:"Protons pile up (higher Z_eff) while electrons stay in the same shell, pulling the cloud in tighter — radius decreases."},
+ {q:`A bond between sodium (a metal) and chlorine (a nonmetal) is:`,a:["metallic","nonpolar covalent","ionic","hydrogen bond"],c:2,e:"Large electronegativity difference → an electron is transferred (Na⁺ Cl⁻): an ionic bond."},
+ {q:`Water (H₂O) has 2 bonds and 2 lone pairs on oxygen. Its shape is:`,a:["linear","tetrahedral","trigonal planar","bent"],c:3,e:"Steric number 4 gives tetrahedral electron geometry; two lone pairs leave the atoms in a bent shape (~104.5°)."},
+ {q:`Balance: __ N₂ + __ H₂ → __ NH₃. The coefficients are:`,a:["1, 3, 2","1, 1, 2","2, 3, 1","1, 3, 1"],c:0,e:"N: 2=2 with a 2 on NH₃. H: 6=6 with a 3 on H₂. So 1 N₂ + 3 H₂ → 2 NH₃."},
+ {q:`For CH₄ + 2O₂ → CO₂ + 2H₂O, 0.5 mol of CH₄ produces how many mol of H₂O?`,a:["0.5","1.0","2.0","0.25"],c:1,e:"Mole ratio H₂O : CH₄ = 2 : 1, so 0.5 × 2 = 1.0 mol of water."},
+ {q:`A reaction that releases heat to its surroundings (feels warm) is:`,a:["endothermic, ΔH > 0","exothermic, ΔH < 0","at equilibrium","catalyzed"],c:1,e:"Exothermic reactions release energy; products are lower in energy, so ΔH is negative."},
+ {q:`A catalyst speeds a reaction by:`,a:["raising the temperature","lowering the activation energy","shifting the equilibrium","being consumed"],c:1,e:"A catalyst offers a lower-Eₐ pathway and is not used up; it does not change ΔH or the equilibrium position."},
+ {q:`For the exothermic N₂ + 3H₂ ⇌ 2NH₃, raising the temperature shifts equilibrium…`,a:["right (more NH₃)","left (less NH₃)","no change","toward more moles"],c:1,e:"Heating pushes an exothermic reaction in the endothermic (reverse) direction — left, making less NH₃."},
+ {q:`The pH of 0.001 M HCl (a strong acid) is:`,a:["1","2","3","11"],c:2,e:"[H⁺] = 10⁻³ M, so pH = −log(10⁻³) = 3."},
+ {q:`In the reaction Zn → Zn²⁺ + 2e⁻, the zinc is:`,a:["reduced","oxidized","a catalyst","unchanged"],c:1,e:"It loses electrons (0 → +2). Oxidation Is Loss — OIL RIG."},
+ {q:`Why does water (18 u) boil far higher than H₂S (34 u)?`,a:["water is heavier","water forms hydrogen bonds","H₂S is ionic","water is nonpolar"],c:1,e:"H bonded to O lets water form strong hydrogen bonds; H₂S has only weaker dipole and dispersion forces."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[
+    ["①","Atomic",P.done.atoms&&P.done.quantum&&P.done.config&&P.done.periodic],
+    ["②","Bonding",P.done.bonding&&P.done.lewis&&P.done.vsepr&&P.done.imf],
+    ["③","Reactions",P.done.reactions&&P.done.mole&&P.done.thermo&&P.done.kinetics],
+    ["④","Equilibrium",P.done.equilibrium&&P.done.acids&&P.done.redox],
+    ["🎯","Sharp",ds>=10],
+    ["⚗","Chemist",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#16281c" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6fcf7f"/><stop offset="1" stop-color="#3aa876"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#e9f3ea" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#9db8a4" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full chemistry course. 🎓":pc>=50?"Past the halfway mark — reactions and equilibrium ahead.":"From protons to pH, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

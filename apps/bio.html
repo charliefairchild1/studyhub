@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Biology">
+<meta name="theme-color" content="#071410">
+<title>Biology — a course</title>
+<style>
+:root{
+  --bg:#071410;--panel:#0e1f18;--card:#0f221a;--line:#1e3b30;--ink:#e8f2ec;--mut:#8fb0a2;--faint:#5a7568;
+  --acc:#5ad19a;--acc2:#39ae8c;--teal:#4cc7d0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#0c2a20 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(7,20,16,.96),rgba(7,20,16,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#062018;font-size:20px;box-shadow:0 3px 14px rgba(90,209,154,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#062018;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#39694a}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0a1a13;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#3f9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #244a4c;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#d3e2da;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#d3e2da;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#eef6f1;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#0a1a13;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#0a1a13;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#dcebe3}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#0c1a12;border:1px solid #2a4a35;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#050f0b;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#040b08}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.mono{font-family:ui-monospace,monospace}
+.ptable{width:100%;border-collapse:collapse;margin:8px 0;font-family:ui-monospace,monospace;text-align:center}
+.ptable td,.ptable th{border:1px solid var(--line);padding:9px;font-size:15px}
+.ptable th{color:var(--faint);font-weight:700}.ptable td{background:#0a1a13;color:var(--ink);font-weight:700}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#0f2113}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(7,20,16,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0a1a13;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#0a1a13;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">🧬</div>
+  <div><h1>Biology</h1><div class="sub">the logic of living things</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">🔬</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("bio_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("bio_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Molecules & cells",lessons:[
+   {id:"biomol",n:"The molecules of life",sub:"carbohydrates, lipids, proteins, nucleic acids"},
+   {id:"cell",n:"The cell",sub:"prokaryotes, eukaryotes, and organelles"},
+   {id:"membrane",n:"Membranes & transport",sub:"diffusion, osmosis, active transport",lab:"osmosis"},
+   {id:"energy",n:"Energy: photosynthesis & respiration",sub:"capturing and spending ATP"},
+ ]},
+ {ic:"②",t:"Part II · Genetics & the central dogma",lessons:[
+   {id:"dna",n:"DNA & replication",sub:"the double helix copies itself"},
+   {id:"transcription",n:"Transcription",sub:"DNA → RNA",lab:"dogma"},
+   {id:"translation",n:"Translation & the genetic code",sub:"RNA → protein"},
+   {id:"mutations",n:"Mutations",sub:"when the code changes"},
+   {id:"mendel",n:"Mendelian genetics",sub:"alleles, dominance, and the Punnett square",lab:"punnett"},
+ ]},
+ {ic:"③",t:"Part III · Evolution",lessons:[
+   {id:"selection",n:"Variation, heredity, selection",sub:"how natural & sexual selection work",lab:"selection"},
+   {id:"popgen",n:"Population genetics & speciation",sub:"allele frequencies, Hardy-Weinberg, phylogeny"},
+ ]},
+ {ic:"④",t:"Part IV · Systems & ecology",lessons:[
+   {id:"neuron",n:"Neurons & the action potential",sub:"the electric language of the nervous system"},
+   {id:"homeostasis",n:"Homeostasis & the immune system",sub:"feedback loops that hold the line"},
+   {id:"ecology",n:"Ecology",sub:"energy flow, food webs, predator & prey",lab:"predprey"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+C.biomol=`<p>Every living thing, from a bacterium to a blue whale, is built from just four families of carbon-based molecules. Carbon's ability to form four stable bonds lets it chain into vast, varied skeletons — the backbone of all biochemistry.</p>
+<p>Most large biomolecules are <b>polymers</b>: long chains of small repeating units (<b>monomers</b>). Cells build them by <b>dehydration synthesis</b> (join two monomers, remove a water molecule) and take them apart by <b>hydrolysis</b> (add water to break a bond). The same two reactions, run forwards and backwards.</p>
+<p><b>Carbohydrates.</b> Sugars — quick energy and structure. Monomers are monosaccharides like glucose (${sup("C","6")}${sup("H","12")}${sup("O","6")}). Chained up they become polysaccharides: <b>starch</b> and <b>glycogen</b> (energy storage in plants and animals) and <b>cellulose</b> (the rigid fibre of plant cell walls).</p>
+<p><b>Lipids.</b> Fats, oils, and membranes — not true polymers. A <b>phospholipid</b> has a water-loving phosphate head and two water-fearing fatty-acid tails; this split personality (<i>amphipathic</i>) is exactly what makes membranes self-assemble. Saturated fats (no double bonds) pack solid; unsaturated fats (kinked by double bonds) stay liquid.</p>
+<p><b>Proteins.</b> The cell's workforce — enzymes, structure, transport, signalling. Built from <b>20 amino acids</b> linked by <b>peptide bonds</b>. A protein folds through levels of structure: <b>primary</b> (the amino-acid sequence) → <b>secondary</b> (α-helices and β-sheets) → <b>tertiary</b> (the full 3-D shape) → <b>quaternary</b> (several chains together). Shape is everything: an enzyme works only because its folded pocket fits one particular molecule.</p>
+<p><b>Nucleic acids.</b> The information store — <b>DNA</b> and <b>RNA</b>. Monomers are <b>nucleotides</b>: a sugar, a phosphate, and one of a few nitrogen bases. Their sequence spells out the instructions for building every protein above.</p>
+<div class="wk"><div class="wl">Concept · sequence dictates function</div>
+<div class="step">A protein is just a string of amino acids — yet the string folds into a precise machine.</div>
+<div class="step">Change one amino acid and the fold can change, and the machine can break.</div>
+<div class="step"><span class="r">This is why the DNA that specifies the sequence matters so much — Part II.</span></div></div>
+<div class="callout"><span class="l">The big idea</span>Four molecule families, endlessly recombined. Carbohydrates and lipids run energy and structure; proteins do the work; nucleic acids carry the plan. Life is chemistry that copies itself.</div>`;
+
+C.cell=`<p>The <b>cell theory</b> is one of biology's pillars: all living things are made of cells, the cell is the smallest unit of life, and every cell comes from a pre-existing cell. There is no life below the cell.</p>
+<p>Cells come in two grand designs. <b>Prokaryotes</b> (bacteria and archaea) are small and simple: their DNA floats loose in a region called the <b>nucleoid</b>, with no nucleus and no membrane-bound organelles. <b>Eukaryotes</b> (protists, fungi, plants, animals) are larger and compartmentalized — their DNA is sealed in a <b>nucleus</b>, and specialized <b>organelles</b> divide labour like rooms in a factory.</p>
+<div class="eq box">prokaryote — no nucleus, no organelles &nbsp;·&nbsp; eukaryote — nucleus + organelles</div>
+<p><b>The organelle roster:</b></p>
+<ul>
+<li><b>Nucleus</b> — houses DNA; control centre for the cell.</li>
+<li><b>Ribosomes</b> — build proteins (found in <i>all</i> cells, even prokaryotes).</li>
+<li><b>Endoplasmic reticulum</b> — rough ER (studded with ribosomes) makes proteins; smooth ER makes lipids.</li>
+<li><b>Golgi apparatus</b> — packages and ships proteins.</li>
+<li><b>Mitochondria</b> — burn sugar for ATP; the "powerhouse".</li>
+<li><b>Chloroplasts</b> — in plants/algae; capture light for photosynthesis.</li>
+<li><b>Lysosomes</b> — recycling and digestion.</li>
+<li><b>Cell membrane</b> — the boundary (next lesson); plants and bacteria add a rigid <b>cell wall</b>.</li>
+</ul>
+<div class="callout"><span class="l">Endosymbiosis</span>Mitochondria and chloroplasts have their own circular DNA, their own ribosomes, and a double membrane — because they descend from free-living bacteria that were engulfed by an ancestral cell and never left. Two organisms became one. It is the reason complex life has enough energy to exist.</div>
+<div class="wk"><div class="wl">Concept · why cells stay small</div>
+<div class="step">As a cell grows, volume rises faster than surface area (r³ vs r²).</div>
+<div class="step">But everything enters and leaves through the surface — so a giant cell can't feed its own interior.</div>
+<div class="step"><span class="r">The surface-area-to-volume limit caps cell size and drives folding, membranes, and compartments.</span></div></div>`;
+
+C.membrane=`<p>Every cell is wrapped in a <b>plasma membrane</b>: a double layer of phospholipids with their water-fearing tails tucked inside and their water-loving heads facing the water on both sides. Proteins float within it — the <b>fluid mosaic model</b>. The membrane is <b>selectively permeable</b>: it decides what crosses.</p>
+<p><b>Passive transport</b> needs no energy — things move <i>down</i> their concentration gradient, from crowded to sparse.</p>
+<ul>
+<li><b>Diffusion</b> — small or nonpolar molecules (O₂, CO₂) slip straight through, spreading until evenly mixed.</li>
+<li><b>Osmosis</b> — the diffusion of <i>water</i> across the membrane. Water moves toward the side with <b>more dissolved solute</b> (less free water), diluting it.</li>
+<li><b>Facilitated diffusion</b> — ions and polar molecules ride through protein channels, still down their gradient.</li>
+</ul>
+<div class="eq box">osmosis: water flows toward higher solute concentration</div>
+<p><b>Active transport</b> pushes molecules <i>against</i> their gradient — uphill, from sparse to crowded — and that costs energy (ATP). The <b>sodium–potassium pump</b> hauls Na⁺ out and K⁺ in, setting up the gradients that nerve cells will later fire with. Bulk transport — <b>endocytosis</b> and <b>exocytosis</b> — swallows or spits out whole packets by wrapping them in membrane.</p>
+<p><b>Tonicity</b> is osmosis seen from the cell's point of view. In a <b>hypotonic</b> solution (less solute outside) water rushes in and the cell swells — possibly bursting. In a <b>hypertonic</b> solution water leaves and the cell shrivels. In an <b>isotonic</b> solution it's balanced.</p>
+<div class="wk"><div class="wl">Worked example · which way does water go?</div>
+<div class="step">A red blood cell (interior ≈ 0.9% salt) is dropped into pure water (0% salt).</div>
+<div class="step">The inside has more solute, so water moves <b>into</b> the cell by osmosis.</div>
+<div class="step">The cell swells and can burst (<i>lyse</i>). In salty seawater the opposite happens — it shrivels.</div></div>
+<p>Move the solute sliders below and watch water cross the membrane until the two concentrations match.</p>
+<div id="__sim"></div>`;
+
+C.energy=`<p>Life runs on a single rechargeable battery: <b>ATP</b> (adenosine triphosphate). Snapping off its third phosphate releases energy for the cell's work; adding it back (ADP + Pₐ → ATP) stores energy again. Two great processes charge and spend this battery, and they are near-perfect mirrors of each other.</p>
+<p><b>Photosynthesis</b> — plants, algae, and some bacteria capture light and lock it into sugar:</p>
+<div class="eq box">6CO<sub>2</sub> + 6H<sub>2</sub>O + light → ${sup("C","6")}${sup("H","12")}${sup("O","6")} + 6O<sub>2</sub></div>
+<p>It runs in two acts inside the chloroplast. The <b>light reactions</b> (in the thylakoid membranes) split water, release the O₂ you breathe, and make ATP and NADPH. The <b>Calvin cycle</b> (in the stroma) uses that ATP and NADPH to fix CO₂ from the air into glucose. Light energy becomes chemical energy.</p>
+<p><b>Cellular respiration</b> — nearly every cell, plant and animal, runs this in reverse to cash the sugar back out:</p>
+<div class="eq box">${sup("C","6")}${sup("H","12")}${sup("O","6")} + 6O<sub>2</sub> → 6CO<sub>2</sub> + 6H<sub>2</sub>O + ~30 ATP</div>
+<p>It proceeds in stages: <b>glycolysis</b> (in the cytoplasm) splits glucose into two pyruvate; the <b>Krebs cycle</b> (mitochondrial matrix) strips off carbons as CO₂ and loads electron carriers; and the <b>electron transport chain</b> (inner mitochondrial membrane) uses oxygen as the final electron acceptor to make the bulk of the ATP by <b>oxidative phosphorylation</b>. Roughly 30–32 ATP per glucose.</p>
+<div class="wk"><div class="wl">Concept · one cycle, two directions</div>
+<div class="step">Photosynthesis: CO₂ + H₂O + light → sugar + O₂ &nbsp;(<i>builds</i>, stores energy)</div>
+<div class="step">Respiration: sugar + O₂ → CO₂ + H₂O + ATP &nbsp;(<i>breaks down</i>, releases energy)</div>
+<div class="step"><span class="r">The products of one are the reactants of the other. Together they cycle carbon and energy through the whole biosphere.</span></div></div>
+<div class="callout"><span class="l">Right now</span>You are running the bottom equation: burning sugar with the oxygen you just inhaled, exhaling the carbon, and spending the ATP to read this sentence.</div>`;
+
+C.dna=`<p>DNA is the molecule of inheritance, and its structure — worked out by Watson, Crick, Franklin, and Wilkins in 1953 — practically explains how it works. It is a <b>double helix</b>: two strands wound around each other, running in <b>antiparallel</b> directions (one 5′→3′, the other 3′→5′). The outside is a sugar-phosphate backbone; the information is in the <b>bases</b> facing inward.</p>
+<p>There are four bases, and they pair by a strict rule — <b>complementary base pairing</b>:</p>
+<div class="eq box">A pairs with T &nbsp;(2 H-bonds) &nbsp;·&nbsp; C pairs with G &nbsp;(3 H-bonds)</div>
+<p>The genius is here: because A always faces T and C always faces G, <b>each strand carries the full information to rebuild the other</b>. Know one strand and you know its partner. That is what makes copying possible.</p>
+<p><b>Replication is semiconservative.</b> The helix unzips (enzyme <b>helicase</b> breaks the base pairs), and each old strand serves as a template. <b>DNA polymerase</b> reads the template and adds matching nucleotides, always building the new strand 5′→3′. Because the two templates run opposite ways, one new strand (<b>leading</b>) is made continuously and the other (<b>lagging</b>) in short <b>Okazaki fragments</b> that are stitched together. Polymerase also <b>proofreads</b>, keeping errors rare — about one in a billion.</p>
+<div class="wk"><div class="wl">Worked example · write the complementary strand</div>
+<div class="step">Template strand: &nbsp;<span class="mono">3′- T A C G G A T C -5′</span></div>
+<div class="step">Pair each base (A↔T, C↔G):</div>
+<div class="step">New strand: &nbsp;<span class="mono">5′- A T G C C T A G -3′</span> &nbsp;<span class="r">— the exact complement</span></div></div>
+<div class="callout"><span class="l">Meselson–Stahl</span>In 1958 an elegant experiment with heavy nitrogen showed each daughter helix keeps one old strand and one new one — proving replication is semiconservative, exactly as the base-pairing rule predicts.</div>`;
+
+C.transcription=`<p>The <b>central dogma</b> is the flow of genetic information in the cell — the master plan of Part II:</p>
+<div class="eq box">DNA &nbsp;→<sup style="font-size:.6em">transcription</sup>&nbsp; RNA &nbsp;→<sup style="font-size:.6em">translation</sup>&nbsp; protein</div>
+<p>DNA is the archive; it stays safe in the nucleus. To use a gene, the cell first copies it into a portable working copy — <b>messenger RNA (mRNA)</b>. That copying step is <b>transcription</b>.</p>
+<p>The enzyme <b>RNA polymerase</b> latches onto a <b>promoter</b> (a start signal), unzips the DNA, and reads the <b>template strand</b> 3′→5′, building an mRNA strand 5′→3′ by the same base-pairing rule — with one twist. RNA uses <b>uracil (U)</b> in place of thymine, so where the template reads A, the mRNA gets U. It keeps going until a <b>terminator</b> signal.</p>
+<div class="eq box">DNA T → RNA A &nbsp;·&nbsp; DNA A → RNA U &nbsp;·&nbsp; DNA C → RNA G &nbsp;·&nbsp; DNA G → RNA C</div>
+<p>A handy shortcut: the mRNA is identical to the DNA <b>coding strand</b> (the non-template partner), except every <b>T becomes U</b>. In eukaryotes the raw transcript is then processed — a protective <b>5′ cap</b> and <b>poly-A tail</b> are added, and non-coding <b>introns</b> are spliced out, leaving the <b>exons</b> joined into the mature mRNA that leaves the nucleus.</p>
+<div class="wk"><div class="wl">Worked example · transcribe a gene</div>
+<div class="step">DNA coding strand: &nbsp;<span class="mono">5′- A T G G C A T A A -3′</span></div>
+<div class="step">Copy it, swapping every T for U:</div>
+<div class="step">mRNA: &nbsp;<span class="mono">5′- A U G G C A U A A -3′</span> &nbsp;<span class="r">— ready to be read by a ribosome</span></div></div>
+<p>Try it below: type any DNA sequence and watch it become mRNA, then protein.</p>
+<div id="__sim"></div>`;
+
+C.translation=`<p><b>Translation</b> is the second arrow of the central dogma — turning the mRNA message into a chain of amino acids, i.e. a protein. It happens at the <b>ribosome</b>, and it reads the message in <b>codons</b>: groups of three bases.</p>
+<p>Three bases, four possible letters each, give 4³ = <b>64 codons</b> — more than enough for 20 amino acids plus punctuation. This mapping is the <b>genetic code</b>, and it is nearly <b>universal</b>: the same codons mean the same amino acids in a bacterium, a mushroom, and you.</p>
+<div class="eq box">AUG = Methionine = <b>START</b> &nbsp;·&nbsp; UAA, UAG, UGA = <b>STOP</b></div>
+<p>Reading always begins at the start codon <b>AUG</b>, which sets the <b>reading frame</b>. <b>Transfer RNA (tRNA)</b> molecules do the matching: each carries one amino acid and has an <b>anticodon</b> that pairs with the mRNA codon. The ribosome ratchets along three bases at a time — <b>initiation, elongation, termination</b> — linking amino acids with peptide bonds until it hits a <b>stop</b> codon, which codes for no amino acid and releases the finished chain.</p>
+<p>The code is <b>redundant</b> (degenerate): most amino acids have several codons — GGU, GGC, GGA, and GGG all mean Glycine — which cushions many mutations, as we'll see next.</p>
+<div class="wk"><div class="wl">Worked example · translate the message</div>
+<div class="step">mRNA: &nbsp;<span class="mono">A U G · G C A · U A A</span> &nbsp;(split into codons)</div>
+<div class="step">AUG → <b>Met</b> (start) &nbsp; GCA → <b>Ala</b> (alanine) &nbsp; UAA → <b>Stop</b></div>
+<div class="step">Protein: &nbsp;<b>Met – Ala</b> &nbsp;<span class="r">(the ribosome then lets go)</span></div></div>
+<div class="callout"><span class="l">One sentence to remember</span>DNA → (transcription) → mRNA → (translation, codon by codon) → protein. Genotype becomes phenotype right here.</div>`;
+
+C.mutations=`<p>Replication is astonishingly accurate, but not perfect — and mutagens (radiation, chemicals, viruses) add more errors. A <b>mutation</b> is any change in the DNA sequence. Most do nothing; some break things; a rare few help. Crucially, mutation is the <b>only original source of new genetic variation</b> — the raw material evolution works with.</p>
+<p><b>Point mutations</b> change a single base. Thanks to the code's redundancy, the effect varies:</p>
+<ul>
+<li><b>Silent</b> — the new codon still codes for the same amino acid (GGU → GGC, both Glycine). No change to the protein.</li>
+<li><b>Missense</b> — a different amino acid goes in. May be harmless or may cripple the protein.</li>
+<li><b>Nonsense</b> — the codon becomes a STOP, cutting the protein short. Usually severe.</li>
+</ul>
+<p><b>Frameshift mutations</b> — an <b>insertion</b> or <b>deletion</b> of bases (not a multiple of three) shifts the reading frame, so every codon downstream is misread. These are usually catastrophic. Larger <b>chromosomal mutations</b> duplicate, delete, invert, or move whole stretches of DNA.</p>
+<div class="wk"><div class="wl">Worked example · one base, big consequence</div>
+<div class="step">Normal DNA codon (coding): GAG → mRNA GAG → <b>Glu</b> (glutamate).</div>
+<div class="step">A single A→T change: GTG → mRNA GUG → <b>Val</b> (valine).</div>
+<div class="step">That one missense swap in the β-globin gene causes <b>sickle-cell anaemia</b> — a whole disease from one letter.</div></div>
+<div class="callout"><span class="l">Why mutations matter</span>Without them, every organism would be a copy and evolution would have nothing to select. Random mutation supplies the variety; natural selection (Part III) does the sorting.</div>`;
+
+C.mendel=`<p>Long before anyone had seen DNA, a monk named <b>Gregor Mendel</b> deduced the rules of inheritance from years of breeding pea plants. His insight: traits are carried by discrete <b>factors</b> (we call them <b>genes</b>) that come in variant forms called <b>alleles</b>, and they pass to offspring in predictable ratios.</p>
+<p>The vocabulary is worth nailing down:</p>
+<ul>
+<li><b>Gene</b> — a stretch of DNA for one trait; <b>allele</b> — one version of that gene.</li>
+<li><b>Dominant</b> (written capital, <i>A</i>) masks <b>recessive</b> (lowercase, <i>a</i>) when both are present.</li>
+<li><b>Genotype</b> — the allele pair (AA, Aa, aa); <b>phenotype</b> — the trait you actually see.</li>
+<li><b>Homozygous</b> — two of the same allele (AA or aa); <b>heterozygous</b> — one of each (Aa).</li>
+</ul>
+<p>Mendel's <b>law of segregation</b>: the two alleles separate during gamete formation, so each sperm or egg carries just one. The <b>law of independent assortment</b>: different genes are inherited independently of one another.</p>
+<p>A <b>Punnett square</b> predicts a cross by pairing every possible egg allele with every possible sperm allele. The classic monohybrid cross of two heterozygotes:</p>
+<div class="wk"><div class="wl">Worked example · Aa × Aa</div>
+<div class="step">Each parent makes gametes A and a. Combine them in a 2×2 grid:</div>
+<div class="step" style="text-align:center"><span class="mono">AA &nbsp; Aa<br>Aa &nbsp; aa</span></div>
+<div class="step"><b>Genotypes</b> — 1 AA : 2 Aa : 1 aa &nbsp;(a 1:2:1 ratio).</div>
+<div class="step"><b>Phenotypes</b> — 3 show the dominant trait : 1 shows the recessive &nbsp;(a <b>3:1</b> ratio).</div></div>
+<p>Only <b>aa</b> shows the recessive trait, because a single dominant allele is enough to mask it. Build your own cross below.</p>
+<div id="__sim"></div>`;
+
+C.selection=`<p><b>Evolution</b> is descent with modification — populations changing across generations. Its central engine, discovered by <b>Charles Darwin</b> and Alfred Russel Wallace, is <b>natural selection</b>. And it follows with near-logical force from just three conditions:</p>
+<div class="eq box">① variation &nbsp; ② heredity &nbsp; ③ differential reproduction</div>
+<ol>
+<li><b>Variation</b> — individuals in a population differ (thanks to mutation and sexual recombination).</li>
+<li><b>Heredity</b> — some of that variation is heritable, passed to offspring.</li>
+<li><b>Differential reproduction</b> — some variants leave more surviving offspring than others (they have higher <b>fitness</b>).</li>
+</ol>
+<p>Grant those three and the conclusion is unavoidable: the heritable traits that help their bearers reproduce become more common over generations. That gradual accumulation is how populations become <b>adapted</b> to their environment. Note that <b>fitness</b> means reproductive success in a given context — not "strongest" — and that while mutation is random, <b>selection is decidedly not</b>.</p>
+<p>Selection comes in flavours by which variants it favours: <b>directional</b> (one extreme, e.g. ever-larger beaks in a drought), <b>stabilizing</b> (the middle, e.g. average birth weight), and <b>disruptive</b> (both extremes over the middle).</p>
+<p><b>Sexual selection</b> is a special case driven by mating success. Traits that help win mates — a peacock's tail, a stag's antlers, a birdsong — can spread <i>even if they hurt survival</i>, because leaving offspring is what counts. It explains much of the extravagance in nature.</p>
+<div class="callout"><span class="l">The subtle point</span>Selection doesn't create variation — mutation does that, blindly. Selection <i>filters</i> it, non-randomly, generation after generation. Random raw material, non-random editing: that combination builds eyes and wings.</div>
+<p>Watch it happen: give a heritable dark-colour allele an advantage and see its frequency climb.</p>
+<div id="__sim"></div>`;
+
+C.popgen=`<p>Zoom out from the individual to the whole <b>population</b> and evolution gets a precise definition: <b>a change in allele frequencies in a gene pool over time</b>. The <b>gene pool</b> is all the alleles carried by all members of a population.</p>
+<p>To detect change, we need a baseline for "no change." That is the <b>Hardy–Weinberg principle</b>. If p is the frequency of allele A and q the frequency of allele a, then p + q = 1, and the genotype frequencies are:</p>
+<div class="eq box">p² + 2pq + q² = 1</div>
+<p>Here p² is the fraction of AA, 2pq the fraction of Aa (carriers), and q² the fraction of aa. Hardy–Weinberg says these frequencies stay <b>constant</b> — the population does <i>not</i> evolve — as long as five conditions hold: no selection, no mutation, no migration (gene flow), no genetic drift (infinite population), and random mating. Since real populations always break at least one, Hardy–Weinberg is the <b>null hypothesis</b>: deviation from it is the signature of evolution at work.</p>
+<div class="wk"><div class="wl">Worked example · allele frequency from phenotypes</div>
+<div class="step">A recessive disease affects 9% of a population, so q² = 0.09.</div>
+<div class="step">Then q = √0.09 = <b>0.3</b>, and p = 1 − 0.3 = <b>0.7</b>.</div>
+<div class="step">Unaffected carriers (Aa) = 2pq = 2(0.7)(0.3) = <b>0.42</b> — 42% carry the allele without showing it.</div></div>
+<p>Four forces actually change allele frequencies: <b>natural selection</b> (non-random), <b>genetic drift</b> (random chance, powerful in small populations), <b>gene flow</b> (migration mixing pools), and <b>mutation</b> (the ultimate source of new alleles).</p>
+<p><b>Speciation</b> is what happens when a gene pool splits. If two groups stop interbreeding — usually because a barrier separates them (<b>allopatric</b> speciation) — their gene pools drift and adapt apart until they can no longer produce fertile offspring together. They have become distinct <b>species</b> (the biological species concept: reproductive isolation).</p>
+<div class="callout"><span class="l">The evidence & the tree</span>Common descent is supported by fossils, homologous anatomy, biogeography, and — most powerfully — shared DNA: the more closely related two species, the more of their genome they share. A <b>phylogeny</b> is the branching tree that maps these relationships, every fork a common ancestor.</div>`;
+
+C.neuron=`<p>The nervous system runs on electricity — but a strange, chemical kind. A <b>neuron</b> receives signals on its branching <b>dendrites</b>, integrates them in the cell body (<b>soma</b>), and fires a pulse down its long <b>axon</b> to <b>synapses</b> with the next cell.</p>
+<p>At rest, a neuron is a charged battery. The sodium–potassium pump and leaky K⁺ channels keep the inside about <b>−70 mV</b> relative to outside — the <b>resting potential</b>. The cell is poised, waiting.</p>
+<p>An <b>action potential</b> is a self-propagating spike of voltage. It is <b>all-or-nothing</b>: reach threshold and it fires fully; fall short and nothing happens. The sequence:</p>
+<div class="eq box">rest (−70) → threshold (−55) → depolarize (+40) → repolarize → reset</div>
+<ol>
+<li><b>Threshold</b> — a stimulus pushes the membrane to about −55 mV.</li>
+<li><b>Depolarization</b> — voltage-gated <b>Na⁺ channels</b> fling open; Na⁺ floods in; the inside shoots up toward +40 mV.</li>
+<li><b>Repolarization</b> — Na⁺ channels close, <b>K⁺ channels</b> open; K⁺ flows out, driving the voltage back down.</li>
+<li><b>Hyperpolarization & reset</b> — it briefly overshoots below rest, then the pump restores −70 mV.</li>
+</ol>
+<p>The spike triggers the next patch of membrane, so it travels the whole axon without weakening. In <b>myelinated</b> axons it jumps between gaps (nodes of Ranvier) in fast <b>saltatory conduction</b>. At the <b>synapse</b> the electrical signal becomes chemical: the axon releases <b>neurotransmitters</b> across the gap to excite or inhibit the next neuron.</p>
+<div class="wk"><div class="wl">Concept · why "all-or-nothing"?</div>
+<div class="step">A bigger stimulus does not make a bigger spike — every action potential is the same size.</div>
+<div class="step">Instead, strength is coded by <b>frequency</b>: more intense signals fire more spikes per second.</div>
+<div class="step"><span class="r">The brain's language is a stream of identical digital pulses, timed and counted.</span></div></div>`;
+
+C.homeostasis=`<p>To stay alive, an organism must hold its internal conditions steady against a changing world — stable temperature, pH, blood sugar, water balance. This active maintenance of a stable internal state is <b>homeostasis</b>, and it runs on <b>feedback loops</b>.</p>
+<p>A feedback loop has three parts: a <b>sensor</b> that detects a variable, a <b>control centre</b> that compares it to a set point, and an <b>effector</b> that acts to correct any deviation.</p>
+<p><b>Negative feedback</b> — the workhorse — counteracts change, like a thermostat. When you overheat, sensors trigger sweating and vasodilation to cool you back down; when you cool, you shiver and constrict vessels. The response opposes the disturbance and returns the variable to its set point.</p>
+<div class="wk"><div class="wl">Worked example · blood glucose</div>
+<div class="step">Blood sugar rises after a meal → the pancreas releases <b>insulin</b> → cells take up glucose → sugar falls.</div>
+<div class="step">Blood sugar drops between meals → the pancreas releases <b>glucagon</b> → the liver releases glucose → sugar rises.</div>
+<div class="step"><span class="r">Two opposing hormones, one set point — classic negative feedback.</span></div></div>
+<p><b>Positive feedback</b> is rarer and amplifies change instead of damping it — useful when the body needs to drive a process to completion. In childbirth, contractions trigger hormones that trigger stronger contractions; in blood clotting, each activated platelet recruits more, until the wound is sealed.</p>
+<p><b>A note on the immune system</b> — homeostasis defended against invaders. It has two lines. <b>Innate immunity</b> is fast and general: physical barriers (skin), inflammation, and phagocytes that engulf anything foreign. <b>Adaptive immunity</b> is slow but exquisitely specific: <b>B cells</b> make <b>antibodies</b> that lock onto a particular pathogen, and <b>T cells</b> kill infected cells and coordinate the response. Its defining feature is <b>memory</b> — after an infection (or a <b>vaccine</b>), memory cells respond faster and harder next time. Underlying it all is the ability to tell <b>self from non-self</b>.</p>
+<div class="callout"><span class="l">The theme</span>From a single cell to a whole body, life is a controlled system: sense a deviation, respond to cancel it, hold the line. Break the loops and the organism drifts out of the narrow band where life is possible.</div>`;
+
+C.ecology=`<p>Ecology studies how organisms interact with each other and their environment, organized in a nested hierarchy: <b>organism → population → community → ecosystem → biosphere</b>. Two currents run through it all — <b>energy flows</b> through, and <b>matter cycles</b> around.</p>
+<p><b>Energy flow.</b> Nearly all energy enters through <b>producers</b> (autotrophs — plants, algae) that capture sunlight. Energy then passes up <b>trophic levels</b>: producers → primary consumers (herbivores) → secondary consumers (carnivores) → and so on, with decomposers recycling the dead. But the transfer is wasteful:</p>
+<div class="eq box">only ~10% of energy passes to the next trophic level</div>
+<p>The other ~90% is lost as heat (respiration) and in movement and undigested waste. This <b>10% rule</b> is why food chains are short (rarely more than 4–5 links) and why top predators are rare and need huge ranges — there simply isn't enough energy left at the top. Real ecosystems form tangled <b>food webs</b>, not neat chains.</p>
+<div class="wk"><div class="wl">Worked example · the 10% rule</div>
+<div class="step">Grass captures 10,000 units of energy.</div>
+<div class="step">Grasshoppers (level 2) get ~1,000; birds (level 3) ~100; hawks (level 4) ~10.</div>
+<div class="step"><span class="r">A thousandfold drop in four steps — that is why apex predators are scarce.</span></div></div>
+<p><b>Population dynamics.</b> With unlimited resources a population grows <b>exponentially</b> (a J-curve). In reality resources run out, so growth slows toward a ceiling — the <b>carrying capacity (K)</b> — tracing an S-shaped <b>logistic</b> curve. Populations interact through <b>competition</b>, <b>predation</b>, and <b>symbiosis</b> (mutualism, commensalism, parasitism).</p>
+<p><b>Predator and prey</b> lock into cycles: prey multiply, predators feast and multiply, prey crash, predators starve and crash, prey recover — around and around. The classic <b>Lotka–Volterra</b> model captures it, and real data (the lynx and snowshoe hare) show exactly these lagging oscillations. Explore them below.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The two currents</span>Energy is a one-way street — sunlight in, heat out, never recycled. Matter (carbon, nitrogen, water) goes in loops — used, released, reused. Every ecosystem is these two facts playing out.</div>`;
+
+/* ============================ GENETIC CODE ============================ */
+const CODON={
+ UUU:"F",UUC:"F",UUA:"L",UUG:"L",CUU:"L",CUC:"L",CUA:"L",CUG:"L",
+ AUU:"I",AUC:"I",AUA:"I",AUG:"M",GUU:"V",GUC:"V",GUA:"V",GUG:"V",
+ UCU:"S",UCC:"S",UCA:"S",UCG:"S",CCU:"P",CCC:"P",CCA:"P",CCG:"P",
+ ACU:"T",ACC:"T",ACA:"T",ACG:"T",GCU:"A",GCC:"A",GCA:"A",GCG:"A",
+ UAU:"Y",UAC:"Y",UAA:"*",UAG:"*",CAU:"H",CAC:"H",CAA:"Q",CAG:"Q",
+ AAU:"N",AAC:"N",AAA:"K",AAG:"K",GAU:"D",GAC:"D",GAA:"E",GAG:"E",
+ UGU:"C",UGC:"C",UGA:"*",UGG:"W",CGU:"R",CGC:"R",CGA:"R",CGG:"R",
+ AGU:"S",AGC:"S",AGA:"R",AGG:"R",GGU:"G",GGC:"G",GGA:"G",GGG:"G"
+};
+const AANAME={A:"Ala",R:"Arg",N:"Asn",D:"Asp",C:"Cys",E:"Glu",Q:"Gln",G:"Gly",H:"His",I:"Ile",L:"Leu",K:"Lys",M:"Met",F:"Phe",P:"Pro",S:"Ser",T:"Thr",W:"Trp",Y:"Tyr",V:"Val","*":"Stop"};
+const compDNA=b=>({A:"T",T:"A",C:"G",G:"C"}[b]||"");
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+
+/* --- LAB 1: Central dogma (DOM) --- */
+function simDogma(el){
+  el.innerHTML=`<div class="simwrap">
+   <div class="simctl"><label style="flex:1 1 100%">DNA coding strand (5′→3′) — type A, C, G, T
+    <input type="text" id="seq" value="ATGGCACATTGCAAATAG" spellcheck="false" autocapitalize="characters" style="width:100%;font-family:ui-monospace,monospace;font-size:15px;letter-spacing:2px;text-transform:uppercase;background:#040b08;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px"></label></div>
+   <div class="row" style="margin-top:8px" id="pre"></div>
+   <div id="out" class="readout" style="font-size:13px"></div></div>`;
+  const presets=[["Insulin start","ATGGCCCTGTGGATG"],["With a STOP","ATGGCACATTGCAAATAG"],["Random","ATGTTTGGGCCCAAATAA"]];
+  $("#pre",el).innerHTML=presets.map((p,i)=>`<button class="btn sm" data-p="${i}">${p[0]}</button>`).join("");
+  $$("[data-p]",el).forEach(b=>b.onclick=()=>{$("#seq",el).value=presets[+b.dataset.p][1];render();});
+  function render(){
+    let dna=$("#seq",el).value.toUpperCase().replace(/[^ACGT]/g,"");$("#seq",el).value=dna;
+    const templ=dna.split("").map(compDNA).join("");
+    const mrna=dna.replace(/T/g,"U");
+    // reading frame: from first AUG
+    let start=mrna.indexOf("AUG");if(start<0)start=0;
+    const aas=[];let hitStop=false;
+    for(let i=start;i+3<=mrna.length;i+=3){const c=mrna.substr(i,3);const a=CODON[c];if(!a)break;aas.push({c,a});if(a==="*"){hitStop=true;break;}}
+    const protein=aas.filter(x=>x.a!=="*").map(x=>AANAME[x.a]).join(" – ")||"(none)";
+    const codonStr=aas.map(x=>`<span style="color:${x.a==="*"?"var(--red)":x.a==="M"&&x===aas[0]?"var(--acc)":"var(--ink)"}">${x.c}</span>`).join("<span style='color:var(--faint)'>·</span>");
+    const aaStr=aas.map(x=>`<span style="color:${x.a==="*"?"var(--red)":"var(--teal)"}">${AANAME[x.a]}</span>`).join(" ");
+    $("#out",el).innerHTML=
+     `<div style="margin:2px 0"><span style="color:var(--faint)">DNA coding &nbsp;</span>5′-<b style="color:var(--ink)">${dna||"…"}</b>-3′</div>`+
+     `<div style="margin:2px 0"><span style="color:var(--faint)">DNA template</span>3′-<span style="color:var(--mut)">${templ||"…"}</span>-5′</div>`+
+     `<div style="margin:2px 0"><span style="color:var(--faint)">mRNA &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>5′-<b style="color:var(--violet)">${mrna||"…"}</b>-3′ <span style="color:var(--faint)">(T→U)</span></div>`+
+     `<div style="margin:8px 0 2px"><span style="color:var(--faint)">codons &nbsp;&nbsp;&nbsp;</span>${codonStr||"…"}</div>`+
+     `<div style="margin:2px 0"><span style="color:var(--faint)">amino acids</span> ${aaStr||"…"}</div>`+
+     `<div style="margin:8px 0 2px;color:var(--acc)">protein: <b>${protein}</b>${hitStop?' <span style="color:var(--faint)">· ribosome released at STOP</span>':""}</div>`;
+  }
+  $("#seq",el).oninput=render;render();
+}
+
+/* --- LAB 2: Punnett square (DOM) --- */
+function simPunnett(el){
+  el.innerHTML=`<div class="simwrap">
+   <div class="simctl">
+     <label>Parent 1 <select id="p1" style="background:#040b08;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px;font:inherit"><option>AA</option><option selected>Aa</option><option>aa</option></select></label>
+     <label>Parent 2 <select id="p2" style="background:#040b08;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px;font:inherit"><option>AA</option><option selected>Aa</option><option>aa</option></select></label>
+   </div>
+   <div id="grid" style="margin-top:12px"></div>
+   <div id="ro" class="readout"></div></div>`;
+  const ord=x=>x==="A"?0:1;
+  const combine=(a,b)=>[a,b].sort((p,q)=>ord(p)-ord(q)).join("");
+  function render(){
+    const g1=$("#p1",el).value,g2=$("#p2",el).value;
+    const a1=g1.split(""),a2=g2.split("");
+    const cells=[];const count={AA:0,Aa:0,aa:0};
+    for(const x of a1)for(const y of a2){const g=combine(x,y);cells.push(g);count[g]++;}
+    // grid: rows = a1 (down side), cols = a2 (top)
+    let t=`<table class="ptable"><tr><th></th><th>${a2[0]}</th><th>${a2[1]}</th></tr>`;
+    for(let r=0;r<2;r++){t+=`<tr><th>${a1[r]}</th>`;for(let c=0;c<2;c++){const g=combine(a1[r],a2[c]);const dom=g.includes("A");t+=`<td style="color:${dom?"var(--acc)":"var(--mut)"}">${g}</td>`;}t+="</tr>";}
+    t+="</table>";
+    $("#grid",el).innerHTML=t;
+    const dom=count.AA+count.Aa,rec=count.aa;
+    const gcd=(a,b)=>b?gcd(b,a%b):a;
+    const simplify=arr=>{const g=arr.reduce((x,y)=>gcd(x,y||1),arr.find(v=>v)||1)||1;return arr.map(v=>v/g);};
+    const gr=simplify([count.AA,count.Aa,count.aa]);
+    const pr=simplify([dom,rec]);
+    $("#ro",el).innerHTML=
+     `cross <b>${g1} × ${g2}</b><br>`+
+     `genotype ratio &nbsp; AA : Aa : aa = <b style="color:var(--acc)">${gr[0]} : ${gr[1]} : ${gr[2]}</b><br>`+
+     `phenotype ratio &nbsp; dominant : recessive = <b style="color:var(--teal)">${pr[0]} : ${pr[1]}</b><br>`+
+     `<span style="color:var(--faint)">A single dominant (A) allele shows the dominant trait; only aa shows the recessive.</span>`;
+  }
+  $("#p1",el).onchange=render;$("#p2",el).onchange=render;render();
+}
+
+/* --- LAB 3: Natural selection (canvas) --- */
+function simSelection(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl">
+     <label>selection for the dark allele (s): <b id="ss">0.15</b><input type="range" id="s" min="0" max="0.6" step="0.01" value="0.15"></label>
+     <label style="flex:0 0 auto;justify-content:flex-end"><span>&nbsp;</span><button class="btn sm" id="rst">↻ reset</button></label>
+   </div></div>`;
+  const cv=$("canvas",el);let s=0.15,p=0.08,gen=0,frame=0;let hist=[p];
+  $("#s",el).oninput=e=>{s=+e.target.value;$("#ss",el).textContent=s.toFixed(2);};
+  $("#rst",el).onclick=()=>{p=0.08;gen=0;hist=[p];};
+  function step(){const q=1-p;const wbar=(1+s)*(1-q*q)+q*q;let np=(1+s)*p/wbar;np+=(Math.random()-0.5)*0.008;np=Math.max(0.001,Math.min(0.999,np));p=np;gen++;hist.push(p);if(hist.length>200)hist.shift();}
+  function draw(){const {x,w,h}=fit(cv,240);x.clearRect(0,0,w,h);
+    frame++;if(frame%14===0)step();
+    // top strip: population of 44 individuals coloured by phenotype
+    const q=1-p;const darkPheno=1-q*q; // dominant phenotype freq
+    const N=44,cols=22,dot=Math.min(12,(w-20)/cols);const top=14;
+    for(let i=0;i<N;i++){const cx=12+(i%cols)*dot+dot/2,cy=top+Math.floor(i/cols)*dot+dot/2;
+      x.fillStyle=i<Math.round(N*darkPheno)?"#3a2f1c":"#cdeadd";x.beginPath();x.arc(cx,cy,dot*0.36,0,7);x.fill();}
+    x.fillStyle="var(--faint)";x.font="10px ui-monospace";x.fillText("population (dark = dominant phenotype)",12,top+2*dot+16);
+    // bottom: line plot of p over generations
+    const gy0=top+2*dot+28,gy1=h-8,gx0=32,gx1=w-8;
+    x.strokeStyle="#1e3b30";x.lineWidth=1;x.beginPath();x.moveTo(gx0,gy0);x.lineTo(gx0,gy1);x.lineTo(gx1,gy1);x.stroke();
+    x.fillStyle="#5a7568";x.font="9px ui-monospace";x.fillText("1.0",8,gy0+4);x.fillText("0",16,gy1);x.fillText("allele freq p →",gx0,gy0-4);
+    x.strokeStyle="#5ad19a";x.lineWidth=2;x.beginPath();
+    const n=hist.length;for(let i=0;i<n;i++){const px=gx0+(n<2?0:i/(n-1))*(gx1-gx0);const py=gy1-hist[i]*(gy1-gy0);i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    x.fillStyle="#5ad19a";x.beginPath();x.arc(gx0+(gx1-gx0),gy1-p*(gy1-gy0),3,0,7);x.fill();
+    $("#ro",el).innerHTML=`generation <b>${gen}</b> &nbsp; dark-allele frequency p = <b>${p.toFixed(3)}</b> &nbsp; dominant phenotype = <b style="color:var(--teal)">${(darkPheno*100).toFixed(0)}%</b><br><span style="color:var(--faint)">raise s and the heritable advantage sweeps the allele toward fixation; set s=0 and only random drift remains</span>`;
+  }
+  raf(draw);
+}
+
+/* --- LAB 4: Predator–prey Lotka–Volterra (canvas) --- */
+function simPredPrey(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl">
+     <label>prey growth (α): <b id="aa">0.9</b><input type="range" id="a" min="0.3" max="1.6" step="0.05" value="0.9"></label>
+     <label>predator death (γ): <b id="gg">0.9</b><input type="range" id="g" min="0.3" max="1.6" step="0.05" value="0.9"></label>
+   </div>
+   <div class="simctl"><label style="flex:0 0 auto"><span>&nbsp;</span><button class="btn sm" id="rst">↻ reset</button></label></div></div>`;
+  const cv=$("canvas",el);let A=0.9,G=0.9;const B=1.1,D=0.9;
+  let prey=1.0,pred=0.6;let hp=[],hy=[];
+  $("#a",el).oninput=e=>{A=+e.target.value;$("#aa",el).textContent=A.toFixed(2);};
+  $("#g",el).oninput=e=>{G=+e.target.value;$("#gg",el).textContent=G.toFixed(2);};
+  $("#rst",el).onclick=()=>{prey=1.0;pred=0.6;hp=[];hy=[];};
+  const dt=0.02;
+  function integ(){for(let k=0;k<3;k++){const dx=A*prey-B*prey*pred,dy=D*prey*pred-G*pred;prey+=dx*dt;pred+=dy*dt;prey=Math.max(0.01,prey);pred=Math.max(0.01,pred);}hp.push(prey);hy.push(pred);const cap=260;if(hp.length>cap){hp.shift();hy.shift();}}
+  function draw(){const {x,w,h}=fit(cv,230);x.clearRect(0,0,w,h);integ();
+    const top=10,bot=h-22,left=8,right=w-8;
+    const ymax=Math.max(3,Math.max(...hp,...hy)*1.1);
+    const Y=v=>bot-(v/ymax)*(bot-top);
+    x.strokeStyle="#1e3b30";x.lineWidth=1;x.beginPath();x.moveTo(left,bot);x.lineTo(right,bot);x.stroke();
+    const line=(arr,col)=>{x.strokeStyle=col;x.lineWidth=2;x.beginPath();const n=arr.length;for(let i=0;i<n;i++){const px=left+(n<2?0:i/(n-1))*(right-left);const py=Y(arr[i]);i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();};
+    line(hp,"#5ad19a");line(hy,"#ef7a6a");
+    x.font="11px ui-monospace";x.fillStyle="#5ad19a";x.fillText("● prey",left+4,top+12);x.fillStyle="#ef7a6a";x.fillText("● predator",left+64,top+12);
+    x.fillStyle="#5a7568";x.fillText("time →",right-46,bot+16);
+    $("#ro",el).innerHTML=`prey = <b style="color:var(--acc)">${prey.toFixed(2)}</b> &nbsp; predator = <b style="color:var(--red)">${pred.toFixed(2)}</b> &nbsp; <span style="color:var(--faint)">predator peaks lag prey peaks — the classic out-of-phase cycle (lynx & hare)</span>`;
+  }
+  raf(draw);
+}
+
+/* --- LAB 5: Osmosis (canvas) --- */
+function simOsmosis(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl">
+     <label>solute — LEFT: <b id="sl">30</b><input type="range" id="l" min="0" max="60" step="1" value="30"></label>
+     <label>solute — RIGHT: <b id="sr">10</b><input type="range" id="r" min="0" max="60" step="1" value="10"></label>
+   </div></div>`;
+  const cv=$("canvas",el);let solL=30,solR=10;const V=1.0;let vL=0.5;
+  $("#l",el).oninput=e=>{solL=+e.target.value;$("#sl",el).textContent=solL;};
+  $("#r",el).oninput=e=>{solR=+e.target.value;$("#sr",el).textContent=solR;};
+  function draw(){const {x,w,h}=fit(cv,220);x.clearRect(0,0,w,h);
+    const vR=V-vL;const cL=solL/(vL*100),cR=solR/(vR*100);
+    // water flows toward higher solute concentration (raises that side)
+    vL+=0.015*(cL-cR);vL=Math.max(0.2,Math.min(0.8,vL));
+    const pad=10,midw=8,ch=h-24,y0=8;
+    const lw=(w-2*pad-midw)/2,lx=pad,rx=pad+lw+midw;
+    // chambers
+    x.strokeStyle="#1e3b30";x.lineWidth=1.5;x.strokeRect(lx,y0,lw,ch);x.strokeRect(rx,y0,lw,ch);
+    // membrane
+    x.strokeStyle="#4cc7d0";x.setLineDash([4,3]);x.beginPath();x.moveTo(pad+lw+midw/2,y0);x.lineTo(pad+lw+midw/2,y0+ch);x.stroke();x.setLineDash([]);
+    // water fill
+    const fill=(cx,frac,solute,col)=>{const wh=frac*ch,wy=y0+ch-wh;x.fillStyle=col;x.fillRect(cx,wy,lw,wh);
+      // solute dots
+      x.fillStyle="#e8f2ec";const nd=Math.min(40,solute);for(let i=0;i<nd;i++){const dx=cx+6+((i*37)%(lw-12)),dy=wy+6+(((i*53)%Math.max(6,(wh-12))));x.beginPath();x.arc(dx,dy,2,0,7);x.fill();}};
+    fill(lx,vL/V,solL,"rgba(90,209,154,.28)");
+    fill(rx,vR/V,solR,"rgba(76,199,208,.24)");
+    x.fillStyle="#5a7568";x.font="11px ui-monospace";x.fillText("LEFT",lx+4,y0+ch+14);x.fillText("RIGHT",rx+4,y0+ch+14);
+    const eq=Math.abs(cL-cR)<0.02;
+    $("#ro",el).innerHTML=`concentration &nbsp; left = <b style="color:var(--acc)">${cL.toFixed(2)}</b> &nbsp; right = <b style="color:var(--teal)">${cR.toFixed(2)}</b><br><span style="color:var(--faint)">${eq?"balanced — concentrations equal, net water flow stops (equilibrium)":"water is moving toward the more concentrated (saltier) side to dilute it"}</span>`;
+  }
+  raf(draw);
+}
+
+const SIMS={dogma:simDogma,punnett:simPunnett,selection:simSelection,predprey:simPredPrey,osmosis:simOsmosis};
+const LABS=[
+ ["dogma","🧬","Central Dogma","Type a DNA sequence — watch it transcribe to mRNA and translate to a protein.","var(--acc)"],
+ ["punnett","▦","Punnett Square","Cross two parents and read the offspring genotype & phenotype ratios.","var(--teal)"],
+ ["selection","🐦","Natural Selection","A heritable trait under a selection-pressure slider, shifting over generations.","var(--acc2)"],
+ ["predprey","🦊","Predator & Prey","Lotka–Volterra cycles: predator and prey chase each other in time.","var(--violet)"],
+ ["osmosis","💧","Osmosis","Water crossing a membrane to balance solute concentration.","var(--green)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#0e2419,#0f221a);border-color:#2a4a35">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A RIGOROUS BIOLOGY COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">From biomolecules and cells → the central dogma → evolution → systems & ecology. Worked examples, interactive labs (🔬), and practice. Take it in order; the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔬 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · biology you can run</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`Which biomolecule family stores and carries genetic information?`,a:["Carbohydrates","Lipids","Proteins","Nucleic acids"],c:3,e:"DNA and RNA (nucleic acids) hold the instructions. Carbs = energy/structure, lipids = membranes/storage, proteins = the work."},
+ {q:`In a eukaryotic cell, most ATP is produced in the…`,a:["Nucleus","Mitochondrion","Ribosome","Golgi apparatus"],c:1,e:"The mitochondrion runs the Krebs cycle and electron transport chain — the powerhouse of aerobic respiration."},
+ {q:`Enzymes, which speed up reactions, are made of…`,a:["Lipids","Proteins","Carbohydrates","RNA only"],c:1,e:"Enzymes are proteins whose folded 3-D shape forms a pocket that fits a specific substrate."},
+ {q:`The central dogma describes information flowing:`,a:["Protein → RNA → DNA","DNA → RNA → protein","RNA → DNA → protein","DNA → protein → RNA"],c:1,e:"DNA is transcribed to RNA, which is translated to protein. Genotype becomes phenotype."},
+ {q:`In an mRNA, the codon AUG codes for…`,a:["Methionine (and START)","Leucine","STOP","Tryptophan"],c:0,e:"AUG codes for methionine and is the start signal that sets the reading frame."},
+ {q:`Cross Aa × Aa. The phenotype ratio (dominant : recessive) is…`,a:["1 : 1","3 : 1","1 : 2 : 1","9 : 3 : 3 : 1"],c:1,e:"Genotypes come out 1 AA : 2 Aa : 1 aa, so 3 show the dominant trait to every 1 recessive — a 3:1 ratio."},
+ {q:`Natural selection requires all of the following EXCEPT:`,a:["Heritable variation","Differential reproductive success","A conscious goal or direction","Competition for limited resources"],c:2,e:"Selection is blind and undirected. It needs variation, heredity, and differential reproduction — never a goal."},
+ {q:`A recessive trait appears in 9% of a population (q² = 0.09). The recessive allele frequency q is…`,a:["0.09","0.3","0.7","0.42"],c:1,e:"q = √0.09 = 0.3. Then p = 0.7 and carriers 2pq = 0.42 by Hardy–Weinberg."},
+ {q:`The rising (depolarization) phase of an action potential is caused by…`,a:["K⁺ flowing out","Na⁺ flowing in","Cl⁻ flowing in","the Na⁺/K⁺ pump"],c:1,e:"Voltage-gated Na⁺ channels open and Na⁺ rushes in, driving the membrane from −70 mV toward +40 mV."},
+ {q:`Roughly how much energy passes from one trophic level to the next?`,a:["~1%","~10%","~50%","~90%"],c:1,e:"The 10% rule: about 90% is lost as heat and waste, so only ~10% is available to the next level. Hence short food chains."},
+ {q:`In osmosis, water moves across a membrane toward the side with…`,a:["higher solute concentration","lower solute concentration","more water","higher temperature"],c:0,e:"Water diffuses toward the more concentrated (saltier) side, diluting it, until concentrations balance."},
+ {q:`Compared with eukaryotes, prokaryotic cells lack…`,a:["ribosomes","a plasma membrane","DNA","a membrane-bound nucleus and organelles"],c:3,e:"Prokaryotes have DNA, ribosomes, and a membrane — but no nucleus and no membrane-bound organelles."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">checked instantly, with explanations</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Cell biologist",P.done.biomol&&P.done.cell&&P.done.membrane&&P.done.energy],["②","Geneticist",P.done.dna&&P.done.transcription&&P.done.translation&&P.done.mutations&&P.done.mendel],["③","Darwinian",P.done.selection&&P.done.popgen],["④","Systems thinker",P.done.neuron&&P.done.homeostasis&&P.done.ecology],["🎯","Sharp",ds>=10],["🧬","Biologist",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#12281d" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ad19a"/><stop offset="1" stop-color="#39ae8c"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#e8f2ec" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#8fb0a2" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full biology course. 🧬":pc>=50?"Past the halfway mark — evolution and systems await.":"The logic of living things, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

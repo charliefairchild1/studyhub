@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Waves">
+<meta name="theme-color" content="#071016">
+<title>Waves &amp; Optics — a course</title>
+<style>
+:root{
+  --bg:#071016;--panel:#0d1c24;--card:#0f2029;--line:#1e3a44;--ink:#e6f3f6;--mut:#8fb0b8;--faint:#557079;
+  --acc:#4fd1e0;--acc2:#2a93c9;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#0d2a33 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(7,16,22,.96),rgba(7,16,22,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#04141a;font-size:19px;box-shadow:0 3px 14px rgba(79,209,224,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04141a;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#2f5c4a}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0a1a20;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#cfe0e4;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#cfe0e4;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#eafaff;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#0a1a20;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#0a1a20;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#dcecef}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#0c1d1a;border:1px solid #2f4a44;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6e2;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#050c10;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#030709}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 7px;font:inherit;font-size:13px}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#0f2116}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(7,16,22,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0a1a20;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#04141a;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">〰️</div>
+  <div><h1>Waves &amp; Optics</h1><div class="sub">vibrations, interference, and light</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">📈</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("waves_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("waves_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Wave basics",lessons:[
+   {id:"whatis",n:"What a wave is",sub:"a disturbance that carries energy, not matter"},
+   {id:"describe",n:"Describing a wave",sub:"wavelength, frequency, period, amplitude, speed",lab:"wave"},
+   {id:"types",n:"Transverse, longitudinal & the wave equation",sub:"two ways to shake, one law"},
+   {id:"superpose",n:"Superposition",sub:"when two waves share the same place"},
+ ]},
+ {ic:"②",t:"Part II · Interference & diffraction",lessons:[
+   {id:"interfere",n:"Interference",sub:"crests reinforcing, crests cancelling",lab:"interfere"},
+   {id:"doubleslit",n:"Young's double slit",sub:"the experiment that proved light is a wave"},
+   {id:"grating",n:"Gratings & thin films",sub:"splitting light and colouring soap bubbles"},
+ ]},
+ {ic:"③",t:"Part III · Sound & standing waves",lessons:[
+   {id:"sound",n:"Sound",sub:"pressure waves in the air"},
+   {id:"standing",n:"Standing waves & harmonics",sub:"why a string has a note",lab:"standing"},
+   {id:"doppler",n:"Beats & the Doppler effect",sub:"throbbing tones and the pitch of a passing siren",lab:"beats"},
+ ]},
+ {ic:"④",t:"Part IV · Light & optics",lessons:[
+   {id:"lightem",n:"Light as an EM wave",sub:"the electromagnetic spectrum & colour"},
+   {id:"refract",n:"Reflection, refraction & Snell's law",sub:"why light bends, and total internal reflection",lab:"snell"},
+   {id:"lenses",n:"Lenses & mirrors",sub:"bending rays to form an image"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+C.whatis=`<p>A <b>wave</b> is a travelling <b>disturbance</b> — a pattern of oscillation that moves through space, carrying <b>energy and information</b> but <i>not</i> the material it travels through. Drop a stone in a pond: the ripple races outward, yet a floating leaf only bobs up and down in place. The water goes nowhere; the <i>pattern</i> goes everywhere.</p>
+<p>That is the single most important idea in this whole course. In a wave, each bit of the medium jiggles about its own resting spot and passes the jiggle to its neighbour. The disturbance is relayed forward; the stuff stays put.</p>
+<div class="eq box">a wave transports <b>energy</b> and <b>momentum</b> through a medium — without transporting the medium itself</div>
+<p>Waves are everywhere and they all obey the same mathematics: ripples on water, a plucked guitar string, sound in air, a slinky on the floor, a tremor through rock, and — remarkably — light, radio, and every colour of the electromagnetic spectrum. Learn the grammar of one and you have learned all of them.</p>
+<p>Some waves need a <b>medium</b> to travel (sound needs air, ripples need water — these are <i>mechanical</i> waves). One kind does not: <b>light</b> is an electromagnetic wave and crosses the vacuum of space, which is how the Sun reaches us. We build to that in Part IV.</p>
+<div class="callout"><span class="l">Why you're here</span>Music, radio, ultrasound, fibre optics, noise-cancelling headphones, rainbows, the blue of the sky, and the double-slit experiment that broke classical physics — every one is a story about waves. This course gives you the sentences to read them.</div>`;
+
+C.describe=`<p>Every wave is captured by a handful of numbers. Picture a snapshot of a wave frozen in space, then the same point watched over time.</p>
+<p><b>Wavelength</b> (λ, lambda) — the distance between two successive crests (or any point and the next identical one). Measured in metres.</p>
+<p><b>Amplitude</b> (A) — the maximum displacement from the resting position. It sets how much <b>energy</b> the wave carries (energy grows with the <i>square</i> of amplitude): a bigger swing means a louder sound or a brighter light.</p>
+<p><b>Period</b> (T) — the time for one full oscillation to pass, in seconds. <b>Frequency</b> (f) — how many oscillations pass per second, in <b>hertz</b> (Hz). They are reciprocals:</p>
+<div class="eq box">f = ${frac("1","T")} &nbsp;&nbsp;&nbsp; T = ${frac("1","f")}</div>
+<p>Now the equation that ties it all together. In one period T the wave advances exactly one wavelength λ. Speed is distance over time, λ/T — and since 1/T = f:</p>
+<div class="eq box">v = f · λ &nbsp;&nbsp; <span style="font-size:.7em;color:var(--mut)">(speed = frequency × wavelength)</span></div>
+<p>This is the master relation of the whole subject. A crucial subtlety: the <b>speed of a wave is set by the medium</b>, not by the source. So if you raise the frequency, the wavelength must shrink to keep v·= f·λ fixed — high notes have short wavelengths, low notes long ones.</p>
+<div class="wk"><div class="wl">Worked example · v = fλ</div>
+<div class="step">Middle-C on a piano vibrates the air at f = 256 Hz. Sound travels at v = 343 m/s in room-temperature air. What is its wavelength?</div>
+<div class="step">Rearrange: λ = v / f = 343 / 256 <span class="r">m·s⁻¹ ÷ s⁻¹</span></div>
+<div class="step">λ = <b>1.34 m</b>. <span class="r">Each pressure crest is about a metre and a third apart — roughly the length of a cello.</span></div></div>
+<p>Play with all three numbers below. Notice you can change λ, f, and A freely — but watch how the readout's <b>v = fλ</b> tracks them.</p>
+<div id="__sim"></div>`;
+
+C.types=`<p>There are two fundamental ways for a medium to shake, distinguished by the <i>direction</i> of the wiggle relative to the direction the wave travels.</p>
+<p><b>Transverse waves</b> — the medium moves <b>perpendicular</b> to the wave's travel. Shake a rope up and down and the bump races along horizontally while the rope moves vertically. Water surface waves, waves on a string, and light are (essentially) transverse. Transverse waves have crests and troughs, and they can be <b>polarised</b> — restricted to one plane of vibration.</p>
+<p><b>Longitudinal waves</b> — the medium moves <b>parallel</b> to the travel, bunching up and spreading out. Push and pull the end of a slinky and a pulse of compression runs down its length. <b>Sound</b> is the great example: air molecules crowd together (compressions) and thin out (rarefactions) along the direction the sound moves.</p>
+<div class="eq box">transverse: displacement ⊥ travel &nbsp;·&nbsp; longitudinal: displacement ∥ travel</div>
+<p><b>The wave equation, conceptually.</b> All of this is governed by one differential equation. It says the <i>acceleration</i> of each piece of the medium is proportional to how sharply the wave is <i>curved</i> there:</p>
+<div class="eq box">${frac("∂²y","∂t²")} = ${sup("v","2")} ${frac("∂²y","∂x²")}</div>
+<p>You don't need to solve it — just read it. A sharply bent bit of string feels a big restoring force and snaps back hard; a straight bit feels none. The constant of proportionality is the <b>speed squared</b>. Any shape that keeps its form while sliding at speed v — anything of the form y = f(x − vt) — is a solution. That's <i>why</i> a pulse travels without distorting.</p>
+<p>The speed itself comes from the medium's stiffness and inertia. On a string it is the tension pulling it back versus the mass slowing it down:</p>
+<div class="eq box">v = ${frac("√T","√μ")} &nbsp; <span style="font-size:.7em;color:var(--mut)">T = tension, μ = mass per unit length</span></div>
+<p>Tighten a guitar string (more T) and waves travel faster, raising its pitch; use a thicker string (more μ) and they travel slower, lowering it. Exactly what a guitarist does when tuning.</p>`;
+
+C.superpose=`<p>What happens when two waves arrive at the same place at the same time? The answer is beautifully simple and is the gateway to everything in Part II.</p>
+<div class="eq box"><b>Superposition:</b> when waves overlap, the total displacement is the <b>sum</b> of the individual displacements</div>
+<p>At every point and every instant, just add the two displacements — with sign. Where two crests meet, they build a taller crest. Where a crest meets an equal trough, they cancel to nothing. Then the waves pass straight through each other and continue on, completely unchanged, as if the meeting never happened.</p>
+<p>This works because the wave equation is <b>linear</b>: if y₁ is a solution and y₂ is a solution, then y₁ + y₂ is automatically a solution too. (It holds as long as amplitudes aren't enormous — very loud sound or very intense light eventually breaks linearity, but for everything here, superposition rules.)</p>
+<div class="callout"><span class="l">The whole of Part II in one sentence</span>Superposition is why waves <b>interfere</b>. Add two waves that are in step and you get a bigger wave; add two that are out of step and they cancel. Every interference pattern, every diffraction fringe, every note of a musical instrument, and every beat you'll meet is just this addition, carried out carefully.</p></div>
+<p>A related consequence: because a plucked string is held at both ends, only certain wave shapes "fit." Superposition of a wave and its own reflection produces a <b>standing wave</b> — the subject of Part III. First, though, we let two <i>separate</i> sources interfere.</p>`;
+
+C.interfere=`<p>When two waves of the same wavelength overlap, superposition produces a fixed pattern of reinforcement and cancellation called <b>interference</b>. Everything hinges on whether the two waves arrive <b>in step</b> or <b>out of step</b> — their relative <b>phase</b>.</p>
+<p><b>Constructive interference.</b> If crest lines up with crest, the waves add and the result is a big wave (amplitude 2A). This happens when the two paths differ by a <b>whole number of wavelengths</b>:</p>
+<div class="eq box">constructive: &nbsp; path difference Δ = mλ &nbsp;&nbsp; (m = 0, 1, 2, …)</div>
+<p><b>Destructive interference.</b> If crest lines up with trough, the waves subtract and cancel (amplitude zero, if they're equal). This happens when the paths differ by a <b>half-integer</b> number of wavelengths:</p>
+<div class="eq box">destructive: &nbsp; path difference Δ = (m + ½) λ</div>
+<p>The key quantity is the <b>path difference</b> — the extra distance one wave travels compared with the other. Half a wavelength of extra path flips a crest into a trough, turning "add" into "cancel."</p>
+<p>For a <i>stable</i> pattern the two sources must be <b>coherent</b> — they must keep a fixed phase relationship. Two independent lightbulbs flicker randomly and never produce visible fringes; that's why the double-slit experiment sends <i>one</i> beam through <i>two</i> slits, so both fringes share a single, common rhythm.</p>
+<p>Below, two coherent sources radiate into a 2-D field. The bright bands are lines of constructive interference (crests reinforcing); the dark bands are destructive (crests filling troughs). Change the wavelength and the source gap and watch the fan of fringes swing.</p>
+<div id="__sim"></div>`;
+
+C.doubleslit=`<p>In 1801 Thomas Young settled a century-old argument by shining light through two narrow, closely spaced slits and catching it on a screen. Instead of two bright lines he saw a <b>row of alternating bright and dark bands</b> — an interference pattern. Only waves do that. Light is a wave.</p>
+<p>Here is the geometry. Two slits a distance <b>d</b> apart act as coherent sources. Toward a point at angle θ, the light from the far slit travels an extra distance — the <b>path difference</b> — of <b>d·sinθ</b>. A bright fringe appears wherever that extra path is a whole number of wavelengths:</p>
+<div class="eq box"><b>bright fringes:</b> &nbsp; d sinθ = mλ &nbsp;&nbsp; (m = 0, ±1, ±2, …)</div>
+<p>The central fringe (m = 0) sits straight ahead where both paths are equal. Dark fringes fall halfway between, where d·sinθ = (m + ½)λ. The integer m is the <b>order</b> of the fringe.</p>
+<p>For small angles (slits close, screen far away at distance L) we can use sinθ ≈ θ ≈ y/L, and the bright fringes land at evenly spaced positions on the screen. The spacing between neighbouring fringes is:</p>
+<div class="eq box">Δy = ${frac("λ L","d")}</div>
+<div class="wk"><div class="wl">Worked example · fringe spacing</div>
+<div class="step">Red laser light, λ = 650 nm = 6.5×10⁻⁷ m, through slits d = 0.20 mm = 2.0×10⁻⁴ m apart, onto a screen L = 2.0 m away. How far apart are the bright fringes?</div>
+<div class="step">Δy = λL / d = (6.5×10⁻⁷ × 2.0) / (2.0×10⁻⁴)</div>
+<div class="step">Δy = ${frac("1.3×10⁻⁶","2.0×10⁻⁴")} = 6.5×10⁻³ m = <b>6.5 mm</b>. <span class="r">Easily visible — and by measuring it you can solve back for the wavelength of light.</span></div></div>
+<div class="callout"><span class="l">The deep part</span>Turn the light so dim that only one photon crosses at a time, and the bands <i>still</i> build up, one dot at a time. Each particle of light somehow interferes with itself. Young's simple stripes are the doorway to quantum mechanics.</div>`;
+
+C.grating=`<p>Two slits give gentle fringes. Rule <b>thousands</b> of slits per centimetre and you have a <b>diffraction grating</b> — and the same condition now produces razor-sharp, brilliant bright lines separated by wide darkness.</p>
+<div class="eq box"><b>grating maxima:</b> &nbsp; d sinθ = mλ</div>
+<p>It's the identical formula as the double slit, but with many slits the constructive directions become extremely precise: light of a given wavelength emerges only at exact angles, and everywhere else the many waves cancel. Here d is the slit spacing — if the grating has N lines per metre, then d = 1/N.</p>
+<p>Because the angle depends on λ, a grating <b>fans white light into a spectrum</b>, spreading each wavelength to its own angle far more cleanly than a prism. This is how astronomers read the composition of stars: pass starlight through a grating and each element betrays itself by the exact wavelengths it emits or absorbs.</p>
+<div class="wk"><div class="wl">Worked example · grating angle</div>
+<div class="step">A grating has 500 lines per mm, so d = 1/(500×10³ m⁻¹) = 2.0×10⁻⁶ m. Green light λ = 550 nm. At what angle is the first-order (m = 1) bright line?</div>
+<div class="step">sinθ = mλ/d = (1 × 5.5×10⁻⁷) / (2.0×10⁻⁶) = 0.275</div>
+<div class="step">θ = arcsin(0.275) = <b>16.0°</b>. <span class="r">Red light, with a longer λ, comes out at a larger angle — hence the spread of colours.</span></div></div>
+<p><b>Thin films.</b> Interference also colours everyday surfaces. In a soap bubble or a film of oil on water, light reflects off <i>both</i> the top and bottom surfaces of the film. The two reflected waves travel paths differing by roughly <b>2nt</b> (twice the film thickness t, times its refractive index n), plus a half-wavelength flip that reflection can add. Where that difference is right for a given colour, that colour interferes constructively and blazes; others cancel. As the film thickness varies, so do the swirling bands of colour — structural colour, made of pure geometry, not pigment.</p>`;
+
+C.sound=`<p>Sound is a <b>longitudinal pressure wave</b>. A vibrating object — a speaker cone, a vocal cord, a struck bell — pushes on the neighbouring air, creating a thin layer of <b>compression</b> (slightly higher pressure). That layer shoves the next, and a pulse of squeeze-and-stretch races outward: compressions and <b>rarefactions</b> chasing each other through the air.</p>
+<p>Your eardrum feels these pressure swings and your brain reads them as sound. Two properties of the wave map onto two things you hear:</p>
+<ul>
+<li><b>Frequency → pitch.</b> More oscillations per second is a higher note. Humans hear roughly <b>20 Hz to 20,000 Hz</b>; below is infrasound, above is ultrasound (used in sonar and medical imaging).</li>
+<li><b>Amplitude → loudness.</b> Bigger pressure swings carry more energy and sound louder. Loudness is measured on the logarithmic <b>decibel</b> scale.</li>
+</ul>
+<p>Sound needs a medium — in a vacuum there is no air to compress, so <i>space is silent</i>. Its speed depends on the medium's stiffness and density, so it is <b>fastest in solids</b>, slower in liquids, slowest in gases:</p>
+<div class="eq box">air ≈ 343 m/s &nbsp;·&nbsp; water ≈ 1480 m/s &nbsp;·&nbsp; steel ≈ 5000 m/s</div>
+<p>In air the speed also rises with temperature (about 0.6 m/s per °C). And it obeys the same master equation as every wave — v = fλ — which is exactly what lets us tie a note's frequency to the size of the instrument that plays it.</p>
+<div class="wk"><div class="wl">Worked example · the wavelength of a voice</div>
+<div class="step">A soprano sings a high A, f = 880 Hz, in air where v = 343 m/s.</div>
+<div class="step">λ = v/f = 343 / 880 = <b>0.39 m</b>. <span class="r">A low bass note near 80 Hz has λ ≈ 4.3 m — over ten times longer, which is why deep bass bends around corners and walls so easily.</span></div></div>`;
+
+C.standing=`<p>When a wave reflects off a boundary and overlaps its own returning copy, superposition can freeze the pattern in place: a <b>standing wave</b>. It doesn't travel; instead the medium oscillates in a fixed shape, with points that never move at all.</p>
+<p><b>Nodes</b> are points of permanent stillness (the two travelling waves always cancel there). <b>Antinodes</b> are points of maximum swing (they always reinforce). On a string clamped at both ends, the ends <i>must</i> be nodes — so only wavelengths that fit whole loops between the ends are allowed. This is <b>resonance</b>, and it is why a string has a definite pitch.</p>
+<p>For a string of length L fixed at both ends, the allowed wavelengths and frequencies form a series called the <b>harmonics</b>:</p>
+<div class="eq box">${sup("λ","n")} = ${frac("2L","n")} &nbsp;&nbsp;&nbsp; ${sup("f","n")} = ${frac("n v","2L")} = n·${sup("f","1")} &nbsp;&nbsp; (n = 1, 2, 3, …)</div>
+<p>The lowest (n = 1) is the <b>fundamental</b> — one antinode, half a wavelength spanning the string. The higher harmonics are <b>whole-number multiples</b> of it, and the particular blend of harmonics an instrument produces is its <b>timbre</b> — why a violin and a flute playing the same note sound utterly different.</p>
+<p><b>Pipes</b> work the same way with sound. A pipe open at both ends behaves like the string (all harmonics, fₙ = nv/2L). A pipe <b>closed at one end</b> must have a node at the closed end and an antinode at the open end, so only the <b>odd</b> harmonics survive and its fundamental is fₙ = nv/4L (n odd) — an octave lower for the same length, which is why a stopped organ pipe sounds so deep.</p>
+<div class="wk"><div class="wl">Worked example · a guitar string</div>
+<div class="step">A guitar string is L = 0.65 m long, and waves travel along it at v = 400 m/s. Find its fundamental frequency.</div>
+<div class="step">f₁ = v / (2L) = 400 / (2 × 0.65) = 400 / 1.30</div>
+<div class="step">f₁ = <b>308 Hz</b> <span class="r">(close to the E above middle C). Press the fret at the midpoint and L halves, doubling the frequency — one octave up.</span></div></div>
+<p>Pick a harmonic below and watch the exact mode the string is forced to adopt. Count the nodes: harmonic n has n antinodes and n + 1 nodes.</p>
+<div id="__sim"></div>`;
+
+C.doppler=`<p>Two wave phenomena you can literally hear. Both come straight out of superposition and the relation v = fλ.</p>
+<p><b>Beats.</b> Sound two notes of <i>almost</i> the same frequency together — say 440 Hz and 444 Hz — and you hear a single tone that <b>throbs</b>, swelling and fading. Superposition is the cause: the two waves drift in and out of step, alternately reinforcing (loud) and cancelling (soft). The throbbing repeats at the <b>beat frequency</b>, which is simply the difference:</p>
+<div class="eq box">${sup("f","beat")} = | ${sup("f","1")} − ${sup("f","2")} |</div>
+<p>Musicians tune by beats: adjust a string against a reference until the throbbing slows to a stop — then the frequencies match exactly. In the lab below, two close frequencies add to a fast wave inside a slow, pulsing envelope; the envelope's rhythm is the beat.</p>
+<div id="__sim"></div>
+<p><b>The Doppler effect.</b> When a source and observer move relative to each other, the observed frequency <b>shifts</b>. As a siren <b>approaches</b>, each successive crest is emitted a little closer than the last, so the crests bunch up — shorter wavelength, <b>higher pitch</b>. As it <b>recedes</b>, the crests stretch out — <b>lower pitch</b>. That is the sudden drop in tone as an ambulance passes you. The general formula for sound:</p>
+<div class="eq box">f′ = f ${frac("v ± "+sup("v","obs"),"v ∓ "+sup("v","src"))}</div>
+<p>Use the top signs for motion that brings source and observer <b>together</b> (frequency rises), the bottom signs for motion that pulls them apart.</p>
+<div class="wk"><div class="wl">Worked example · a passing siren</div>
+<div class="step">An ambulance siren emits f = 700 Hz and drives toward you at ${sup("v","src")} = 30 m/s. Sound speed v = 343 m/s, you are still (${sup("v","obs")} = 0).</div>
+<div class="step">Approaching, use the bottom sign in the denominator: f′ = 700 × 343 / (343 − 30) = 700 × 343 / 313</div>
+<div class="step">f′ = <b>767 Hz</b> — noticeably sharper. As it passes and recedes: f′ = 700 × 343 / 373 = <b>643 Hz</b>. The pitch drops by over a whole tone as it goes by.</div></div>
+<div class="callout"><span class="l">Beyond sound</span>Light Dopplers too: galaxies rushing away stretch their light toward the red end — the cosmological <b>redshift</b> that revealed the expanding universe. Police radar and the "wobble" method for finding exoplanets are the same effect, read off light instead of sound.</div>`;
+
+C.lightem=`<p>Now the payoff of the whole course. <b>Light is an electromagnetic wave</b> — but nothing material waves. What oscillates is the <b>electric and magnetic field</b> itself. A changing electric field creates a magnetic field, whose change recreates the electric field, and the pair leapfrogs through empty space, self-sustaining, needing no medium at all.</p>
+<p>The two fields point at right angles to each other and both are <b>perpendicular</b> to the direction of travel — light is a transverse wave. Maxwell showed in the 1860s that these self-propagating fields must travel at one fixed speed, set by two constants of electricity and magnetism, and the number came out at almost exactly the measured speed of light. That was the proof: light <i>is</i> electromagnetism.</p>
+<div class="eq box">c ≈ 3.00 × ${sup("10","8")} m/s &nbsp; <span style="font-size:.7em;color:var(--mut)">(the speed of light in vacuum)</span></div>
+<p>Every electromagnetic wave obeys the same v = fλ, now written <b>c = fλ</b>. What we call visible light is a tiny slice of a vast <b>electromagnetic spectrum</b> — all the same phenomenon, differing only in wavelength (and therefore frequency):</p>
+<div class="eq box">radio → microwave → infrared → <b>visible</b> → ultraviolet → X-ray → gamma</div>
+<p>Wavelength runs from kilometres (radio) down to less than the width of an atom (gamma). The visible band is only <b>400 to 700 nanometres</b>, and within it, <b>wavelength is colour</b>: ~700 nm looks red, ~550 nm green, ~450 nm blue. "White" light is all of them mixed together, which is why a prism or a raindrop can pull it apart into a rainbow.</p>
+<div class="wk"><div class="wl">Worked example · the frequency of green light</div>
+<div class="step">Green light has λ = 550 nm = 5.5×10⁻⁷ m. Find its frequency.</div>
+<div class="step">f = c / λ = (3.0×10⁸) / (5.5×10⁻⁷)</div>
+<div class="step">f = <b>5.5 × 10¹⁴ Hz</b> — 550 trillion oscillations per second. Visible light vibrates far too fast for any mechanical instrument to follow.</div></div>`;
+
+C.refract=`<p>When light meets a boundary between two materials, two things happen at once: some bounces back (<b>reflection</b>) and some passes through, bending (<b>refraction</b>).</p>
+<p><b>Reflection</b> is simple: the angle of the outgoing ray equals the angle of the incoming ray, both measured from the <b>normal</b> (the line perpendicular to the surface).</p>
+<div class="eq box"><b>law of reflection:</b> &nbsp; ${sup("θ","incident")} = ${sup("θ","reflected")}</div>
+<p><b>Refraction</b> is the interesting one. Light travels slower in denser transparent media, and this change of speed makes the ray <b>bend</b>. We rate a material by its <b>refractive index</b> n = c/v, the factor by which it slows light down (vacuum n = 1, water 1.33, glass ≈ 1.5, diamond 2.42). The bending obeys <b>Snell's law</b>:</p>
+<div class="eq box"><b>Snell's law:</b> &nbsp; ${sup("n","1")} sin${sup("θ","1")} = ${sup("n","2")} sin${sup("θ","2")}</div>
+<p>Going into a <b>denser</b> medium (larger n), light bends <b>toward</b> the normal; coming out into a rarer one, it bends away. This bending is why a straw looks broken at the waterline, why a pool looks shallower than it is, and how every lens works.</p>
+<div class="wk"><div class="wl">Worked example · Snell's law</div>
+<div class="step">Light in air (n₁ = 1.00) hits water (n₂ = 1.33) at θ₁ = 30° from the normal. What is the refraction angle θ₂?</div>
+<div class="step">sinθ₂ = (n₁ sinθ₁)/n₂ = (1.00 × sin 30°)/1.33 = 0.500/1.33 = 0.376</div>
+<div class="step">θ₂ = arcsin(0.376) = <b>22.1°</b>. <span class="r">Bent toward the normal, exactly as expected on entering the denser water.</span></div></div>
+<p><b>Total internal reflection.</b> Go the other way — from dense to rare, like glass to air — and the ray bends <i>away</i> from the normal. Push the incidence angle high enough and the refracted ray would need to bend past 90°, which is impossible: instead <b>all</b> the light reflects back inside. This kicks in beyond the <b>critical angle</b>:</p>
+<div class="eq box">sin${sup("θ","c")} = ${frac(sup("n","2"),sup("n","1"))}</div>
+<p>Total internal reflection is how <b>optical fibres</b> pipe light for kilometres without leaking, how diamonds sparkle, and why the underside of a water surface acts like a mirror. Drag the angle past critical in the lab below and watch the refracted ray vanish.</p>
+<div id="__sim"></div>`;
+
+C.lenses=`<p>A <b>lens</b> is a shaped piece of glass that uses refraction, over its whole curved surface, to steer many rays to a single meeting point — forming an <b>image</b>. There are two families:</p>
+<ul>
+<li><b>Converging (convex) lens</b> — thicker in the middle. Parallel rays bend inward and cross at the <b>focal point</b>, a distance f (the <b>focal length</b>) beyond the lens. This is the magnifying glass, the camera lens, the eye's lens.</li>
+<li><b>Diverging (concave) lens</b> — thinner in the middle. It spreads parallel rays apart, as if they came from a focal point on the near side.</li>
+</ul>
+<p>Where the image forms is given by the <b>thin-lens equation</b>, relating the object distance ${sup("d","o")}, the image distance ${sup("d","i")}, and the focal length f:</p>
+<div class="eq box">${frac("1","f")} = ${frac("1",sup("d","o"))} + ${frac("1",sup("d","i"))}</div>
+<p>The <b>magnification</b> is m = −${sup("d","i")}/${sup("d","o")}: a negative value means the image is inverted. A far object gives a small inverted image near the focal point (a camera); an object closer than f gives an enlarged upright virtual image (a magnifying glass).</p>
+<div class="wk"><div class="wl">Worked example · the thin-lens equation</div>
+<div class="step">An object sits ${sup("d","o")} = 30 cm in front of a converging lens of focal length f = 10 cm. Where is the image?</div>
+<div class="step">1/${sup("d","i")} = 1/f − 1/${sup("d","o")} = 1/10 − 1/30 = 3/30 − 1/30 = 2/30</div>
+<div class="step">${sup("d","i")} = 30/2 = <b>15 cm</b> behind the lens — real and inverted, at magnification m = −15/30 = −½ (half size).</div></div>
+<p><b>Curved mirrors</b> do the same job by <b>reflection</b> instead of refraction, and obey the very same equation. A concave mirror converges light (satellite dishes, reflecting telescopes, make-up mirrors); a convex mirror diverges it, giving a wide shrunken view (a car's wing mirror — "objects are closer than they appear").</p>
+<div class="callout"><span class="l">You've read the light</span>From "a wave carries energy, not matter" you've reached the equations behind eyes, cameras, telescopes, rainbows, fibre optics, and the colour of the sky. Every one is interference, refraction, or reflection — the same handful of ideas, all the way down. That's the physics of waves and optics.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+
+/* --- adjustable travelling wave --- */
+function simWave(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>wavelength λ <input type="range" id="wl" min="0.4" max="3" step="0.05" value="1.5"></label>
+   <label>frequency f <input type="range" id="fr" min="0.2" max="2.4" step="0.05" value="1"></label>
+   <label>amplitude A <input type="range" id="am" min="0.15" max="1" step="0.05" value="0.7"></label></div></div>`;
+  const cv=$("canvas",el);let wl=1.5,fr=1,am=0.7,t=0;
+  $("#wl",el).oninput=e=>wl=+e.target.value;$("#fr",el).oninput=e=>fr=+e.target.value;$("#am",el).oninput=e=>am=+e.target.value;
+  const Wm=6; // metres shown across the canvas width
+  function draw(){const {x,w,h}=fit(cv,200);t+=0.028;
+    const ppm=w/Wm,mid=h/2,A=am*(h*0.38),k=2*Math.PI/wl,om=2*Math.PI*fr;
+    x.clearRect(0,0,w,h);
+    // resting line
+    x.strokeStyle="#1e3a44";x.lineWidth=1;x.beginPath();x.moveTo(0,mid);x.lineTo(w,mid);x.stroke();
+    // one wavelength marker near top
+    x.strokeStyle="#54c6b0";x.lineWidth=1.5;const x0=w*0.12,x1=x0+wl*ppm;
+    x.beginPath();x.moveTo(x0,18);x.lineTo(x0,34);x.moveTo(x1,18);x.lineTo(x1,34);x.moveTo(x0,26);x.lineTo(x1,26);x.stroke();
+    x.fillStyle="#54c6b0";x.font="11px ui-monospace,monospace";x.fillText("λ",(x0+x1)/2-3,14);
+    // the wave
+    x.strokeStyle="#4fd1e0";x.lineWidth=2.6;x.beginPath();
+    for(let px=0;px<=w;px+=2){const xm=px/ppm;const y=mid-A*Math.sin(k*xm-om*t);px===0?x.moveTo(px,y):x.lineTo(px,y);}
+    x.stroke();
+    // amplitude arrow at left crest
+    const v=fr*wl,T=1/fr;
+    $("#ro",el).innerHTML=`λ = <b>${wl.toFixed(2)} m</b> &nbsp; f = <b>${fr.toFixed(2)} Hz</b> &nbsp; A = <b>${am.toFixed(2)}</b><br>speed &nbsp; v = fλ = <b style="color:var(--teal)">${v.toFixed(2)} m/s</b> &nbsp; period T = 1/f = <b>${T.toFixed(2)} s</b>`;
+  }
+  raf(draw);
+}
+
+/* --- two-source interference field --- */
+function simInterfere(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro">Two coherent sources. Bright bands = crests reinforcing (constructive); dark = crests cancelling troughs (destructive).</div>
+   <div class="simctl"><label>wavelength λ <input type="range" id="wl" min="12" max="46" step="1" value="26"></label>
+   <label>source gap d <input type="range" id="gap" min="16" max="130" step="2" value="70"></label></div></div>`;
+  const cv=$("canvas",el);let wl=26,gap=70,t=0;$("#wl",el).oninput=e=>wl=+e.target.value;$("#gap",el).oninput=e=>gap=+e.target.value;
+  function draw(){const {x,w,h}=fit(cv,230);t+=0.14;const img=x.createImageData(w,h);const d=img.data;
+    const s1x=w/2-gap/2,s2x=w/2+gap/2,sy=22;
+    for(let py=0;py<h;py+=2)for(let px=0;px<w;px+=2){
+      const r1=Math.hypot(px-s1x,py-sy),r2=Math.hypot(px-s2x,py-sy);
+      const v=Math.sin(r1/wl*6.283-t)+Math.sin(r2/wl*6.283-t);const c=(v+2)/4;
+      const R=c*79,G=c*209,B=c*224;
+      for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){const i=((py+dy)*w+(px+dx))*4;d[i]=R;d[i+1]=G;d[i+2]=B;d[i+3]=255;}
+    }
+    x.putImageData(img,0,0);
+    x.fillStyle="#fff";[s1x,s2x].forEach(sx=>{x.beginPath();x.arc(sx,sy,3,0,7);x.fill();});
+  }
+  raf(draw);
+}
+
+/* --- standing wave / harmonics --- */
+function simStanding(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>harmonic n <input type="range" id="n" min="1" max="6" step="1" value="1"></label></div></div>`;
+  const cv=$("canvas",el);let n=1,t=0;$("#n",el).oninput=e=>n=+e.target.value;
+  function draw(){const {x,w,h}=fit(cv,210);t+=0.05;
+    const mid=h/2,pad=24,L=w-2*pad,A=h*0.34,env=Math.cos(t);
+    x.clearRect(0,0,w,h);
+    x.strokeStyle="#1e3a44";x.lineWidth=1;x.beginPath();x.moveTo(pad,mid);x.lineTo(w-pad,mid);x.stroke();
+    // faint envelope (the fixed shape the string swings between)
+    x.strokeStyle="#2a93c955";x.lineWidth=1;
+    [1,-1].forEach(s=>{x.beginPath();for(let px=0;px<=L;px+=2){const xr=px/L;const y=mid-s*A*Math.sin(n*Math.PI*xr);px===0?x.moveTo(pad+px,y):x.lineTo(pad+px,y);}x.stroke();});
+    // the vibrating string
+    x.strokeStyle="#4fd1e0";x.lineWidth=2.6;x.beginPath();
+    for(let px=0;px<=L;px+=2){const xr=px/L;const y=mid-env*A*Math.sin(n*Math.PI*xr);px===0?x.moveTo(pad+px,y):x.lineTo(pad+px,y);}
+    x.stroke();
+    // nodes (n+1 of them, including the two fixed ends)
+    x.fillStyle="#ef7a6a";for(let k=0;k<=n;k++){const px=pad+ (k/n)*L;x.beginPath();x.arc(px,mid,4,0,7);x.fill();}
+    // clamps
+    x.fillStyle="#8fb0b8";x.fillRect(pad-4,mid-16,4,32);x.fillRect(w-pad,mid-16,4,32);
+    $("#ro",el).innerHTML=`harmonic <b>n = ${n}</b> &nbsp; ${n===1?"(fundamental)":""} &nbsp; wavelength λ = 2L/n = <b>${(2/n).toFixed(2)} L</b><br>frequency ${sup("f","n")} = n·f₁ = <b style="color:var(--teal)">${n} × f₁</b> &nbsp; nodes: <b>${n+1}</b> (red) &nbsp; antinodes: <b>${n}</b>`;
+  }
+  raf(draw);
+}
+
+/* --- beats: two close frequencies --- */
+function simBeats(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>frequency f₁ <input type="range" id="f1" min="6" max="12" step="0.1" value="9"></label>
+   <label>frequency f₂ <input type="range" id="f2" min="6" max="12" step="0.1" value="9.6"></label></div></div>`;
+  const cv=$("canvas",el);let f1=9,f2=9.6,t=0;$("#f1",el).oninput=e=>f1=+e.target.value;$("#f2",el).oninput=e=>f2=+e.target.value;
+  function draw(){const {x,w,h}=fit(cv,210);t+=0.01;
+    const mid=h/2,A=h*0.30;
+    x.clearRect(0,0,w,h);
+    x.strokeStyle="#1e3a44";x.lineWidth=1;x.beginPath();x.moveTo(0,mid);x.lineTo(w,mid);x.stroke();
+    // window of time across the width
+    const span=2.0; // seconds shown
+    // envelope from the beat: 2A cos(pi (f1-f2) tau)
+    x.strokeStyle="#b78bef88";x.lineWidth=1.2;
+    [1,-1].forEach(s=>{x.beginPath();for(let px=0;px<=w;px+=2){const tau=t+px/w*span;const e=2*A*Math.cos(Math.PI*(f1-f2)*tau);px===0?x.moveTo(px,mid-s*e):x.lineTo(px,mid-s*e);}x.stroke();});
+    // the summed wave
+    x.strokeStyle="#4fd1e0";x.lineWidth=2.2;x.beginPath();
+    for(let px=0;px<=w;px+=1){const tau=t+px/w*span;const y=A*(Math.sin(2*Math.PI*f1*tau)+Math.sin(2*Math.PI*f2*tau));px===0?x.moveTo(px,mid-y):x.lineTo(px,mid-y);}
+    x.stroke();
+    const fb=Math.abs(f1-f2);
+    $("#ro",el).innerHTML=`f₁ = <b>${f1.toFixed(1)} Hz</b> &nbsp; f₂ = <b>${f2.toFixed(1)} Hz</b> &nbsp; → beat frequency = |f₁−f₂| = <b style="color:var(--violet)">${fb.toFixed(1)} Hz</b><br><span style="color:var(--faint)">the violet envelope pulses ${fb.toFixed(1)} times a second — the throb you hear. Set them equal and the throbbing stops.</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Snell's law refraction + total internal reflection --- */
+function simSnell(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>incidence angle θ₁ <input type="range" id="a" min="0" max="88" step="1" value="35"></label>
+   <label>top index n₁ (bottom = air, n₂=1.0) <input type="range" id="n1" min="1" max="2.6" step="0.05" value="1.5"></label></div></div>`;
+  const cv=$("canvas",el);let ang=35,n1=1.5;const n2=1.0;$("#a",el).oninput=e=>ang=+e.target.value;$("#n1",el).oninput=e=>n1=+e.target.value;
+  function draw(){const {x,w,h}=fit(cv,240);
+    x.clearRect(0,0,w,h);
+    const Ox=w/2,Oy=h/2,len=Math.min(w,h)*0.42;
+    // media shading: top = glass (denser), bottom = air
+    x.fillStyle="#0f2a33";x.fillRect(0,0,w,Oy);
+    x.fillStyle="#081318";x.fillRect(0,Oy,w,h-Oy);
+    // interface + normal
+    x.strokeStyle="#2a4a52";x.lineWidth=1;x.beginPath();x.moveTo(0,Oy);x.lineTo(w,Oy);x.stroke();
+    x.setLineDash([5,5]);x.strokeStyle="#557079";x.beginPath();x.moveTo(Ox,Oy-len);x.lineTo(Ox,Oy+len);x.stroke();x.setLineDash([]);
+    const th1=ang*Math.PI/180;
+    // incident ray (from upper-left to O)
+    const Ax=Ox-len*Math.sin(th1),Ay=Oy-len*Math.cos(th1);
+    x.strokeStyle="#4fd1e0";x.lineWidth=2.6;x.beginPath();x.moveTo(Ax,Ay);x.lineTo(Ox,Oy);x.stroke();
+    // arrowhead near O
+    x.fillStyle="#4fd1e0";
+    // refraction: sin th2 = n1 sin th1 / n2
+    const s2=n1*Math.sin(th1)/n2;let tir=s2>1;
+    if(!tir){const th2=Math.asin(s2);const Bx=Ox+len*Math.sin(th2),By=Oy+len*Math.cos(th2);
+      x.strokeStyle="#7ecb8a";x.lineWidth=2.6;x.beginPath();x.moveTo(Ox,Oy);x.lineTo(Bx,By);x.stroke();}
+    // reflected ray (up-right); strong if TIR, faint otherwise
+    const Rx=Ox+len*Math.sin(th1),Ry=Oy-len*Math.cos(th1);
+    x.strokeStyle=tir?"#efab6a":"#efab6a55";x.lineWidth=tir?2.6:1.4;x.beginPath();x.moveTo(Ox,Oy);x.lineTo(Rx,Ry);x.stroke();
+    x.fillStyle="#e6f3f6";x.beginPath();x.arc(Ox,Oy,3,0,7);x.fill();
+    // labels
+    x.fillStyle="#8fb0b8";x.font="11px ui-monospace,monospace";x.fillText("n₁ = "+n1.toFixed(2),8,16);x.fillText("n₂ = 1.00 (air)",8,h-8);
+    const thc=n1>n2?Math.asin(n2/n1)*180/Math.PI:90;
+    $("#ro",el).innerHTML= tir
+      ? `θ₁ = <b>${ang}°</b> &nbsp; beyond critical angle θ_c = <b style="color:var(--acc2)">${thc.toFixed(1)}°</b> → <b style="color:#efab6a">TOTAL INTERNAL REFLECTION</b>: no ray escapes, all light bounces back.`
+      : `θ₁ = <b>${ang}°</b> → refracted θ₂ = <b style="color:var(--green)">${(Math.asin(s2)*180/Math.PI).toFixed(1)}°</b> &nbsp; (n₁sinθ₁ = n₂sinθ₂) &nbsp; · &nbsp; critical angle θ_c = <b>${thc.toFixed(1)}°</b>`;
+  }
+  raf(draw);
+}
+
+const SIMS={wave:simWave,interfere:simInterfere,standing:simStanding,beats:simBeats,snell:simSnell};
+const LABS=[
+ ["wave","〰","Adjustable wave","Slide λ, f, and A and watch v = fλ track them on a live wave.","var(--acc)"],
+ ["interfere","◈","Two-source interference","A 2-D field of bright and dark fringes; change wavelength and slit gap.","var(--teal)"],
+ ["standing","▤","Standing waves","Pick a harmonic and see the exact mode a fixed string is forced into.","var(--violet)"],
+ ["snell","∠","Refraction & Snell","Bend a ray at an interface — push past the critical angle into total internal reflection.","var(--green)"],
+ ["beats","≈","Beats","Two close frequencies sum into a throbbing tone; the envelope is the beat.","var(--acc2)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#0d2630,#0f2029);border-color:#1e4450">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">WAVES &amp; OPTICS — A COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">From "what a wave is" to the equations behind lenses and rainbows: v = fλ, interference, standing waves, the Doppler effect, and Snell's law. Worked examples, interactive labs (🔧), and practice. Take it in order — the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · physics you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`A wave has frequency f = 50 Hz and wavelength λ = 4 m. Its speed is:`,a:["12.5 m/s","54 m/s","200 m/s","0.08 m/s"],c:2,e:"v = fλ = 50 × 4 = 200 m/s. Speed is frequency times wavelength."},
+ {q:`Sound travels at a fixed speed in air. If you raise the frequency of a note, its wavelength:`,a:["increases","decreases","stays the same","becomes zero"],c:1,e:"Since v = fλ is fixed by the medium, raising f forces λ to shrink. Higher notes have shorter wavelengths."},
+ {q:`Two waves interfere constructively when their path difference is:`,a:["a whole number of wavelengths, mλ","a half-wavelength, ½λ","(m+½)λ","exactly one metre"],c:0,e:"Whole-wavelength path difference means crest lands on crest — they reinforce. Δ = mλ."},
+ {q:`Destructive interference (cancellation) happens when the path difference is:`,a:["mλ","(m+½)λ","0","2λ"],c:1,e:"A half-integer number of wavelengths puts a crest onto a trough, so they cancel. Δ = (m+½)λ."},
+ {q:`In a double slit, slits d = 0.10 mm apart, screen L = 2.0 m away, light λ = 500 nm. The fringe spacing Δy = λL/d is:`,a:["1.0 mm","10 mm","0.1 mm","100 mm"],c:1,e:"Δy = (5×10⁻⁷ × 2.0)/(1×10⁻⁴) = 1×10⁻² m = 10 mm."},
+ {q:`Sound is best described as:`,a:["a transverse wave in air","a longitudinal pressure wave","an electromagnetic wave","a standing wave only"],c:1,e:"Sound is longitudinal: air compresses and rarefies along the direction of travel. It needs a medium."},
+ {q:`A string fixed at both ends vibrates in its 3rd harmonic (n = 3). Its frequency compared to the fundamental f₁ is:`,a:["f₁","2f₁","3f₁","½f₁"],c:2,e:"fₙ = n·f₁, so the 3rd harmonic is 3f₁. Harmonics are whole-number multiples of the fundamental."},
+ {q:`An ambulance siren approaches you. Compared with the emitted pitch, you hear a pitch that is:`,a:["higher","lower","unchanged","silent"],c:0,e:"Approaching, the crests bunch up (shorter wavelength) → higher frequency. It drops as it recedes — the Doppler effect."},
+ {q:`Two tuning forks at 440 Hz and 443 Hz sound together. The beat frequency is:`,a:["3 Hz","443 Hz","883 Hz","1.5 Hz"],c:0,e:"Beat frequency = |f₁ − f₂| = |440 − 443| = 3 Hz. You'd hear the tone throb three times a second."},
+ {q:`Light passing from air into glass (denser) bends:`,a:["away from the normal","toward the normal","not at all","backward"],c:1,e:"Entering a denser medium (higher n), light slows and bends toward the normal, per Snell's law n₁sinθ₁ = n₂sinθ₂."},
+ {q:`Light is fundamentally:`,a:["a sound wave","an electromagnetic wave needing no medium","a pressure wave in the ether","a longitudinal wave"],c:1,e:"Light is a transverse electromagnetic wave — oscillating electric and magnetic fields — that travels through vacuum at c ≈ 3×10⁸ m/s."},
+ {q:`Total internal reflection can occur when light travels:`,a:["from a rarer to a denser medium","from a denser to a rarer medium, beyond the critical angle","straight along the normal","in a vacuum"],c:1,e:"It happens going dense→rare (e.g. glass→air) when the angle exceeds the critical angle sinθc = n₂/n₁. This is how optical fibres work."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Wave basics",P.done.whatis&&P.done.describe&&P.done.types&&P.done.superpose],["②","Interference",P.done.interfere&&P.done.doubleslit&&P.done.grating],["③","Sound & standing",P.done.sound&&P.done.standing&&P.done.doppler],["④","Optics",P.done.lightem&&P.done.refract&&P.done.lenses],["🎯","Sharp",ds>=10],["🎓","Waves & Optics",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#14303a" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4fd1e0"/><stop offset="1" stop-color="#2a93c9"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#e6f3f6" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#8fb0b8" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed the whole course — from ripples to lenses. 🎓":pc>=50?"Past halfway — sound and light are ahead.":"The physics of vibrations and light, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

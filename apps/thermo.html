@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thermodynamics">
+<meta name="theme-color" content="#120a08">
+<title>Thermodynamics — a course</title>
+<style>
+:root{
+  --bg:#120a08;--panel:#1e120d;--card:#1f130e;--line:#3d2a20;--ink:#f2e9e2;--mut:#b8a598;--faint:#7a6355;
+  --acc:#ef6a4a;--acc2:#d1452a;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--blue:#54a8ef;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#2c140b 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(18,10,8,.96),rgba(18,10,8,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#1a0d06;font-size:20px;box-shadow:0 3px 14px rgba(239,106,74,.32)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#1a0d06;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#5c4a2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#180d08;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#e2d6cc;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#e2d6cc;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#f7ede4;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#180d08;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#180d08;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#ece0d3}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#12160f;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#0c0705;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#080402}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(18,10,8,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#180d08;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#1a0d06;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">🔥</div>
+  <div><h1>Thermodynamics</h1><div class="sub">heat, energy, and entropy</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">📈</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("thermo_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("thermo_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Heat & Temperature",lessons:[
+   {id:"temp",n:"What temperature really is",sub:"the average kinetic energy of jiggling atoms"},
+   {id:"kinetic",n:"Kinetic theory of gases",sub:"pressure is a storm of tiny collisions",lab:"gas"},
+   {id:"gaslaw",n:"The ideal gas law",sub:"PV = nRT — one line, three old laws"},
+   {id:"heatcap",n:"Heat, internal energy & heat capacity",sub:"what's flowing vs. what's stored"},
+ ]},
+ {ic:"②",t:"Part II · The Four Laws",lessons:[
+   {id:"zeroth",n:"The zeroth law",sub:"thermal equilibrium & why thermometers work",lab:"heatflow"},
+   {id:"first",n:"The first law",sub:"ΔU = Q − W — energy is never created or destroyed"},
+   {id:"second",n:"The second law",sub:"entropy never decreases; heat flows one way",lab:"mixing"},
+   {id:"third",n:"The third law",sub:"absolute zero and the floor of entropy"},
+ ]},
+ {ic:"③",t:"Part III · Entropy & Statistical Mechanics",lessons:[
+   {id:"micro",n:"Microstates & macrostates",sub:"Boltzmann's S = k ln W"},
+   {id:"increase",n:"Why entropy increases",sub:"nothing pushes it — the counting just wins"},
+   {id:"boltzmann",n:"The Boltzmann distribution & the arrow of time",sub:"how energy spreads, and why time points forward",lab:"boltzmann"},
+ ]},
+ {ic:"④",t:"Part IV · Engines & Free Energy",lessons:[
+   {id:"engines",n:"Heat engines",sub:"turning a temperature difference into work"},
+   {id:"carnot",n:"The Carnot cycle & maximum efficiency",sub:"1 − T꜀/Tₕ — a wall no engine can pass",lab:"carnot"},
+   {id:"free",n:"Refrigerators & free energy",sub:"pumping heat uphill; what makes things happen"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+
+C.temp=`<p>Rub your hands together and they warm up. Heat feels like a substance — something that flows in and out. For centuries people thought exactly that, and called it "caloric." They were wrong, and the correction is the doorway to the whole subject: <b>temperature is a measure of the average kinetic energy of a substance's particles.</b></p>
+<p>Everything is made of atoms and molecules in ceaseless motion — vibrating in a solid, sliding past each other in a liquid, flying freely in a gas. "Hot" simply means those particles are moving faster, carrying more kinetic energy on average. "Cold" means they've slowed down. Temperature is the <i>bookkeeping</i> of that microscopic frenzy.</p>
+<div class="eq box">average translational KE per particle = ${frac("3","2")} k T</div>
+<p>Here <b>T</b> is the <b>absolute temperature</b> in kelvin (measured from true zero, not the arbitrary freezing point of water), and <b>k</b> = 1.38 × 10⁻²³ J/K is <b>Boltzmann's constant</b> — the exchange rate between the human unit "degree" and the physicist's unit "joule of jiggle." The factor of 3 is one term for each direction a particle can move: x, y, z.</p>
+<p>Two consequences follow immediately. First, there is a <b>coldest possible temperature</b>: when all the kinetic energy is gone, motion stops, and that is <b>absolute zero</b> (0 K = −273.15 °C). You cannot go colder, because you cannot move slower than stopped. Second, at the same temperature, heavier molecules move <i>slower</i> than light ones — they carry the same average energy ½m⟨v²⟩, so more mass means less speed.</p>
+<div class="wk"><div class="wl">Worked example · how fast is an air molecule?</div>
+<div class="step">Room temperature T = 300 K. Average KE = ${frac("3","2")}kT = 1.5 × (1.38×10⁻²³) × 300 = <b>6.2 × 10⁻²¹ J</b> per molecule.</div>
+<div class="step">A nitrogen molecule has mass m ≈ 4.65 × 10⁻²⁶ kg. Set ½m⟨v²⟩ equal to that KE and solve for the typical (rms) speed: v = √(3kT/m).</div>
+<div class="step">v = √( 3 × 1.38×10⁻²³ × 300 / 4.65×10⁻²⁶ ) ≈ <b>517 m/s</b> — roughly 1,100 mph. <span class="r">The air in this room is a hurricane at the molecular scale; you only feel its average.</span></div></div>
+<div class="callout"><span class="l">The reframe</span>Heat is not a fluid. It is disorganized kinetic energy. Every idea that follows — heat flow, entropy, engines — is just careful accounting of this microscopic motion.</div>`;
+
+C.kinetic=`<p>If a gas is just particles flying around, where does <b>pressure</b> come from? From collisions. Every time a molecule slams into a wall and bounces back, it delivers a tiny push. There are so many molecules hitting so often — trillions of impacts per square centimeter per instant — that the storm of individual taps blurs into the smooth, steady force we call pressure.</p>
+<p><b>The kinetic model.</b> Idealize the gas as a swarm of tiny hard particles: they move in straight lines, collide elastically, and are otherwise so far apart they don't interact. Track the momentum a wall receives and you can derive pressure from pure mechanics:</p>
+<div class="eq box">P V = ${frac("1","3")} N m ⟨v²⟩</div>
+<p>Here N is the number of molecules, m their mass, and ⟨v²⟩ the average of the squared speed. Read it plainly: pressure rises if you add particles, if they're heavier, or if they move faster. Now compare it with the temperature relation from the last lesson, ½m⟨v²⟩ = ${frac("3","2")}kT, and the two snap together:</p>
+<div class="eq box">P V = N k T</div>
+<p>That is the ideal gas law in disguise — <i>derived</i>, not assumed, from the picture of bouncing atoms. This is the great triumph of kinetic theory: the everyday quantities on the left (pressure, volume, temperature) turn out to be nothing but statistics of the invisible motion on the right.</p>
+<p>Below is a box of gas. Slide the temperature up and watch the particles speed up (their speed grows like √T), strike the walls harder and more often, and drive the pressure up.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why √T</span>Kinetic energy ∝ v² is proportional to T, so speed ∝ √T. Double the absolute temperature and molecules move only about 1.41× faster — but they hit harder <i>and</i> more frequently, so pressure doubles.</div>`;
+
+C.gaslaw=`<p>Three experimenters, working a century apart, each found one thread of gas behavior. Kinetic theory ties them into a single knot — the <b>ideal gas law</b>, the most useful equation in thermodynamics:</p>
+<div class="eq box">P V = n R T</div>
+<p>P is pressure (pascals), V is volume (m³), T is absolute temperature (kelvin), <b>n</b> is the amount of gas in <b>moles</b>, and <b>R</b> = 8.31 J/(mol·K) is the universal gas constant. (It's the same law as PV = NkT; a mole is just Avogadro's number of particles, and R = N<sub>A</sub>k.)</p>
+<p>The three classical laws are all special cases you get by holding one thing fixed:</p>
+<ul>
+<li><b>Boyle:</b> at fixed T, P V = constant. Squeeze a gas into half the volume and its pressure doubles.</li>
+<li><b>Charles:</b> at fixed P, V ∝ T. Heat a balloon and it expands.</li>
+<li><b>Gay-Lussac:</b> at fixed V, P ∝ T. Heat a sealed rigid can and the pressure climbs (this is why they explode in fires).</li>
+</ul>
+<p>"Ideal" means we ignore the tiny size of molecules and the faint forces between them. Real gases at ordinary temperatures and pressures obey this law to within a percent or so — good enough to run chemistry, engines, and weather.</p>
+<div class="wk"><div class="wl">Worked example · the volume of one mole</div>
+<div class="step">How much space does 1 mole of any ideal gas occupy at STP (T = 273 K, P = 1.013 × 10⁵ Pa)?</div>
+<div class="step">V = ${frac("nRT","P")} = ${frac("1 × 8.31 × 273","1.013 × 10⁵")} = 0.0224 m³.</div>
+<div class="step">That's <b>22.4 liters</b> — a cube about 28 cm on a side. <span class="r">Remarkably, it doesn't matter whether it's hydrogen or xenon: one mole, same volume. The molecules' identity drops out.</span></div></div>
+<div class="callout"><span class="l">A handle on the invisible</span>With PV = nRT you can weigh the atmosphere, size a scuba tank, or predict how far a hot-air balloon will lift — all without ever seeing a single molecule.</div>`;
+
+C.heatcap=`<p>Two words get used loosely in everyday speech but mean sharply different things in physics: <b>heat</b> and <b>internal energy</b>. Getting them straight is essential, because the First Law is built out of exactly this distinction.</p>
+<p><b>Internal energy (U)</b> is the total microscopic energy a substance <i>owns</i> — the kinetic energy of all its jiggling particles plus the potential energy stored in the bonds between them. It's a property of the stuff, right now, sitting there.</p>
+<p><b>Heat (Q)</b> is energy <i>in transit</i> because of a temperature difference — energy flowing from hot to cold. Heat is not something an object "has"; it's something that <i>crosses a boundary</i>. Once it arrives, it's no longer heat — it's just added internal energy. (Saying "this cup contains a lot of heat" is like saying "this bank contains a lot of withdrawal.")</p>
+<p><b>Heat capacity</b> connects the two: how much heat does it take to raise a thing's temperature? Some substances soak up energy stubbornly (water), others heat instantly (metal). The <b>specific heat capacity</b> c is the energy to warm one kilogram by one kelvin:</p>
+<div class="eq box">Q = m c ΔT</div>
+<p>Water's specific heat is unusually large, c = 4186 J/(kg·K) — which is why oceans moderate climate, why a water burn is so bad, and why it takes a while to boil a pot. Metals sit near 400–900; that's why a metal spoon in that pot scalds your fingers fast.</p>
+<div class="wk"><div class="wl">Worked example · boiling the kettle</div>
+<div class="step">Heat 0.5 kg of water from 20 °C to 100 °C. ΔT = 80 K.</div>
+<div class="step">Q = m c ΔT = 0.5 × 4186 × 80 = <b>167,440 J ≈ 167 kJ</b>.</div>
+<div class="step"><span class="r">A 2 kW kettle delivers 2000 J every second, so this takes about 167,440 / 2000 ≈ 84 seconds — right on the money.</span></div></div>
+<div class="callout"><span class="l">Bridge to the laws</span>Heat in, internal energy up (unless the substance also does work by expanding). That trade-off — heat in versus work out versus energy stored — is precisely the First Law, next.</div>`;
+
+C.zeroth=`<p>The laws of thermodynamics are numbered oddly: zeroth, first, second, third. The zeroth was recognized <i>last</i> but is so fundamental it had to come before the first — so they gave it number zero.</p>
+<p>It concerns <b>thermal equilibrium</b>: put a hot object and a cold object in contact and heat flows from hot to cold until both settle at one shared temperature. Once nothing changes, they're in thermal equilibrium. The zeroth law states the not-quite-obvious fact that makes temperature <i>meaningful</i>:</p>
+<div class="eq box">If A is in equilibrium with C, and B is in equilibrium with C, then A is in equilibrium with B.</div>
+<p>Equilibrium is <b>transitive</b>. That sounds like bookkeeping, but it's the whole reason a <b>thermometer works.</b> Let C be the thermometer. If it reads the same touching object A as touching object B, then A and B would be in equilibrium if joined — they have the <b>same temperature</b>. The zeroth law is the license to say "this and that are equally hot" without ever putting them together. It's what lets temperature be a single number every object carries.</p>
+<p>Below, two bodies at different temperatures are brought into contact. Watch heat flow from hot to cold and the temperatures converge to a common value — never overshooting, never spontaneously separating again. (The meeting point isn't the simple average: the body with the larger heat capacity barely moves, tugging the equilibrium toward itself.)</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Notice the arrow</span>Heat flowed one way — hot to cold — and stopped. It never runs backward on its own to un-mix the temperatures. That one-way-ness is a preview of the Second Law, the deepest idea in the whole subject.</div>`;
+
+C.first=`<p>The first law is the law of energy conservation, written for heat. Energy can be shuffled between forms and moved across boundaries, but the total never changes — you cannot get something for nothing. For a system, the internal energy can change in exactly two ways: heat can flow in, or the system can do work (or have work done on it).</p>
+<div class="eq box">ΔU = Q − W</div>
+<p>Read it as an honest ledger. <b>ΔU</b> is the change in the system's internal energy (its store of microscopic jiggle). <b>Q</b> is heat added <i>to</i> the system. <b>W</b> is work done <i>by</i> the system on its surroundings. The signs are the whole game, so nail them down:</p>
+<ul>
+<li>Heat <i>in</i> → Q positive. Heat <i>out</i> → Q negative.</li>
+<li>Work done <i>by</i> the system (gas pushing a piston outward, expanding) → W positive, draining U.</li>
+<li>Work done <i>on</i> the system (compressing the gas) → W negative, so −W adds to U.</li>
+</ul>
+<p>When a gas expands, it pushes the piston through a distance and the mechanical work is W = P ΔV. So a gas can take in heat and, instead of getting hotter, spend that energy pushing outward — heat in, work out, internal energy (and temperature) unchanged. That is exactly how an engine turns a fire into motion.</p>
+<div class="wk"><div class="wl">Worked example · reading the ledger</div>
+<div class="step">A gas in a cylinder absorbs Q = 500 J of heat and, expanding, does W = 200 J of work on the piston. What happens to its internal energy?</div>
+<div class="step">ΔU = Q − W = 500 − 200 = <b>+300 J</b>.</div>
+<div class="step">The gas kept 300 J as extra internal energy (it got hotter) and handed 200 J out as useful work. <span class="r">Nothing vanished; every joule is accounted for.</span></div></div>
+<div class="callout"><span class="l">Why perpetual motion fails, part 1</span>A "machine of the first kind" would put out more energy than it takes in. The first law forbids it flatly: output can never exceed input. (The second law will forbid a subtler cheat — a machine that merely breaks even by converting heat perfectly into work.)</div>`;
+
+C.second=`<p>The first law says energy is conserved — but it says nothing about <i>direction</i>. A cup of coffee never spontaneously gets hotter by drawing heat from the cool room, even though energy would be perfectly conserved if it did. A dropped glass never reassembles. Something beyond energy governs which way things go. That something is <b>entropy</b>, and its rule is the <b>second law</b>:</p>
+<div class="eq box">The total entropy of an isolated system never decreases: &nbsp; ΔS ≥ 0</div>
+<p><b>Entropy (S)</b> measures how spread-out and disordered a system's energy is — more precisely (next part), how many microscopic arrangements match what you can see. The second law says that in any spontaneous process, entropy stays the same (for an ideal reversible process) or increases (for every real one). It can be pushed down in one place only by pushing it up more somewhere else. Globally, it only ever climbs.</p>
+<p>Two everyday statements are secretly the same law:</p>
+<ul>
+<li><b>Clausius:</b> heat flows spontaneously from hot to cold, never the reverse.</li>
+<li><b>Kelvin:</b> no process can take heat from a reservoir and convert it <i>entirely</i> into work with no other effect.</li>
+</ul>
+<p>For heat Q trickling reversibly at temperature T, the entropy change is ΔS = Q/T. That's why hot-to-cold flow always wins: the same Q leaving the hot body lowers its entropy by Q/T<sub>hot</sub> but raises the cold body's by the larger Q/T<sub>cold</sub>, for a net increase.</p>
+<p>Below, two gases sit separated in a box. Pull the partition and watch them mix. They never un-mix — and the count of microscopic arrangements consistent with what you see (the readout) only ever climbs.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The deepest law</span>Arthur Eddington called it supreme among the laws of nature: "If your theory is found to be against the second law of thermodynamics, I can give you no hope." Energy tells you what's <i>possible</i>; entropy tells you what actually <i>happens</i>.</div>`;
+
+C.third=`<p>The second law tells you entropy keeps climbing. The <b>third law</b> pins down the other end — the bottom of the ladder. It concerns what happens as a system approaches <b>absolute zero</b>, 0 K, the coldest temperature there can be.</p>
+<div class="eq box">As T → 0, the entropy S of a perfect crystal → 0.</div>
+<p>Why zero? Entropy counts microscopic arrangements. At absolute zero, a perfect crystal has every atom locked into its one lowest-energy configuration — there is only <b>one</b> way to arrange it. And the entropy of a system with a single microstate is S = k ln 1 = 0. No spread, no disorder, no choices left. That gives entropy an <b>absolute zero point</b>, not just differences — which is why we can speak of "the entropy" of a substance, tabulated in real chemistry.</p>
+<p>The third law has a famous practical teeth: <b>absolute zero is unreachable.</b> Each step of cooling can only remove a fraction of the remaining heat, and near 0 K each fraction costs more and more effort. You can get breathtakingly close — laboratories reach billionths of a kelvin — but you can never take the last step and arrive. There's always one more halving.</p>
+<div class="wk"><div class="wl">Why you can't get there</div>
+<div class="step">Cooling works by repeatedly removing entropy. But as T → 0, the entropy you can still remove shrinks toward zero (third law).</div>
+<div class="step">So each cooling cycle extracts less and less, and it takes infinitely many cycles — infinite work — to reach exactly 0 K.</div>
+<div class="step"><span class="r">Absolute zero is an asymptote: approachable without limit, reachable never.</span></div></div>
+<div class="callout"><span class="l">The three ends tied</span>First: energy is conserved. Second: entropy rises. Third: entropy bottoms out at zero, and that floor can't quite be touched. Together they fence in everything heat can do.</div>`;
+
+C.micro=`<p>Time to open the hood. Entropy sounded like vague "disorder"; Ludwig Boltzmann made it a precise count — and carved the formula on his tombstone. The key is separating two levels of description.</p>
+<p>A <b>macrostate</b> is what you can measure from outside: the temperature, pressure, and volume of a gas — a handful of numbers. A <b>microstate</b> is the complete microscopic detail: the exact position and velocity of every single particle. For any one macrostate there are <i>staggeringly many</i> microstates that all look identical from outside. The number of microstates consistent with a macrostate is <b>W</b>, its <b>multiplicity</b>.</p>
+<div class="eq box">S = k ln W</div>
+<p>Entropy is (Boltzmann's constant times) the logarithm of the number of ways to arrange the microscopic world while keeping the macroscopic picture the same. High entropy = many arrangements look this way. Low entropy = few. The logarithm is what makes entropy <b>additive</b>: join two systems and their W's multiply, so their entropies (the logs) simply add.</p>
+<p>This is the bridge between the two halves of the course. The abstract "entropy" of the second law <i>is</i> a counting of possibilities. "Disordered" states have high entropy not because disorder is special, but because there are vastly more ways to be disordered than to be neatly ordered — just as there are far more shuffled decks than sorted ones.</p>
+<div class="wk"><div class="wl">Worked example · a gas that doubles its volume</div>
+<div class="step">Let a gas expand freely into an empty chamber next door, doubling its volume at constant temperature. Each of the N molecules now has twice as much room — twice as many positions available.</div>
+<div class="step">So W multiplies by 2 for each molecule: W<sub>final</sub> = 2<sup>N</sup> W<sub>initial</sub>. The entropy change is ΔS = k ln(2<sup>N</sup>) = N k ln 2 = n R ln 2.</div>
+<div class="step">For one mole: ΔS = 8.31 × ln 2 = <b>+5.76 J/K</b>. Positive — the gas spreads out and never spontaneously crowds back into half the box. <span class="r">And 2 to the power of Avogadro's number is why "never" means never.</span></div></div>
+<div class="callout"><span class="l">Boltzmann's gravestone</span>S = k log W is literally engraved above his grave in Vienna. It is arguably the single most important equation in physics you weren't taught in school — the one that says thermodynamics is really statistics.</div>`;
+
+C.increase=`<p>Here is the question that unsettles everyone who first meets it: the second law says entropy <i>always</i> increases, yet the underlying laws of motion are perfectly reversible — a movie of two atoms colliding looks fine played backward. So where does the arrow come from? The answer is humbling and beautiful: <b>nothing forces entropy up. The counting simply overwhelms everything else.</b></p>
+<p>Entropy increases not because some law pushes it, but because high-entropy macrostates correspond to so many more microstates that a system wandering blindly among its microstates is astronomically likely to end up in one. It's not a force. It's a landslide of probability.</p>
+<p><b>The coin picture.</b> Flip 100 coins. There is exactly <i>one</i> arrangement with all 100 heads (a very "ordered," low-entropy macrostate). But there are about 10²⁹ arrangements with 50 heads and 50 tails. If you shake the coins, you'll land near 50-50 essentially every time — not because the coins prefer it, but because overwhelmingly more configurations look like it.</p>
+<div class="eq box">ways to get 50-50 &nbsp; ≫ &nbsp; ways to get all heads &nbsp;→&nbsp; you always drift toward the many</div>
+<p>Now replace 100 coins with 10²³ gas molecules. The macrostate "gas evenly filling the room" has so many more microstates than "gas bunched in one corner" that the ratio isn't just large, it's a number with more zeros than there are atoms in the galaxy. The gas <i>could</i> spontaneously crowd into a corner — the laws of physics permit it — but you would wait many times the age of the universe to see it flicker even briefly. "Never" is really "so improbable it rounds to never."</p>
+<div class="callout"><span class="l">The resolution</span>The microscopic laws are reversible; the macroscopic arrow is statistical. Entropy increases because we started in a rare, low-entropy state and there are vastly more ways forward than back. The Second Law is not a new force of nature — it is arithmetic, applied to unimaginably large numbers.</div>`;
+
+C.boltzmann=`<p>If energy spreads out to maximize entropy, exactly <i>how</i> is it shared among particles? Not equally — some molecules are fast, some slow, at every instant. Boltzmann found the precise rule for how likely a particle is to have a given energy E at temperature T:</p>
+<div class="eq box">probability of energy E &nbsp; ∝ &nbsp; e<sup>−E / kT</sup></div>
+<p>This is the <b>Boltzmann distribution</b>, and the factor e<sup>−E/kT</sup> — the <b>Boltzmann factor</b> — runs through all of physics and chemistry. Read it: high-energy states are exponentially rarer, and the temperature T sets the scale. When kT is small (cold), high energies are wildly suppressed and everything huddles in the low-energy states. When kT is large (hot), energy is shared more evenly and high-energy states become accessible. It's why chemical reactions speed up with heat: only molecules out in the energetic tail have enough to react, and warming fattens that tail.</p>
+<p>For the speeds of gas molecules this becomes the <b>Maxwell–Boltzmann distribution</b> — the humped curve below. Raise the temperature and the whole distribution shifts right and flattens: the peak (most probable speed) moves to higher speed, and the spread widens, but the area (total probability) stays fixed at one.</p>
+<div id="__sim"></div>
+<p><b>The arrow of time.</b> Step back and the pieces assemble into the most profound consequence of the whole subject. The past is the direction of lower entropy; the future is the direction of higher entropy. That's the <b>arrow of time</b>. You remember the past and not the future, eggs break but never unbreak, the coffee cools and never spontaneously reheats — all because the universe began in an extraordinarily low-entropy state and has been climbing the probability landslide ever since. The arrow of time is not built into the equations of motion (which run happily both ways); it is inherited from that special low-entropy beginning and enforced by pure counting.</p>
+<div class="callout"><span class="l">One law, one direction</span>Thermodynamic time (entropy up), psychological time (memory of the past), and cosmological time (an expanding universe from a low-entropy Big Bang) all point the same way — and the humble Boltzmann factor is the thread tying the microscopic to the metaphysical.</div>`;
+
+C.engines=`<p>Now we cash the theory in. A <b>heat engine</b> is any device that turns heat into useful work — the steam turbine, the gasoline engine, the power plant, your body. Kelvin's form of the second law already told us the catch: you can't convert heat <i>entirely</i> into work. So every engine needs two temperatures.</p>
+<p>The recipe: draw heat <b>Q<sub>h</sub></b> from a hot reservoir (a flame, a boiler), convert <i>part</i> of it into work <b>W</b>, and — this is the price the second law extracts — dump the leftover heat <b>Q<sub>c</sub></b> into a cold reservoir (the environment, a radiator). By the first law, energy balances:</p>
+<div class="eq box">W = Q<sub>h</sub> − Q<sub>c</sub></div>
+<p>The <b>efficiency</b> is what fraction of the heat you paid for comes out as work:</p>
+<div class="eq box">η = ${frac("W","Q<sub>h</sub>")} = 1 − ${frac("Q<sub>c</sub>","Q<sub>h</sub>")}</div>
+<p>You'd love η = 1 (all heat → work, nothing wasted). The second law forbids it: Q<sub>c</sub> can't be zero, because dumping heat to the cold reservoir is what lets the working gas reset and go around again — and that dumped heat carries away the entropy the engine picked up. No cold sink, no cycle, no engine. The waste heat isn't sloppy engineering; it's a tax written into the laws of nature.</p>
+<div class="wk"><div class="wl">Worked example · a real engine</div>
+<div class="step">An engine takes in Q<sub>h</sub> = 1000 J from burning fuel and exhausts Q<sub>c</sub> = 600 J to the air each cycle.</div>
+<div class="step">Work out: W = 1000 − 600 = 400 J. Efficiency: η = 400 / 1000 = <b>0.40 = 40%.</b></div>
+<div class="step"><span class="r">Forty percent of the fuel's heat became motion; sixty percent went out the tailpipe as warmth. That's roughly a good car engine.</span></div></div>
+<div class="callout"><span class="l">The question that remains</span>Can we do better? Is there a best-possible efficiency, set by physics rather than by better pistons? Yes — and Sadi Carnot found it before the second law was even named. Next.</div>`;
+
+C.carnot=`<p>In 1824 a young French engineer, Sadi Carnot, asked the deepest question in engineering: is there a fundamental limit to how efficient a heat engine can be? He answered it by inventing an idealized engine — reversible, frictionless, wasting nothing — and proving <b>no real engine can beat it.</b> The <b>Carnot cycle</b> is that perfect engine, and it runs in four steps between a hot reservoir at T<sub>h</sub> and a cold one at T<sub>c</sub>:</p>
+<ol>
+<li><b>Isothermal expansion</b> at T<sub>h</sub>: the gas absorbs Q<sub>h</sub> and pushes the piston out while staying hot.</li>
+<li><b>Adiabatic expansion</b>: sealed off from the reservoirs, the gas keeps expanding and cools from T<sub>h</sub> down to T<sub>c</sub>.</li>
+<li><b>Isothermal compression</b> at T<sub>c</sub>: the gas is squeezed and sheds waste heat Q<sub>c</sub> to the cold reservoir.</li>
+<li><b>Adiabatic compression</b>: sealed off again, compressed further, warming back from T<sub>c</sub> up to T<sub>h</sub> — ready to repeat.</li>
+</ol>
+<p>On a pressure–volume diagram the four steps close into a loop, and the area enclosed is the net work per cycle. Because every step is reversible, the entropy handed to the gas by the hot reservoir (Q<sub>h</sub>/T<sub>h</sub>) exactly equals the entropy it sheds to the cold one (Q<sub>c</sub>/T<sub>c</sub>). Setting those equal gives Q<sub>c</sub>/Q<sub>h</sub> = T<sub>c</sub>/T<sub>h</sub>, and the efficiency collapses to a startlingly simple result depending on <i>nothing but the two temperatures</i>:</p>
+<div class="eq box">η<sub>max</sub> = 1 − ${frac("T<sub>c</sub>","T<sub>h</sub>")}</div>
+<p>Watch the cycle trace out its loop below, and see the four steps in turn.</p>
+<div id="__sim"></div>
+<div class="wk"><div class="wl">Worked example · the ceiling on a power plant</div>
+<div class="step">A steam plant runs its boiler at T<sub>h</sub> = 800 K and exhausts to a river at T<sub>c</sub> = 300 K. Best possible efficiency?</div>
+<div class="step">η<sub>max</sub> = 1 − 300/800 = 1 − 0.375 = <b>0.625 = 62.5%.</b></div>
+<div class="step"><span class="r">No amount of clever engineering can push a real plant past this. To do better you must raise T<sub>h</sub> or lower T<sub>c</sub> — the only two knobs nature left you.</span></div></div>
+<div class="callout"><span class="l">Why it's a wall</span>If any engine could beat Carnot, you could run it forward and a Carnot engine backward and pump heat from cold to hot for free — violating the second law. So the Carnot efficiency isn't a target; it's a law of nature. And it only hits 100% if T<sub>c</sub> = 0 K, forever out of reach (third law).</div>`;
+
+C.free=`<p>Run a heat engine <b>backward</b> and you get a <b>refrigerator</b> (or, same machine, a <b>heat pump</b>). Instead of heat flowing hot→cold and producing work, you <i>spend</i> work to force heat from cold→hot — from inside your fridge out into the warm kitchen, against its natural direction. The second law doesn't forbid moving heat uphill; it just insists you <b>pay</b> for it with work. That's what the compressor's hum is: work being spent to shove entropy uphill.</p>
+<p>We rate a fridge not by efficiency but by <b>coefficient of performance</b> — heat moved per unit work spent, COP = Q<sub>c</sub>/W — and it's usually greater than 1 (you can move several joules of heat per joule of electricity). A heat pump heating your house is just a fridge cooling the outdoors, and it's why heat pumps beat electric heaters: they <i>move</i> heat rather than making it.</p>
+<p><b>Free energy.</b> The second law says the <i>total</i> entropy of the universe must rise for a process to happen. But tracking the whole universe is impractical, so chemists and engineers repackage the rule into a property of the system alone. At constant temperature and pressure, that's the <b>Gibbs free energy</b>:</p>
+<div class="eq box">G = H − T S &nbsp;&nbsp;→&nbsp;&nbsp; a process happens spontaneously when ΔG &lt; 0</div>
+<p>Here H is enthalpy (roughly the heat content), T the temperature, S the entropy. (At constant temperature and <i>volume</i> the right bookkeeper is the <b>Helmholtz free energy</b>, F = U − TS.) The magic of ΔG = ΔH − TΔS is that it folds the whole universe's entropy change into system quantities: ΔG &lt; 0 is <i>exactly equivalent</i> to total entropy increasing. It tells you which way a reaction runs, whether ice melts or water freezes, whether a battery discharges — all from two competing terms.</p>
+<div class="wk"><div class="wl">Worked example · will it happen?</div>
+<div class="step">A reaction releases heat ΔH = −40 kJ and decreases entropy ΔS = −0.10 kJ/K (the products are more ordered). Spontaneous at T = 300 K?</div>
+<div class="step">ΔG = ΔH − TΔS = −40 − (300)(−0.10) = −40 + 30 = <b>−10 kJ.</b> Negative → yes, it proceeds.</div>
+<div class="step">But at T = 500 K: ΔG = −40 + 50 = <b>+10 kJ</b> → no. <span class="r">The entropy penalty (−TΔS) grows with temperature and eventually overwhelms the favorable heat release. Heat it enough and the reaction reverses.</span></div></div>
+<div class="callout"><span class="l">You've arrived</span>You now hold the full arc: heat as motion → the ideal gas → the four laws → entropy as counting → engines and free energy. From a warm cup of coffee to the death of stars, it's all the same accounting. Go read the universe — it's written in these four laws.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function axes(x,w,h,X,Y){x.strokeStyle="#3d2a20";x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(w,Y(0));x.moveTo(X(0),0);x.lineTo(X(0),h);x.stroke();}
+function tempColor(t){ // t in 0..1 → blue(cold) to red(hot)
+  t=Math.max(0,Math.min(1,t));const r=Math.round(70+t*170),g=Math.round(120-t*40+(t<0.5?0:0)),b=Math.round(230-t*185);
+  return `rgb(${r},${Math.max(60,Math.round(90-Math.abs(t-0.5)*60))},${b})`;}
+
+/* --- (1) kinetic gas in a box --- */
+function simGas(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>temperature (relative) <input type="range" id="T" min="20" max="400" step="1" value="150"></label></div></div>`;
+  const cv=$("canvas",el);let T=150;$("#T",el).oninput=e=>T=+e.target.value;
+  const N=70,parts=[];
+  for(let i=0;i<N;i++){const a=Math.random()*7,sp=0.45+Math.random()*0.85;parts.push({x:0.05+Math.random()*0.9,y:0.05+Math.random()*0.9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp});}
+  let pres=0;
+  function draw(){const {x,w,h}=fit(cv,220);const scale=0.0011*Math.sqrt(T);
+    x.clearRect(0,0,w,h);let mom=0;
+    for(const p of parts){
+      p.x+=p.vx*scale;p.y+=p.vy*scale;
+      if(p.x<0.012){p.x=0.012;p.vx=Math.abs(p.vx);mom+=2*Math.abs(p.vx)*scale;}
+      else if(p.x>0.988){p.x=0.988;p.vx=-Math.abs(p.vx);mom+=2*Math.abs(p.vx)*scale;}
+      if(p.y<0.012){p.y=0.012;p.vy=Math.abs(p.vy);mom+=2*Math.abs(p.vy)*scale;}
+      else if(p.y>0.988){p.y=0.988;p.vy=-Math.abs(p.vy);mom+=2*Math.abs(p.vy)*scale;}
+      const spd=Math.hypot(p.vx,p.vy);
+      x.fillStyle=`hsl(${Math.max(0,30-spd*14)},85%,60%)`;
+      const px=4+p.x*(w-8),py=4+p.y*(h-8);x.beginPath();x.arc(px,py,3.3,0,7);x.fill();
+    }
+    pres=pres*0.9+mom*0.1;
+    x.strokeStyle="#3d2a20";x.lineWidth=2;x.strokeRect(2,2,w-4,h-4);
+    $("#ro",el).innerHTML=`T = <b>${T}</b> &nbsp; avg KE ∝ T &nbsp; rms speed ∝ √T = <b>${Math.sqrt(T).toFixed(1)}</b> &nbsp; wall pressure ≈ <b>${(pres*4200).toFixed(1)}</b><br><span style="color:var(--faint)">raise T: particles speed up, strike harder & more often → P ∝ T at fixed volume (PV = NkT)</span>`;
+  }
+  raf(draw);
+}
+
+/* --- (2) entropy of mixing --- */
+function simMixing(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><button class="btn sm" id="go">Remove partition</button><button class="btn sm" id="rs">Reset</button></div></div>`;
+  const cv=$("canvas",el);const N=140;let parts=[],open=false;
+  function reset(){parts=[];open=false;for(let i=0;i<N;i++){const red=i<N/2;const a=Math.random()*7,sp=0.5+Math.random()*0.7;
+    parts.push({x:red?0.02+Math.random()*0.45:0.53+Math.random()*0.45,y:0.02+Math.random()*0.96,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,red});}}
+  reset();
+  $("#go",el).onclick=()=>open=true;$("#rs",el).onclick=()=>reset();
+  const GX=8,GY=5;const scale=0.0016;
+  const lnFact=n=>n>1?n*Math.log(n)-n+0.5*Math.log(2*Math.PI*n):0;
+  function draw(){const {x,w,h}=fit(cv,220);x.clearRect(0,0,w,h);
+    const rc=new Array(GX*GY).fill(0),bc=new Array(GX*GY).fill(0);let nr=0,nb=0;
+    for(const p of parts){
+      p.x+=p.vx*scale;p.y+=p.vy*scale;
+      const lo=open?0.012:(p.red?0.012:0.512),hi=open?0.988:(p.red?0.488:0.988);
+      if(p.x<lo){p.x=lo;p.vx=Math.abs(p.vx);}else if(p.x>hi){p.x=hi;p.vx=-Math.abs(p.vx);}
+      if(p.y<0.012){p.y=0.012;p.vy=Math.abs(p.vy);}else if(p.y>0.988){p.y=0.988;p.vy=-Math.abs(p.vy);}
+      const gi=Math.min(GX-1,Math.floor(p.x*GX))+GX*Math.min(GY-1,Math.floor(p.y*GY));
+      if(p.red){rc[gi]++;nr++;}else{bc[gi]++;nb++;}
+    }
+    if(!open){x.strokeStyle="#8a7565";x.lineWidth=2;x.setLineDash([5,5]);x.beginPath();x.moveTo(2+0.5*(w-4),2);x.lineTo(2+0.5*(w-4),h-2);x.stroke();x.setLineDash([]);}
+    for(const p of parts){x.fillStyle=p.red?"#ef6a4a":"#54a8ef";const px=4+p.x*(w-8),py=4+p.y*(h-8);x.beginPath();x.arc(px,py,3,0,7);x.fill();}
+    x.strokeStyle="#3d2a20";x.lineWidth=2;x.strokeRect(2,2,w-4,h-4);
+    let lnW=lnFact(nr)+lnFact(nb);for(let i=0;i<GX*GY;i++)lnW-=lnFact(rc[i])+lnFact(bc[i]);
+    $("#ro",el).innerHTML=`microstates &nbsp; ln W = <b>${lnW.toFixed(1)}</b> &nbsp;·&nbsp; entropy S = k · ln W<br><span style="color:var(--faint)">${open?"partition gone — the mixed macrostate has vastly more microstates, so S climbs and never falls back":'press "Remove partition": the two gases interdiffuse and entropy rises'}</span>`;
+  }
+  raf(draw);
+}
+
+/* --- (3) Carnot cycle on a PV diagram --- */
+function simCarnot(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div></div>`;
+  const cv=$("canvas",el);
+  const Th=1.0,Tc=0.45,g=5/3;                       // reservoirs & γ (monatomic)
+  const V1=1.0,V2=2.0;const ratio=Math.pow(Th/Tc,1/(g-1));
+  const V3=V2*ratio,V4=V1*ratio;
+  const Pa=Th/V1,Pb=Th/V2,Pc=Tc/V3,Pd=Tc/V4;
+  const KbcP=Pb*Math.pow(V2,g),KdaP=Pd*Math.pow(V4,g);   // adiabat constants
+  // segment param: 0 A→B(iso Th), 1 B→C(adia), 2 C→D(iso Tc), 3 D→A(adia)
+  const segs=[
+    {v0:V1,v1:V2,P:v=>Th/v,c:"#ef6a4a",name:"1 · isothermal expansion at Tₕ (absorb Qₕ)"},
+    {v0:V2,v1:V3,P:v=>KbcP/Math.pow(v,g),c:"#b78bef",name:"2 · adiabatic expansion (Tₕ→T꜀, cools)"},
+    {v0:V3,v1:V4,P:v=>Tc/v,c:"#54a8ef",name:"3 · isothermal compression at T꜀ (reject Q꜀)"},
+    {v0:V4,v1:V1,P:v=>KdaP/Math.pow(v,g),c:"#7ecb8a",name:"4 · adiabatic compression (T꜀→Tₕ, warms)"},
+  ];
+  const eff=1-Tc/Th;let phase=0;
+  function draw(){const {x,w,h}=fit(cv,240);x.clearRect(0,0,w,h);
+    const padL=34,padB=26;const vr=[0.6,V3*1.05],pr=[0,Pa*1.08];
+    const X=v=>padL+((v-vr[0])/(vr[1]-vr[0]))*(w-padL-10);
+    const Y=p=>h-padB-((p-pr[0])/(pr[1]-pr[0]))*(h-padB-10);
+    // axes
+    x.strokeStyle="#3d2a20";x.lineWidth=1;x.beginPath();x.moveTo(padL,10);x.lineTo(padL,h-padB);x.lineTo(w-6,h-padB);x.stroke();
+    x.fillStyle="#7a6355";x.font="11px ui-monospace,monospace";x.fillText("P",padL-24,20);x.fillText("V",w-16,h-padB+18);
+    // draw each segment curve
+    segs.forEach(s=>{x.strokeStyle=s.c;x.lineWidth=2.4;x.beginPath();const steps=40;
+      for(let i=0;i<=steps;i++){const v=s.v0+(s.v1-s.v0)*i/steps;const px=X(v),py=Y(s.P(v));i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();});
+    // corner dots
+    [[V1,Pa],[V2,Pb],[V3,Pc],[V4,Pd]].forEach(pt=>{x.fillStyle="#1f130e";x.strokeStyle="#b8a598";x.lineWidth=1.4;x.beginPath();x.arc(X(pt[0]),Y(pt[1]),4,0,7);x.fill();x.stroke();});
+    // moving marker
+    phase=(phase+0.006)%4;const si=Math.floor(phase),t=phase-si,s=segs[si];
+    const vv=s.v0+(s.v1-s.v0)*t,pp=s.P(vv);
+    x.fillStyle="#f2e9e2";x.beginPath();x.arc(X(vv),Y(pp),6,0,7);x.fill();
+    x.fillStyle=s.c;x.beginPath();x.arc(X(vv),Y(pp),3,0,7);x.fill();
+    $("#ro",el).innerHTML=`<b style="color:${s.c}">${s.name}</b><br>Tₕ = ${Th.toFixed(2)}, T꜀ = ${Tc.toFixed(2)} (rel.) &nbsp;→&nbsp; max efficiency η = 1 − T꜀/Tₕ = <b>${(eff*100).toFixed(0)}%</b> &nbsp;<span style="color:var(--faint)">(the loop's enclosed area = net work per cycle)</span>`;
+  }
+  raf(draw);
+}
+
+/* --- (4) Maxwell–Boltzmann distribution --- */
+function simBoltzmann(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>temperature (relative) <input type="range" id="T" min="0.4" max="8" step="0.05" value="1.5"></label></div></div>`;
+  const cv=$("canvas",el);let T=1.5;$("#T",el).oninput=e=>T=+e.target.value;
+  function f(v,t){return 1.15*(v*v/Math.pow(t,1.5))*Math.exp(-v*v/(2*t));} // area-normalized (m=k=1)
+  function draw(){const {x,w,h}=fit(cv,230);x.clearRect(0,0,w,h);
+    const padL=8,padB=22;const vmax=9,ymax=1;
+    const X=v=>padL+(v/vmax)*(w-padL-8);const Y=y=>h-padB-(y/ymax)*(h-padB-12);
+    x.strokeStyle="#3d2a20";x.lineWidth=1;x.beginPath();x.moveTo(padL,h-padB);x.lineTo(w-6,h-padB);x.stroke();
+    // filled curve
+    x.beginPath();x.moveTo(X(0),Y(0));for(let v=0;v<=vmax;v+=0.06)x.lineTo(X(v),Y(f(v,T)));x.lineTo(X(vmax),Y(0));x.closePath();
+    x.fillStyle="rgba(239,106,74,.22)";x.fill();
+    x.strokeStyle="#ef6a4a";x.lineWidth=2.4;x.beginPath();let st=false;for(let v=0;v<=vmax;v+=0.05){const py=Y(f(v,T));st?x.lineTo(X(v),py):x.moveTo(X(v),py);st=true;}x.stroke();
+    const vp=Math.sqrt(2*T); // most probable speed
+    x.strokeStyle="#54c6b0";x.setLineDash([4,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(vp),Y(0));x.lineTo(X(vp),Y(f(vp,T)));x.stroke();x.setLineDash([]);
+    x.fillStyle="#7a6355";x.font="11px ui-monospace,monospace";x.fillText("speed →",w-70,h-6);
+    $("#ro",el).innerHTML=`T = <b>${T.toFixed(2)}</b> &nbsp; most-probable speed v<sub>p</sub> = √(2kT/m) ∝ <b style="color:var(--teal)">${vp.toFixed(2)}</b><br><span style="color:var(--faint)">heat it up: the hump shifts right and flattens — faster & more varied speeds — but the area (total probability) stays 1</span>`;
+  }
+  raf(draw);
+}
+
+/* --- (5) heat flow between two bodies --- */
+function simHeatflow(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>conductivity <input type="range" id="k" min="0.2" max="2" step="0.05" value="1"></label><button class="btn sm" id="rs">Reset</button></div></div>`;
+  const cv=$("canvas",el);const C1=1.0,C2=1.6,T1i=440,T2i=120;let T1,T2,S,cond=1;
+  function reset(){T1=T1i;T2=T2i;S=0;}reset();
+  $("#k",el).oninput=e=>cond=+e.target.value;$("#rs",el).onclick=()=>reset();
+  const Teq=(C1*T1i+C2*T2i)/(C1+C2);
+  function draw(){const {x,w,h}=fit(cv,230);x.clearRect(0,0,w,h);
+    if(Math.abs(T1-T2)>0.05){const dQ=0.02*cond*(T1-T2);T1-=dQ/C1;T2+=dQ/C2;S+=dQ*(1/Math.max(1,T2)-1/Math.max(1,T1));}
+    const norm=t=>(t-80)/(460-80);
+    const bw=(w-30)/2;
+    [[10,T1,C1,"A"],[20+bw,T2,C2,"B"]].forEach(([bx,T,Cc,nm])=>{
+      x.fillStyle=tempColor(norm(T));x.fillRect(bx,20,bw,h-70);
+      x.strokeStyle="#3d2a20";x.lineWidth=2;x.strokeRect(bx,20,bw,h-70);
+      x.fillStyle="#f2e9e2";x.font="bold 15px ui-monospace,monospace";x.textAlign="center";
+      x.fillText(T.toFixed(0)+" K",bx+bw/2,h-92);
+      x.fillStyle="#b8a598";x.font="11px ui-monospace,monospace";x.fillText("body "+nm+"  (C="+Cc+")",bx+bw/2,h-44);x.textAlign="left";
+    });
+    // conduction bridge
+    x.fillStyle="#7a6355";x.fillRect(10+bw,(h-70)/2+10,10,14);
+    $("#ro",el).innerHTML=`hot body A cools, cold body B warms → both approach T<sub>eq</sub> = <b>${Teq.toFixed(0)} K</b> <span style="color:var(--faint)">(weighted by heat capacity, not the plain average)</span><br>entropy generated = <b>${(S).toFixed(3)}</b> — it only ever rises: heat flows hot→cold and never back`;
+  }
+  raf(draw);
+}
+
+const SIMS={gas:simGas,mixing:simMixing,carnot:simCarnot,boltzmann:simBoltzmann,heatflow:simHeatflow};
+const LABS=[
+ ["gas","◦","Kinetic Gas","Particles in a box — turn up temperature and watch speed & pressure climb.","var(--acc)"],
+ ["mixing","⇌","Entropy of Mixing","Pull the partition; two gases mix and the microstate count only rises.","var(--teal)"],
+ ["carnot","◇","The Carnot Cycle","The most efficient engine possible, tracing its loop on a PV diagram.","var(--violet)"],
+ ["boltzmann","∿","Boltzmann Distribution","How molecular speeds spread — and reshape as you heat the gas.","var(--acc2)"],
+ ["heatflow","⇉","Heat Flow","Two bodies reach a common temperature; entropy climbs, never falls.","var(--green)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#2a150c,#1f130e);border-color:#5a3420">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">HEAT · ENERGY · ENTROPY</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">From what temperature really is, through the four laws, to entropy as counting and the engines that run the world. Worked examples, interactive labs (🔧), and practice. Take it in order — the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · thermodynamics you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`Physically, the temperature of a gas is a measure of…`,a:["the total heat it contains","the average kinetic energy of its particles","the pressure it exerts","the number of molecules"],c:1,e:"Temperature ∝ average translational KE per particle (= 3/2·kT). It's about motion per particle, not total heat or count."},
+ {q:`1 mole of an ideal gas at STP (273 K, 1.01×10⁵ Pa) occupies about…`,a:["1 L","22.4 L","100 L","2.24 L"],c:1,e:"V = nRT/P = 1·8.31·273 / 1.01×10⁵ ≈ 0.0224 m³ = 22.4 L — the famous molar volume, same for any ideal gas."},
+ {q:`A gas absorbs Q = 500 J of heat and does W = 200 J of work expanding. Its internal energy change ΔU is…`,a:["+700 J","+300 J","−300 J","+200 J"],c:1,e:"First law: ΔU = Q − W = 500 − 200 = +300 J. Heat in minus work done by the gas."},
+ {q:`In an isolated system, the total entropy…`,a:["always decreases","stays exactly constant","never decreases","can do anything"],c:2,e:"Second law: ΔS ≥ 0. Entropy stays the same only for an ideal reversible process; every real one increases it."},
+ {q:`Left alone, heat flows spontaneously…`,a:["from cold to hot","from hot to cold","in whichever direction is faster","equally both ways"],c:1,e:"Clausius statement of the second law: heat flows hot → cold on its own. The reverse requires work (a refrigerator)."},
+ {q:`Boltzmann's S = k ln W says entropy is proportional to…`,a:["the number of particles","the temperature","the log of the number of microstates","the pressure times volume"],c:2,e:"W is the multiplicity — how many microstates match the macrostate. The log makes entropy additive."},
+ {q:`A Carnot engine runs between 600 K and 300 K. Its maximum possible efficiency is…`,a:["100%","50%","30%","75%"],c:1,e:"η = 1 − T꜀/Tₕ = 1 − 300/600 = 0.5 = 50%. Depends only on the two absolute temperatures."},
+ {q:`A machine that turns heat entirely into work with no other change would violate the…`,a:["first law","second law","third law","zeroth law"],c:1,e:"The first law (conservation) is fine; it's the second law (Kelvin statement) that forbids fully converting heat to work with no waste heat."},
+ {q:`The third law implies that absolute zero (0 K)…`,a:["is easily reached","can never be fully reached","is the same as 0 °C","has infinite entropy"],c:1,e:"As T→0 the removable entropy vanishes, so cooling takes infinitely many steps. You can approach 0 K but never arrive."},
+ {q:`The zeroth law (A~C and B~C ⇒ A~B) is what makes possible…`,a:["heat engines","the concept of temperature & thermometers","entropy","absolute zero"],c:1,e:"Transitivity of thermal equilibrium is exactly what lets a thermometer assign every object a single temperature."},
+ {q:`At constant temperature and pressure, a process is spontaneous when…`,a:["ΔH < 0","ΔG = ΔH − TΔS < 0","ΔS < 0","ΔU = 0"],c:1,e:"Gibbs free energy: ΔG < 0 is equivalent to the total entropy of the universe increasing — the practical test for spontaneity."},
+ {q:`One mole of gas doubles its volume in a free expansion at constant T. Its entropy change is…`,a:["0","−5.8 J/K","+5.8 J/K","+22.4 J/K"],c:2,e:"Each molecule gets twice the room, so W ×2ᴺ, giving ΔS = nR ln 2 = 8.31·0.693 ≈ +5.8 J/K. Positive and irreversible."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Kinetics",P.done.temp&&P.done.kinetic&&P.done.gaslaw&&P.done.heatcap],["②","The Laws",P.done.zeroth&&P.done.first&&P.done.second&&P.done.third],["③","Entropy",P.done.micro&&P.done.increase&&P.done.boltzmann],["④","Engines",P.done.engines&&P.done.carnot&&P.done.free],["🎯","Sharp",ds>=10],["🎓","Thermo",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#2e1c12" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ef6a4a"/><stop offset="1" stop-color="#d1452a"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#f2e9e2" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#b8a598" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full thermodynamics course. 🎓":pc>=50?"Past the halfway mark — entropy and engines lie ahead.":"Heat, energy, and entropy — one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

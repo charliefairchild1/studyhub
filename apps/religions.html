@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Religions">
+<meta name="theme-color" content="#14110c">
+<title>Religions — a codex</title>
+<style>
+:root{
+  --bg:#14110c;--panel:#1c1810;--card:#1e1a11;--line:#3a3120;--ink:#f2ecdd;--mut:#b7ab8e;--faint:#7a6d4d;
+  --acc:#d8a24a;--acc2:#c07a34;--teal:#5cbfa8;--violet:#b48fe6;--green:#84c58c;--red:#e08072;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 640px at 82% -12%,#2c2210 0%,var(--bg) 60%) fixed;color:var(--ink);
+  font:15.5px/1.6 Georgia,"Iowan Old Style","Times New Roman",serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.sans{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(20,17,12,.97),rgba(20,17,12,.84) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#20160a;font-size:22px;box-shadow:0 3px 14px rgba(216,162,74,.3)}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}header .sub{font-size:11.5px;color:var(--mut);margin-top:1px;font-style:italic}
+header .spacer{flex:1}.xp{font-size:11px;color:var(--mut);text-align:right;font-family:-apple-system,sans-serif}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-family:-apple-system,sans-serif;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#20160a;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-family:-apple-system,sans-serif;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.faith{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.faith.read{border-color:#4a5c2e}
+.faith .gl{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:22px;background:#170f07;border:1px solid var(--line)}
+.faith.read .gl{border-color:#4a5c2e}
+.faith .nm{flex:1;min-width:0}.faith .nm b{font-weight:650;font-size:15.5px}.faith .nm small{display:block;color:var(--mut);font-size:12px;font-family:-apple-system,sans-serif}
+.faith .go{color:var(--faint);font-size:19px}
+.reader h2{font-size:1.7em;margin:2px 0 2px;font-weight:600}
+.reader .glyph-big{font-size:30px}
+.reader .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.reader h3{font-family:-apple-system,sans-serif;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);font-weight:750;margin:22px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.reader p{color:#e2d9c4;margin:10px 0}.reader b{color:var(--ink)}.reader ul{color:#e2d9c4;padding-left:20px;margin:8px 0}.reader li{margin:5px 0}
+.reader i{color:#cabb98}
+.callout{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:.96em}
+.callout .l{font-family:-apple-system,sans-serif;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:750}
+.for{background:#12190f;border:1px solid #34512f;color:#d6ecd4}.for .l{color:var(--green)}
+.against{background:#1e1210;border:1px solid #58312c;color:#efd8d1}.against .l{color:var(--red)}
+.argue{background:#1a1508;border:1px solid #55461f;color:#efe2c4}.argue .l{color:var(--acc)}
+.argue .reply{color:#cabb98;font-style:italic;margin-top:6px;display:block}
+.quote{border-left:3px solid var(--acc);padding:2px 0 2px 14px;margin:14px 0;color:#cabb98;font-style:italic}
+.pill{display:inline-block;font-family:-apple-system,sans-serif;font-size:11px;font-weight:650;padding:3px 9px;border-radius:20px;background:#170f07;border:1px solid var(--line);color:var(--mut);margin:3px 4px 3px 0}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-family:-apple-system,sans-serif}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;min-width:120px}
+th{background:#170f07;color:var(--acc);position:sticky;left:0;font-weight:700}
+td:first-child,th:first-child{position:sticky;left:0;background:#170f07;color:var(--ink);font-weight:650;z-index:1}
+.dimcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:9px}
+.dimcard .r{font-weight:650;color:var(--acc);font-family:-apple-system,sans-serif;font-size:13px}
+.dimcard .v{color:#e2d9c4;font-size:13.5px;margin-top:2px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-family:-apple-system,sans-serif;font-size:12.5px;font-weight:650;padding:8px 13px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--mut);cursor:pointer}
+.chip.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#20160a;border-color:transparent}
+.arg{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+.arg h4{margin:0 0 4px;font-size:1.12em}.arg .kind{font-family:-apple-system,sans-serif;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint);font-weight:700}
+.arg .claim{color:#e2d9c4;margin:8px 0}.arg .reb{color:#efd8d1;margin:6px 0;font-size:.95em}.arg .reb b{color:var(--red)}
+.arg .rep{color:#d6ecd4;margin:6px 0;font-size:.95em}.arg .rep b{color:var(--green)}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;font-family:-apple-system,sans-serif;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.9}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(20,17,12,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-family:-apple-system,sans-serif;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-family:-apple-system,sans-serif;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#170f07;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600;font-family:-apple-system,sans-serif}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#20160a;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;font-family:-apple-system,sans-serif;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">☸</div>
+  <div><h1>Religions</h1><div class="sub">what they claim, and how to argue about it</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Read<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-faiths"></section>
+  <section id="tab-compare" class="hide"></section>
+  <section id="tab-args" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-reader" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="faiths" class="on"><span class="ic">☸</span>Faiths</button>
+  <button data-t="compare"><span class="ic">▦</span>Compare</button>
+  <button data-t="args"><span class="ic">⚖</span>Arguments</button>
+  <button data-t="you"><span class="ic">◉</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("religions_prog"))||{read:{},quiz:{}};}catch(e){return{read:{},quiz:{}};}}
+function save(){localStorage.setItem("religions_prog",JSON.stringify(P));}
+function markRead(id){if(!P.read[id]){P.read[id]=1;save();toast("Marked read ✓");}}
+const readCount=()=>Object.keys(P.read).length;
+
+/* ============================ FAITHS ============================ */
+/* Each: id, name, glyph, tag, and content sections. Exposition aims to be
+   accurate, fair and neutral; the argue/for/against blocks are for debate. */
+const FAITHS=[
+{id:"christianity",name:"Christianity",glyph:"✝",tag:"monotheist · c. 30 CE · ~2.4 billion",
+ origin:`<p>Christianity began as a movement within Second Temple Judaism in Roman-occupied Palestine, centered on <b>Jesus of Nazareth</b> (c. 4 BCE – 30/33 CE), an itinerant Jewish preacher whom his followers proclaimed the <b>Messiah</b> ("Christ") and, increasingly, God incarnate, raised from the dead after crucifixion by Rome.</p>
+ <p>The apostle <b>Paul</b> was decisive in opening the movement to non-Jews and framing it as a universal faith. From a persecuted sect it grew until Emperor <b>Constantine</b> legalized it (313 CE) and the <b>Council of Nicaea</b> (325) fixed core doctrine. It became the state religion of Rome, split East–West in 1054, fractured again in the <b>Protestant Reformation</b> (1517), and spread globally through empire and mission. It is today the largest religion on Earth.</p>`,
+ beliefs:`<p><b>God.</b> One God in three persons — Father, Son, Holy Spirit (the <b>Trinity</b>): a single divine essence, three distinct persons. God is creator, omnipotent, omniscient, perfectly good, and personal.</p>
+ <p><b>The human condition.</b> Humans are made in God's image but fallen — alienated from God by <b>sin</b> (in most traditions traced to a primordial "original sin"). We cannot bridge that gap by our own effort.</p>
+ <p><b>Salvation.</b> God bridges it. In the <b>Incarnation</b>, God becomes human in Jesus; in the <b>Atonement</b>, Jesus' death pays or defeats the debt of sin; in the <b>Resurrection</b>, death itself is overcome. Salvation comes through faith in Christ (Protestants stress grace/faith alone; Catholics and Orthodox add sacraments and works as fruit of that faith).</p>
+ <p><b>Afterlife.</b> Bodily resurrection and final judgment; eternal life with God (heaven) or separation from God (hell). Catholicism adds purgatory, a purifying interim state.</p>`,
+ texts:`<p>The <b>Bible</b>: the Old Testament (largely the Hebrew scriptures) and the New Testament (four Gospels, Acts, Paul's and others' letters, Revelation). Catholic and Orthodox canons include additional "deuterocanonical" books. Interpretation ranges from strict inerrancy to critical, historical reading.</p>`,
+ practices:`<p>Weekly worship; <b>baptism</b> (initiation) and the <b>Eucharist</b>/Communion (bread and wine recalling — or, for Catholics, becoming — Christ's body and blood); prayer; reading scripture; the liturgical calendar (Advent, Christmas, Lent, Easter). Practices vary enormously by tradition.</p>`,
+ branches:`<p><span class="pill">Roman Catholic (~1.3B)</span><span class="pill">Protestant (~900M)</span><span class="pill">Eastern Orthodox (~220M)</span><span class="pill">Oriental Orthodox</span> Protestants further divide into Lutheran, Reformed, Anglican, Baptist, Methodist, Pentecostal, and thousands of independent bodies — differing on authority (scripture vs. tradition), salvation, and sacraments.</p>`,
+ forCase:`<span class="l">The case for</span>It offers a coherent story that meets deep human needs: a personal God who suffers <i>with</i> us, moral seriousness anchored in a transcendent source, forgiveness for genuine guilt, and hope in the face of death. Its ethic of radical love, forgiveness, and the dignity of every person has profoundly shaped human rights, charity, and much of Western art, law and science. Billions report transformed lives and personal experience of God.`,
+ against:`<span class="l">The case against</span>The Trinity and Incarnation are charged with incoherence (how is one being three, or fully God and fully man?). The <b>problem of evil</b> presses hard on a God said to be all-good and all-powerful. Substitutionary atonement strikes critics as morally strange (punishing the innocent to forgive the guilty). Textual scholarship shows the Gospels were written decades later by non-eyewitnesses, with contradictions; the resurrection rests on contested testimony. And the doctrine of hell troubles many even among believers.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — the resurrection.</b> Everything hinges on it (1 Cor 15:14). Press the evidential basis: late, non-independent, theologically motivated sources. <span class="reply">Reply: the movement's explosive rise and the martyrdom of those who claimed to see the risen Jesus need <i>some</i> explanation; "minimal facts" apologetics tries to argue the resurrection is the best one.</span>
+ <br><br><b>Pressure point 2 — the problem of evil.</b> Gratuitous suffering (childhood cancer, natural disaster) vs. an omnibenevolent, omnipotent God. <span class="reply">Reply: free-will and "soul-making" theodicies, and the claim that a cross-bearing God shares the suffering rather than explaining it away.</span>
+ <br><br><b>Pressure point 3 — exclusivity.</b> If salvation is through Christ alone, what of the billions who never heard? <span class="reply">Reply: ranges from inclusivism (Christ saves some who don't know his name) to appeals to divine justice we can't yet see.</span>`},
+
+{id:"islam",name:"Islam",glyph:"☪",tag:"monotheist · c. 610 CE · ~2.0 billion",
+ origin:`<p>Islam traces to the prophet <b>Muhammad</b> (c. 570–632 CE) in the Arabian city of Mecca. Muslims believe that from 610 CE the angel Gabriel delivered to him the words of God (Allah) over 23 years — the <b>Qur'an</b>. Facing persecution, Muhammad and his followers migrated to Medina in 622 (the <b>Hijra</b>, year one of the Islamic calendar), where he became a political and religious leader.</p>
+ <p>Within a century of his death, Arab-Muslim rule stretched from Spain to Central Asia, carrying a sophisticated civilization of law, science, and philosophy. Islam presents itself not as a new religion but as the <b>final restoration</b> of the original monotheism of Abraham, corrected after Jews and Christians allegedly distorted it.</p>`,
+ beliefs:`<p><b>God.</b> Radical, uncompromising monotheism (<b>tawhid</b>): one God, utterly unique, without partner, offspring, or image. The gravest sin is <b>shirk</b> — associating anything with God (which is why Islam rejects the Trinity and Jesus' divinity while honoring him as a prophet).</p>
+ <p><b>The human condition.</b> Humans are not fallen but forgetful; born pure, we need guidance, not rescue. Life is a test of <b>submission</b> ("islam" means submission) to God's will.</p>
+ <p><b>Salvation.</b> Through faith and righteous deeds — sincere belief plus obedience to God's law. God is merciful; judgment weighs one's deeds. There is no intermediary priesthood and no atoning sacrifice; each soul answers for itself.</p>
+ <p><b>Afterlife.</b> Bodily resurrection, a Day of Judgment, and eternal Paradise (Jannah) or Hell (Jahannam).</p>`,
+ texts:`<p>The <b>Qur'an</b> — regarded as the literal, uncreated speech of God in Arabic, unaltered since revelation. Secondary: the <b>Hadith</b> (reports of Muhammad's sayings and deeds) and the <b>Sunnah</b> (his example), which together with the Qur'an ground Islamic law (<b>sharia</b>).</p>`,
+ practices:`<p>The <b>Five Pillars</b>: <b>Shahada</b> (declaration of faith), <b>Salat</b> (five daily prayers toward Mecca), <b>Zakat</b> (obligatory almsgiving), <b>Sawm</b> (fasting in Ramadan), and <b>Hajj</b> (pilgrimage to Mecca once if able). Dietary law (halal), avoidance of alcohol and pork.</p>`,
+ branches:`<p><span class="pill">Sunni (~85–90%)</span><span class="pill">Shia (~10–15%)</span> The split originated over succession after Muhammad: Sunnis accepted the elected caliphs; Shia held that leadership belonged to Ali and his descendants (the Imams). Sufism is a mystical current found across both. Legal schools and reform/modernist movements add further diversity.</p>`,
+ forCase:`<span class="l">The case for</span>A strikingly simple, rationalist monotheism with no priesthood, no mysteries like the Trinity, and a direct relationship between the individual and God. Its comprehensive way of life integrates worship, ethics, law, and community. The Qur'an's literary power and preservation are, to believers, a standing miracle. Islam's egalitarian ummah crosses race and nation, and its five daily disciplines give lived structure and meaning to over a billion people.`,
+ against:`<span class="l">The case against</span>The core evidential claim — that the Qur'an is a divine miracle — is hard to assess from outside and rests largely on internal assertion. Historical-critical scholarship questions the traditional account of the Qur'an's compilation and Muhammad's biography (sourced mostly from texts written generations later). Critics challenge specific ethical and legal content (on apostasy, women's testimony and inheritance, warfare) as reflecting 7th-century Arabia rather than a timeless God. The doctrine that earlier scriptures were "corrupted" is asserted without manuscript evidence.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — the inimitability of the Qur'an.</b> The central proof is that no one can produce a chapter like it. Ask why literary excellence should count as evidence of divine authorship, and by what neutral standard it's judged. <span class="reply">Reply: for believers the challenge is layered (style, content, prophecy, preservation), not merely aesthetic.</span>
+ <br><br><b>Pressure point 2 — the "corruption" of prior scriptures.</b> If the Torah and Gospel were divinely given and then corrupted, why did God let that happen, and where is the manuscript evidence? <span class="reply">Reply: some Muslims read "corruption" as interpretive rather than textual.</span>
+ <br><br><b>Pressure point 3 — ethics vs. context.</b> On contested rulings, press whether they are timeless commands or context-bound. <span class="reply">Reply: reformist and classical jurists appeal to the aims of the law (maqasid) and historical context to reinterpret.</span>`},
+
+{id:"judaism",name:"Judaism",glyph:"✡",tag:"monotheist · c. 2000–600 BCE · ~15 million",
+ origin:`<p>Judaism is the ancestral religion of the Jewish people, tracing itself to the covenant between God and the patriarch <b>Abraham</b>, and to <b>Moses</b>, through whom (tradition holds) God gave the Torah at Sinai after the Exodus from Egypt. Historically it emerged from the religion of ancient Israel over roughly the first millennium BCE, consolidating into a firmly monotheistic, text-centered faith after the Babylonian exile (6th c. BCE).</p>
+ <p>The destruction of the Second Temple by Rome (70 CE) transformed it from a temple-and-sacrifice religion into <b>Rabbinic Judaism</b>, centered on Torah study, synagogue, and law — the form that survives today, carried through two millennia of diaspora.</p>`,
+ beliefs:`<p><b>God.</b> One, indivisible, non-physical creator — the strict monotheism from which Christianity and Islam descend. God is just and merciful and acts in history.</p>
+ <p><b>The human condition & covenant.</b> No original sin; humans have both a good and an evil inclination and the free will to choose. Central is the <b>covenant</b>: the Jewish people are chosen not for privilege but for responsibility — to keep God's commandments and be "a light to the nations."</p>
+ <p><b>Salvation/purpose.</b> Judaism emphasizes right action in <i>this</i> world (<b>mitzvot</b>, commandments; and <b>tikkun olam</b>, repairing the world) over doctrine about the next. Belief in a coming <b>Messiah</b> and a messianic age of peace persists but is less central than practice.</p>
+ <p><b>Afterlife.</b> Notably underdeveloped and diverse: an olam ha-ba (world to come) and resurrection appear, but Judaism is comfortable leaving the afterlife vague and focusing on living well now.</p>`,
+ texts:`<p>The <b>Tanakh</b> (Hebrew Bible: Torah, Prophets, Writings), above all the <b>Torah</b> (five books of Moses). The <b>Talmud</b> — the vast rabbinic record of law and debate (Mishnah + Gemara) — is the engine of the "Oral Torah" and of ongoing interpretation.</p>`,
+ practices:`<p><b>Shabbat</b> (weekly day of rest), <b>kashrut</b> (dietary law), circumcision (brit milah), daily prayer, and the festival cycle: <b>Passover</b>, <b>Yom Kippur</b> (Day of Atonement), Rosh Hashanah, Sukkot, Hanukkah, and others. Study of Torah is itself an act of worship.</p>`,
+ branches:`<p><span class="pill">Orthodox / Haredi</span><span class="pill">Conservative (Masorti)</span><span class="pill">Reform</span><span class="pill">Reconstructionist</span> These differ mainly on the binding authority and origin of Jewish law (halakha) and its adaptation to modernity, not on the underlying monotheism.</p>`,
+ forCase:`<span class="l">The case for</span>An ancient, resilient tradition that pairs a demanding ethical monotheism with intellectual honesty: it prizes argument, questioning, and interpretation over dogma (the Talmud <i>preserves</i> the losing side of debates). It focuses on deeds in this life rather than speculative metaphysics, and its survival across millennia of exile and persecution is itself remarkable. It gave the world the moral framework the other Abrahamic faiths built on.`,
+ against:`<span class="l">The case against</span>The historical claims — Exodus, the giving of the law at Sinai, the conquest of Canaan — find little to no archaeological support, and scholarship sees the Torah as composed from multiple sources over centuries. The notion of a "chosen people" invites the charge of arbitrariness or tribalism. As with all theisms, it faces the problem of evil (posed with particular force by the Holocaust) and the general question of why to believe in the God of Israel over any other.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — chosenness.</b> Ask what it means for a just God to single out one people, and why that isn't arbitrary. <span class="reply">Reply: chosenness is framed as duty and burden, not favoritism, and Judaism doesn't claim non-Jews need to convert to be righteous (the "Noahide" path).</span>
+ <br><br><b>Pressure point 2 — the historicity of the founding events.</b> Press the lack of evidence for the Exodus and Sinai. <span class="reply">Reply: many modern Jews read these as formative national narrative and treat the tradition's <i>meaning</i> and practice as primary, not literal history.</span>
+ <br><br><b>Pressure point 3 — evil and the covenant.</b> How does a covenantal, history-acting God square with the Shoah? This is Judaism's own hardest internal question. <span class="reply">Reply: responses range from protest theology (arguing <i>with</i> God) to a deliberate refusal to explain away the suffering.</span>`},
+
+{id:"hinduism",name:"Hinduism",glyph:"ॐ",tag:"pluralist · c. 1500 BCE– (no founder) · ~1.2 billion",
+ origin:`<p>Hinduism is less a single religion than a family of related Indian traditions with <b>no founder and no single creed</b>, growing organically over more than 3,000 years from the Vedic religion of the Indo-Aryans and the older cultures of the Indian subcontinent. The term "Hindu" was originally a geographic label applied from outside.</p>
+ <p>Its texts and schools accumulated in layers — the Vedas, then the philosophical Upanishads, then the great epics and devotional movements — producing a tradition that spans strict monism, exuberant polytheism, and even atheistic schools, all under one loose umbrella.</p>`,
+ beliefs:`<p><b>Ultimate reality.</b> Many Hindus affirm <b>Brahman</b>: a single, infinite, formless ground of all being. The many gods (Vishnu, Shiva, Devi, and thousands more) are, in influential interpretations, faces or manifestations of that one reality — so Hinduism can be read as monist, monotheist, or polytheist depending on the school. <b>Atman</b> (the true self) is, in Advaita Vedanta, ultimately identical with Brahman.</p>
+ <p><b>The human condition.</b> The soul is trapped in <b>samsara</b>, the cycle of birth, death, and rebirth, driven by <b>karma</b> (the moral law of cause and effect). We suffer because we mistake the impermanent world (and our ego) for reality.</p>
+ <p><b>Liberation.</b> The goal is <b>moksha</b> — release from the cycle — attained by realizing one's true nature. Multiple valid paths: knowledge (jnana), devotion (bhakti), disciplined action (karma yoga), and meditation (raja yoga).</p>
+ <p><b>Afterlife.</b> Rebirth according to karma, until liberation.</p>`,
+ texts:`<p>The <b>Vedas</b> (oldest, "heard" scripture) and <b>Upanishads</b> (philosophical); the epics <b>Mahabharata</b> (containing the beloved <b>Bhagavad Gita</b>) and <b>Ramayana</b>; the Puranas. There is no single authoritative book for all Hindus.</p>`,
+ practices:`<p><b>Puja</b> (worship of deities at home or temple), <b>yoga</b> and meditation, pilgrimage, festivals (Diwali, Holi, Navaratri), mantra and offerings. Practice is highly local and personal; orthopraxy (right practice) often matters more than uniform belief.</p>`,
+ branches:`<p><span class="pill">Vaishnavism (Vishnu)</span><span class="pill">Shaivism (Shiva)</span><span class="pill">Shaktism (the Goddess)</span><span class="pill">Smartism</span> Philosophically: <b>Advaita</b> (non-dualism — all is Brahman), <b>Dvaita</b> (dualism — soul and God distinct), and others.</p>`,
+ forCase:`<span class="l">The case for</span>Its pluralism is a genuine strength: it can hold that there are many valid paths up the mountain, which sidesteps the exclusivism that fuels religious conflict. It offers a sophisticated metaphysics of consciousness (the self as ground of reality) that some find more defensible than a personal creator-God, and contemplative technologies — yoga, meditation — with measurable psychological benefit. Karma provides an intuitive, self-operating moral order without needing a judging deity.`,
+ against:`<span class="l">The case against</span>Karma and rebirth are unfalsifiable and, critics argue, can rationalize injustice — historically entangled with the <b>caste system</b>, implying the suffering deserve their lot from past lives. Its very breadth makes "Hinduism" hard to pin down or evaluate as a set of truth-claims. The monist claim that the self <i>is</i> the absolute, and that the everyday world is maya (illusion), is metaphysically bold and empirically ungrounded.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — karma and caste.</b> Press whether karma-across-lives justifies social hierarchy and blames victims. <span class="reply">Reply: many modern Hindus (and reformers like Gandhi and Ambedkar's critics) sharply separate the ethical core from caste, treating caste as a corruption, not a doctrine.</span>
+ <br><br><b>Pressure point 2 — unfalsifiability.</b> Rebirth and karma make no testable prediction. <span class="reply">Reply: proponents point to claimed past-life memory cases and argue the framework is a coherent interpretation of moral experience, not an empirical hypothesis.</span>
+ <br><br><b>Pressure point 3 — "all paths are valid."</b> Is that generous or incoherent, given the paths make contradictory claims? <span class="reply">Reply: Advaita answers that the contradictions dissolve at the level of ultimate reality — different maps of one summit.</span>`},
+
+{id:"buddhism",name:"Buddhism",glyph:"☸",tag:"non-theist · c. 500 BCE · ~520 million",
+ origin:`<p>Buddhism began with <b>Siddhartha Gautama</b>, the <b>Buddha</b> ("awakened one," c. 5th–4th c. BCE), a prince in what is now Nepal/India who left a life of luxury to seek the cause of suffering. After years of asceticism and meditation he reported attaining <b>enlightenment</b> — a direct insight into the nature of reality and the end of craving.</p>
+ <p>He taught for decades; his followers spread the teaching (<b>Dharma</b>) across Asia, where it evolved into distinct schools and, in most forms, requires no belief in a creator God. It is a religion whose founder pointed not to a deity but to a method.</p>`,
+ beliefs:`<p><b>No creator God.</b> Buddhism is largely non-theistic; gods may exist as beings within the cosmos but are not creators and cannot grant liberation. The Buddha is a teacher, not a savior.</p>
+ <p><b>The Four Noble Truths.</b> (1) Life involves <b>dukkha</b> (suffering, unsatisfactoriness). (2) Its cause is <b>craving</b>/attachment. (3) There is a way to end it. (4) That way is the <b>Eightfold Path</b> (right view, intention, speech, action, livelihood, effort, mindfulness, concentration).</p>
+ <p><b>Core insights.</b> <b>Impermanence</b> (anicca — everything changes); <b>no-self</b> (anatta — there is no fixed, permanent self, only a stream of changing processes); dependent origination (everything arises from conditions).</p>
+ <p><b>Liberation.</b> <b>Nirvana</b> — the extinguishing of craving and the end of the rebirth cycle. Not a heaven, but the cessation of the process that generates suffering.</p>`,
+ texts:`<p>No single scripture. The <b>Pali Canon</b> (Tipitaka) is foundational for Theravada; Mahayana adds a large body of sutras (e.g. the Lotus, Heart, and Diamond Sutras). Tibetan Buddhism has its own extensive corpus.</p>`,
+ practices:`<p><b>Meditation</b> (mindfulness/vipassana, concentration/samatha, and in some schools visualization or koan practice), ethical precepts (non-harming, truthfulness), chanting, and monasticism. The Five Precepts guide lay ethics.</p>`,
+ branches:`<p><span class="pill">Theravada</span> (Sri Lanka, SE Asia — "way of the elders," closest to early teaching) <span class="pill">Mahayana</span> (East Asia — emphasizes the bodhisattva who delays nirvana to help all beings; includes <b>Zen</b> and Pure Land) <span class="pill">Vajrayana</span> (Tibetan — tantric methods).</p>`,
+ forCase:`<span class="l">The case for</span>Buddhism sidesteps the problem of evil and the arguments for God entirely by not positing a creator. Its core is less a set of dogmas than a <b>practical diagnosis</b> of suffering and a method to reduce it — much of which (mindfulness, the impermanence and constructed-self insights) is being validated by psychology and neuroscience. The Buddha reportedly told followers to test the teachings for themselves rather than accept them on authority, giving it an empirical, almost therapeutic flavor congenial to naturalists.`,
+ against:`<span class="l">The case against</span>The metaphysics beneath the psychology — <b>rebirth and karma</b> across lifetimes — is as unfalsifiable and empirically unsupported as any afterlife doctrine, and it's hard to make coherent alongside "no-self" (what is reborn, if there is no self?). Nirvana is famously difficult to define. And critics ask whether the aim — extinguishing craving — risks devaluing engagement, love, and ordinary human striving.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — rebirth without a self.</b> Press the tension: if there is no persisting self (anatta), what transmigrates between lives? <span class="reply">Reply: Buddhists say it's a causal continuum, like one candle lighting the next — continuity without an identical entity. Critics find this evasive; naturalist "secular Buddhists" simply drop rebirth.</span>
+ <br><br><b>Pressure point 2 — the secular filleting.</b> Much of what's compelling (mindfulness, impermanence) survives without any supernatural claims. Ask why keep the metaphysics at all. <span class="reply">Reply: traditionalists argue rebirth is load-bearing — it's what makes liberation <i>from</i> the cycle meaningful; strip it and you have therapy, not a path.</span>
+ <br><br><b>Pressure point 3 — is craving really the enemy?</b> Question whether ending desire is desirable. <span class="reply">Reply: the target is <i>clinging</i>/compulsive craving, not all motivation — compassion (karuna) is cultivated, not extinguished.</span>`},
+
+{id:"sikhism",name:"Sikhism",glyph:"☬",tag:"monotheist · c. 1500 CE · ~25–30 million",
+ origin:`<p>Sikhism was founded in the Punjab region of South Asia by <b>Guru Nanak</b> (1469–1539), who taught a monotheistic path emphasizing devotion to one formless God, equality of all people, and honest living — rejecting both caste hierarchy and empty ritualism. It arose in a context of Hindu–Muslim tension and drew a distinctive path between them.</p>
+ <p>Nanak was followed by nine successive <b>Gurus</b>. The tenth, Guru Gobind Singh, ended the line of living Gurus, founded the <b>Khalsa</b> (a committed community with distinctive identity), and declared the scripture itself the eternal Guru thereafter.</p>`,
+ beliefs:`<p><b>God.</b> One God (<b>Ik Onkar</b>, "One Reality"), formless, timeless, creator, present in all creation — beyond religious labels. Rigorous monotheism with a strong mystical, immanent streak.</p>
+ <p><b>The human condition.</b> The self is separated from God by <b>haumai</b> (ego/self-centeredness) and caught in the cycle of rebirth. Liberation comes by remembering and merging with God.</p>
+ <p><b>The path.</b> Three pillars: <b>Naam Japna</b> (meditating on God's name), <b>Kirat Karo</b> (earning an honest living), and <b>Vand Chhako</b> (sharing with others). Salvation is through devotion and grace, lived out through ethical action in the world — not withdrawal from it.</p>
+ <p><b>Equality.</b> A defining commitment: the langar (free communal kitchen open to all, seated as equals) enacts the rejection of caste, class, and gender hierarchy.</p>`,
+ texts:`<p>The <b>Guru Granth Sahib</b> — a compilation of hymns by the Sikh Gurus and other saints (Hindu and Muslim), treated as the living, eternal Guru. It is central to all Sikh worship.</p>`,
+ practices:`<p>Daily prayer and meditation on God's name; worship at the <b>gurdwara</b>; the langar meal; and, for initiated Khalsa Sikhs, the <b>Five Ks</b> (uncut hair/kesh, comb/kangha, steel bracelet/kara, cotton undergarment/kachera, ceremonial sword/kirpan) — the turban being the best-known outward sign.</p>`,
+ branches:`<p>Sikhism is relatively unified doctrinally; the main distinction is between initiated <b>Khalsa</b> (Amritdhari) Sikhs and non-initiated Sikhs, with some smaller sects and lineages.</p>`,
+ forCase:`<span class="l">The case for</span>A late, well-documented founding (we have far better historical records than for ancient faiths) and a strikingly humane, practical ethic: uncompromising monotheism, radical social equality centuries ahead of its time, service to others, and a rejection of ritual for its own sake. It combines mystical depth with worldly engagement — no monasticism, no priesthood, honest work honored as worship. The langar is one of the world's great living arguments for practiced equality.`,
+ against:`<span class="l">The case against</span>It inherits the same broadly Indian metaphysics it grew from — karma and rebirth — which face the standard unfalsifiability objection, now attached to a personal creator God who also faces the problem of evil. As with any revealed faith, the authority of the Gurus' revelation is asserted from within. Its truth-claims about God's nature rest ultimately on the mystical experience and testimony of Nanak and his successors.`,
+ argue:`<span class="l">How to argue about it</span><b>Pressure point 1 — grounding of the revelation.</b> Ask what makes Nanak's mystical realization of the One God veridical rather than a profound subjective experience. <span class="reply">Reply: Sikhs point to the coherence and moral fruit of the teaching and the transformative experience of devotees — the same experiential grounding, and same limits, as other mystical traditions.</span>
+ <br><br><b>Pressure point 2 — karma plus a good God.</b> Sikhism keeps rebirth <i>and</i> a loving creator; press how the two combine, and the problem of evil. <span class="reply">Reply: suffering is framed within a just karmic order under a God whose grace can liberate — mercy overriding mechanism.</span>
+ <br><br><b>Strong ground for the believer:</b> its ethics stand largely independent of the metaphysics — you can grant that equality, service, and honest work are good without settling the theology. This makes Sikhism unusually defensible on practical terms.`},
+
+{id:"taoism",name:"Taoism",glyph:"⚊",tag:"philosophical/naturalist · c. 400 BCE · ~tens of millions",
+ origin:`<p>Taoism (Daoism) arose in ancient China, its foundational text the <b>Tao Te Ching</b> attributed to the semi-legendary <b>Laozi</b> (c. 6th–4th c. BCE), with <b>Zhuangzi</b> as its other great voice. It began as a philosophy of living in harmony with the <b>Tao</b> — "the Way," the underlying natural order of the universe — and later developed into an organized religion with deities, rituals, alchemy, and priesthood.</p>`,
+ beliefs:`<p><b>Ultimate reality.</b> The <b>Tao</b>: the ineffable source and pattern of everything, which cannot be fully named or grasped ("The Tao that can be spoken is not the eternal Tao"). Not a personal god — more the way things spontaneously are.</p>
+ <p><b>The human condition.</b> We suffer by fighting the natural flow — forcing, over-planning, striving against the grain of things.</p>
+ <p><b>The path.</b> <b>Wu wei</b> — "effortless action," acting in accord with nature rather than against it; simplicity, spontaneity, humility, and yielding (like water, which is soft yet wears down stone). Balance of complementary forces (<b>yin and yang</b>).</p>
+ <p><b>Goal.</b> In philosophical Taoism: harmony, equanimity, and freedom. In religious Taoism: longevity, health, and even immortality through practices and alignment with cosmic energies (qi).</p>`,
+ texts:`<p>The <b>Tao Te Ching</b> and the <b>Zhuangzi</b> are foundational; religious Taoism adds a large canon (Daozang) of scriptures and ritual texts.</p>`,
+ practices:`<p>Meditation, breathing and energy practices (qigong, tai chi), feng shui, alignment with natural cycles; in religious Taoism, temple ritual, deity veneration, and ceremonies performed by priests.</p>`,
+ branches:`<p><span class="pill">Philosophical Taoism</span> (the Laozi/Zhuangzi tradition of ideas) and <span class="pill">Religious Taoism</span> (organized schools with gods, liturgy, and clergy, e.g. Celestial Masters, Quanzhen). The line between them is blurry and much debated.</p>`,
+ forCase:`<span class="l">The case for</span>Philosophical Taoism makes almost no supernatural demands — it's largely a naturalistic wisdom tradition about living well, congenial to a secular reader. Its insights (don't force what should flow; strength through flexibility; the limits of language and knowledge; ecological humility) are practically useful and age well. It offers meaning and serenity without requiring belief in a creator, an afterlife of reward and punishment, or a revealed scripture claiming exclusive truth.`,
+ against:`<span class="l">The case against</span>As philosophy, the concept of the "Tao" is deliberately vague — critics say it's poetic to the point of saying little that's falsifiable or action-guiding. "Go with the flow" can shade into passivity or quietism, and offers little on justice or resisting genuine wrong. Religious Taoism, meanwhile, carries a full load of gods, magic, alchemy, and immortality claims that fare no better than any other supernatural system under scrutiny.`,
+ argue:`<span class="l">How to argue about it</span><b>If you're arguing against Taoism as religion:</b> target the supernatural layer — immortality practices, deities, cosmic qi — with the usual demand for evidence.
+ <br><br><b>If you're engaging it as philosophy:</b> the fight is different. Press whether "wu wei" gives real guidance or just relabels whatever happens as "natural," and whether reverence for the given order can excuse passivity toward injustice. <span class="reply">Reply: Taoists distinguish wu wei from mere inaction — it's <i>skillful</i> non-forcing, like a surgeon or a swimmer, not doing nothing; and the tradition values humility about our capacity to engineer outcomes, which the modern record often vindicates.</span>
+ <br><br><b>Common ground:</b> a naturalist can adopt much of philosophical Taoism as practical wisdom while rejecting religious Taoism — the two really are separable.`},
+
+{id:"confucianism",name:"Confucianism",glyph:"士",tag:"ethical tradition · c. 500 BCE · ~hundreds of millions influenced",
+ origin:`<p>Confucianism stems from <b>Confucius</b> (Kongzi, 551–479 BCE), a Chinese teacher and official living in an era of political chaos, who sought to restore social harmony through personal virtue and right relationships rather than force or law. Developed by later thinkers (Mencius, Xunzi) and revived as <b>Neo-Confucianism</b>, it became the ethical and political backbone of imperial China, Korea, and much of East Asia for two millennia.</p>
+ <p>It is best understood as an ethical, social, and political philosophy — a comprehensive vision of how to be a good person and order a good society — more than a religion in the Western sense, though it has ritual and reverential dimensions.</p>`,
+ beliefs:`<p><b>Not centered on God.</b> Confucius was reticent about gods and the afterlife ("While you do not know life, how can you know about death?"). There's an impersonal <b>Heaven</b> (Tian) as a moral order, but the focus is squarely on <b>this world and human relationships</b>.</p>
+ <p><b>The human condition.</b> Humans are perfectible through cultivation, education, and ritual. Society flourishes when individuals cultivate virtue and honor their proper roles.</p>
+ <p><b>Core virtues.</b> <b>Ren</b> (humaneness/benevolence), <b>li</b> (ritual propriety, etiquette, respect), <b>xiao</b> (filial piety — devotion to family and ancestors), <b>yi</b> (righteousness), and the ideal of the <b>junzi</b> (the exemplary, cultivated person). The <b>Five Relationships</b> (ruler–subject, parent–child, husband–wife, elder–younger, friend–friend) structure a harmonious society.</p>`,
+ texts:`<p>The <b>Analects</b> (sayings of Confucius) and the Four Books and Five Classics, including the works of Mencius. These are studied as guides to character and governance.</p>`,
+ practices:`<p>Ancestor veneration, ritual propriety and correct manners, education and self-cultivation, honoring family duties, and (historically) the civil-service exam system built on the classics.</p>`,
+ branches:`<p><span class="pill">Classical Confucianism</span><span class="pill">Neo-Confucianism</span> (a later metaphysical synthesis) <span class="pill">New Confucianism</span> (modern revival). It also blends widely with Buddhism and Taoism in East Asian practice.</p>`,
+ forCase:`<span class="l">The case for</span>Confucianism offers a rich, humane ethics of character, family, and social responsibility with essentially <b>no supernatural commitments required</b> — it's a candidate for "a religion for atheists." Its emphasis on education, self-improvement, reciprocity ("Do not do to others what you would not want done to yourself" — a negative Golden Rule predating the Gospel), and social harmony has demonstrably shaped stable, literate, cohesive societies. Much of it reads as timeless practical wisdom about being a good person and citizen.`,
+ against:`<span class="l">The case against</span>Its stress on hierarchy, deference, and fixed roles can entrench <b>authoritarianism, patriarchy, and conformity</b> — filial piety and the Five Relationships have been used to justify subordination of women, the young, and subjects. Critics argue it prizes social order over individual rights, dissent, and equality, and that ritual propriety can ossify into empty formalism. As philosophy it's strong on duty and harmony but comparatively thin on personal liberty and justice for the marginalized.`,
+ argue:`<span class="l">How to argue about it</span><b>This one is rarely argued as "is it true?"</b> — it makes few metaphysical claims to falsify. The debate is <b>"is it good?"</b>.
+ <br><br><b>Pressure point 1 — hierarchy vs. equality.</b> Press whether role-based duty suppresses individual rights and entrenches patriarchy. <span class="reply">Reply: modern ("New") Confucians argue the relationships are reciprocal and the tradition's core — ren, self-cultivation — can ground a Confucian case for democracy and human dignity, distinguishing the ethical core from feudal accretions.</span>
+ <br><br><b>Pressure point 2 — conformity vs. dissent.</b> Does harmony-first leave room to challenge unjust authority? <span class="reply">Reply: Mencius explicitly endorsed the right to remove a tyrant — the "Mandate of Heaven" can be lost — so the tradition isn't simply pro-obedience.</span>`},
+
+{id:"secular",name:"Secular / Atheism",glyph:"∅",tag:"naturalist worldview · modern · ~1+ billion nonreligious",
+ origin:`<p>Included here as a <b>worldview for contrast</b>, not a religion. Non-belief is ancient (the Indian Charvaka school, Greek atomists like Epicurus and Lucretius, and skeptics across history), but organized secularism grew with the Enlightenment, the rise of modern science, and the decline of religious authority. Today the "nones" — atheists, agnostics, and the unaffiliated — are among the fastest-growing groups worldwide.</p>`,
+ beliefs:`<p><b>On God.</b> <b>Atheism</b> = the absence of belief in gods (weak/negative) or the belief that no gods exist (strong/positive). <b>Agnosticism</b> = the claim that we don't or can't know. Most secular thinkers are best described as <i>naturalists</i>: they hold that the natural, physical world is all there is, with no supernatural realm.</p>
+ <p><b>Source of truth.</b> Reason, empirical evidence, and the methods of science — not revelation or sacred authority. Beliefs should be proportioned to evidence and held provisionally.</p>
+ <p><b>The human condition.</b> Humans are evolved animals in an indifferent universe; there is no cosmic plan or afterlife. Meaning is not handed down but <b>constructed</b> — through relationships, projects, understanding, and the good we create.</p>
+ <p><b>Morality.</b> Ethics is grounded in human (and animal) wellbeing, reason, empathy, and social cooperation — secular frameworks include consequentialism, Kantian duty, virtue ethics, and contractarianism — not divine command. <b>Secular humanism</b> is the most developed positive stance: a commitment to reason, compassion, human dignity, and this-worldly flourishing.</p>`,
+ texts:`<p>No scripture. Influential works instead: Hume, Russell ("Why I Am Not a Christian"), Darwin, and modern writers (Dawkins, Dennett, Harris, Hitchens) — read as arguments to weigh, not authorities to obey.</p>`,
+ practices:`<p>No required rituals. Some find community and ritual in humanist societies, Sunday Assemblies, ethical culture, or simply in secular life — family, art, science, service.</p>`,
+ branches:`<p><span class="pill">Secular humanism</span><span class="pill">Agnosticism</span><span class="pill">Antitheism</span><span class="pill">Ignosticism</span><span class="pill">Apatheism</span> ranging from active opposition to religion to simple indifference.</p>`,
+ forCase:`<span class="l">The case for</span>It asks you to believe only what the evidence supports and to proportion confidence to that evidence — a principle that has been extraordinarily productive (all of modern science and medicine). It needs no unverifiable metaphysics, dissolves the problem of evil (an indifferent universe predicts suffering), and explains religion's diversity and origins naturally. It grounds morality in real human wellbeing that we can investigate, and locates meaning in this life, the only one we can confirm we have. It is, at minimum, the most parsimonious default.`,
+ against:`<span class="l">The case against</span>Critics argue naturalism struggles to <b>ground objective morality</b> ("you can't get an <i>ought</i> from an <i>is</i>"), meaning, and human dignity without a transcendent source — that "the universe is indifferent" leaves values as mere preference. It faces hard problems it hasn't fully solved: why there is <b>something rather than nothing</b>, the fine-tuning of physical constants, and the nature of consciousness. Some charge that it under-serves deep human needs for hope, community, and ritual, and that its confidence can curdle into its own dogmatism.`,
+ argue:`<span class="l">How to argue about it (and defend it)</span><b>The strongest theist challenges to answer:</b>
+ <ul><li><b>Grounding of morality:</b> Answer with evolved moral intuitions plus reasoned frameworks built on wellbeing — and turn it around: divine-command ethics faces the <i>Euthyphro</i> dilemma (is the good good <i>because</i> God commands it, making it arbitrary, or does God command it <i>because</i> it's good, making goodness independent of God?).</li>
+ <li><b>Something rather than nothing / fine-tuning:</b> Concede these are open questions, then note that "God did it" only relocates the mystery (what grounds God?) and that multiverse and necessity-based answers are live. A gap in current knowledge is not evidence for a specific deity.</li>
+ <li><b>Meaning:</b> Meaning that you build and choose is arguably <i>more</i> valuable than meaning assigned from outside — and mortality, far from voiding meaning, is part of what gives life its urgency.</li></ul>
+ <b>Golden rule of the debate:</b> the burden of proof is on the one asserting an extra entity exists. Absence of disproof is not evidence. Keep the theist making the positive claim.`},
+];
+const FMAP=Object.fromEntries(FAITHS.map(f=>[f.id,f]));
+
+/* ============================ COMPARE ============================ */
+const DIMS=[
+ {id:"god",label:"Concept of God / ultimate reality",data:{
+   christianity:"One God in three persons (Trinity); personal creator.",
+   islam:"Strict, absolute monotheism (tawhid); one God, no partners.",
+   judaism:"One indivisible, non-physical God; strict monotheism.",
+   hinduism:"Many views: one Brahman behind many gods; monist, monotheist, or polytheist depending on school.",
+   buddhism:"Non-theistic; no creator God. Gods, if any, are non-ultimate.",
+   sikhism:"One formless God (Ik Onkar); monotheist, present in all.",
+   taoism:"Impersonal Tao (the Way); not a personal deity. Religious form adds gods.",
+   confucianism:"Impersonal Heaven (Tian) as moral order; God/afterlife de-emphasized.",
+   secular:"No God; naturalism — the physical world is all there is."}},
+ {id:"authority",label:"Source of authority",data:{
+   christianity:"The Bible; plus church tradition (Catholic/Orthodox) or scripture alone (Protestant).",
+   islam:"Qur'an (God's literal word) + Hadith/Sunnah; sharia.",
+   judaism:"Torah/Tanakh + Talmud and rabbinic interpretation.",
+   hinduism:"Vedas, Upanishads, epics (Gita); no single authority.",
+   buddhism:"The Buddha's teaching (Dharma); Pali Canon / Mahayana sutras; personal verification.",
+   sikhism:"Guru Granth Sahib (the eternal living Guru).",
+   taoism:"Tao Te Ching, Zhuangzi; religious canon (Daozang).",
+   confucianism:"Analects, Four Books & Five Classics; the sages.",
+   secular:"Reason and empirical evidence; no sacred authority."}},
+ {id:"afterlife",label:"View of the afterlife",data:{
+   christianity:"Bodily resurrection; heaven or hell (Catholicism adds purgatory).",
+   islam:"Resurrection, Day of Judgment; eternal Paradise or Hell.",
+   judaism:"Underdeveloped and diverse; some world-to-come/resurrection; focus on this life.",
+   hinduism:"Rebirth (reincarnation) by karma until moksha (liberation).",
+   buddhism:"Rebirth by karma until nirvana (cessation of the cycle).",
+   sikhism:"Rebirth by karma; liberation = merging with God.",
+   taoism:"Varies; return to the Tao; some seek longevity/immortality.",
+   confucianism:"Little focus; ancestors honored; agnostic about the beyond.",
+   secular:"None; consciousness ends at death."}},
+ {id:"evil",label:"Answer to the problem of evil / suffering",data:{
+   christianity:"Free will, the Fall, soul-making; a God who shares suffering (the cross).",
+   islam:"A test and trial; God's justice and mercy resolved at judgment.",
+   judaism:"Free will; wrestling with God; often refuses easy answers (esp. post-Shoah).",
+   hinduism:"Karma — suffering is the working-out of past deeds across lives.",
+   buddhism:"Suffering is intrinsic to craving; diagnose and end the cause. No God to blame.",
+   sikhism:"Karma within God's just order; grace can liberate.",
+   taoism:"Suffering comes from resisting the natural flow; harmony reduces it.",
+   confucianism:"Addressed ethically, not metaphysically — cultivate virtue, order society.",
+   secular:"No problem: an indifferent universe predicts suffering. Evil needs no cosmic explanation."}},
+ {id:"path",label:"Path to salvation / liberation / the good life",data:{
+   christianity:"Faith in Christ; grace (Protestant) or faith + sacraments + works (Catholic/Orthodox).",
+   islam:"Submission to God; faith + righteous deeds; the Five Pillars.",
+   judaism:"Living the covenant — mitzvot (commandments), ethics, repairing the world.",
+   hinduism:"Moksha via knowledge, devotion, action, or meditation — many valid paths.",
+   buddhism:"The Eightfold Path; end craving; reach nirvana.",
+   sikhism:"Devotion to God's name, honest work, sharing; grace.",
+   taoism:"Wu wei — harmony with the Tao; simplicity, balance.",
+   confucianism:"Self-cultivation of virtue (ren, li); right relationships.",
+   secular:"No salvation needed; flourish via reason, ethics, relationships, meaningful work."}},
+ {id:"date",label:"Approximate founding",data:{
+   christianity:"c. 30–33 CE (Jesus); spread by Paul.",
+   islam:"c. 610 CE (Muhammad's first revelation).",
+   judaism:"c. 2000–600 BCE (Abraham to post-exilic consolidation).",
+   hinduism:"c. 1500 BCE onward; no founder, no single origin.",
+   buddhism:"c. 5th–4th century BCE (the Buddha).",
+   sikhism:"c. 1500 CE (Guru Nanak).",
+   taoism:"c. 4th century BCE (Laozi/Zhuangzi); older roots.",
+   confucianism:"c. 500 BCE (Confucius, 551–479 BCE).",
+   secular:"Ancient roots; modern form with the Enlightenment (17th–18th c.)."}},
+ {id:"adherents",label:"Approximate adherents",data:{
+   christianity:"~2.4 billion (largest).",
+   islam:"~2.0 billion (fastest-growing major faith).",
+   judaism:"~15 million.",
+   hinduism:"~1.2 billion.",
+   buddhism:"~500–520 million.",
+   sikhism:"~25–30 million.",
+   taoism:"Tens of millions (hard to count; blends with folk religion).",
+   confucianism:"Hundreds of millions influenced; few 'exclusive' adherents.",
+   secular:"~1+ billion nonreligious (atheist/agnostic/unaffiliated)."}},
+];
+
+/* ============================ ARGUMENTS ============================ */
+const ARGS_FOR=[
+ {name:"The Cosmological Argument",kind:"For God · why is there anything?",
+  claim:"Everything that begins to exist has a cause; the universe began to exist; therefore the universe has a cause — a timeless, spaceless, immensely powerful first cause, which theists identify as God. (The Kalam version; older versions argue from contingency: contingent things need a necessary being to ground them.)",
+  reb:"<b>Rebuttal:</b> Even if the universe has a cause, nothing shows that cause is personal, singular, or good — it's a huge leap from 'a cause' to 'God.' The premise 'everything has a cause' is drawn from within the universe and may not apply to the universe itself, or to quantum events. And it invites the child's question: what caused God? If God can be uncaused, why not the universe or its quantum substrate?",
+  rep:"<b>Believer's reply:</b> God is defined as a <i>necessary</i>, uncaused being, so 'what caused God?' is a category error — only things that begin need causes. Contingency versions argue that <i>something</i> must exist necessarily to end the regress, and an abstract law is a poor candidate for a necessary ground."},
+ {name:"The Teleological (Design) Argument",kind:"For God · fine-tuning & order",
+  claim:"The universe's laws and constants are exquisitely fine-tuned for life — tweak gravity or the cosmological constant slightly and no stars, chemistry, or life could exist. Such improbable, functional order looks designed. Biological complexity was Paley's classic version; cosmic fine-tuning is the modern one.",
+  reb:"<b>Rebuttal:</b> Evolution by natural selection fully explains biological 'design' without a designer. Fine-tuning may be explained by a <b>multiverse</b> (we necessarily find ourselves in a life-permitting region — the anthropic principle), by deeper laws that fix the constants, or by our ignorance of the possibility space. And a designer complex enough to fine-tune a universe would itself demand explanation.",
+  rep:"<b>Believer's reply:</b> The multiverse is itself unobserved and arguably less parsimonious than one designer; the anthropic principle explains why <i>we</i> observe fine-tuning but not why it <i>obtains</i>. Design remains, they argue, the best explanation of specified, life-enabling order."},
+ {name:"The Ontological Argument",kind:"For God · pure logic",
+  claim:"God is defined as the greatest conceivable being. A being that exists in reality is greater than one that exists only in the mind. So if God exists only as an idea, we can conceive of something greater (the same God, existing) — a contradiction. Therefore God must exist. (Anselm; refined by Plantinga using modal logic: if God's existence is even possible, a necessary being exists in all possible worlds.)",
+  reb:"<b>Rebuttal:</b> Kant's classic objection — <b>existence is not a predicate</b>, not a property that makes a thing 'greater.' You can't define things into existence; the same trick would conjure a 'greatest conceivable island.' Plantinga's modal version smuggles the conclusion into the premise: granting that God's existence is <i>possible</i> (in the technical sense) already grants it's necessary.",
+  rep:"<b>Believer's reply:</b> The island parody fails because islands have no intrinsic maximum. Defenders argue necessary existence <i>is</i> a great-making property for the kind of being God is, and that the modal premise ('a maximally great being is possible') is at least as plausible as its denial."},
+ {name:"The Moral Argument",kind:"For God · the ground of values",
+  claim:"Objective moral facts exist — torturing children for fun is really wrong, not just disliked. But objective moral values require a transcendent ground; they can't be mere products of evolution or opinion. The best explanation of binding moral obligations is a moral lawgiver: God.",
+  reb:"<b>Rebuttal:</b> The <b>Euthyphro dilemma</b> — is an act good because God commands it (then morality is arbitrary; God could command cruelty) or does God command it because it's good (then goodness is independent of God, and we don't need him to ground it)? Secular ethics grounds objective-enough morality in wellbeing, reason, and reciprocity; evolution explains our moral intuitions without making them <i>merely</i> illusory.",
+  rep:"<b>Believer's reply:</b> God isn't <i>subject</i> to an external standard nor arbitrary — goodness is identical to his nature (splitting the dilemma's horns). And they press: if morality is just evolved intuition, in what sense is anything <i>really</i> wrong rather than merely unpopular?"},
+ {name:"Argument from Religious Experience",kind:"For God · direct encounter",
+  claim:"Vast numbers of people across all cultures report direct experience of God or the transcendent — encounters that feel more real and certain than ordinary perception and often transform lives. If we trust perception in general, we should give such widespread, life-altering experience evidential weight.",
+  reb:"<b>Rebuttal:</b> Religious experiences <b>contradict each other</b> — Christians meet Christ, Hindus meet Krishna, and they can't all be veridical. They're better explained by psychology and neuroscience (temporal-lobe activity, expectation, altered states), are non-shareable and unfalsifiable, and correlate tightly with the believer's prior culture — exactly what we'd expect if they're generated internally.",
+  rep:"<b>Believer's reply:</b> Diversity of interpretation doesn't refute a common underlying reality (different descriptions of one 'more'); having a brain-correlate no more debunks the experience than it debunks vision. For the experiencer, they argue, it can be rational bedrock even if not transferable."},
+];
+const ARGS_AGAINST=[
+ {name:"The Problem of Evil",kind:"Against theism · the strongest",
+  claim:"If God is all-powerful, all-knowing, and all-good, why does gratuitous suffering exist — childhood cancer, tsunamis, the Holocaust? An omnipotent God <i>could</i> prevent it, an omniscient God <i>knows</i> of it, a perfectly good God <i>would want</i> to. The sheer scale of seemingly pointless suffering is powerful evidence against such a God (the evidential version). The logical version says the traits are outright inconsistent with any evil.",
+  reb:"<b>Theist responses (theodicies):</b> <b>Free will</b> (moral evil is the price of genuine freedom); <b>soul-making</b> (suffering builds virtue and depth); <b>greater-good</b> and skeptical theism (we're not positioned to see how a good God might permit each evil). The cross, for Christians, is God entering the suffering rather than explaining it.",
+  rep:"<b>Naturalist rejoinder:</b> Free will doesn't touch <i>natural</i> evil (disease, earthquakes); much suffering (animal agony over eons before humans) builds no one's soul; and 'we can't see the reason' concedes the evidence looks damning. An indifferent universe predicts exactly this distribution of suffering — no theodicy required."},
+ {name:"Divine Hiddenness",kind:"Against theism · the silence",
+  claim:"If a loving God wanted relationship with us, he would make his existence clear to every sincere seeker. Yet there are thoughtful, open, non-resistant nonbelievers — people who <i>want</i> to believe and can't. A perfectly loving God who remained hidden from them is hard to reconcile with that love. (Schellenberg's argument.)",
+  reb:"<b>Theist responses:</b> God stays hidden to preserve free choice and love (overwhelming proof would coerce); 'divine hiddenness' allows soul-making and faith as a virtue; some argue God <i>isn't</i> hidden — the evidence is there for those who look rightly, and unbelief involves subtle resistance.",
+  rep:"<b>Naturalist rejoinder:</b> Knowing someone exists doesn't coerce love (I know many people exist without being forced to love them); and postulating hidden 'resistance' in every sincere atheist is unfalsifiable and uncharitable. The simplest explanation of a silent God is no God."},
+ {name:"Incoherence of the Omni-Properties",kind:"Against theism · internal contradiction",
+  claim:"The classical divine attributes may be self-contradictory or mutually incompatible. Omnipotence: can God make a stone he can't lift, or a square circle? Omniscience vs. free will: if God infallibly knows my future acts, are they free — and is God's own future fixed? A timeless being who acts, or a changeless being who responds to prayer, looks incoherent.",
+  reb:"<b>Theist responses:</b> Omnipotence means the power to do anything <i>logically possible</i>, so 'square circles' are non-things, not limits. God's knowledge of free acts is like knowing them 'from eternity' rather than causing them (Boethius); various models (eternalism, middle knowledge) aim to reconcile foreknowledge and freedom.",
+  rep:"<b>Naturalist rejoinder:</b> Each patch tends to shrink 'God' toward something less than the being worshipped, and the reconciliations (e.g. middle knowledge) are contested even among theists. The accumulation of ad hoc repairs is itself telling."},
+ {name:"Evolutionary & Cognitive Origins of Religion",kind:"Against theism · debunking the belief",
+  claim:"We can now explain <i>why</i> humans are religious without any god being real: hyperactive agency detection (we over-attribute intention — useful when a rustle might be a predator), a bias toward purpose, dead-ancestor intuitions, and religion's role in bonding and enforcing cooperation in groups. Belief in gods is what we'd expect from these evolved cognitive tendencies whether or not any god exists.",
+  reb:"<b>Theist responses:</b> Explaining how a belief arises doesn't show it's false (the 'genetic fallacy') — evolution might have given us faculties <i>for</i> perceiving the divine, just as it gave us faculties for perceiving math and truth. God could work through natural processes.",
+  rep:"<b>Naturalist rejoinder:</b> True — origins don't disprove content — but they <i>remove the need</i> to posit a god to explain widespread belief, and they explain the pattern (contradictory, culture-bound gods everywhere) better than 'people are detecting a real, single God.' It shifts the burden squarely back onto the believer."},
+ {name:"Parsimony (Occam's Razor)",kind:"Against theism · the default",
+  claim:"Do not multiply entities beyond necessity. If the natural world can be explained without invoking a supernatural being — and science has steadily closed the gaps once filled by gods — then adding an unobservable, complex deity is an unnecessary hypothesis. Naturalism is the simpler theory that fits the evidence, so it should be the default until positive evidence for God is produced.",
+  reb:"<b>Theist responses:</b> Simplicity isn't the only virtue — explanatory scope matters, and God, they argue, explains things naturalism struggles with (existence itself, fine-tuning, consciousness, objective morality) more unifyingly. A single God can be 'simpler' than a brute multiverse or unexplained laws.",
+  rep:"<b>Naturalist rejoinder:</b> A being with unlimited knowledge and power is not simple — it's maximally complex — and 'God did it' has zero predictive content; it fits any observation equally, which is the mark of a non-explanation. Every historical god-of-the-gaps has retreated before inquiry; bet accordingly."},
+];
+
+/* ============================ QUIZ ============================ */
+const QUIZ=[
+ {q:"Which tradition is explicitly non-theistic — no creator God at its core?",a:["Islam","Buddhism","Sikhism","Judaism"],c:1,e:"Buddhism posits no creator God; the Buddha is a teacher, not a savior, and liberation (nirvana) needs no deity."},
+ {q:"The central, unforgivable sin in Islam is shirk. What is it?",a:["Eating pork","Associating partners with God","Missing a daily prayer","Doubting the prophets"],c:1,e:"Tawhid (absolute oneness of God) is Islam's core; shirk — associating anything with God — is the gravest sin, which is why Islam rejects the Trinity."},
+ {q:"'Moksha,' the goal of release from the cycle of rebirth, is central to which tradition?",a:["Confucianism","Hinduism","Taoism","Christianity"],c:1,e:"Moksha — liberation from samsara (the rebirth cycle driven by karma) — is the aim in Hinduism (Buddhism uses 'nirvana' for its analogue)."},
+ {q:"Which tradition is best described as an ethical/social philosophy centered on virtue and relationships, with God and the afterlife de-emphasized?",a:["Confucianism","Sikhism","Islam","Hinduism"],c:0,e:"Confucius focused on this-worldly virtue (ren, li, filial piety) and was reticent about gods and the afterlife."},
+ {q:"The Euthyphro dilemma is a classic challenge to which argument for God?",a:["Cosmological","Ontological","Moral","Design"],c:2,e:"It presses the moral argument: is the good good because God commands it (arbitrary) or commanded because it's good (independent of God)?"},
+ {q:"Which is widely considered the STRONGEST argument AGAINST an all-good, all-powerful God?",a:["Occam's razor","The problem of evil","Divine hiddenness","Evolutionary origins"],c:1,e:"The problem of evil — gratuitous, seemingly pointless suffering — is generally regarded as theism's hardest challenge."},
+ {q:"Sikhism's langar (free communal kitchen where all sit as equals) most directly expresses which of its commitments?",a:["Vegetarianism as sacred","Rejection of caste and social hierarchy","Fasting for the poor","Ancestor veneration"],c:1,e:"The langar enacts Sikhism's defining commitment to the equality of all people, rejecting caste, class, and gender hierarchy."},
+ {q:"The Taoist idea of 'wu wei' is best translated as:",a:["Ritual sacrifice","Effortless action / non-forcing","Holy war","Ancestor worship"],c:1,e:"Wu wei — acting in harmony with the natural flow rather than forcing against it — is central to Taoism (it means skillful non-forcing, not mere inaction)."},
+ {q:"Which tradition notably leaves the afterlife vague and focuses on right action in THIS world (mitzvot, repairing the world)?",a:["Christianity","Judaism","Buddhism","Hinduism"],c:1,e:"Judaism's afterlife doctrine is deliberately underdeveloped; its emphasis is on the covenant, commandments, and tikkun olam here and now."},
+ {q:"A naturalist's best reply to 'what caused the universe?' fine-tuning/first-cause arguments is:",a:["The universe is eternal, proven","'God did it' just relocates the mystery and adds no predictive content","Science has answered it fully","Fine-tuning is a hoax"],c:1,e:"The honest move: concede these are open questions, but note that positing God explains nothing testable and merely shifts 'what grounds it?' up a level — a gap in knowledge isn't evidence for a specific deity."},
+];
+
+/* ============================ RENDER: FAITHS ============================ */
+function renderFaiths(){
+  const sec=$("#tab-faiths");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#251c0d,#1e1a11);border-color:#4a3a1c">
+    <div class="sans" style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A CODEX OF THE WORLD'S FAITHS</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px;font-style:italic">Nine traditions, each on its own terms — origins, beliefs, texts, practices, and branches — then steelmanned <i>for</i>, critiqued <i>against</i>, and mapped for debate. Written to be fair in exposition and sharp in the argument.</div></div>
+    <div class="sec">Tap a tradition to read</div>`;
+  FAITHS.forEach(f=>{const el=document.createElement("div");el.className="faith"+(P.read[f.id]?" read":"");el.dataset.f=f.id;
+    el.innerHTML=`<div class="gl">${f.glyph}</div><div class="nm"><b>${f.name}</b><small>${f.tag}</small></div><span class="go">${P.read[f.id]?"✓":"›"}</span>`;
+    sec.appendChild(el);});
+  $$(".faith",sec).forEach(x=>x.onclick=()=>openFaith(x.dataset.f));
+}
+function openFaith(id){
+  const f=FMAP[id];const sec=$("#tab-reader");const i=FAITHS.findIndex(x=>x.id===id);const nx=FAITHS[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Faiths</button></div>
+    <div class="reader card">
+    <div class="tag">Tradition ${i+1} of ${FAITHS.length}</div>
+    <h2><span class="glyph-big">${f.glyph}</span> ${f.name}</h2>
+    <div class="sans" style="color:var(--faint);font-size:12px;margin-bottom:4px">${f.tag}</div>
+    <h3>Origin &amp; History</h3>${f.origin}
+    <h3>Core Beliefs</h3>${f.beliefs}
+    <h3>Sacred Texts</h3>${f.texts}
+    <h3>Key Practices</h3>${f.practices}
+    <h3>Major Branches</h3>${f.branches}
+    <div class="callout for">${f.forCase}</div>
+    <div class="callout against">${f.against}</div>
+    <div class="callout argue">${f.argue}</div>
+    <div class="row next-lesson"><button class="btn pri" id="mark" style="flex:1">${P.read[id]?"✓ Read — mark again":"Mark as read"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':''}</div></div>`;
+  showTab("reader");
+  $("#back",sec).onclick=()=>showTab("faiths");
+  $("#mark",sec).onclick=()=>{markRead(id);renderFaiths();renderYou();$("#mark",sec).textContent="✓ Read — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openFaith(nx.id);
+  window.scrollTo(0,0);
+}
+
+/* ============================ RENDER: COMPARE ============================ */
+let curDim=DIMS[0].id;
+function renderCompare(){
+  const sec=$("#tab-compare");
+  sec.innerHTML=`<div class="card"><div class="sec">The comparison matrix</div>
+    <div style="color:var(--mut);font-size:13.5px;font-style:italic">Pick a dimension to compare all traditions side by side — or scroll the full grid at the bottom.</div></div>
+    <div class="chips" id="chips">${DIMS.map(d=>`<button class="chip ${d.id===curDim?'on':''}" data-d="${d.id}">${d.label.split(" ")[0]==="Concept"?"God":d.label.split(" ")[0]==="Source"?"Authority":d.label.split(" ")[0]==="View"?"Afterlife":d.label.split(" ")[0]==="Answer"?"Problem of evil":d.label.split(" ")[0]==="Path"?"Path":d.label.split(" ")[0]==="Approximate"&&d.id==="date"?"Founded":"Adherents"}</button>`).join("")}</div>
+    <div id="dimbody"></div>
+    <div class="sec" style="margin-top:18px">Full grid (scroll →)</div>
+    <div class="tblwrap"><table id="grid"></table></div>`;
+  $$(".chip",sec).forEach(c=>c.onclick=()=>{curDim=c.dataset.d;renderCompare();});
+  const d=DIMS.find(x=>x.id===curDim);
+  const body=$("#dimbody",sec);
+  body.innerHTML=`<div class="sec" style="color:var(--acc);margin-bottom:8px">${d.label}</div>`+FAITHS.map(f=>`<div class="dimcard"><div class="r">${f.glyph} ${f.name}</div><div class="v">${d.data[f.id]}</div></div>`).join("");
+  // full grid
+  const gridDims=DIMS.filter(x=>["god","afterlife","path","evil","adherents"].includes(x.id));
+  let html=`<tr><th>Tradition</th>`+gridDims.map(x=>`<th>${x.id==="god"?"God":x.id==="afterlife"?"Afterlife":x.id==="path"?"Path":x.id==="evil"?"Evil":"Adherents"}</th>`).join("")+`</tr>`;
+  FAITHS.forEach(f=>{html+=`<tr><td>${f.glyph} ${f.name}</td>`+gridDims.map(x=>`<td>${x.data[f.id]}</td>`).join("")+`</tr>`;});
+  $("#grid",sec).innerHTML=html;
+}
+
+/* ============================ RENDER: ARGUMENTS ============================ */
+let argSide="for";
+function renderArgs(){
+  const sec=$("#tab-args");
+  sec.innerHTML=`<div class="card"><div class="sec">The cross-cutting philosophy</div>
+    <div style="color:var(--mut);font-size:13.5px;font-style:italic">The classic arguments, each with its standard rebuttal and the believer's reply — so you can hold both sides. Fair, but sharp.</div></div>
+    <div class="chips">
+      <button class="chip ${argSide==='for'?'on':''}" data-s="for">Arguments FOR God</button>
+      <button class="chip ${argSide==='against'?'on':''}" data-s="against">Arguments AGAINST</button>
+    </div><div id="argbody"></div>`;
+  $$(".chip",sec).forEach(c=>c.onclick=()=>{argSide=c.dataset.s;renderArgs();});
+  const list=argSide==="for"?ARGS_FOR:ARGS_AGAINST;
+  $("#argbody",sec).innerHTML=list.map(a=>`<div class="arg">
+    <div class="kind">${a.kind}</div><h4>${a.name}</h4>
+    <div class="claim">${a.claim}</div>
+    <div class="reb">${a.reb}</div>
+    <div class="rep">${a.rep}</div></div>`).join("");
+}
+
+/* ============================ RENDER: PROGRESS + QUIZ ============================ */
+function renderYou(){
+  const sec=$("#tab-you");const dn=readCount(),tot=FAITHS.length,pc=Math.round(dn/tot*100);
+  const qs=Object.values(P.quiz).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[
+    ["✝","Abrahamic",P.read.christianity&&P.read.islam&&P.read.judaism],
+    ["ॐ","Dharmic",P.read.hinduism&&P.read.buddhism&&P.read.sikhism],
+    ["⚊","East Asian",P.read.taoism&&P.read.confucianism],
+    ["∅","The Contrast",P.read.secular],
+    ["⚖","Debater",qs>=8],
+    ["☸","Codex",dn>=tot],
+  ];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#2a2013" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8a24a"/><stop offset="1" stop-color="#c07a34"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#f2ecdd" font-size="26" font-weight="800" font-family="Georgia,serif">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#b7ab8e" font-size="10" font-family="sans-serif">${dn}/${tot} read</text></svg>
+    <div style="color:var(--mut);font-size:14px;font-style:italic">${pc===100?"You've read the whole codex. Now go argue well. ⚖":pc>=50?"Halfway through the traditions — keep reading.":"Nine worldviews, one at a time."}</div></div>
+    <div class="card"><div class="sec">Traditions read</div><div class="sans">${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Quiz — who believes what</div>
+      <div style="font-size:30px;font-weight:800;color:var(--acc);text-align:center;font-family:Georgia,serif" id="qscore">${qs}/${QUIZ.length}</div>
+      <div style="color:var(--mut);font-size:13px;text-align:center;margin-bottom:6px">answered correctly (explanations appear as you go)</div>
+      <div id="quizwrap"></div></div>
+    <div class="card"><div class="sec">Stats</div>
+      <div class="sans" style="color:var(--mut);font-size:13.5px;line-height:1.9">Traditions read &nbsp; <b style="color:var(--acc)">${dn} / ${tot}</b><br>Quiz correct &nbsp;&nbsp; <b style="color:var(--acc)">${qs} / ${QUIZ.length}</b></div>
+      <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+      <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  renderQuiz();
+  $("#install",sec).onclick=installSheet;
+  $("#reset",sec).onclick=()=>{if(confirm("Erase all reading and quiz progress?")){P={read:{},quiz:{}};save();updateXP();renderYou();renderFaiths();}};
+}
+function renderQuiz(){
+  const wrap=$("#quizwrap");if(!wrap)return;wrap.innerHTML="";
+  QUIZ.forEach((d,i)=>{const card=document.createElement("div");card.className="q";card.style.marginTop="14px";
+    card.innerHTML=`<div class="stem sans" style="font-size:14.5px">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp sans" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    wrap.appendChild(card);const opts=$$(".opt",card);
+    if(P.quiz[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.quiz[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.quiz[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.quiz).filter(v=>v==='ok').length;const qsEl=$("#qscore");if(qsEl)qsEl.textContent=s+"/"+QUIZ.length;updateXP();});
+  });
+}
+
+/* ============================ SHELL ============================ */
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["faiths","compare","args","you","reader"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{const t=b.dataset.t;showTab(t);({faiths:renderFaiths,compare:renderCompare,args:renderArgs,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=readCount();}
+updateXP();renderFaiths();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quantum">
+<meta name="theme-color" content="#0b0814">
+<title>Quantum Mechanics — a course</title>
+<style>
+:root{
+  --bg:#0b0814;--panel:#16101f;--card:#181022;--line:#2f2440;--ink:#ede8f5;--mut:#a99bc4;--faint:#6b5d85;
+  --acc:#b78bef;--acc2:#8a63d8;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#241a3a 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(11,8,20,.96),rgba(11,8,20,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#180a2c;font-size:20px;box-shadow:0 3px 14px rgba(183,139,239,.32)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#180a2c;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#4a5c2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#120c1e;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#ddd4ea;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#ddd4ea;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#f4eefb;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#120c1e;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#120c1e;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#e4dcf2}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#101610;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#080511;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#05030c}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231116}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(11,8,20,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#120c1e;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#180a2c;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">⚛</div>
+  <div><h1>Quantum Mechanics</h1><div class="sub">the physics of the very small</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">🔬</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("quantum_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("quantum_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · The quantum revolution",lessons:[
+   {id:"blackbody",n:"Blackbody radiation & the quantum",sub:"where energy first came in lumps: E = hf",lab:"planck"},
+   {id:"photoelectric",n:"The photoelectric effect",sub:"light arrives as particles — photons"},
+   {id:"spectra",n:"Atomic spectra & Bohr",sub:"why atoms glow in sharp, discrete lines"},
+   {id:"debroglie",n:"Wave–particle duality & de Broglie",sub:"matter has a wavelength too: λ = h/p"},
+ ]},
+ {ic:"②",t:"Part II · The wavefunction",lessons:[
+   {id:"wavefunction",n:"The wavefunction ψ",sub:"all we can know, and Born's |ψ|²"},
+   {id:"superposition",n:"Superposition",sub:"a state that is genuinely both at once",lab:"superpos"},
+   {id:"schrodinger",n:"The Schrödinger equation",sub:"the law that moves the wavefunction"},
+   {id:"box",n:"The particle in a box",sub:"confinement forces quantized levels, Eₙ ∝ n²",lab:"box"},
+ ]},
+ {ic:"③",t:"Part III · Uncertainty & measurement",lessons:[
+   {id:"uncertainty",n:"Heisenberg's uncertainty principle",sub:"Δx·Δp ≥ ℏ/2 — and the real reason",lab:"uncertainty"},
+   {id:"measurement",n:"Measurement & collapse",sub:"how a spread of possibility becomes one fact"},
+   {id:"doubleslit",n:"The double slit, one particle at a time",sub:"the experiment that holds the whole mystery",lab:"doubleslit"},
+   {id:"interpretations",n:"Interpretations",sub:"Copenhagen vs many-worlds, stated fairly"},
+ ]},
+ {ic:"④",t:"Part IV · Applications",lessons:[
+   {id:"tunneling",n:"Quantum tunneling",sub:"passing through a wall you couldn't climb"},
+   {id:"orbitals",n:"Atomic orbitals",sub:"why chemistry is quantum mechanics"},
+   {id:"spin",n:"Spin & the Pauli principle",sub:"the rule that builds the periodic table"},
+   {id:"entanglement",n:"Entanglement & Bell",sub:"correlation deeper than classical — and no signaling"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+
+C.blackbody=`<p>By 1900 physics felt nearly finished — until a heated object refused to behave. Everything warm glows: an iron poker goes red, then orange, then white-hot as it heats. Physicists tried to predict the exact spectrum of this <b>blackbody radiation</b> using classical theory, and got a catastrophe.</p>
+<p>Classical physics said each possible wave in a hot cavity carries the same average energy, and since there are ever more waves at shorter wavelengths, the predicted energy climbed without bound toward the ultraviolet — the <b>ultraviolet catastrophe</b>. Every warm object should blast out infinite energy in high frequencies. It obviously doesn't.</p>
+<p><b>Planck's desperate fix.</b> Max Planck found the formula that fit the data, but only by making an assumption he called an "act of desperation": the oscillators in the walls could not emit energy continuously. They could only emit it in discrete <b>quanta</b>, packets whose energy is set by the frequency:</p>
+<div class="eq box">E = h·f &nbsp;&nbsp;<span style="font-size:.7em;color:var(--mut)">h = 6.626 × 10⁻³⁴ J·s (Planck's constant)</span></div>
+<p>High-frequency modes need a large quantum of energy to get going at all, and there simply isn't enough thermal energy to pay that price — so they stay quiet. That single quantization tames the runaway and reproduces the curve exactly. Energy, at the smallest scale, comes in <b>lumps</b>.</p>
+<div class="wk"><div class="wl">Worked example · Wien's peak</div>
+<div class="step">A blackbody's spectrum peaks at wavelength λ_peak = (2.9 × 10⁻³ m·K) / T.</div>
+<div class="step">The Sun's surface is ≈ 5800 K → λ_peak = 2.9×10⁻³ / 5800 ≈ 5.0 × 10⁻⁷ m = <b>500 nm</b>.</div>
+<div class="step">That is green–yellow, the middle of the visible band. <span class="r">Our eyes evolved tuned to the peak of our star.</span></div></div>
+<p>Explore it below: raise the temperature and watch the quantum (violet) curve turn over where the classical (red) one runs off to infinity.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The crack in classical physics</span>Planck thought h was a bookkeeping trick. It wasn't. The constant h is the size of the "grain" of the world — the threshold below which nature stops being continuous. Everything in this course is downstream of that number.</div>`;
+
+C.photoelectric=`<p>Planck quantized the walls of a cavity. Einstein, in 1905, took the radical next step: <b>light itself</b> travels in quanta. The evidence came from a stubborn little experiment — shine light on a metal and it knocks electrons loose.</p>
+<p>Classically, light is a wave whose energy depends on its <b>brightness</b>. So a brighter beam should give ejected electrons more energy, and a dim beam should eventually pry electrons out if you wait long enough. Neither happens.</p>
+<ul>
+<li>Below a certain <b>threshold frequency</b>, <i>no</i> electrons come out — no matter how blinding the light.</li>
+<li>Above it, electrons appear <b>instantly</b>, even for the faintest beam.</li>
+<li>Raising the brightness gives you <i>more</i> electrons, but not <i>faster</i> ones. Only raising the <b>frequency</b> makes them faster.</li>
+</ul>
+<p>Einstein's explanation: light is a stream of particles — <b>photons</b> — each carrying energy E = hf. One photon hits one electron in an all-or-nothing exchange. If a single photon's energy exceeds the metal's <b>work function</b> φ (the energy binding the electron), the electron escapes with the leftover as kinetic energy:</p>
+<div class="eq box">KE_max = h·f − φ</div>
+<p>A brighter beam is just <i>more photons</i> — more ejected electrons, but each collision still delivers the same hf. That is why frequency, not intensity, sets the energy. It won him the Nobel Prize.</p>
+<div class="wk"><div class="wl">Worked example · photon energy vs work function</div>
+<div class="step">Violet light, λ = 400 nm: f = c/λ = 3×10⁸ / 4×10⁻⁷ = 7.5 × 10¹⁴ Hz.</div>
+<div class="step">E = hf = 6.63×10⁻³⁴ × 7.5×10¹⁴ ≈ 5.0 × 10⁻¹⁹ J ≈ <b>3.1 eV</b>.</div>
+<div class="step">Sodium's work function φ ≈ 2.3 eV → KE_max = 3.1 − 2.3 = <b>0.8 eV</b>. Red light (1.8 eV) can't free an electron at all: below threshold.</div></div>
+<div class="callout"><span class="l">The duality begins</span>Light diffracts and interferes like a wave, yet deposits its energy one lump at a time like a particle. Both are true. Holding that tension without collapsing it into one picture is the first real quantum skill.</div>`;
+
+C.spectra=`<p>Heat a gas of hydrogen and it doesn't glow across all colors like a hot solid — it emits a few razor-sharp <b>spectral lines</b> at precise wavelengths, and nothing in between. Every element has its own fixed barcode of lines. Why so discrete?</p>
+<p>The wavelengths obeyed a suspiciously simple pattern (the Balmer/Rydberg formula) long before anyone knew why. Niels Bohr, in 1913, cracked it by declaring that the electron in an atom cannot orbit at just any radius — only certain <b>allowed orbits</b> are permitted, each with a fixed, quantized energy:</p>
+<div class="eq box">Eₙ = −${frac("13.6 eV","n²")} &nbsp;&nbsp;<span style="font-size:.7em;color:var(--mut)">n = 1, 2, 3, … for hydrogen</span></div>
+<p>The energy is <b>negative</b> because the electron is bound (you'd have to add energy to free it), and it is <b>quantized</b> — a ladder, not a ramp. The electron can sit on a rung but never between rungs. When it drops from a higher rung n to a lower one, the atom sheds the exact energy difference as a single photon:</p>
+<div class="eq box">h·f = E_high − E_low</div>
+<p>Fixed energy gaps → fixed photon frequencies → sharp lines. The barcode is a direct readout of the atom's energy ladder. Bohr's model is not the full truth — the real orbitals come later — but the core insight is permanent: <b>bound systems have discrete energy levels.</b></p>
+<div class="wk"><div class="wl">Worked example · the red hydrogen line (Hα)</div>
+<div class="step">Electron falls from n = 3 to n = 2. ΔE = 13.6 (1/2² − 1/3²) = 13.6 (1/4 − 1/9) = 13.6 × 5/36 ≈ 1.89 eV.</div>
+<div class="step">λ = hc/ΔE = (1240 eV·nm) / 1.89 eV ≈ <b>656 nm</b> — the deep red line you see in every hydrogen tube and in the Sun.</div></div>
+<div class="callout"><span class="l">Astronomy runs on this</span>Because each element's lines are unique and fixed, we read the composition of stars and galaxies we can never touch straight from their light — and their redshift tells us the universe is expanding.</div>`;
+
+C.debroglie=`<p>Light — long thought a pure wave — turned out to also be particles. In 1924 Louis de Broglie asked the audacious mirror-image question: if waves can be particles, can <b>particles be waves?</b> He proposed that <i>every</i> piece of matter has a wavelength, set by its momentum:</p>
+<div class="eq box">λ = ${frac("h","p")} = ${frac("h","m v")}</div>
+<p>This is the same h, the same law as the photon, turned around. And it was confirmed within three years: fire electrons at a crystal and they <b>diffract</b>, producing interference rings exactly as X-rays do. Electrons — solid little particles — spread and interfere like water waves.</p>
+<p>Why don't we notice? Because h is minuscule and everyday momenta are enormous, so the wavelength of anything big is absurdly tiny — far smaller than any object, so no wave effects show.</p>
+<div class="wk"><div class="wl">Worked example · electron vs baseball</div>
+<div class="step">Electron at 100 eV: p = √(2mE) ≈ 5.4×10⁻²⁴ kg·m/s → λ = h/p ≈ <b>0.12 nm</b> — about an atom's width. It diffracts off crystals; this is how electron microscopes see atoms.</div>
+<div class="step">Baseball (0.145 kg) at 40 m/s: λ = 6.63×10⁻³⁴ / (0.145 × 40) ≈ <b>1.1 × 10⁻³⁴ m</b> — 10¹⁹ times smaller than a proton. Utterly unobservable.</div></div>
+<p>The lesson: waviness is universal, but only <i>reveals itself</i> when a particle's de Broglie wavelength is comparable to the scale of its surroundings. For electrons in atoms, it is comparable — which is precisely why atoms need quantum mechanics and baseballs don't.</p>
+<div class="callout"><span class="l">The turning point</span>Matter is wavy. That single fact demands a new kind of description — not a position and a velocity, but a <b>wave</b> that fills space. That wave is the wavefunction, and it is the subject of Part II.</div>`;
+
+C.wavefunction=`<p>Here is the central object of the whole theory. A quantum particle is not described by a position and a velocity. It is described by a <b>wavefunction</b>, written ψ(x) (the Greek letter psi) — a wave spread over all of space that contains everything knowable about the particle.</p>
+<p>ψ is a strange kind of wave: at each point it has a <b>complex number</b> value (it carries an amplitude and a phase). ψ itself is not directly measurable and not, by itself, a physical "thing you can see." The measurable content comes from Max Born's rule, the bridge from the abstract wave to the lab:</p>
+<div class="eq box">|ψ(x)|² = probability density of finding the particle at x</div>
+<p>Square the magnitude of the wavefunction and you get the <b>probability</b> of finding the particle there when you look. Where |ψ|² is large, the particle is likely; where it's zero, the particle is never found. The wave doesn't tell you where the particle <i>is</i> — it tells you the odds of each place it <i>could be</i>.</p>
+<p>Two consequences follow immediately:</p>
+<ul>
+<li><b>Normalization.</b> The particle is somewhere, so the total probability must be 1: the whole |ψ|² curve, added up over all space, equals one.</li>
+<li><b>It's genuinely probabilistic.</b> This is not ignorance of a hidden true position (as we'll see with Bell). Before measurement the particle does not <i>have</i> a definite position that ψ merely summarizes. The spread is real.</li>
+</ul>
+<div class="callout"><span class="l">Amplitude squared — remember this</span>The single most-used rule in quantum mechanics: probabilities are <b>squared amplitudes</b>. |ψ|², not ψ. That square is where interference lives (amplitudes add and cancel <i>before</i> squaring), and it's why the double slit is so strange.</div>`;
+
+C.superposition=`<p>Because ψ is a wave, and waves add, quantum states obey the <b>superposition principle</b>: if a particle can be in state A and can be in state B, it can also be in any combination:</p>
+<div class="eq box">ψ = c₁·ψ_A + c₂·ψ_B</div>
+<p>The particle in this state is not secretly in A or secretly in B with us just not knowing. It is genuinely in <b>both at once</b> — a single wave that has features of each. The famous cat "alive and dead" is this: a superposition of two states that haven't been forced to decide.</p>
+<p>The coefficients c₁, c₂ are complex amplitudes, and Born's rule tells you what a measurement will find: the probability of getting outcome A is |c₁|², of getting B is |c₂|² (with |c₁|² + |c₂|² = 1). You never observe the blend — a measurement always returns one clean outcome — but which one is set by these squared amplitudes.</p>
+<p>The phase relationship between the parts is physically real and produces <b>interference</b>. Because amplitudes add before squaring, two contributions can reinforce (bright) or cancel (dark) — the very effect that makes electrons diffract. A superposition is not a probabilistic mixture; it's a coherent sum that a classical dice-roll cannot reproduce.</p>
+<p>In the lab below, watch a superposition of energy states evolve — its |ψ|² sloshes back and forth — and then press <b>Measure</b> to see it snap to a single state, chosen with probability |cₙ|².</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why it's the engine of everything quantum</span>Quantum computers are built entirely on this: a register of n qubits can hold a superposition of all 2ⁿ possibilities at once, and clever interference amplifies the answer you want. Superposition is not a curiosity — it's the resource.</div>`;
+
+C.schrodinger=`<p>Newton's law F = ma tells a classical particle how to move. The quantum analog — the law that governs how the wavefunction changes in time — is the <b>Schrödinger equation</b>. In its time-dependent form:</p>
+<div class="eq box">i ℏ ${frac("∂ψ","∂t")} = − ${frac("ℏ²","2m")} ${frac("∂²ψ","∂x²")} + V(x) ψ</div>
+<p>It looks forbidding, so read it piece by piece — each term has a plain meaning:</p>
+<ul>
+<li><b>ℏ</b> (h-bar = h/2π) is Planck's constant, the quantum unit of action — it sets the scale of everything.</li>
+<li><b>The left side</b>, i ℏ ∂ψ/∂t, is the rate of change of the wavefunction in time. The <b>i</b> (imaginary unit) is essential: it makes ψ <i>rotate</i> in the complex plane rather than grow or decay, which is why quantum states oscillate and interfere instead of just spreading out.</li>
+<li><b>− (ℏ²/2m) ∂²ψ/∂x²</b> is the <b>kinetic energy</b> term. The second derivative measures curvature: a sharply curved (wiggly) wavefunction carries high momentum and energy. Confine a wave tightly and it must curve hard — the seed of quantized energy.</li>
+<li><b>V(x) ψ</b> is the <b>potential energy</b> — the forces the particle feels (an electric field, a wall, an atom's pull). Change V and you change the physics.</li>
+</ul>
+<p>In words: <b>the wavefunction's rate of change is fixed by its energy</b> — kinetic (curvature) plus potential. It is a wave equation, fully deterministic: given ψ now, it tells you ψ for all future time exactly. The <i>only</i> randomness in quantum mechanics enters at measurement, not here.</p>
+<div class="callout"><span class="l">Where quantization comes from</span>For a bound particle, only special wavefunctions solve this equation while staying finite and smooth everywhere — those are the allowed <b>energy eigenstates</b>, each with a definite energy Eₙ. The discreteness of atomic levels isn't an extra rule bolted on; it falls out of solving one equation. The next lesson shows it happen.</div>`;
+
+C.box=`<p>The cleanest place to see energy quantize is the <b>particle in a box</b>: a particle free to move along a line of length L but trapped by infinitely high walls (V = 0 inside, ∞ outside). It's a toy, but it captures the real mechanism.</p>
+<p>The wavefunction must be zero at both walls (no probability of being outside). That's exactly the condition for a <b>standing wave</b> on a string fixed at both ends — only wavelengths that fit a whole number of half-humps in the box are allowed:</p>
+<div class="eq box">ψₙ(x) = √(2/L) · sin(${frac("n π x","L")}) &nbsp;&nbsp; n = 1, 2, 3, …</div>
+<p>Each allowed wave has a definite wavelength, and by de Broglie a definite momentum, and therefore a definite energy. Working it through gives the ladder of levels:</p>
+<div class="eq box">Eₙ = ${frac("n² h²","8 m L²")} ∝ n²</div>
+<p>Three deep facts are baked into this one formula:</p>
+<ul>
+<li><b>Energy is quantized</b> — only E₁, 4E₁, 9E₁, 16E₁, … are allowed. The spacing between levels <i>grows</i> as n².</li>
+<li><b>There is a lowest energy E₁ > 0</b> — the particle can never be perfectly still (that would violate uncertainty). This irreducible motion is <b>zero-point energy</b>.</li>
+<li><b>Squeeze the box (smaller L) and every energy shoots up</b> (∝ 1/L²). Confinement costs energy. This is why electrons pinned in tiny regions — atoms, quantum dots — have large, discrete energies.</li>
+</ul>
+<div class="wk"><div class="wl">Worked example · electron in a 1 nm box</div>
+<div class="step">E₁ = h² / (8 m L²) = (6.63×10⁻³⁴)² / (8 × 9.11×10⁻³¹ × (10⁻⁹)²) ≈ 6.0 × 10⁻²⁰ J ≈ <b>0.38 eV</b>.</div>
+<div class="step">Then E₂ = 4E₁ ≈ 1.5 eV, E₃ = 9E₁ ≈ 3.4 eV. A jump from n=2 to n=1 emits a photon of ≈ 1.1 eV. <span class="r">Quantum dots glow different colors purely by changing their size L.</span></div></div>
+<p>Explore the standing waves, their |ψ|², and the n² energy ladder in the lab below.</p>
+<div id="__sim"></div>`;
+
+C.uncertainty=`<p>Werner Heisenberg's <b>uncertainty principle</b> is the most famous — and most misquoted — result in quantum mechanics. It says that a particle cannot simultaneously have a sharp position and a sharp momentum. The more precisely one is defined, the more the other <i>must</i> spread:</p>
+<div class="eq box">Δx · Δp ≥ ${frac("ℏ","2")}</div>
+<p>The popular story — "measuring a particle disturbs it, so you can't pin both down" — is <b>wrong</b>, or at best a side effect. The real reason is deeper and doesn't involve clumsy instruments at all.</p>
+<p><b>The true reason: it's a wave property.</b> Position and momentum are related by a <b>Fourier transform</b>. By de Broglie, definite momentum means a definite wavelength — a pure sine wave, which stretches across all space (position totally undefined). To build a wave localized at one spot (a narrow <b>wavepacket</b>), you must add together many different wavelengths — so momentum becomes spread out. This is a mathematical fact about all waves: a signal cannot be sharp in both position and frequency at once. Sound engineers know it as the bandwidth–duration tradeoff.</p>
+<p>Position and momentum are <b>conjugate variables</b>. The particle does not <i>have</i> a precise value of both that we're merely too clumsy to read — it does not <i>possess</i> both sharply, because its wavefunction can't be narrow in both pictures simultaneously. Uncertainty is a statement about what exists, not about what we can measure.</p>
+<div class="wk"><div class="wl">Worked example · why atoms are the size they are</div>
+<div class="step">Confine an electron to an atom, Δx ≈ 10⁻¹⁰ m. Then Δp ≥ ℏ/(2Δx) ≈ 1.055×10⁻³⁴ / (2×10⁻¹⁰) ≈ 5×10⁻²⁵ kg·m/s.</div>
+<div class="step">That forces a speed spread Δv ≈ Δp/m ≈ 6×10⁵ m/s and a minimum kinetic energy of several eV. <span class="r">The electron can't fall into the nucleus: squeezing it smaller would spike its energy. Uncertainty holds the atom open — it is why matter has size at all.</span></div></div>
+<p>In the lab, narrow the position wavepacket and watch the momentum distribution widen in exact compensation — the product Δx·Δp stays pinned at its minimum.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">A whole family of these</span>Energy and time obey ΔE·Δt ≥ ℏ/2 too — which is why short-lived states have fuzzy energies and why "empty" space seethes with virtual particles. Any pair of conjugate quantities is bound by the same tradeoff.</div>`;
+
+C.measurement=`<p>The Schrödinger equation evolves ψ smoothly and deterministically, letting superpositions bloom. Yet whenever we <b>measure</b>, we always find one definite outcome. Bridging those two facts is the <b>measurement problem</b> — the least settled part of the theory.</p>
+<p>The standard recipe (the Born rule plus the collapse postulate) says: an observable — position, energy, spin — has a set of allowed results, its <b>eigenvalues</b>, each with its own eigenstate. Before measurement the particle is in a superposition of them. Measuring:</p>
+<ul>
+<li>returns <b>one</b> eigenvalue, at random, with probability |cₙ|² (the squared amplitude of that component), and</li>
+<li><b>collapses</b> the wavefunction: the superposition is erased and ψ becomes purely that one eigenstate. Measure the same thing again immediately and you get the same answer.</li>
+</ul>
+<p>So measurement is where the deterministic wave meets irreducible randomness. Note what's disturbing: which outcome you get is not determined by anything — not hidden variables, not initial conditions. The universe appears to genuinely roll dice, weighted by |ψ|².</p>
+<p><b>Decoherence</b> — a solid, non-controversial piece of physics — explains part of it. A quantum system is never truly isolated; it constantly entangles with its environment (air, photons, the detector). That interaction scrambles the delicate phase relationships almost instantly, so interference between the branches becomes unobservable and the system <i>behaves</i> classically. Decoherence explains why we never see cats in superposition. It does <b>not</b> explain why we experience one specific outcome rather than the others — that last step is exactly what the interpretations argue about.</p>
+<div class="callout"><span class="l">Honest status</span>The math of prediction is airtight and confirmed to extraordinary precision. What "collapse" physically <i>is</i> — a real process, or an illusion of our perspective inside the wavefunction — remains open. Good physicists disagree. The next lesson lays out the leading views without pretending one has won.</div>`;
+
+C.doubleslit=`<p>Richard Feynman said the double-slit experiment contains "the only mystery" of quantum mechanics — everything strange is in here. Take it slowly.</p>
+<p>Fire particles — electrons, or single photons — at a barrier with two narrow slits, onto a screen behind. Send them <b>one at a time</b>, so slowly that only one particle is ever in the apparatus. Each arrives as a single localized dot, a definite particle hitting one spot. So far, so classical.</p>
+<p>But let the dots accumulate. Over thousands of particles, an <b>interference pattern</b> builds up — bright and dark bands, exactly what you'd get from waves passing through both slits and adding. Each particle landed randomly, yet collectively they trace out a wave.</p>
+<p>The only way to get interference is if each particle's wavefunction went through <b>both slits at once</b> and interfered with itself. A single electron is in a superposition of "through the left slit" and "through the right slit"; those two amplitudes recombine, reinforcing at the bright fringes and canceling at the dark ones. Then |ψ|² gives the landing-spot probability — and the dots fill it in.</p>
+<p><b>The twist that seals it.</b> Put a detector at the slits to catch <i>which one</i> each particle goes through. The moment you have that information, the interference pattern <b>vanishes</b> — you get two plain blobs, as if the particles were ordinary bullets. Knowing the path destroys the superposition. It's not about a clumsy detector nudging the particle; even the gentlest which-path information erases the interference, because the wavefunction is no longer a coherent superposition of both paths.</p>
+<p>Watch it happen in the lab: single dots landing at random, slowly revealing fringes that no individual particle could have "known" about.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The whole theory in one image</span>Superposition (both paths), interference (amplitudes add before squaring), Born's rule (|ψ|² gives the dots), and measurement (which-path info collapses it). If you understand the double slit, you understand quantum mechanics.</div>`;
+
+C.interpretations=`<p>All physicists agree on the math and on what the equations predict — to twelve decimal places, the most accurately tested theory ever. What they <i>don't</i> agree on is what it means: what is really happening when a measurement occurs? These are the <b>interpretations</b>. Here are the main ones, stated fairly.</p>
+<p><b>Copenhagen (the textbook default).</b> The wavefunction is our most complete description of a system, and measurement causes a real, irreducible <b>collapse</b> to one outcome. Questions about what the particle "really did" between measurements are treated as meaningless — physics predicts measurement results, and asking for more is overreach. Pragmatic and minimal, but it never says what counts as a "measurement" or why collapse happens.</p>
+<p><b>Many-worlds (Everett).</b> Take the Schrödinger equation completely literally and <b>drop collapse entirely</b>. The wavefunction never collapses; it just keeps superposing. When you measure a superposition, <i>you</i> become entangled and split into branches — one version of you sees each outcome, all equally real. The randomness is only apparent: every result happens, in a different branch. Clean equations, but a staggering ontology of endlessly branching universes, and it must work hard to explain why probabilities follow |ψ|².</p>
+<p>Others are live too: <b>pilot-wave</b> (de Broglie–Bohm) restores definite particle positions guided by a real wave — fully deterministic, at the cost of explicit nonlocality; <b>objective-collapse</b> models (GRW) add a tiny physical randomness that makes big superpositions collapse on their own — and are <i>experimentally testable</i>, unlike the others; <b>relational / QBism</b> views treat the state as information relative to an observer.</p>
+<div class="callout"><span class="l">Why it's not settled</span>Copenhagen and many-worlds make the <b>same</b> laboratory predictions — no experiment yet distinguishes them, so the choice is currently about coherence and taste, not data. That's a real, honest situation, not a failure. Objective-collapse models are the exception: they predict small deviations, and experiments are hunting for them now. The physics works regardless of which story is true.</div>`;
+
+C.tunneling=`<p>Roll a ball at a hill too tall to climb and classically it rolls back — always. A quantum particle facing an energy <b>barrier</b> higher than its own energy does something impossible: sometimes it simply appears on the far side. This is <b>quantum tunneling</b>, and it's a direct consequence of the wavefunction.</p>
+<p>The wavefunction doesn't stop dead at a barrier. Inside a classically forbidden region it doesn't oscillate — it <b>decays exponentially</b>. If the barrier is thin enough, ψ hasn't died to zero by the far side, so there's a small but nonzero |ψ|² beyond it: a real probability the particle is found through the wall, with no energy borrowed and none left in the barrier.</p>
+<p>The transmission probability falls off exponentially with barrier width L and with the square root of the "height" it must penetrate:</p>
+<div class="eq box">T ≈ e<sup>−2κL</sup>, &nbsp; κ = ${frac("√(2m(V−E))","ℏ")}</div>
+<p>That exponential sensitivity is everything: a barrier twice as wide is exponentially harder to tunnel through, which is why the effect is dramatic for electrons across a fraction of a nanometer and utterly negligible for anything macroscopic.</p>
+<p>Tunneling is not exotic trivia — it runs real machines and stars:</p>
+<ul>
+<li><b>The Sun shines</b> because protons tunnel through their mutual electric repulsion to fuse. Classically the core isn't hot enough; without tunneling, the stars wouldn't burn.</li>
+<li><b>Radioactive alpha decay</b> is an alpha particle tunneling out of the nucleus — and the exponential law explains half-lives spanning from microseconds to billions of years.</li>
+<li><b>The scanning tunneling microscope</b> measures a tunneling current so exponentially sensitive to gap width that it images <i>individual atoms</i>. <b>Flash memory</b> stores your data by tunneling electrons onto isolated gates.</li>
+</ul>
+<div class="callout"><span class="l">The takeaway</span>"Forbidden" in quantum mechanics means "exponentially unlikely," not "impossible." A wave leaks. Give it a thin enough wall and it gets through — and much of modern technology, and the light of every star, depends on exactly that leak.</div>`;
+
+C.orbitals=`<p>Bohr's flat circular orbits were a first sketch. Solving the Schrödinger equation for the electron in a hydrogen atom's electric potential gives the real answer, and it's richer: three-dimensional standing waves called <b>orbitals</b>. Because the electron is confined by the nucleus's pull, its allowed states are quantized — and now they need <b>three</b> quantum numbers to label the 3D standing-wave patterns:</p>
+<ul>
+<li><b>n</b> = 1, 2, 3… — the <b>principal</b> number, setting the energy and overall size (the shells). Same Eₙ = −13.6/n² as Bohr, but now derived, not assumed.</li>
+<li><b>ℓ</b> = 0, 1, … , n−1 — the <b>shape</b> (the subshells we label s, p, d, f). ℓ=0 (s) is a sphere; ℓ=1 (p) is a dumbbell; higher ℓ get more lobed.</li>
+<li><b>m</b> = −ℓ … +ℓ — the <b>orientation</b> of that shape in space.</li>
+</ul>
+<p>An orbital is not a track the electron runs on. It is a <b>probability cloud</b>: |ψ|² tells you where the electron is likely to be found. The dumbbell of a p-orbital is a region of high |ψ|², with a <b>node</b> (zero probability) right at the nucleus. The electron doesn't orbit; it <i>is</i> a standing wave smeared over the whole shape.</p>
+<p>This is the foundation of all of chemistry. The allowed orbitals, their energies, and how many electrons fit determine every element's structure. The shape of the p and d orbitals dictates the <b>geometry of molecules</b> — why water bends at 104.5°, why carbon bonds tetrahedrally, why benzene is a flat ring. Chemical bonds are orbitals overlapping and interfering. The <b>entire periodic table</b> is a map of how orbitals fill.</p>
+<div class="callout"><span class="l">Chemistry is applied quantum mechanics</span>Every reaction, every color of every pigment, every property of every material is the behavior of electrons in quantized orbitals. Mendeleev found the pattern by hand; Schrödinger's equation is <i>why</i> the pattern exists. To finish the story we need one more ingredient — spin — and one rule.</div>`;
+
+C.spin=`<p>Electrons carry an intrinsic angular momentum called <b>spin</b> — a permanent, built-in property like charge or mass. The name is a metaphor: nothing is literally rotating. What's real is that every electron has a fixed spin magnitude and, when measured along any axis, gives one of exactly <b>two</b> values: spin-up or spin-down (± ℏ/2). It is deeply quantum — genuinely two-valued, with no classical picture.</p>
+<p>Spin splits all particles into two great families with opposite social behavior:</p>
+<ul>
+<li><b>Fermions</b> (half-integer spin: electrons, protons, neutrons) — the particles of <b>matter</b>.</li>
+<li><b>Bosons</b> (integer spin: photons, and the force carriers) — the particles of <b>force and light</b>.</li>
+</ul>
+<p>The difference is governed by one of the most consequential rules in physics — the <b>Pauli exclusion principle</b>:</p>
+<div class="eq box">No two identical fermions can occupy the same quantum state.</div>
+<p>Two electrons cannot share the same orbital <i>and</i> the same spin. Each orbital holds at most two electrons — one up, one down — and then it's full. Bosons obey the opposite rule: they <i>love</i> to pile into the same state (which is what makes lasers and superfluids possible).</p>
+<p>Pauli exclusion is why the <b>periodic table has its shape</b>. Electrons can't all collapse into the lowest orbital; forced by exclusion, they stack up shell by shell. When a shell fills, the next electron must start a new one — a new row of the table, a new chemistry. The noble gases (He, Ne, Ar…) are exactly the closed-shell configurations, which is why they're inert.</p>
+<div class="wk"><div class="wl">Worked example · why helium is inert and lithium is reactive</div>
+<div class="step">Helium: 2 electrons fill the 1s orbital completely (↑↓). Closed shell, maximally stable — helium reacts with nothing.</div>
+<div class="step">Lithium: 3 electrons. Two fill 1s; the third is <b>forced</b> by exclusion up into 2s, alone and loosely held. That lone outer electron makes lithium violently reactive. <span class="r">One rule — no two alike — generates the whole logic of chemical reactivity.</span></div></div>
+<div class="callout"><span class="l">It holds up the world, literally</span>Pauli exclusion is why matter is rigid and takes up space: electrons resist being squeezed into occupied states. It's also what stops white-dwarf and neutron stars from collapsing under gravity — degeneracy pressure, pure exclusion, holding a star up.</div>`;
+
+C.entanglement=`<p>When two particles interact, their wavefunctions can become linked into a single joint state that <b>cannot be factored</b> into "particle A does this, particle B does that." This is <b>entanglement</b>, and it's the feature Einstein hated most — he called it "spooky action at a distance."</p>
+<p>Prepare two electrons in a joint spin state where the total is zero: whichever way you measure them, they must come out opposite. Send one to Earth and one to the Moon. Measure yours and get "up" — <b>instantly</b> the distant one is fixed as "down." Neither had a definite spin before; the pair shared a single indefinite state, and one measurement settles both.</p>
+<p><b>Was it settled all along?</b> Maybe the electrons secretly agreed on their answers at the start (a "hidden variable"), like a pair of gloves split into two boxes — open one, you know the other. Einstein bet on exactly this. <b>John Bell</b>, in 1964, found a way to <i>test</i> it. He proved that any local hidden-variable theory must obey an inequality — a hard ceiling on how correlated measurements along different angles can be:</p>
+<div class="eq box">Bell inequality: &nbsp; classical correlations ≤ 2 &nbsp;·&nbsp; quantum: up to 2√2</div>
+<p>Quantum mechanics predicts correlations that <b>break</b> Bell's ceiling. Experiments — Aspect in the 1980s, and loophole-free tests in 2015 that won the 2022 Nobel Prize — come down decisively on the quantum side. The gloves-in-boxes picture is <b>ruled out by experiment</b>. The correlations are real and deeper than any pre-agreed answer. The world is not locally deterministic.</p>
+<p><b>The honest part: no faster-than-light signaling.</b> It's tempting to think this sends instant messages, but it cannot. Look only at your own electron and you see pure 50/50 randomness — up or down, no pattern, whatever the distant partner does. The correlation only appears <i>afterward</i>, when the two parties <b>compare their results</b> — and that comparison travels by ordinary light-speed channels. You can't control your outcome, so you can't encode a message in it. <b>Relativity is safe:</b> entanglement gives correlation without communication.</p>
+<div class="callout"><span class="l">Correlation, not signaling</span>This is the subtle, correct version — not the science-fiction one. Entanglement is a real, non-classical link confirmed beyond doubt, yet it transmits no information faster than light. It's the resource behind quantum cryptography and teleportation, both of which still need a classical channel to finish the job.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function axes(x,w,h,xr,yr){const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w,Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+  x.strokeStyle="#2f2440";x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(w,Y(0));x.moveTo(X(0),0);x.lineTo(X(0),h);x.stroke();return {X,Y};}
+function plot(x,w,h,X,Y,f,color,lw){x.strokeStyle=color;x.lineWidth=lw||2;x.beginPath();let started=false;
+  for(let px=0;px<=w;px+=2){const xv=X.inv(px);const yv=f(xv);if(!isFinite(yv)){started=false;continue;}const py=Y(yv);if(py<-50||py>h+50){started=false;continue;}started?x.lineTo(px,py):x.moveTo(px,py);started=true;}x.stroke();}
+
+/* --- Planck blackbody vs Rayleigh–Jeans --- */
+function simPlanck(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>temperature T <input type="range" id="T" min="0.6" max="4" step="0.05" value="1.5"></label></div></div>`;
+  const cv=$("canvas",el);let T=1.5;$("#T",el).oninput=e=>T=+e.target.value;
+  const planck=v=>v<=0?0:(v*v*v)/(Math.exp(v/T)-1);
+  const rj=v=>v*v*T;
+  function draw(){const {x,w,h}=fit(cv,220);const xr=[0,8];
+    let pmax=1e-6,pkv=0;for(let v=0.02;v<8;v+=0.01){const p=planck(v);if(p>pmax){pmax=p;pkv=v;}}
+    const yr=[0,pmax*1.4];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);axes(x,w,h,xr,yr);
+    plot(x,w,h,X,Y,rj,"#ef7a6a",2);
+    plot(x,w,h,X,Y,planck,"#b78bef",2.6);
+    x.fillStyle="#54c6b0";x.beginPath();x.arc(X(pkv),Y(pmax),4,0,7);x.fill();
+    $("#ro",el).innerHTML=`T = <b>${T.toFixed(2)}</b> &nbsp; Planck peak at ν ≈ <b>${pkv.toFixed(2)}</b> &nbsp;(peak ∝ T — Wien's law)<br><span style="color:var(--red)">red</span> = classical Rayleigh–Jeans → runs to ∞ (ultraviolet catastrophe). <span style="color:var(--acc)">violet</span> = Planck's quantized law (E=hf), which turns over and matches reality.`;
+  }
+  raf(draw);
+}
+
+/* --- particle in a box: ψₙ, |ψ|², n² energy ladder --- */
+function simBox(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>quantum number n = <b id="nn">1</b> <input type="range" id="n" min="1" max="5" step="1" value="1"></label></div></div>`;
+  const cv=$("canvas",el);let n=1;$("#n",el).oninput=e=>{n=+e.target.value;$("#nn",el).textContent=n;};
+  function draw(){const {x,w,h}=fit(cv,250);const ladW=88,pw=w-ladW-14;
+    x.clearRect(0,0,w,h);
+    const psi=xx=>Math.sqrt(2)*Math.sin(n*Math.PI*xx);
+    // ψ panel (top)
+    const yc=h*0.27,amp=h*0.19;
+    x.strokeStyle="#2f2440";x.lineWidth=1;x.beginPath();x.moveTo(0,yc);x.lineTo(pw,yc);x.stroke();
+    x.strokeStyle="#b78bef";x.lineWidth=2.4;x.beginPath();
+    for(let px=0;px<=pw;px++){const xx=px/pw;const py=yc-psi(xx)*amp/1.42;px?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    x.fillStyle="#a99bc4";x.font="11px ui-monospace,monospace";x.fillText("ψₙ(x)  wavefunction",4,14);
+    // |ψ|² panel (bottom)
+    const yb=h*0.93,ph=h*0.30;
+    x.strokeStyle="#2f2440";x.beginPath();x.moveTo(0,yb);x.lineTo(pw,yb);x.stroke();
+    x.fillStyle="rgba(84,198,176,.28)";x.strokeStyle="#54c6b0";x.lineWidth=2;
+    x.beginPath();x.moveTo(0,yb);
+    for(let px=0;px<=pw;px++){const xx=px/pw;const v=psi(xx)*psi(xx);x.lineTo(px,yb-v*ph/2);}
+    x.lineTo(pw,yb);x.closePath();x.fill();x.stroke();
+    x.fillStyle="#a99bc4";x.fillText("|ψₙ|²  probability density",4,h*0.60);
+    // box walls
+    x.strokeStyle="#6b5d85";x.lineWidth=1.5;x.beginPath();x.moveTo(0,h*0.03);x.lineTo(0,yb);x.moveTo(pw,h*0.03);x.lineTo(pw,yb);x.stroke();
+    // energy ladder
+    const lx=pw+14;x.strokeStyle="#2f2440";x.beginPath();x.moveTo(lx,h*0.04);x.lineTo(lx,h*0.96);x.stroke();
+    x.fillStyle="#a99bc4";x.fillText("Eₙ ∝ n²",lx+4,14);
+    const emax=25;
+    for(let m=1;m<=5;m++){const ey=h*0.9-(m*m/emax)*h*0.8;const on=m===n;
+      x.strokeStyle=on?"#b78bef":"#4a3f5e";x.lineWidth=on?2.6:1.4;
+      x.beginPath();x.moveTo(lx+6,ey);x.lineTo(w,ey);x.stroke();
+      x.fillStyle=on?"#ede8f5":"#6b5d85";x.font=(on?"bold ":"")+"11px ui-monospace,monospace";
+      x.fillText(m*m+"E₁",lx+8,ey-4);}
+    $("#ro",el).innerHTML=`n = <b>${n}</b> &nbsp; Eₙ = <b>${n*n}</b>·E₁ &nbsp; nodes inside = <b>${n-1}</b> &nbsp; half-waves = <b>${n}</b><br><span style="color:var(--faint)">only whole half-waves fit between the walls → energy comes in a quantized ladder spaced as n²</span>`;
+  }
+  raf(draw);
+}
+
+/* --- uncertainty: position packet vs momentum packet (Fourier tradeoff) --- */
+function simUncertainty(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>squeeze position width  Δx = σ <input type="range" id="s" min="0.18" max="1.3" step="0.01" value="0.7"></label></div></div>`;
+  const cv=$("canvas",el);let s=0.7;$("#s",el).oninput=e=>s=+e.target.value;
+  function draw(){const {x,w,h}=fit(cv,230);const gap=16,pw=(w-gap)/2;
+    x.clearRect(0,0,w,h);
+    const sp=1/(2*s); // ℏ=1: Δx·Δp = 1/2
+    const yb=h*0.86,ph=h*0.66;
+    function panel(ox,label,sig,range,col){
+      x.strokeStyle="#2f2440";x.lineWidth=1;x.beginPath();x.moveTo(ox,yb);x.lineTo(ox+pw,yb);
+      x.moveTo(ox+pw/2,h*0.10);x.lineTo(ox+pw/2,yb);x.stroke();
+      x.fillStyle=`rgba(${col},.25)`;x.strokeStyle=`rgb(${col})`;x.lineWidth=2.2;x.beginPath();x.moveTo(ox,yb);
+      for(let px=0;px<=pw;px++){const q=(px/pw-0.5)*range;const v=Math.exp(-q*q/(2*sig*sig));x.lineTo(ox+px,yb-v*ph);}
+      x.lineTo(ox+pw,yb);x.closePath();x.fill();x.stroke();
+      x.fillStyle="#c7bde0";x.font="12px ui-monospace,monospace";x.fillText(label,ox+6,h*0.09);
+    }
+    panel(0,"|ψ(x)|²   position",s,6,"183,139,239");
+    panel(pw+gap,"|φ(p)|²   momentum",sp,6,"84,198,176");
+    $("#ro",el).innerHTML=`Δx = <b>${s.toFixed(2)}</b> &nbsp; Δp = <b>${sp.toFixed(2)}</b> &nbsp; product Δx·Δp = <b style="color:var(--teal)">${(s*sp).toFixed(3)} ℏ</b> = ℏ/2 (the minimum)<br><span style="color:var(--faint)">narrow the position packet and the momentum packet <b>must</b> widen — squeezing one spreads the other. You can't beat ℏ/2.</span>`;
+  }
+  raf(draw);
+}
+
+/* --- superposition of box eigenstates, then measure/collapse --- */
+function simSuperpos(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><button class="btn sm" id="meas">Measure ⟶ collapse</button><button class="btn sm" id="reset">Reset superposition</button></div></div>`;
+  const cv=$("canvas",el);const E=[1,4,9];const c=[1/Math.sqrt(3),1/Math.sqrt(3),1/Math.sqrt(3)];
+  const prob=[c[0]*c[0],c[1]*c[1],c[2]*c[2]];let collapsed=-1,t=0;
+  $("#meas",el).onclick=()=>{let r=Math.random(),acc=0;for(let k=0;k<3;k++){acc+=prob[k];if(r<=acc){collapsed=k;break;}}};
+  $("#reset",el).onclick=()=>{collapsed=-1;};
+  function psi2(xx){
+    if(collapsed>=0){const n=collapsed+1;const v=Math.sqrt(2)*Math.sin(n*Math.PI*xx);return v*v;}
+    let re=0,im=0;for(let k=0;k<3;k++){const n=k+1;const b=c[k]*Math.sqrt(2)*Math.sin(n*Math.PI*xx);re+=b*Math.cos(E[k]*t);im+=b*Math.sin(E[k]*t);}
+    return re*re+im*im;}
+  function draw(){const {x,w,h}=fit(cv,240);t+=0.02;
+    x.clearRect(0,0,w,h);
+    const yb=h*0.72,ph=h*0.60,pw=w;
+    x.strokeStyle="#2f2440";x.lineWidth=1;x.beginPath();x.moveTo(0,yb);x.lineTo(pw,yb);x.stroke();
+    x.strokeStyle="#6b5d85";x.beginPath();x.moveTo(0,h*0.06);x.lineTo(0,yb);x.moveTo(pw,h*0.06);x.lineTo(pw,yb);x.stroke();
+    x.fillStyle="rgba(183,139,239,.28)";x.strokeStyle="#b78bef";x.lineWidth=2.2;x.beginPath();x.moveTo(0,yb);
+    for(let px=0;px<=pw;px++){const v=psi2(px/pw);x.lineTo(px,yb-v*ph/6);}x.lineTo(pw,yb);x.closePath();x.fill();x.stroke();
+    x.fillStyle="#c7bde0";x.font="12px ui-monospace,monospace";x.fillText("|ψ|²  probability density",6,h*0.05);
+    // probability bars
+    const by=h*0.84,bh=h*0.11;
+    for(let k=0;k<3;k++){const bw=pw/3-10,bx=k*(pw/3)+5;
+      const on=collapsed===k,dim=collapsed>=0&&!on;
+      x.fillStyle=dim?"#241a33":(on?"#54c6b0":"#3a2d52");x.fillRect(bx,by,bw,bh);
+      x.fillStyle=on?"#54c6b0":(dim?"#4a3f5e":"#b78bef");x.fillRect(bx,by,bw*prob[k],bh);
+      x.fillStyle=dim?"#4a3f5e":"#ede8f5";x.font="11px ui-monospace,monospace";
+      x.fillText(`n=${k+1}: ${Math.round(prob[k]*100)}%`,bx+4,by+bh+13);}
+    $("#ro",el).innerHTML=collapsed>=0
+      ? `Measured! Collapsed to <b>n = ${collapsed+1}</b>, energy <b>${E[collapsed]}</b>·E₁ — |ψ|² is now the single, static eigenstate.<br><span style="color:var(--faint)">outcome chosen at random with probability |cₙ|² (${Math.round(prob[collapsed]*100)}% here). Reset to restore the superposition.</span>`
+      : `Superposition of n = 1, 2, 3 (each |cₙ|² ≈ 33%). The three energies beat against each other, so |ψ|² <b>sloshes</b> in time.<br><span style="color:var(--faint)">press Measure — the wave snaps to one eigenstate, weighted by its probability.</span>`;
+  }
+  raf(draw);
+}
+
+/* --- double slit: single particles build interference --- */
+function simDoubleSlit(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>emission rate <input type="range" id="rate" min="1" max="30" step="1" value="7"></label><button class="btn sm" id="reset">Clear &amp; restart</button></div></div>`;
+  const cv=$("canvas",el);let rate=7,dots=[],count=0;$("#rate",el).oninput=e=>rate=+e.target.value;
+  $("#reset",el).onclick=()=>{dots=[];count=0;};
+  const pdf=ny=>{const u=3.0*ny;const env=Math.abs(u)<1e-6?1:Math.pow(Math.sin(u)/u,2);const fr=Math.pow(Math.cos(10.5*ny),2);return env*fr;};
+  function sample(){for(let k=0;k<300;k++){const ny=Math.random()*2-1;if(Math.random()<pdf(ny))return ny;}return Math.random()*2-1;}
+  function draw(){const {x,w,h}=fit(cv,240);
+    for(let i=0;i<rate;i++){const ny=sample();dots.push({x:(ny*0.5+0.5)*w,y:Math.random()*h*0.80+h*0.10});count++;}
+    if(dots.length>6000)dots.splice(0,dots.length-6000);
+    x.clearRect(0,0,w,h);
+    // faint theoretical intensity curve along the top
+    x.strokeStyle="rgba(183,139,239,.35)";x.lineWidth=1.4;x.beginPath();
+    for(let px=0;px<=w;px++){const ny=(px/w-0.5)*2;const py=h*0.09-pdf(ny)*h*0.075;px?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    // accumulated single-particle hits
+    x.fillStyle="rgba(183,139,239,.8)";
+    for(const d of dots){x.beginPath();x.arc(d.x,d.y,1.3,0,7);x.fill();}
+    $("#ro",el).innerHTML=`particles detected: <b>${count}</b><br><span style="color:var(--faint)">each arrives as one random dot — yet the crowd traces the interference pattern (violet curve). Each particle went through <b>both</b> slits and interfered with itself.</span>`;
+  }
+  raf(draw);
+}
+
+const SIMS={planck:simPlanck,box:simBox,uncertainty:simUncertainty,superpos:simSuperpos,doubleslit:simDoubleSlit};
+const LABS=[
+ ["doubleslit","⋮","Double Slit, One at a Time","Single particles land at random and build up an interference pattern.","var(--acc)"],
+ ["box","▭","Particle in a Box","Standing-wave states ψₙ, their |ψ|², and the n² energy ladder.","var(--teal)"],
+ ["uncertainty","⇄","The Uncertainty Tradeoff","Narrow the position packet and watch momentum spread — Δx·Δp = ℏ/2.","var(--violet)"],
+ ["superpos","∿","Superposition & Collapse","A sloshing superposition; press Measure and it snaps to one state.","var(--acc2)"],
+ ["planck","🔥","Planck's Blackbody","The quantum curve turns over where classical physics blows up.","var(--red)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#241a3a,#181022);border-color:#3a2d52">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL QUANTUM MECHANICS COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Planck → photons → the wavefunction → Schrödinger → uncertainty → entanglement. Conceptual but genuinely rigorous — the real physics, not mysticism. Worked numbers, interactive labs (🔬), and practice. Take it in order; the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔬 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · quantum you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`A photon's energy is E = hf. Doubling its frequency does what to its energy?`,a:["halves it","doubles it","no change","quadruples it"],c:1,e:"E = hf is linear in frequency, so twice the frequency means twice the energy. (Twice the wavelength would halve it.)"},
+ {q:`Dim blue light ejects electrons from a metal, but intense red light does not. Why?`,a:["blue is brighter","energy per photon depends on frequency, not intensity","red photons are too fast","the metal absorbs red"],c:1,e:"Each photon carries E = hf. Only if one photon's energy exceeds the work function does an electron escape. Red photons (low f) are individually too weak, no matter how many."},
+ {q:`An electron and a proton move at the same speed. Which has the longer de Broglie wavelength (λ = h/p)?`,a:["the proton","the electron","equal","neither has one"],c:1,e:"λ = h/p = h/(mv). Same speed, but the electron's smaller mass means smaller momentum, so a larger wavelength."},
+ {q:`In quantum mechanics, |ψ(x)|² represents…`,a:["the particle's energy","the probability density of finding the particle at x","the particle's exact position","the wavelength"],c:1,e:"Born's rule: the squared magnitude of the wavefunction gives the probability density. ψ itself isn't directly observable; |ψ|² is."},
+ {q:`For a particle in a box, Eₙ ∝ n². The ratio E₃ / E₁ is…`,a:["3","6","9","1/9"],c:2,e:"Energies scale as n²: E₃/E₁ = 3²/1² = 9. Levels spread further apart as n grows."},
+ {q:`The Heisenberg uncertainty principle is fundamentally due to…`,a:["clumsy measuring instruments disturbing the particle","position and momentum being conjugate (Fourier-linked) wave properties","not having good enough technology yet","random thermal noise"],c:1,e:"It's a wave property: a state sharp in position needs many wavelengths (spread-out momentum), and vice versa. It's about what the particle can be, not measurement clumsiness."},
+ {q:`Quantum tunneling is the phenomenon where a particle…`,a:["speeds up past light speed","passes through a barrier it lacks the energy to climb over","gains energy from nothing","splits into two"],c:1,e:"The wavefunction decays but doesn't vanish inside a barrier, so there's a nonzero probability of finding the particle on the far side — with no energy borrowed. It's how the Sun fuses and how flash memory works."},
+ {q:`The Pauli exclusion principle states that…`,a:["electrons repel electrically","no two identical fermions can share the same quantum state","energy is quantized","light comes in photons"],c:1,e:"Two electrons can't occupy the same orbital with the same spin. This forces electrons to stack into shells — the reason the periodic table has its structure."},
+ {q:`Entanglement lets you measure one particle and instantly fix its distant partner. Can this send information faster than light?`,a:["yes, instantly","no — your own results look purely random until compared classically","only for photons","only over short distances"],c:1,e:"Each side sees random 50/50 outcomes; the correlation only shows up when results are compared over an ordinary light-speed channel. You can't control your outcome, so no message gets through. Relativity is safe."},
+ {q:`Atoms emit light in sharp discrete spectral lines because…`,a:["electrons move in perfect circles","their energy levels are quantized, so only fixed energy jumps occur","the nucleus vibrates","of the Doppler effect"],c:1,e:"A bound electron can only occupy discrete energy levels. A jump between two of them emits a photon of exactly the energy difference — a fixed frequency, hence a sharp line."},
+ {q:`When you measure a superposition c₁ψ_A + c₂ψ_B, the probability of outcome A is…`,a:["c₁","|c₁|²","c₁ + c₂","1/2 always"],c:1,e:"Born's rule again: the probability is the squared amplitude, |c₁|², with |c₁|² + |c₂|² = 1. You always get one clean outcome, never the blend."},
+ {q:`Copenhagen and many-worlds interpretations differ on collapse, yet…`,a:["they make different lab predictions","they make the same experimental predictions, so no test yet separates them","many-worlds is proven false","Copenhagen violates relativity"],c:1,e:"Both reproduce all the standard predictions. The disagreement is about what's 'really' happening, not about measurable results — an honest, open situation. (Objective-collapse models are the testable exception.)"},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Quanta",P.done.blackbody&&P.done.photoelectric&&P.done.spectra&&P.done.debroglie],["②","Wavefunction",P.done.wavefunction&&P.done.schrodinger&&P.done.box],["③","Uncertainty",P.done.uncertainty&&P.done.measurement&&P.done.doubleslit],["④","Applied",P.done.tunneling&&P.done.orbitals&&P.done.spin&&P.done.entanglement],["🎯","Sharp",ds>=9],["🎓","Physicist",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#241a33" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b78bef"/><stop offset="1" stop-color="#8a63d8"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#ede8f5" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#a99bc4" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full quantum mechanics course. ⚛":pc>=50?"Past the halfway mark — through the wavefunction and into measurement.":"The physics of the very small, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>

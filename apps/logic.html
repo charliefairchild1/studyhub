@@ -1,635 +1,616 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Logic — Reason from the Ground Up</title>
-<meta name="theme-color" content="#0c1413">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Logic">
+<meta name="theme-color" content="#0a0e14">
+<title>Logic &amp; Proof — a course</title>
 <style>
-:root{--bg:#0c1413;--panel:#121c1a;--panel2:#172320;--ink:#e7efec;--dim:#8fa8a1;--faint:#5f7770;--teal:#4fd1b8;--gold:#e0b04a;--red:#f0866f;--blue:#6fa8d9;--rule:#22302c}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:radial-gradient(1000px 600px at 80% -10%,#12261f 0%,var(--bg) 58%) fixed;color:var(--ink);
-  font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55;min-height:100vh;
-  padding:calc(env(safe-area-inset-top) + 52px) 15px calc(env(safe-area-inset-bottom) + 78px)}
-.wrap{max-width:660px;margin:0 auto}
-.eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
-h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.9em;font-weight:600;line-height:1.1}
-h1 em{font-style:italic;color:var(--teal)}
-.lede{color:var(--dim);margin:11px 0 18px}
-.card{background:var(--panel);border:1px solid var(--rule);border-radius:15px;padding:17px;margin-bottom:12px}
-.sec{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);font-weight:700;margin:18px 2px 9px}
-/* roadmap modules */
-.mod{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:13px 15px;margin-bottom:9px;cursor:pointer;text-align:left;width:100%;color:var(--ink);font:inherit}
-.mod:active{background:var(--panel2)}
-.mod.done{border-color:#2b5c4e}
-.mod .num{width:30px;height:30px;border-radius:50%;background:var(--panel2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9em;color:var(--teal);flex-shrink:0}
-.mod.done .num{background:linear-gradient(135deg,var(--teal),#2b9c86);color:#062019;border-color:transparent}
-.mod .mt{flex:1;min-width:0}.mod .mt b{font-weight:700;font-size:1em}.mod .mt small{display:block;color:var(--dim);font-size:.8em;margin-top:1px}
-.mod .go{color:var(--faint);font-size:1.2em}
-/* lab card */
-.labcard{background:linear-gradient(135deg,#13241f,#122a33);border:1px solid #2a4a44}
-.labcard h3{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;font-size:1.15em}
-/* reader */
-.backbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.backbar .b{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;font-size:.82em;cursor:pointer}
-.tabs2{display:flex;gap:7px;margin-bottom:15px}
-.tabs2 button{flex:1;background:var(--panel);border:1px solid var(--rule);color:var(--dim);border-radius:10px;padding:9px;font:inherit;font-weight:700;font-size:.85em;cursor:pointer}
-.tabs2 button.on{background:var(--teal);color:#062019;border-color:var(--teal)}
-.reader h2{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;font-size:1.4em;margin:2px 0 4px}
-.reader h4{color:var(--teal);font-size:1.02em;margin:18px 0 6px}
-.reader p{color:#cdd9d5;margin:11px 0}
-.reader ul{color:#cdd9d5;padding-left:20px;margin:10px 0}.reader li{margin:5px 0}
-.reader b{color:var(--ink)}
-.def{background:var(--panel2);border-left:3px solid var(--teal);border-radius:0 11px 11px 0;padding:12px 15px;margin:14px 0}
-.def .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:5px}
-.note{background:#1c2416;border:1px solid #3a4a2b;border-radius:11px;padding:11px 14px;margin:14px 0;color:#d8e6c9;font-size:.94em}
-.note .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px}
-.eq{font-family:"Iowan Old Style",Georgia,serif;font-size:1.12em;text-align:center;background:var(--panel2);border:1px solid var(--rule);border-radius:10px;padding:13px;margin:13px 0;letter-spacing:.3px;overflow-x:auto}
-.sym{font-family:ui-monospace,monospace;color:var(--teal);font-weight:600}
-/* truth table */
-.tt{border-collapse:collapse;font-family:ui-monospace,monospace;font-size:.9em;margin:6px auto;min-width:60%}
-.tt th,.tt td{border:1px solid var(--rule);padding:6px 12px;text-align:center}
-.tt th{background:var(--panel2);color:var(--teal)}
-.tt td.T{color:#7fe0c4}.tt td.F{color:var(--red)}
-.tt th.res,.tt td.res{background:#152420;border-left:2px solid var(--teal);font-weight:700}
-.ttwrap{overflow-x:auto;margin:12px -4px}
-/* lab */
-.labin{width:100%;background:#0a1110;border:1px solid var(--rule);color:var(--ink);border-radius:11px;padding:12px 13px;font:inherit;font-family:ui-monospace,monospace;font-size:1.05em}
-.keys{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
-.keys button{background:var(--panel2);border:1px solid var(--rule);color:var(--teal);border-radius:9px;padding:8px 12px;font-family:ui-monospace,monospace;font-size:1.05em;cursor:pointer;min-width:42px}
-.keys button.wide{color:var(--dim);font-size:.8em}
-.verdict{border-radius:11px;padding:11px 14px;margin:12px 0;font-weight:650;text-align:center}
-.verdict.taut{background:#13291f;border:1px solid #2f7a4c;color:#7fe0a8}
-.verdict.contra{background:#2a1613;border:1px solid #7a3a2f;color:var(--red)}
-.verdict.cont{background:#20241a;border:1px solid #5a5a2f;color:var(--gold)}
-.verdict.err{background:#241416;border:1px solid #5a2a2f;color:var(--red)}
-/* practice */
-.q{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px;margin-bottom:12px}
-.q .qn{font-family:ui-monospace,monospace;font-size:.72em;color:var(--faint);letter-spacing:1px}
-.q .qt{font-weight:600;margin:6px 0 12px;font-size:1.04em}
-.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--rule);border-radius:11px;padding:12px 14px;margin-bottom:8px;color:var(--ink);font:inherit;font-size:.98em;cursor:pointer}
-.opt:active{background:#1d2c28}
-.opt.correct{border-color:var(--teal);background:#13291f}
-.opt.wrong{border-color:var(--red);background:#2a1613}
-.opt .mk{float:right;font-weight:800}
-.sol{margin-top:8px;padding:12px 14px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;font-size:.92em;color:#d7e2de;display:none}
-.sol.show{display:block}
-.sol .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px}
-.btn{background:var(--teal);color:#062019;border:none;border-radius:12px;padding:14px;font:700 1.02em/1 inherit;cursor:pointer;width:100%}
-.btn:active{transform:translateY(1px)}
-.ghost{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:12px;padding:11px 16px;font:600 .92em/1 inherit;cursor:pointer}
-.done-banner{text-align:center;padding:16px;color:var(--teal);font-weight:700}
-/* proof trainer */
-.proof{font-family:ui-monospace,monospace;font-size:.92em}
-.proof .line{display:flex;gap:10px;padding:7px 10px;border-radius:8px;margin-bottom:5px;background:var(--panel2);border:1px solid var(--rule)}
-.proof .line .ln{color:var(--faint);width:20px}
-.proof .line .fm{flex:1;color:var(--ink)}
-.proof .line .jf{color:var(--teal);font-size:.85em}
-.proof .line.new{background:#13291f;border-color:#2f7a4c}
-/* bottom nav */
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#0a1211ee;backdrop-filter:blur(10px);border-top:1px solid var(--rule);padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);z-index:20}
-nav button{flex:1;background:none;border:0;color:var(--faint);font-size:.68em;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:3px}
-nav button .i{font-size:1.3em}
-nav button.on{color:var(--teal)}
-.prog-ring{--p:0;width:60px;height:60px;border-radius:50%;background:conic-gradient(var(--teal) calc(var(--p)*1%),#1a2723 0);display:flex;align-items:center;justify-content:center;margin:0 auto}
-.prog-ring i{width:48px;height:48px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--teal);font-style:normal}
-.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:#0a1211;border:1px solid var(--teal);color:var(--teal);padding:10px 17px;border-radius:999px;font-weight:650;font-size:.9em;opacity:0;transition:.25s;pointer-events:none;z-index:50}
-.toast.on{opacity:1;transform:translateX(-50%)}
-a.hubback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(10,20,18,.9);color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)}
-/* iPhone 12 mini and other narrow phones (≤380pt): tighten to fit without horizontal scroll */
-@media (max-width:380px){
-  body{font-size:15px;padding-left:12px;padding-right:12px}
-  h1{font-size:1.6em}
-  .lede{font-size:.95em}
-  .card{padding:14px}
-  .mod{padding:11px 12px;gap:10px}
-  .mod .num{width:27px;height:27px}
-  .reader h2{font-size:1.25em}
-  .eq{font-size:1.02em;padding:11px 9px}
-  .keys button{min-width:38px;padding:8px 9px;font-size:1em}
-  .opt{padding:11px 12px}
-  .tt th,.tt td{padding:5px 8px}
-  .def,.note{padding:11px 12px}
+:root{
+  --bg:#0a0e14;--panel:#121826;--card:#131a28;--line:#28344a;--ink:#e6ecf5;--mut:#93a2bd;--faint:#5a6b88;
+  --acc:#7fa8d9;--acc2:#5b86c4;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
 }
-/* respect notch/home-bar and prevent any accidental sideways scroll */
-html,body{max-width:100%;overflow-x:hidden}
-</style></head>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#16223a 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(10,14,20,.96),rgba(10,14,20,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#0a0e14;font-size:20px;box-shadow:0 3px 14px rgba(127,168,217,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#0a0e14;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#3f6a5a}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0d131f;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#d5deec;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#d5deec;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#eef4fc;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#0d131f;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#0d131f;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#dbe4f0}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#0e1a18;border:1px solid #2f4a44;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6df;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;margin-top:5px;width:100%}
+table.tt{border-collapse:collapse;margin:8px auto;font-family:ui-monospace,monospace;font-size:13.5px}
+table.tt th,table.tt td{border:1px solid var(--line);padding:5px 11px;text-align:center;color:var(--mut)}
+table.tt th{color:var(--acc);font-weight:700}
+table.tt td.res,table.tt th.res{border-left:2px solid var(--acc)}
+table.tt td.tv{color:var(--green);font-weight:700}table.tt td.fv{color:var(--red);font-weight:700}
+table.tt tr.hi td{background:#10203a}table.tt tr.bad td{background:#231211}
+.opbtn{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:9px;padding:7px 11px;font:inherit;font-size:13px;cursor:pointer;font-family:ui-monospace,monospace}
+.opbtn.on{border-color:var(--acc);color:var(--acc);background:#10203a}
+.simwrap{background:#070b12;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#060a11}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(10,14,20,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#0d131f;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#10203a;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
 <body>
-<a href="../index.html" class="hubback">&lsaquo; Hub</a>
-<div class="wrap" id="app"></div>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">⊢</div>
+  <div><h1>Logic &amp; Proof</h1><div class="sub">how we know for certain</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
 <nav id="nav">
-  <button data-v="home" class="on"><span class="i">📖</span>Learn</button>
-  <button data-v="lab"><span class="i">🔬</span>Lab</button>
-  <button data-v="prog"><span class="i">📊</span>Progress</button>
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">⊨</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
 </nav>
 <div class="toast" id="toast"></div>
-
 <script>
-/* ============================ content ============================ */
-const S={
-  not:'<span class="sym">¬</span>', and:'<span class="sym">∧</span>', or:'<span class="sym">∨</span>',
-  imp:'<span class="sym">→</span>', iff:'<span class="sym">↔</span>', all:'<span class="sym">∀</span>',
-  exi:'<span class="sym">∃</span>', turn:'<span class="sym">⊢</span>', equiv:'<span class="sym">≡</span>'
-};
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("logic_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("logic_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ LOGIC ENGINE ============================ */
+/* tokenizer + recursive-descent parser for propositional logic:
+   ¬ (not) ∧ (and) ∨ (or) → (imp) ↔ (iff), parens, atoms p q r s, ⊤ ⊥.
+   precedence: ¬ > ∧ > ∨ > → > ↔ ; → is right-associative. */
+function tokenize(s){const t=[];for(const c of s){if(c===" "||c==="\t")continue;
+  if("¬∧∨→↔()⊤⊥".indexOf(c)>=0){t.push(c);continue;}
+  if(/[a-zA-Z]/.test(c)){t.push(c);continue;}
+  throw new Error("unexpected symbol: "+c);}return t;}
+function parse(str){const T=tokenize(str);let i=0;const peek=()=>T[i],eat=()=>T[i++];
+  function bicond(){let l=imp();while(peek()==="↔"){eat();l={o:"↔",l,r:imp()};}return l;}
+  function imp(){const l=or();if(peek()==="→"){eat();return {o:"→",l,r:imp()};}return l;}
+  function or(){let l=and();while(peek()==="∨"){eat();l={o:"∨",l,r:and()};}return l;}
+  function and(){let l=not();while(peek()==="∧"){eat();l={o:"∧",l,r:not()};}return l;}
+  function not(){if(peek()==="¬"){eat();return {o:"¬",r:not()};}return atom();}
+  function atom(){const c=peek();
+    if(c==="("){eat();const e=bicond();if(eat()!==")")throw new Error("missing )");return e;}
+    if(c==="⊤"){eat();return {o:"T"};}if(c==="⊥"){eat();return {o:"F"};}
+    if(c&&/[a-zA-Z]/.test(c)){eat();return {o:"v",n:c};}
+    throw new Error("unexpected end");}
+  const ast=bicond();if(i<T.length)throw new Error("extra input");return ast;}
+function ev(n,e){switch(n.o){
+  case "v":return e[n.n];case "T":return true;case "F":return false;
+  case "¬":return !ev(n.r,e);case "∧":return ev(n.l,e)&&ev(n.r,e);
+  case "∨":return ev(n.l,e)||ev(n.r,e);case "→":return !ev(n.l,e)||ev(n.r,e);
+  case "↔":return ev(n.l,e)===ev(n.r,e);}}
+function vars(n,set){set=set||new Set();if(n.o==="v")set.add(n.n);if(n.l)vars(n.l,set);if(n.r)vars(n.r,set);return set;}
+function rowsFor(vlist){const out=[],N=vlist.length;for(let m=0;m<(1<<N);m++){const e={};
+  for(let j=0;j<N;j++)e[vlist[j]]=!!(m&(1<<(N-1-j)));out.push(e);}return out;}
+function truthTable(formula){const ast=parse(formula);const vl=[...vars(ast)].sort();
+  const rows=rowsFor(vl).map(e=>({e,val:ev(ast,e)}));return {vl,rows};}
+function tv(b){return b?'<span style="color:var(--green)">T</span>':'<span style="color:var(--red)">F</span>';}
+
+/* ============================ CURRICULUM ============================ */
 const MODULES=[
- {id:'arg',n:'Arguments, Validity & Soundness',sub:'what makes reasoning good',learn:`
-  <h2>Arguments, Validity &amp; Soundness</h2>
-  <p>Logic is the study of <b>good reasoning</b>. Its atom is the <b>argument</b>: one or more <b>premises</b> offered in support of a <b>conclusion</b>.</p>
-  <div class="def"><span class="l">Definition · Argument</span>A set of statements where some (the <b>premises</b>) are offered as reasons to accept another (the <b>conclusion</b>).</div>
-  <p>The central question is never "are the premises true?" — that's the job of the sciences. Logic asks a sharper question: <b>if the premises were true, would the conclusion have to be true?</b> That property is <b>validity</b>.</p>
-  <div class="def"><span class="l">Definition · Validity</span>An argument is <b>valid</b> when it is <i>impossible</i> for all the premises to be true while the conclusion is false. Validity is about <b>form</b>, not content.</div>
-  <p>The classic:</p>
-  <div class="eq">All humans are mortal. &nbsp;·&nbsp; Socrates is human. &nbsp;∴&nbsp; Socrates is mortal.</div>
-  <p>This is valid because of its <b>shape</b> — "All A are B; x is A; so x is B" — regardless of what A, B, and x mean. Swap in nonsense and it's still valid:</p>
-  <div class="eq">All glorks are blue. &nbsp;·&nbsp; Zib is a glork. &nbsp;∴&nbsp; Zib is blue.</div>
-  <h4>Soundness</h4>
-  <p>Validity alone doesn't make an argument <i>good</i> — a valid argument can have false premises and a false conclusion. What we usually want is <b>soundness</b>.</p>
-  <div class="def"><span class="l">Definition · Soundness</span>An argument is <b>sound</b> when it is (1) valid <b>and</b> (2) all its premises are actually true. A sound argument's conclusion is guaranteed true.</div>
-  <p>Watch the four combinations. An argument can be:</p>
-  <ul>
-   <li><b>Valid + true premises</b> → sound, conclusion guaranteed. ✓</li>
-   <li><b>Valid + a false premise</b> → unsound; conclusion may be false ("All fish fly; a trout is a fish; so a trout flies").</li>
-   <li><b>Invalid</b> → the form fails even if everything is true ("Some cats are black; some black things are dogs; so some cats are dogs").</li>
-  </ul>
-  <div class="note"><span class="l">Key idea</span>Validity is a guarantee about <i>structure</i>: truth can't leak away between premises and conclusion. The rest of this course is about making that structure precise — first with <b>truth tables</b>, then with <b>proofs</b>.</div>
-  <h4>Deductive vs. inductive</h4>
-  <p>A <b>deductive</b> argument aims for validity — the conclusion is <i>contained</i> in the premises. An <b>inductive</b> argument aims only for <i>probability</i> — the premises make the conclusion likely (every swan I've seen is white, so all swans are white). This course is about deductive logic, where "valid" is black-and-white.</p>`,
-  practice:[
-   {q:'An argument is <b>valid</b> exactly when:',o:['It is impossible for the premises to be true and the conclusion false','Its premises are all true','Its conclusion is true','It is persuasive'],a:0,s:'Validity is purely structural: true premises could not lead to a false conclusion. Actual truth of the premises is a separate matter (soundness).'},
-   {q:'A <b>sound</b> argument is one that is:',o:['Valid AND has all true premises','Valid OR has true premises','Just valid','Just persuasive'],a:0,s:'Soundness = validity + actually-true premises. Only then is the conclusion guaranteed true.'},
-   {q:'"All fish can fly. A trout is a fish. So a trout can fly." This argument is:',o:['Valid but unsound','Invalid','Sound','Inductive'],a:0,s:'The form is perfect (All A are B; x is A; ∴ x is B) so it is valid — but the first premise is false, so it is unsound.'},
-   {q:'Reasoning "every swan I have seen is white, so all swans are white" is:',o:['Inductive','Deductive and valid','A contradiction','Sound'],a:0,s:'It generalizes from observed cases to all cases — the premises make the conclusion probable, not certain. That is induction.'}
-  ]},
- {id:'conn',n:'Statements & the Connectives',sub:'the five logical operators',learn:`
-  <h2>Statements &amp; the Connectives</h2>
-  <p>Propositional logic is built from <b>propositions</b> — declarative statements that are either true or false (never both, never neither).</p>
-  <div class="def"><span class="l">Definition · Proposition</span>A sentence with a definite truth value. "Paris is in France" is a proposition; "Shut the door!" and "Is it raining?" are not.</div>
-  <p>We label atomic propositions with letters: <b>P</b>, <b>Q</b>, <b>A</b>, <b>B</b>… Then we glue them with five <b>connectives</b>:</p>
-  <h4>${S.not} Negation — "not"</h4>
-  <p><span class="sym">¬P</span> ("not P") flips the truth value. If P is true, ¬P is false, and vice-versa.</p>
-  <h4>${S.and} Conjunction — "and"</h4>
-  <p><span class="sym">P ∧ Q</span> is true <b>only</b> when both P and Q are true. "It is cold and raining" needs both.</p>
-  <h4>${S.or} Disjunction — "or"</h4>
-  <p><span class="sym">P ∨ Q</span> is true when <b>at least one</b> holds. This is <b>inclusive</b> or: it's still true if both are true. (English "or" is sometimes exclusive — "soup or salad" — but logic's default ∨ is inclusive.)</p>
-  <h4>${S.imp} Conditional — "if… then"</h4>
-  <p><span class="sym">P → Q</span> ("if P then Q"). P is the <b>antecedent</b>, Q the <b>consequent</b>. The subtle one: P → Q is false in <b>only one</b> case — when P is true but Q is false. A promise "if it rains, I'll bring an umbrella" is broken only when it rains and you don't. If it doesn't rain, you kept the promise no matter what — this is called being <b>vacuously true</b>.</p>
-  <h4>${S.iff} Biconditional — "if and only if"</h4>
-  <p><span class="sym">P ↔ Q</span> is true when P and Q have the <b>same</b> truth value — both true or both false. It means P → Q <i>and</i> Q → P.</p>
-  <div class="note"><span class="l">Translation traps</span>
-   • "P unless Q" = <span class="sym">¬Q → P</span> = <span class="sym">P ∨ Q</span>.<br>
-   • "P only if Q" = <span class="sym">P → Q</span> (Q is <b>necessary</b> for P).<br>
-   • "P if Q" = <span class="sym">Q → P</span> (Q is <b>sufficient</b> for P).<br>
-   • "Q is necessary for P" = <span class="sym">P → Q</span>; "Q is sufficient for P" = <span class="sym">Q → P</span>.</div>`,
-  practice:[
-   {q:'<span class="sym">P ∨ Q</span> (inclusive or) is <b>false</b> in which case?',o:['P false and Q false','P true and Q false','P true and Q true','P false and Q true'],a:0,s:'Inclusive disjunction fails only when both disjuncts are false. Any true disjunct makes it true.'},
-   {q:'The conditional <span class="sym">P → Q</span> is <b>false</b> only when:',o:['P is true and Q is false','P is false and Q is true','both are false','both are true'],a:0,s:'A conditional is broken exactly when the antecedent holds but the consequent fails. Every other row is true.'},
-   {q:'"You may enter only if you have a ticket" translates to:',o:['enter → ticket','ticket → enter','enter ↔ ticket','¬ticket'],a:0,s:'"P only if Q" makes Q necessary for P, i.e. P → Q. Having a ticket is necessary to enter.'},
-   {q:'<span class="sym">P ↔ Q</span> is true when:',o:['P and Q have the same truth value','at least one is true','P is false','both are false'],a:0,s:'The biconditional asserts P and Q match — true together or false together.'},
-   {q:'If it does not rain, the promise "if it rains, I bring an umbrella" is:',o:['Vacuously true','False','Undefined','A contradiction'],a:0,s:'When the antecedent (rain) is false, the conditional is automatically true regardless of the umbrella — vacuously true.'}
-  ]},
- {id:'tt',n:'Truth Tables',sub:'compute meaning mechanically',learn:`
-  <h2>Truth Tables</h2>
-  <p>A <b>truth table</b> lists every possible assignment of truth values to the atoms and computes the value of the whole formula. With <b>n</b> distinct atoms there are <b>2<sup>n</sup></b> rows — the complete space of possibilities.</p>
-  <p>The five connectives, as tables (T = true, F = false):</p>
-  <div class="ttwrap"><table class="tt">
-   <tr><th>P</th><th>Q</th><th class="res">¬P</th><th class="res">P∧Q</th><th class="res">P∨Q</th><th class="res">P→Q</th><th class="res">P↔Q</th></tr>
-   <tr><td class="T">T</td><td class="T">T</td><td class="res F">F</td><td class="res T">T</td><td class="res T">T</td><td class="res T">T</td><td class="res T">T</td></tr>
-   <tr><td class="T">T</td><td class="F">F</td><td class="res F">F</td><td class="res F">F</td><td class="res T">T</td><td class="res F">F</td><td class="res F">F</td></tr>
-   <tr><td class="F">F</td><td class="T">T</td><td class="res T">T</td><td class="res F">F</td><td class="res T">T</td><td class="res T">T</td><td class="res F">F</td></tr>
-   <tr><td class="F">F</td><td class="F">F</td><td class="res T">T</td><td class="res F">F</td><td class="res F">F</td><td class="res T">T</td><td class="res T">T</td></tr>
-  </table></div>
-  <h4>Building up a compound formula</h4>
-  <p>Evaluate from the inside out, one connective at a time. For <span class="sym">(P ∧ Q) → ¬P</span> you'd add a column for <span class="sym">P∧Q</span>, a column for <span class="sym">¬P</span>, then combine them with →. The rightmost column is the formula's meaning.</p>
-  <div class="note"><span class="l">Do it live</span>The <b>Lab</b> tab builds the full truth table for any formula you type — try <span class="sym">(P → Q) ↔ (¬Q → ¬P)</span> and watch every row come out true.</div>
-  <h4>Precedence</h4>
-  <p>To cut parentheses, connectives bind in this order (tightest first): <b>¬</b>, then <b>∧</b>, then <b>∨</b>, then <b>→</b>, then <b>↔</b>. So <span class="sym">¬P ∧ Q → R</span> means <span class="sym">((¬P) ∧ Q) → R</span>. When in doubt, add parentheses.</p>`,
-  practice:[
-   {q:'A formula with 3 distinct atoms has how many truth-table rows?',o:['8','6','3','9'],a:0,s:'Rows = 2ⁿ. With n = 3 atoms, 2³ = 8 rows cover every combination.'},
-   {q:'In the row P = T, Q = F, the value of <span class="sym">P → Q</span> is:',o:['F','T','undefined','depends'],a:0,s:'True antecedent, false consequent — the single case where a conditional is false.'},
-   {q:'In the row P = F, Q = F, the value of <span class="sym">¬P ∨ Q</span> is:',o:['T','F','undefined','T only if Q is T'],a:0,s:'¬P is T (since P is F), and T ∨ anything = T. Note ¬P ∨ Q is exactly P → Q.'},
-   {q:'By precedence, <span class="sym">¬P ∧ Q</span> parses as:',o:['(¬P) ∧ Q','¬(P ∧ Q)','¬(P) ∧ ¬(Q)','P ∧ (¬Q)'],a:0,s:'Negation binds tighter than ∧, so it applies to P alone before the conjunction.'}
-  ]},
- {id:'equiv',n:'Tautologies, Equivalence & the Laws',sub:'when two formulas mean the same',learn:`
-  <h2>Tautologies, Equivalence &amp; the Laws</h2>
-  <p>Classify any formula by its truth-table column:</p>
-  <div class="def"><span class="l">Three kinds</span>
-   <b>Tautology</b> — true in <i>every</i> row (e.g. <span class="sym">P ∨ ¬P</span>).<br>
-   <b>Contradiction</b> — false in every row (e.g. <span class="sym">P ∧ ¬P</span>).<br>
-   <b>Contingency</b> — true in some rows, false in others (most formulas).</div>
-  <p>Tautologies are the <b>laws of logic</b>: they hold no matter what the atoms mean. Validity connects to them directly — an argument is valid <b>iff</b> "(all premises) → (conclusion)" is a tautology.</p>
-  <h4>Logical equivalence</h4>
-  <div class="def"><span class="l">Definition · Equivalence</span>Two formulas are <b>logically equivalent</b> (written <span class="sym">≡</span>) when they have identical truth tables — the same value in every row. Equivalently, <span class="sym">A ↔ B</span> is a tautology.</div>
-  <p>The essential equivalences — memorize these, they're the algebra of logic:</p>
-  <ul>
-   <li><b>Double negation:</b> <span class="sym">¬¬P ≡ P</span></li>
-   <li><b>Commutativity:</b> <span class="sym">P ∧ Q ≡ Q ∧ P</span>, &nbsp;<span class="sym">P ∨ Q ≡ Q ∨ P</span></li>
-   <li><b>Associativity:</b> <span class="sym">(P ∧ Q) ∧ R ≡ P ∧ (Q ∧ R)</span></li>
-   <li><b>Distribution:</b> <span class="sym">P ∧ (Q ∨ R) ≡ (P ∧ Q) ∨ (P ∧ R)</span></li>
-   <li><b>De Morgan's laws:</b> <span class="sym">¬(P ∧ Q) ≡ ¬P ∨ ¬Q</span> &nbsp;and&nbsp; <span class="sym">¬(P ∨ Q) ≡ ¬P ∧ ¬Q</span></li>
-   <li><b>Conditional as disjunction:</b> <span class="sym">P → Q ≡ ¬P ∨ Q</span></li>
-   <li><b>Contrapositive:</b> <span class="sym">P → Q ≡ ¬Q → ¬P</span></li>
-   <li><b>Biconditional:</b> <span class="sym">P ↔ Q ≡ (P → Q) ∧ (Q → P)</span></li>
-  </ul>
-  <div class="note"><span class="l">De Morgan in one breath</span>"Not (both)" = "at least one not." "Not (either)" = "neither." Pushing a negation inward flips ∧ ↔ ∨. This is the single most-used law in all of logic and programming.</div>
-  <p>A common trap: the <b>converse</b> <span class="sym">Q → P</span> is <i>not</i> equivalent to <span class="sym">P → Q</span>. Only the <b>contrapositive</b> <span class="sym">¬Q → ¬P</span> is. "If rain then clouds" does not give "if clouds then rain."</p>`,
-  practice:[
-   {q:'<span class="sym">P ∨ ¬P</span> is a:',o:['Tautology','Contradiction','Contingency','Converse'],a:0,s:'Either P or its negation must hold, so the formula is true in every row — the law of excluded middle.'},
-   {q:'<span class="sym">¬(P ∧ Q)</span> is equivalent to:',o:['¬P ∨ ¬Q','¬P ∧ ¬Q','P ∨ Q','¬P → Q'],a:0,s:"De Morgan: negating a conjunction distributes as a disjunction of negations. 'Not both' = 'at least one not.'"},
-   {q:'<span class="sym">P → Q</span> is equivalent to:',o:['¬P ∨ Q','P ∨ ¬Q','Q → P','¬P ∧ Q'],a:0,s:'The conditional rewrites as ¬(antecedent) ∨ (consequent). Check the truth tables: they match in all four rows.'},
-   {q:'The contrapositive of "if P then Q" is:',o:['¬Q → ¬P','Q → P','¬P → ¬Q','P → ¬Q'],a:0,s:'Contrapositive negates and swaps: ¬Q → ¬P. It is always equivalent to the original (unlike the converse Q → P).'},
-   {q:'An argument is valid iff "(premises) → (conclusion)" is a:',o:['Tautology','Contradiction','Contingency','Converse'],a:0,s:'If that conditional is true in every row, then no row has true premises with a false conclusion — exactly validity.'}
-  ]},
- {id:'rules',n:'Rules of Inference',sub:'the legal moves of proof',learn:`
-  <h2>Rules of Inference</h2>
-  <p>Truth tables always work but blow up (2<sup>n</sup> rows). <b>Rules of inference</b> are a faster path: small, pre-certified valid patterns you can chain into a proof. Each is a tautology in disguise.</p>
-  <h4>The workhorses</h4>
-  <div class="def"><span class="l">Modus Ponens (MP)</span>From <span class="sym">P → Q</span> and <span class="sym">P</span>, infer <span class="sym">Q</span>.<br><i>"If it rains the ground is wet; it's raining; so the ground is wet."</i></div>
-  <div class="def"><span class="l">Modus Tollens (MT)</span>From <span class="sym">P → Q</span> and <span class="sym">¬Q</span>, infer <span class="sym">¬P</span>.<br><i>"If it rains the ground is wet; the ground is dry; so it isn't raining."</i></div>
-  <div class="def"><span class="l">Hypothetical Syllogism (HS)</span>From <span class="sym">P → Q</span> and <span class="sym">Q → R</span>, infer <span class="sym">P → R</span>. (Chaining conditionals.)</div>
-  <div class="def"><span class="l">Disjunctive Syllogism (DS)</span>From <span class="sym">P ∨ Q</span> and <span class="sym">¬P</span>, infer <span class="sym">Q</span>. (Eliminate a ruled-out option.)</div>
-  <p>And the "bookkeeping" rules:</p>
-  <ul>
-   <li><b>Simplification:</b> from <span class="sym">P ∧ Q</span>, infer <span class="sym">P</span> (or <span class="sym">Q</span>).</li>
-   <li><b>Conjunction:</b> from <span class="sym">P</span> and <span class="sym">Q</span>, infer <span class="sym">P ∧ Q</span>.</li>
-   <li><b>Addition:</b> from <span class="sym">P</span>, infer <span class="sym">P ∨ Q</span> (for any Q — a true disjunct makes the disjunction true).</li>
-   <li><b>Constructive Dilemma:</b> from <span class="sym">(P → Q) ∧ (R → S)</span> and <span class="sym">P ∨ R</span>, infer <span class="sym">Q ∨ S</span>.</li>
-  </ul>
-  <div class="note"><span class="l">Two famous traps (invalid!)</span>
-   <b>Affirming the consequent:</b> from <span class="sym">P → Q</span> and <span class="sym">Q</span>, concluding <span class="sym">P</span>. ✗ (Wet ground doesn't prove rain — a sprinkler works too.)<br>
-   <b>Denying the antecedent:</b> from <span class="sym">P → Q</span> and <span class="sym">¬P</span>, concluding <span class="sym">¬Q</span>. ✗</div>`,
-  practice:[
-   {q:'From <span class="sym">P → Q</span> and <span class="sym">P</span>, you may infer:',o:['Q','P','¬Q','P → Q'],a:0,s:'Modus ponens: assert the antecedent, detach the consequent.'},
-   {q:'From <span class="sym">P → Q</span> and <span class="sym">¬Q</span>, you may infer:',o:['¬P','P','Q','¬Q → P'],a:0,s:'Modus tollens: deny the consequent, conclude the antecedent is false.'},
-   {q:'From <span class="sym">P ∨ Q</span> and <span class="sym">¬P</span>, you may infer:',o:['Q','P','¬Q','P ∧ Q'],a:0,s:'Disjunctive syllogism: one disjunct is ruled out, so the other must hold.'},
-   {q:'From <span class="sym">P → Q</span> and <span class="sym">Q</span>, concluding <span class="sym">P</span> is:',o:['Invalid — affirming the consequent','Modus ponens','Modus tollens','Valid'],a:0,s:'This is the classic fallacy of affirming the consequent. Q could be made true by something other than P.'},
-   {q:'From <span class="sym">A → B</span> and <span class="sym">B → C</span>, you may infer:',o:['A → C','C → A','A ∧ C','B'],a:0,s:'Hypothetical syllogism chains the two conditionals into A → C.'}
-  ]},
- {id:'proof',n:'Natural Deduction',sub:'chain rules into real proofs',learn:`
-  <h2>Natural Deduction</h2>
-  <p>A <b>proof</b> derives a conclusion from premises by a sequence of steps, each justified by a rule of inference or an earlier line. When you reach the conclusion, the argument is proven valid — no truth table needed.</p>
-  <p>Notation: <span class="sym">P₁, P₂, … ⊢ C</span> means "from these premises, C is derivable." The <span class="sym">⊢</span> is the <b>turnstile</b>.</p>
-  <h4>A worked proof</h4>
-  <p>Show that <span class="sym">P → Q, &nbsp;Q → R, &nbsp;P &nbsp;⊢&nbsp; R</span>:</p>
-  <div class="proof">
-   <div class="line"><span class="ln">1</span><span class="fm">P → Q</span><span class="jf">premise</span></div>
-   <div class="line"><span class="ln">2</span><span class="fm">Q → R</span><span class="jf">premise</span></div>
-   <div class="line"><span class="ln">3</span><span class="fm">P</span><span class="jf">premise</span></div>
-   <div class="line"><span class="ln">4</span><span class="fm">Q</span><span class="jf">MP 1,3</span></div>
-   <div class="line"><span class="ln">5</span><span class="fm">R</span><span class="jf">MP 2,4</span></div>
-  </div>
-  <p>Each line is either a premise or follows from earlier lines by a named rule. Line 4 detaches Q from lines 1 and 3 (modus ponens); line 5 detaches R. Done.</p>
-  <h4>Conditional proof (assumptions)</h4>
-  <p>To prove a conditional <span class="sym">P → Q</span>, <b>assume</b> P, derive Q, then <b>discharge</b> the assumption to conclude P → Q. The assumption is temporary — it lives inside an indented sub-proof and is "paid off" the moment you form the conditional. This is how you prove "if…then" statements you weren't handed directly.</p>
-  <div class="note"><span class="l">Strategy</span>Work <b>forwards</b> from premises (what can I detach?) and <b>backwards</b> from the goal (what would give me the conclusion — an MP? a conjunction?). Meet in the middle. The <b>Practice</b> tab has a step-by-step proof to build.</div>`,
-  practice:[
-   {q:'In a proof, the justification "MP 1,3" means line derived by:',o:['Modus ponens from lines 1 and 3','A premise','Modus tollens','Assumption'],a:0,s:'Rule name + the line numbers it uses. MP 1,3 = modus ponens applied to lines 1 and 3.'},
-   {q:'To prove a conditional <span class="sym">P → Q</span> by conditional proof, you first:',o:['Assume P, then derive Q','Assume Q','Assume ¬P','Assert P → Q as a premise'],a:0,s:'Conditional proof: assume the antecedent, derive the consequent, discharge to get the conditional.'},
-   {q:'Given premises <span class="sym">A → B</span>, <span class="sym">A</span>, and <span class="sym">B → C</span>, the shortest route to <span class="sym">C</span> is:',o:['MP to get B, then MP to get C','MT twice','Addition','Truth table'],a:0,s:'A→B with A gives B (MP); B→C with B gives C (MP). Two clean detachments.'},
-   {q:'The turnstile <span class="sym">⊢</span> in "Γ ⊢ C" means:',o:['C is derivable from the premises Γ','C is true','C is false','C is a premise'],a:0,s:'It asserts provability: there is a proof of C using the premises in Γ.'}
-  ]},
- {id:'pred',n:'Predicate Logic & Quantifiers',sub:'inside the atoms',learn:`
-  <h2>Predicate Logic &amp; Quantifiers</h2>
-  <p>Propositional logic can't see <i>inside</i> a statement. It treats "Socrates is mortal" as one blank atom, so it can't explain why "All humans are mortal; Socrates is human; ∴ Socrates is mortal" is valid. <b>Predicate (first-order) logic</b> opens the atom.</p>
-  <div class="def"><span class="l">Predicates & objects</span>A <b>predicate</b> is a property or relation with slots: <span class="sym">Mortal(x)</span>, <span class="sym">Human(x)</span>, <span class="sym">Loves(x, y)</span>. Fill the slots with objects from a <b>domain</b> and you get a true-or-false proposition: <span class="sym">Human(socrates)</span>.</div>
-  <h4>The two quantifiers</h4>
-  <div class="def"><span class="l">Universal ∀</span><span class="sym">∀x P(x)</span> — "for <b>all</b> x, P(x)." True when every object in the domain satisfies P.</div>
-  <div class="def"><span class="l">Existential ∃</span><span class="sym">∃x P(x)</span> — "there <b>exists</b> an x such that P(x)." True when at least one object satisfies P.</div>
-  <h4>Translating "all" and "some"</h4>
-  <p>The two canonical patterns — and their connectives are <i>not</i> interchangeable:</p>
-  <div class="eq">"All A are B" &nbsp;=&nbsp; ∀x ( A(x) → B(x) )</div>
-  <div class="eq">"Some A are B" &nbsp;=&nbsp; ∃x ( A(x) ∧ B(x) )</div>
-  <p>Universal pairs with <b>→</b> (of everything, <i>if</i> it's an A then it's a B); existential pairs with <b>∧</b> (something that is <i>both</i> A and B). Using ∧ with ∀ or → with ∃ is the classic beginner error.</p>
-  <h4>Negating quantifiers</h4>
-  <p>Push a negation through a quantifier and it flips — the quantifier version of De Morgan:</p>
-  <div class="eq">¬∀x P(x) &nbsp;≡&nbsp; ∃x ¬P(x) &nbsp;&nbsp;·&nbsp;&nbsp; ¬∃x P(x) &nbsp;≡&nbsp; ∀x ¬P(x)</div>
-  <p>"Not everything is P" = "something is not P." "Nothing is P" = "everything is not P."</p>
-  <div class="note"><span class="l">Order matters</span><span class="sym">∀x ∃y Loves(x,y)</span> ("everyone loves someone") is very different from <span class="sym">∃y ∀x Loves(x,y)</span> ("someone is loved by everyone"). Swapping ∀ and ∃ changes the meaning.</div>`,
-  practice:[
-   {q:'"All dogs are mammals" is best written:',o:['∀x (Dog(x) → Mammal(x))','∀x (Dog(x) ∧ Mammal(x))','∃x (Dog(x) → Mammal(x))','∃x (Dog(x) ∧ Mammal(x))'],a:0,s:'Universal + conditional: for everything, if it is a dog then it is a mammal. Using ∧ would claim everything is a dog.'},
-   {q:'"Some students passed" is best written:',o:['∃x (Student(x) ∧ Passed(x))','∃x (Student(x) → Passed(x))','∀x (Student(x) ∧ Passed(x))','∀x (Student(x) → Passed(x))'],a:0,s:'Existential + conjunction: there is something that is both a student and passed. With → it would be trivially satisfied by any non-student.'},
-   {q:'<span class="sym">¬∀x P(x)</span> is equivalent to:',o:['∃x ¬P(x)','∀x ¬P(x)','¬∃x P(x)','∃x P(x)'],a:0,s:'Negated universal becomes existential of the negation: "not all are P" = "some is not P."'},
-   {q:'<span class="sym">∀x ∃y Loves(x,y)</span> says:',o:['Everyone loves someone (possibly different people)','Someone is loved by everyone','Everyone loves everyone','No one loves anyone'],a:0,s:'For each x there is some y they love — the y can vary with x. That differs from ∃y ∀x (one fixed beloved).'}
-  ]},
- {id:'fall',n:'Fallacies',sub:'reasoning that only looks valid',learn:`
-  <h2>Fallacies</h2>
-  <p>A <b>fallacy</b> is an argument that persuades without being valid. Two families: <b>formal</b> fallacies (a broken logical form) and <b>informal</b> fallacies (the form is irrelevant — the flaw is in content, relevance, or language).</p>
-  <h4>Formal fallacies</h4>
-  <ul>
-   <li><b>Affirming the consequent:</b> <span class="sym">P → Q</span>, <span class="sym">Q</span>, ∴ <span class="sym">P</span>. "If she studied she passed; she passed; so she studied." (She might have passed anyway.)</li>
-   <li><b>Denying the antecedent:</b> <span class="sym">P → Q</span>, <span class="sym">¬P</span>, ∴ <span class="sym">¬Q</span>. "If it rains the game is cancelled; it didn't rain; so it wasn't cancelled." (Could be cancelled for another reason.)</li>
-  </ul>
-  <h4>Informal fallacies</h4>
-  <ul>
-   <li><b>Ad hominem:</b> attacking the person instead of their argument.</li>
-   <li><b>Straw man:</b> refuting a distorted, weaker version of the opponent's claim.</li>
-   <li><b>False dilemma:</b> presenting two options as exhaustive when more exist.</li>
-   <li><b>Slippery slope:</b> claiming one step inevitably triggers an extreme chain, without support.</li>
-   <li><b>Circular reasoning (begging the question):</b> the conclusion is smuggled into the premises.</li>
-   <li><b>Appeal to authority:</b> "X said so" where X isn't a relevant expert (or experts disagree).</li>
-   <li><b>Hasty generalization:</b> a sweeping claim from too few cases.</li>
-   <li><b>Post hoc:</b> "after, therefore because of" — mistaking sequence for causation.</li>
-   <li><b>Equivocation:</b> a key word shifts meaning mid-argument.</li>
-  </ul>
-  <div class="note"><span class="l">The test</span>For any persuasive argument, ask the two logic questions: <b>Is the form valid?</b> (attacks formal fallacies) and <b>Are the premises relevant and true?</b> (attacks informal ones). Most bad arguments fail one of these — now you can name exactly which.</div>`,
-  practice:[
-   {q:'"If he\'s guilty he\'ll be nervous. He\'s nervous. So he\'s guilty." This is:',o:['Affirming the consequent','Modus ponens','Denying the antecedent','Valid'],a:0,s:'Form is P→Q, Q, ∴ P — affirming the consequent. Nervousness has many causes.'},
-   {q:'"You can\'t trust her argument about taxes — she\'s been divorced twice." This is:',o:['Ad hominem','Straw man','False dilemma','Equivocation'],a:0,s:'It attacks the person rather than engaging the argument — ad hominem.'},
-   {q:'"Either we ban cars entirely or the planet dies." This is:',o:['False dilemma','Slippery slope','Post hoc','Circular reasoning'],a:0,s:'It presents only two options when many intermediate policies exist — a false dilemma.'},
-   {q:'"The team lost right after I wore this shirt, so my shirt caused the loss." This is:',o:['Post hoc','Hasty generalization','Straw man','Appeal to authority'],a:0,s:'Post hoc ergo propter hoc: treating "after" as "because of." Sequence is not causation.'},
-   {q:'"We should allow free speech because people should be able to say what they want." This is:',o:['Circular reasoning','Ad hominem','False dilemma','Slippery slope'],a:0,s:'The premise just restates the conclusion — it begs the question rather than supporting it.'}
-  ]}
+ {ic:"Ⅰ",t:"Part I · Propositional logic",lessons:[
+   {id:"connect",n:"Statements & connectives",sub:"the atoms of reasoning: ¬ ∧ ∨ → ↔"},
+   {id:"ttables",n:"Truth tables",sub:"every case, laid out and computed",lab:"truthtable"},
+   {id:"taut",n:"Tautology, contradiction, contingency",sub:"true always, never, or sometimes"},
+   {id:"equiv",n:"Logical equivalence",sub:"De Morgan, contrapositive, and friends",lab:"equiv"},
+   {id:"valid",n:"Validity vs soundness",sub:"following correctly ≠ being true",lab:"validity"},
+ ]},
+ {ic:"Ⅱ",t:"Part II · Predicate logic",lessons:[
+   {id:"quant",n:"Predicates & quantifiers",sub:"looking inside the statement: ∀ ∃"},
+   {id:"negq",n:"Negating quantifiers",sub:"push a ¬ through and the quantifier flips"},
+   {id:"translate",n:"Translating English to logic",sub:"∀ pairs with →, ∃ pairs with ∧"},
+ ]},
+ {ic:"Ⅲ",t:"Part III · Arguments & fallacies",lessons:[
+   {id:"forms",n:"Valid argument forms",sub:"modus ponens, modus tollens, syllogism"},
+   {id:"fallacy",n:"Fallacies, formal & informal",sub:"the arguments that only look valid"},
+ ]},
+ {ic:"Ⅳ",t:"Part IV · Proof & its limits",lessons:[
+   {id:"direct",n:"Direct proof & contrapositive",sub:"assume the hypothesis; or flip it"},
+   {id:"contra",n:"Proof by contradiction",sub:"assume the opposite, break something"},
+   {id:"induct",n:"Mathematical induction",sub:"the base case and the falling dominoes",lab:"induction"},
+   {id:"limits",n:"Sets, functions & Gödel's limit",sub:"the objects of proof — and its ceiling",lab:"venn"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const C={};
+C.connect=`<p>Logic studies which conclusions <b>follow</b> from which assumptions — with the certainty of arithmetic. It begins with the atom of reasoning: the <b>statement</b> (or proposition), a sentence that is definitely true or definitely false, never both and never neither.</p>
+<p>"7 is prime" is a statement (true). "It is raining" is a statement (true or false depending on the sky). "Close the door" is <i>not</i> — a command has no truth value. Questions and opinions-of-taste don't qualify either.</p>
+<p>We build compound statements with five <b>connectives</b>. Each has a fixed meaning given entirely by how it combines truth values:</p>
+<div class="eq box">¬p &nbsp; <b>not</b> — flips the value<br>p ∧ q &nbsp; <b>and</b> — true only when <i>both</i> are true<br>p ∨ q &nbsp; <b>or</b> — <i>inclusive</i>: true when at least one is true<br>p → q &nbsp; <b>if…then</b> — false only when p is true and q is false<br>p ↔ q &nbsp; <b>if and only if</b> — true when the two sides <i>match</i></div>
+<p>The one that trips everyone is the conditional →. It is false in exactly one case: a true antecedent leading to a false consequent (you promised, then broke the promise). In every other case it counts as true — including when the antecedent is false, where it is <b>vacuously true</b>.</p>
+<div class="wk"><div class="wl">Worked example · symbolizing English</div>
+<div class="step">"If it rains and the game isn't cancelled, we'll get wet."</div>
+<div class="step">Let r = it rains, c = game cancelled, w = we get wet.</div>
+<div class="step">Symbolized: <b>(r ∧ ¬c) → w</b></div></div>
+<div class="callout"><span class="l">The vacuous truth</span>"If the moon is made of cheese, then 2 + 2 = 5" is a <b>true</b> conditional — because its antecedent is false, the promise is never tested, so nothing was broken. Strange at first; essential later.</div>`;
+
+C.ttables=`<p>A <b>truth table</b> lists every possible combination of truth values for the atomic statements and computes the value of the whole. With n atoms there are 2ⁿ rows: 2 for one atom, 4 for two, 8 for three. Nothing is left to intuition — you check <i>all</i> cases.</p>
+<p>Here are the five connectives, complete:</p>
+<div style="overflow-x:auto"><table class="tt"><thead><tr><th>p</th><th>q</th><th>¬p</th><th>p ∧ q</th><th>p ∨ q</th><th>p → q</th><th>p ↔ q</th></tr></thead><tbody>
+<tr><td>T</td><td>T</td><td class="fv">F</td><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td></tr>
+<tr><td>T</td><td>F</td><td class="fv">F</td><td class="fv">F</td><td class="tv">T</td><td class="fv">F</td><td class="fv">F</td></tr>
+<tr><td>F</td><td>T</td><td class="tv">T</td><td class="fv">F</td><td class="tv">T</td><td class="tv">T</td><td class="fv">F</td></tr>
+<tr><td>F</td><td>F</td><td class="tv">T</td><td class="fv">F</td><td class="fv">F</td><td class="tv">T</td><td class="tv">T</td></tr></tbody></table></div>
+<p>Read the → column carefully: only the second row (p true, q false) is false. To evaluate a bigger formula, work from the inside out, obeying precedence: <b>¬</b> binds tightest, then <b>∧</b>, then <b>∨</b>, then <b>→</b>, then <b>↔</b>; parentheses override everything.</p>
+<div class="wk"><div class="wl">Worked example · (p ∧ q) → p</div>
+<div class="step">p=T,q=T: (T∧T)=T, T→T = <b>T</b></div>
+<div class="step">p=T,q=F: (T∧F)=F, F→T = <b>T</b></div>
+<div class="step">p=F,q=T: (F∧T)=F, F→F = <b>T</b></div>
+<div class="step">p=F,q=F: (F∧F)=F, F→F = <b>T</b> &nbsp;<span class="r">true in every row — a tautology</span></div></div>
+<p>Build any formula's full table below — pick one and every row is computed and classified for you.</p>
+<div id="__sim"></div>`;
+
+C.taut=`<p>Sort formulas by the <i>shape</i> of their truth-table column and three kinds appear.</p>
+<p>A <b>tautology</b> is true in every row — true by its logical form alone, regardless of the facts. These are the laws of logic. The oldest is the law of excluded middle:</p>
+<div class="eq box">p ∨ ¬p &nbsp; — always true</div>
+<p>A <b>contradiction</b> is false in every row; it cannot possibly be true:</p>
+<div class="eq box">p ∧ ¬p &nbsp; — always false</div>
+<p>A <b>contingency</b> is true in some rows and false in others — its truth depends on the world. Almost every real statement ("it is raining", "p → q") is contingent.</p>
+<div class="wk"><div class="wl">Worked example · classify (p → q) ∨ (q → p)</div>
+<div class="step">p=T,q=T: (T→T)∨(T→T) = T∨T = <b>T</b></div>
+<div class="step">p=T,q=F: (T→F)∨(F→T) = F∨T = <b>T</b></div>
+<div class="step">p=F,q=T: (F→T)∨(T→F) = T∨F = <b>T</b></div>
+<div class="step">p=F,q=F: (F→F)∨(F→F) = T∨T = <b>T</b> &nbsp;<span class="r">every row true — a tautology (of any two statements, at least one implies the other)</span></div></div>
+<div class="callout"><span class="l">Why it matters</span>A tautology carries no information about the world — it's true whatever happens. That is exactly what makes it safe to use as a rule of inference: it can never lead you from truth into falsehood.</div>`;
+
+C.equiv=`<p>Two statements are <b>logically equivalent</b> (written ≡) when they have identical truth tables — the same value in every single row. Equivalent statements say the same thing in different words, and you may swap one for the other anywhere.</p>
+<p>The equivalences worth knowing cold:</p>
+<div class="eq box"><b>De Morgan:</b> ¬(p ∧ q) ≡ ¬p ∨ ¬q &nbsp;·&nbsp; ¬(p ∨ q) ≡ ¬p ∧ ¬q</div>
+<div class="eq box"><b>Contrapositive:</b> p → q ≡ ¬q → ¬p</div>
+<div class="eq"><b>Implication:</b> p → q ≡ ¬p ∨ q &nbsp;·&nbsp; <b>Double negation:</b> ¬¬p ≡ p</div>
+<p>De Morgan tells you how negation distributes over "and"/"or": to deny "both", say "not one or not the other." The <b>contrapositive</b> is the crucial one — a conditional and its contrapositive are always equivalent. Its two impostors are <i>not</i>: the <b>converse</b> q → p and the <b>inverse</b> ¬p → ¬q say something different.</p>
+<div class="wk"><div class="wl">Worked example · De Morgan by truth table</div>
+<div style="overflow-x:auto"><table class="tt"><thead><tr><th>p</th><th>q</th><th class="res">¬(p∧q)</th><th class="res">¬p∨¬q</th></tr></thead><tbody>
+<tr><td>T</td><td>T</td><td class="fv res">F</td><td class="fv res">F</td></tr>
+<tr><td>T</td><td>F</td><td class="tv res">T</td><td class="tv res">T</td></tr>
+<tr><td>F</td><td>T</td><td class="tv res">T</td><td class="tv res">T</td></tr>
+<tr><td>F</td><td>F</td><td class="tv res">T</td><td class="tv res">T</td></tr></tbody></table></div>
+<div class="step">The two columns match in every row, so ¬(p∧q) ≡ ¬p∨¬q. ∎</div></div>
+<p>Check any pair below in the Equivalence lab.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The classic error</span>"If it's a dog, it's a mammal" does <b>not</b> give you "if it's a mammal, it's a dog" (converse). It <i>does</i> give you "if it's not a mammal, it's not a dog" (contrapositive). Statement and contrapositive stand or fall together; statement and converse do not.</div>`;
+
+C.valid=`<p>An <b>argument</b> is a set of premises offered in support of a conclusion. The central question of logic: does the conclusion <i>follow</i>?</p>
+<p>An argument is <b>valid</b> when the conclusion must be true whenever all the premises are true — equivalently, there is <i>no</i> row of the truth table where every premise is true and the conclusion is false. Validity is about <b>structure</b>, not about whether the premises happen to be true.</p>
+<p>An argument is <b>sound</b> when it is valid <i>and</i> its premises are actually true. Only a sound argument guarantees a true conclusion in the real world.</p>
+<div class="eq box">valid &nbsp;=&nbsp; the form is truth-preserving<br>sound &nbsp;=&nbsp; valid &nbsp;+&nbsp; the premises are in fact true</div>
+<p>So an argument can be <b>valid but not sound</b>: "All fish can fly; Nemo is a fish; therefore Nemo can fly." The reasoning is flawless; the first premise is false, so the argument is unsound. And a bad argument can stumble onto a true conclusion by luck — which proves nothing.</p>
+<div class="wk"><div class="wl">Worked example · is modus ponens valid?</div>
+<div class="step">Premises: p → q and p. &nbsp; Conclusion: q.</div>
+<div style="overflow-x:auto"><table class="tt"><thead><tr><th>p</th><th>q</th><th>p→q</th><th>p</th><th class="res">q</th></tr></thead><tbody>
+<tr class="hi"><td>T</td><td>T</td><td class="tv">T</td><td class="tv">T</td><td class="tv res">T</td></tr>
+<tr><td>T</td><td>F</td><td class="fv">F</td><td class="tv">T</td><td class="fv res">F</td></tr>
+<tr><td>F</td><td>T</td><td class="tv">T</td><td class="fv">F</td><td class="tv res">T</td></tr>
+<tr><td>F</td><td>F</td><td class="tv">T</td><td class="fv">F</td><td class="fv res">F</td></tr></tbody></table></div>
+<div class="step">Only the top row has <i>both</i> premises true — and there the conclusion is true too. No counterexample exists, so the form is <b>valid</b>. ∎</div></div>
+<p>Test arguments yourself in the Validity lab below.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The dividing line</span>Logic certifies <b>validity</b>, not truth. It tells you the conclusion follows <i>if</i> the premises hold; whether they actually hold is a question about the world, answered by observation — not by logic.</div>`;
+
+C.quant=`<p>Propositional logic can't see inside a sentence. To it, "All men are mortal" is just one letter. To reason about "all" and "some" we need <b>predicate logic</b>.</p>
+<p>A <b>predicate</b> is a statement with a slot: P(x) = "x is prime". It isn't true or false until you fill the slot — P(7) is true, P(8) is false. <b>Quantifiers</b> then say <i>how many</i> fillings make it true, over some agreed <b>domain</b> of objects:</p>
+<div class="eq box">∀x P(x) &nbsp; "for all x, P(x)" &nbsp;— true iff P holds for <i>every</i> object<br>∃x P(x) &nbsp; "there exists an x such that P(x)" &nbsp;— true iff P holds for <i>at least one</i></div>
+<p>"All men are mortal" becomes ∀x (Man(x) → Mortal(x)). "Some number is even" becomes ∃x Even(x). The domain matters: ∀x (x² ≥ 0) is true over the real numbers.</p>
+<div class="wk"><div class="wl">Worked example · nested quantifiers</div>
+<div class="step">"Every integer has a successor."</div>
+<div class="step">∀x ∃y (y = x + 1) &nbsp;<span class="r">for each x there is some y one larger</span></div></div>
+<div class="callout"><span class="l">Order is not decoration</span>∀x ∃y Loves(x,y) — "everyone loves someone" (each person has some beloved, possibly different).<br>∃y ∀x Loves(x,y) — "someone is loved by everyone" (one single person, adored by all).<br>Same symbols, reversed order, completely different claims. Swapping ∀ and ∃ can change everything.</div>`;
+
+C.negq=`<p>Negation and quantifiers interact by one clean rule: <b>a ¬ pushed inside a quantifier flips it</b> and lands on the predicate.</p>
+<div class="eq box">¬∀x P(x) ≡ ∃x ¬P(x)<br>¬∃x P(x) ≡ ∀x ¬P(x)</div>
+<p>"Not everything is P" means "something is not P." "Nothing is P" means "everything is not P." These are just De Morgan's laws stretched over a whole domain: ∀ is a giant AND across all objects, ∃ is a giant OR, and ¬ distributes exactly as before.</p>
+<div class="wk"><div class="wl">Worked example · negating a universal</div>
+<div class="step">Claim: "Every student passed" &nbsp;→&nbsp; ∀x Pass(x)</div>
+<div class="step">Negation: ¬∀x Pass(x) ≡ <b>∃x ¬Pass(x)</b></div>
+<div class="step">In English: "<b>some</b> student did not pass" — <span class="r">NOT "no student passed"</span></div></div>
+<p>The commonest mistake in all of logic: thinking the opposite of "all are" is "none are." It isn't. The opposite of "all are" is "at least one isn't." To knock down a universal claim you need a <b>single counterexample</b>; to knock down an existential claim you must rule out <i>every</i> case.</p>
+<p>Nested statements negate layer by layer, flipping each quantifier: ¬∀x ∃y P(x,y) ≡ ∃x ∀y ¬P(x,y).</p>
+<div class="callout"><span class="l">Rule of thumb</span>Slide the ¬ rightward through the statement; every ∀ it crosses becomes ∃, every ∃ becomes ∀, and it finally negates the innermost predicate. Mechanical, and always correct.</div>`;
+
+C.translate=`<p>English hides its logic; symbols expose it. Four templates cover most everyday claims — and the choice of connective is everything.</p>
+<div class="eq box"><b>All A are B:</b> &nbsp; ∀x (A(x) → B(x))<br><b>Some A are B:</b> &nbsp; ∃x (A(x) ∧ B(x))<br><b>No A are B:</b> &nbsp; ∀x (A(x) → ¬B(x))<br><b>Only A are B:</b> &nbsp; ∀x (B(x) → A(x))</div>
+<p>Notice the pairing: <b>∀ goes with →</b>, and <b>∃ goes with ∧</b>. There's a reason. "All dogs are mammals" must not claim everything <i>is</i> a dog — the → lets non-dogs off the hook (vacuously true for them). "Some dog is brown" must actually produce a dog that is brown — the ∧ demands both at once.</p>
+<div class="wk"><div class="wl">Worked example · a layered sentence</div>
+<div class="step">"Every prime greater than 2 is odd."</div>
+<div class="step">∀x ( ( Prime(x) ∧ x &gt; 2 ) → Odd(x) )</div>
+<div class="step"><span class="r">the conditions gather on the left of the →; the claim sits on the right</span></div></div>
+<p>Two errors to never make: writing <b>∀x (A(x) ∧ B(x))</b> for "all A are B" (that says <i>everything</i> is both A and B), and writing <b>∃x (A(x) → B(x))</b> for "some A are B" (that's satisfied by any object that simply isn't an A, so it claims almost nothing).</p>
+<div class="callout"><span class="l">Memorize the two pairs</span>∀ … → &nbsp; and &nbsp; ∃ … ∧. Cross the pairing and you assert something you never meant. This single habit prevents most translation mistakes.</div>`;
+
+C.forms=`<p>Some argument shapes are valid no matter what statements you feed them — certified once by a truth table, trusted forever. These are the workhorses of every proof.</p>
+<div class="eq box"><b>Modus ponens:</b> &nbsp; p → q, &nbsp; p &nbsp;⊢&nbsp; q<br><b>Modus tollens:</b> &nbsp; p → q, &nbsp; ¬q &nbsp;⊢&nbsp; ¬p<br><b>Hypothetical syllogism:</b> &nbsp; p → q, &nbsp; q → r &nbsp;⊢&nbsp; p → r<br><b>Disjunctive syllogism:</b> &nbsp; p ∨ q, &nbsp; ¬p &nbsp;⊢&nbsp; q</div>
+<p>Read them in words. <b>Modus ponens</b>: affirm the antecedent, conclude the consequent — the most direct step in reasoning. <b>Modus tollens</b>: deny the consequent, conclude the denial of the antecedent. <b>Hypothetical syllogism</b>: chain two conditionals into one. <b>Disjunctive syllogism</b>: eliminate one option, keep the other.</p>
+<div class="wk"><div class="wl">Worked example · modus tollens as science</div>
+<div class="step">If the theory is right, the experiment shows q. &nbsp; (p → q)</div>
+<div class="step">The experiment does not show q. &nbsp; (¬q)</div>
+<div class="step">Therefore the theory is wrong. &nbsp; (∴ ¬p)</div>
+<div class="step"><span class="r">this is the exact logic of falsification — one failed prediction refutes the theory</span></div></div>
+<div class="callout"><span class="l">Try it</span>Every form here is a tautology of the shape (premises) → conclusion. Load them into the Validity lab and watch: there is no row where the premises are all true and the conclusion is false.</div>`;
+
+C.fallacy=`<p>A <b>fallacy</b> is an argument that persuades without being valid. They split into two families.</p>
+<p><b>Formal fallacies</b> are broken in <i>form</i> — a truth table exposes them. The two most dangerous are twins of the valid forms:</p>
+<div class="eq box"><b>Affirming the consequent:</b> &nbsp; p → q, &nbsp; q &nbsp;⊢&nbsp; p &nbsp; <span style="color:var(--red)">INVALID</span><br><b>Denying the antecedent:</b> &nbsp; p → q, &nbsp; ¬p &nbsp;⊢&nbsp; ¬q &nbsp; <span style="color:var(--red)">INVALID</span></div>
+<p>They look like modus ponens and modus tollens but move in the wrong direction. Both fail on the row p = F, q = T.</p>
+<div class="wk"><div class="wl">Worked example · affirming the consequent</div>
+<div class="step">"If he studied, he passed. He passed. So he studied."</div>
+<div class="step">Counterexample — the row that breaks it: he did <b>not</b> study (p=F) yet <b>passed</b> (q=T), perhaps the test was easy.</div>
+<div class="step">Premises p→q and q are both true there, but the conclusion p is <b>false</b>. Invalid. ∎</div></div>
+<p><b>Informal fallacies</b> may have fine form but cheat on content:</p>
+<ul>
+<li><b>Ad hominem</b> — attack the person instead of the argument ("she's a criminal, so ignore her point").</li>
+<li><b>Straw man</b> — refute a distorted, weaker version of the claim.</li>
+<li><b>Circular reasoning</b> (begging the question) — assume the very thing you're proving.</li>
+<li><b>False dilemma</b> — offer two options when more exist.</li>
+<li><b>Appeal to popularity / authority</b> — "everyone believes it" or "an expert said so" in place of evidence.</li>
+</ul>
+<div class="callout"><span class="l">Watch the twins</span>The formal fallacies are the treacherous ones because they mimic valid forms. Always learn modus ponens beside affirming-the-consequent, and modus tollens beside denying-the-antecedent — the difference is the whole game.</div>`;
+
+C.direct=`<p>A <b>proof</b> is a finite chain of statements, each one following by an accepted rule from axioms, definitions, or earlier lines, ending at the claim — with no gaps. It converts "seems true" into "is true, necessarily."</p>
+<p>The <b>direct proof</b> of a conditional p → q: <i>assume</i> p, then reason forward by valid steps until you reach q.</p>
+<div class="wk"><div class="wl">Worked example · direct proof</div>
+<div class="step">Claim: if n is even, then n² is even.</div>
+<div class="step">Assume n is even, so n = 2k for some integer k. &nbsp;<span class="r">(definition)</span></div>
+<div class="step">Then n² = (2k)² = 4k² = 2(2k²).</div>
+<div class="step">2k² is an integer, so n² is 2 × (integer) — even. ∎</div></div>
+<p>Sometimes the direct route is awkward. <b>Proof by contrapositive</b> uses the equivalence p → q ≡ ¬q → ¬p from Part I: instead of proving the claim, prove its contrapositive, which is logically the same statement but often easier to attack.</p>
+<div class="wk"><div class="wl">Worked example · proof by contrapositive</div>
+<div class="step">Claim: if n² is even, then n is even. &nbsp;<span class="r">("n² is even" is hard to use directly)</span></div>
+<div class="step">Contrapositive: if n is <b>odd</b>, then n² is <b>odd</b>.</div>
+<div class="step">Assume n odd, n = 2k+1. Then n² = 4k² + 4k + 1 = 2(2k² + 2k) + 1 — odd.</div>
+<div class="step">The contrapositive holds, so the original does too. ∎</div></div>
+<div class="callout"><span class="l">Which to reach for</span>Use the contrapositive when the negated conclusion ("n is odd") is a friendlier starting point than the given hypothesis ("n² is even"). Same truth, easier path.</div>`;
+
+C.contra=`<p><b>Proof by contradiction</b> (reductio ad absurdum) is the boldest tool: to prove a statement S, <i>assume its negation</i> ¬S and derive an outright contradiction — some claim that is both true and false, or a known impossibility. Since ¬S forces the absurd, ¬S must be false, so S is true. It rests on one bedrock principle: no statement is both true and false.</p>
+<div class="wk"><div class="wl">Worked example · √2 is irrational</div>
+<div class="step">Suppose, for contradiction, that √2 = a/b in <b>lowest terms</b> (a, b share no common factor).</div>
+<div class="step">Then 2 = a²/b², so a² = 2b². Hence a² is even, so a is even: a = 2c.</div>
+<div class="step">Substitute: (2c)² = 2b² → 4c² = 2b² → b² = 2c². So b² is even, hence b is even.</div>
+<div class="step">But now a and b are <b>both even</b> — a common factor of 2 — contradicting "lowest terms."</div>
+<div class="step">The assumption is impossible, so √2 cannot be written as a fraction: it is irrational. ∎</div></div>
+<p>To prove a conditional p → q by contradiction, you assume <b>p ∧ ¬q</b> (the one way it could fail) and derive an absurdity.</p>
+<div class="callout"><span class="l">Power and peril</span>The method is strong because ¬S hands you a free extra premise to work with. The catch: a long argument that reaches a contradiction only proves <i>something</i> is wrong — make sure it's the assumption, not a slip in your algebra.</div>`;
+
+C.induct=`<p>To prove a statement P(n) for <b>all</b> natural numbers at once, <b>mathematical induction</b> checks just two things:</p>
+<div class="eq box"><b>Base case:</b> prove P(1). &nbsp; <span style="color:var(--mut)">(the start)</span><br><b>Inductive step:</b> prove P(k) → P(k+1) for arbitrary k. &nbsp; <span style="color:var(--mut)">(each rung reaches the next)</span></div>
+<p>From those two, P(n) follows for every n ≥ 1. The picture: an infinite line of dominoes. Knocking the first one is the base case; guaranteeing that each falling domino topples the next is the inductive step. Together they bring down the whole line — without your touching all infinitely many.</p>
+<p>In the step you get to <i>assume</i> P(k) (the <b>induction hypothesis</b>) and must produce P(k+1).</p>
+<div class="wk"><div class="wl">Worked example · 1 + 2 + ⋯ + n = ${frac("n(n+1)","2")}</div>
+<div class="step"><b>Base:</b> n = 1. Left side = 1. Right side = 1·2/2 = 1. ✓</div>
+<div class="step"><b>Hypothesis:</b> assume 1 + 2 + ⋯ + k = ${frac("k(k+1)","2")}.</div>
+<div class="step"><b>Step:</b> add the next term (k+1) to both sides:</div>
+<div class="step">1 + ⋯ + k + (k+1) = ${frac("k(k+1)","2")} + (k+1) = (k+1)·(${frac("k","2")} + 1) = ${frac("(k+1)(k+2)","2")}</div>
+<div class="step">That is exactly the formula with n = k+1. The step holds, so the formula is true for all n. ∎</div></div>
+<p>Watch the machinery below: set n, verify the base case, and topple the chain to see P(k) → P(k+1) propagate.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The leverage</span>Induction never inspects infinitely many cases. It proves a <b>start</b> and a <b>step</b>, then lets logic carry the result across the entire infinite list. Two proofs standing in for infinitely many — that economy is the whole idea.</div>`;
+
+C.limits=`<p>A last look — at what proofs are <i>about</i>, and at where proof itself runs out.</p>
+<p><b>The objects.</b> Much of mathematics is built from <b>sets</b> — collections of distinct objects. Write x ∈ A for "x is a member of A." The operations mirror the connectives you already know:</p>
+<div class="eq box">A ∪ B &nbsp; union (in either) &nbsp;·&nbsp; A ∩ B &nbsp; intersection (in both)<br>A′ &nbsp; complement (not in A) &nbsp;·&nbsp; A ∖ B &nbsp; difference &nbsp;·&nbsp; A ⊆ B &nbsp; subset</div>
+<p>De Morgan returns for sets: (A ∪ B)′ = A′ ∩ B′. A <b>function</b> f: A → B assigns each input exactly one output. It is <b>injective</b> (one-to-one) if no two inputs share an output, <b>surjective</b> (onto) if every output is hit, and <b>bijective</b> if both — a perfect pairing. Bijections let us <i>compare infinities</i>: two sets have the same size when a bijection exists. Cantor proved no bijection pairs the reals with the naturals — some infinities are strictly larger than others. Explore the set operations in the Venn lab below.</p>
+<div id="__sim"></div>
+<p><b>The ceiling.</b> Could one formal system, given enough axioms, prove <i>every</i> true statement of arithmetic? In 1931 <b>Kurt Gödel</b> proved the answer is no.</p>
+<div class="eq box"><b>First incompleteness theorem:</b> any consistent formal system rich enough to express arithmetic contains true statements it cannot prove.</div>
+<p>Gödel's trick was to build, inside the system, a sentence G that decodes to "G is not provable here." If the system could prove G, it would prove a falsehood (making it inconsistent). So — assuming it is consistent — G is unprovable, and therefore <i>true</i>. A true statement the system can never reach. His <b>second theorem</b> adds: such a system cannot even prove its own consistency.</p>
+<p>Read it plainly, without mysticism. This is a precise limit on <i>formal proof</i>, not a collapse of reason. The unprovable sentences are specific and engineered; everyday mathematics runs untroubled. You can always <i>add</i> the missing truth as a new axiom — but the stronger system then has its own blind spot. There is no final system that proves everything.</p>
+<div class="callout"><span class="l">Where a course on certainty ends</span>Gödel doesn't say nothing can be known or that logic is broken. He says no single fixed mechanical system captures all mathematical truth at once — <b>truth outruns provability</b>. Certainty is real, hard-won, and genuine. It is also, provably, never total. A fitting last word for how we know for certain.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+
+/* --- render a full truth table for a formula string --- */
+function renderTT(formula){
+  const {vl,rows}=truthTable(formula);
+  const allT=rows.every(r=>r.val),allF=rows.every(r=>!r.val);
+  const cls=allT?"tautology":allF?"contradiction":"contingency";
+  let h='<div style="overflow-x:auto"><table class="tt"><thead><tr>';
+  vl.forEach(v=>h+=`<th>${v}</th>`);
+  h+=`<th class="res">${formula}</th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+="<tr>";vl.forEach(v=>h+=`<td>${r.e[v]?"T":"F"}</td>`);
+    h+=`<td class="res ${r.val?"tv":"fv"}">${r.val?"T":"F"}</td></tr>`;});
+  h+="</tbody></table></div>";
+  return {html:h,cls};
+}
+
+/* --- LAB: truth-table builder --- */
+function simTruthtable(el){
+  const forms=["p ∧ q","p ∨ q","p → q","p ↔ q","¬(p ∧ q)","¬p ∨ ¬q","p ∨ ¬p","p ∧ ¬p",
+    "(p → q) ↔ (¬q → ¬p)","(p ∧ q) → r","(p → q) ∧ (q → r)"];
+  el.innerHTML=`<div class="simwrap"><label style="font-size:12px;color:var(--mut)">pick a formula
+    <select id="f">${forms.map(f=>`<option>${f}</option>`).join("")}</select></label>
+    <div id="out" style="margin-top:12px"></div></div>`;
+  const upd=()=>{const f=$("#f",el).value;let t;try{t=renderTT(f);}catch(e){$("#out",el).innerHTML="parse error";return;}
+    const note=t.cls==="tautology"?"true in every row.":t.cls==="contradiction"?"false in every row.":"true in some rows, false in others.";
+    $("#out",el).innerHTML=t.html+`<div class="readout" style="text-align:center">This formula is a <b>${t.cls}</b> — ${note}</div>`;};
+  $("#f",el).onchange=upd;upd();
+}
+
+/* --- LAB: equivalence checker --- */
+function simEquiv(el){
+  const forms=["¬(p ∧ q)","¬p ∨ ¬q","¬(p ∨ q)","¬p ∧ ¬q","p → q","¬p ∨ q","¬q → ¬p","q → p","p ↔ q","(p → q) ∧ (q → p)"];
+  el.innerHTML=`<div class="simwrap">
+    <div class="row"><label style="font-size:12px;color:var(--mut);flex:1">formula A<select id="a">${forms.map((f,i)=>`<option${i===0?" selected":""}>${f}</option>`).join("")}</select></label>
+    <label style="font-size:12px;color:var(--mut);flex:1">formula B<select id="b">${forms.map((f,i)=>`<option${i===1?" selected":""}>${f}</option>`).join("")}</select></label></div>
+    <div id="out" style="margin-top:12px"></div></div>`;
+  const upd=()=>{const fa=$("#a",el).value,fb=$("#b",el).value;
+    let A,B;try{A=parse(fa);B=parse(fb);}catch(e){$("#out",el).innerHTML="parse error";return;}
+    const vl=[...new Set([...vars(A),...vars(B)])].sort();const rows=rowsFor(vl);
+    let eq=true;let h='<div style="overflow-x:auto"><table class="tt"><thead><tr>';
+    vl.forEach(v=>h+=`<th>${v}</th>`);h+=`<th class="res">${fa}</th><th>${fb}</th><th>=</th></tr></thead><tbody>`;
+    rows.forEach(e=>{const va=ev(A,e),vb=ev(B,e),same=va===vb;if(!same)eq=false;
+      h+=`<tr class="${same?"":"bad"}">`;vl.forEach(v=>h+=`<td>${e[v]?"T":"F"}</td>`);
+      h+=`<td class="res ${va?"tv":"fv"}">${va?"T":"F"}</td><td class="${vb?"tv":"fv"}">${vb?"T":"F"}</td><td>${same?"✓":"✗"}</td></tr>`;});
+    h+="</tbody></table></div>";
+    h+=`<div class="readout" style="text-align:center">${eq?"<b style=\"color:var(--green)\">Equivalent</b> — identical in every row (A ≡ B).":"<b style=\"color:var(--red)\">Not equivalent</b> — the red rows disagree."}</div>`;
+    $("#out",el).innerHTML=h;};
+  $("#a",el).onchange=upd;$("#b",el).onchange=upd;upd();
+}
+
+/* --- LAB: validity checker --- */
+const ARGS=[
+ {name:"Modus ponens",prem:["p → q","p"],con:"q"},
+ {name:"Modus tollens",prem:["p → q","¬q"],con:"¬p"},
+ {name:"Hypothetical syllogism",prem:["p → q","q → r"],con:"p → r"},
+ {name:"Disjunctive syllogism",prem:["p ∨ q","¬p"],con:"q"},
+ {name:"Affirming the consequent",prem:["p → q","q"],con:"p"},
+ {name:"Denying the antecedent",prem:["p → q","¬p"],con:"¬q"},
+];
+function simValidity(el){
+  el.innerHTML=`<div class="simwrap"><label style="font-size:12px;color:var(--mut)">argument form
+    <select id="a">${ARGS.map((a,i)=>`<option value="${i}">${a.name}</option>`).join("")}</select></label>
+    <div id="out" style="margin-top:12px"></div></div>`;
+  const upd=()=>{const arg=ARGS[+$("#a",el).value];
+    const pA=arg.prem.map(parse),cA=parse(arg.con);
+    const vs=new Set();pA.forEach(a=>vars(a,vs));vars(cA,vs);const vl=[...vs].sort();
+    const rows=rowsFor(vl);let valid=true;
+    let h='<div style="overflow-x:auto"><table class="tt"><thead><tr>';
+    vl.forEach(v=>h+=`<th>${v}</th>`);
+    arg.prem.forEach(p=>h+=`<th>${p}</th>`);h+=`<th class="res">∴ ${arg.con}</th></tr></thead><tbody>`;
+    rows.forEach(e=>{const pv=pA.map(a=>ev(a,e));const cv2=ev(cA,e);const allP=pv.every(x=>x);
+      const bad=allP&&!cv2;if(bad)valid=false;
+      h+=`<tr class="${bad?"bad":allP?"hi":""}">`;vl.forEach(v=>h+=`<td>${e[v]?"T":"F"}</td>`);
+      pv.forEach(x=>h+=`<td class="${x?"tv":"fv"}">${x?"T":"F"}</td>`);
+      h+=`<td class="res ${cv2?"tv":"fv"}">${cv2?"T":"F"}</td></tr>`;});
+    h+="</tbody></table></div>";
+    h+=`<div class="readout" style="text-align:center">${valid?"<b style=\"color:var(--green)\">Valid</b> — in every highlighted row (all premises true) the conclusion is true too. No counterexample exists.":"<b style=\"color:var(--red)\">Invalid</b> — the red row is a counterexample: all premises true, conclusion false."}</div>`;
+    $("#out",el).innerHTML=h;};
+  $("#a",el).onchange=upd;upd();
+}
+
+/* --- LAB: Venn diagram sets (per-pixel membership) --- */
+function simVenn(el){
+  const ops=[
+   ["A",(a,b,c)=>a,"{ x : x ∈ A }"],
+   ["B",(a,b,c)=>b,"{ x : x ∈ B }"],
+   ["C",(a,b,c)=>c,"{ x : x ∈ C }"],
+   ["A ∪ B",(a,b,c)=>a||b,"in A or in B (or both)"],
+   ["A ∩ B",(a,b,c)=>a&&b,"in A and in B"],
+   ["A′",(a,b,c)=>!a,"everything not in A"],
+   ["A ∖ B",(a,b,c)=>a&&!b,"in A but not in B"],
+   ["A △ B",(a,b,c)=>a!==b,"in exactly one of A, B (symmetric difference)"],
+   ["A ∩ B ∩ C",(a,b,c)=>a&&b&&c,"in all three"],
+   ["(A∪B) ∩ C",(a,b,c)=>(a||b)&&c,"in C, and in A or B"],
+   ["(A∪B)′",(a,b,c)=>!(a||b),"outside both A and B"],
+   ["A′ ∩ B′",(a,b,c)=>!a&&!b,"De Morgan partner of (A∪B)′ — identical shading"],
+  ];
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+    <div class="row" id="ops" style="margin-top:10px"></div>
+    <div class="readout" id="ro"></div></div>`;
+  const cv=$("canvas",el);let cur=4;
+  const obar=$("#ops",el);
+  obar.innerHTML=ops.map((o,i)=>`<button class="opbtn ${i===cur?"on":""}" data-i="${i}">${o[0]}</button>`).join("");
+  function render(){
+    const w=cv.clientWidth||cv.parentElement.clientWidth-24,h=250;
+    const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";
+    const x=cv.getContext("2d");const W=cv.width,H=cv.height;
+    const cx=W/2,cy=H/2,R=Math.min(W,H)*0.27,d=R*0.62;
+    const A={x:cx,y:cy-d},B={x:cx-d*0.87,y:cy+d*0.5},C={x:cx+d*0.87,y:cy+d*0.5};
+    const fn=ops[cur][1];const img=x.createImageData(W,H);const D=img.data;const R2=R*R;
+    for(let py=0;py<H;py++)for(let px=0;px<W;px++){
+      const inA=(px-A.x)*(px-A.x)+(py-A.y)*(py-A.y)<=R2;
+      const inB=(px-B.x)*(px-B.x)+(py-B.y)*(py-B.y)<=R2;
+      const inC=(px-C.x)*(px-C.x)+(py-C.y)*(py-C.y)<=R2;
+      const i=(py*W+px)*4;let r=13,g=19,b=31;
+      if(fn(inA,inB,inC)){r=70;g=112;b=170;}
+      D[i]=r;D[i+1]=g;D[i+2]=b;D[i+3]=255;}
+    x.putImageData(img,0,0);
+    x.strokeStyle="#93a2bd";x.lineWidth=1.5*dpr;
+    [A,B,C].forEach(p=>{x.beginPath();x.arc(p.x,p.y,R,0,7);x.stroke();});
+    x.fillStyle="#e6ecf5";x.font=`bold ${15*dpr}px sans-serif`;x.textAlign="center";x.textBaseline="middle";
+    x.fillText("A",A.x,A.y-R*0.62);x.fillText("B",B.x-R*0.6,B.y+R*0.5);x.fillText("C",C.x+R*0.6,C.y+R*0.5);
+    $("#ro",el).innerHTML=`shading <b>${ops[cur][0]}</b> &nbsp;·&nbsp; <span style="color:var(--faint)">${ops[cur][2]}</span>`;
+  }
+  $$("[data-i]",obar).forEach(bn=>bn.onclick=()=>{cur=+bn.dataset.i;$$("[data-i]",obar).forEach(o=>o.classList.toggle("on",o===bn));render();});
+  render();cleanups.push(()=>{});
+}
+
+/* --- LAB: induction & dominoes --- */
+function simInduction(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas>
+   <div class="simctl"><label>dominoes n = <b id="nn">6</b> <input type="range" id="n" min="1" max="12" step="1" value="6"></label>
+   <button class="btn sm" id="go">▶ Topple the chain</button></div>
+   <div class="readout" id="ro"></div></div>`;
+  const cv=$("canvas",el);let n=6,t0=null,falling=false;
+  $("#n",el).oninput=e=>{n=+e.target.value;$("#nn",el).textContent=n;falling=false;t0=null;};
+  $("#go",el).onclick=()=>{falling=true;t0=performance.now();};
+  function draw(){const {x,w,h}=fit(cv,200);x.clearRect(0,0,w,h);
+    const gy=h-28;x.strokeStyle="#28344a";x.lineWidth=1;x.beginPath();x.moveTo(0,gy);x.lineTo(w,gy);x.stroke();
+    const gap=w/(n+1),dw=Math.min(13,gap*0.42),dh=48,now=performance.now();
+    for(let i=0;i<n;i++){const bx=gap*(i+1);let ang=0;
+      if(falling){const start=t0+i*150;ang=Math.min(1,Math.max(0,(now-start)/230))*Math.PI/2*0.95;}
+      x.save();x.translate(bx,gy);x.rotate(-ang);
+      x.fillStyle=i===0?"#7fa8d9":"#5b86c4";x.fillRect(-dw/2,-dh,dw,dh);
+      x.strokeStyle="#0a0e14";x.lineWidth=1;x.strokeRect(-dw/2,-dh,dw,dh);
+      x.restore();
+      x.fillStyle="#5a6b88";x.font="10px ui-monospace";x.textAlign="center";x.fillText(i+1,bx,gy+16);}
+    const sum=n*(n+1)/2;
+    $("#ro",el).innerHTML=`base case P(1): 1 = 1·2/2 = 1 ✓ &nbsp;·&nbsp; sum 1+2+…+${n} = <b>${sum}</b>, &nbsp; n(n+1)/2 = <b>${sum}</b> ✓<br><span style="color:var(--faint)">domino 1 (lighter) is the base case; each one knocking the next is the step P(k) → P(k+1)</span>`;
+  }
+  raf(draw);
+}
+
+const SIMS={truthtable:simTruthtable,equiv:simEquiv,validity:simValidity,venn:simVenn,induction:simInduction};
+const LABS=[
+ ["truthtable","▦","Truth-Table Builder","Pick a formula; every row is computed and the whole thing classified.","var(--acc)"],
+ ["validity","⊨","Validity Checker","Test an argument across all rows — valid, or here is the counterexample.","var(--teal)"],
+ ["venn","◍","Venn Sets","Two or three circles; shade unions, intersections, complements, differences.","var(--violet)"],
+ ["equiv","≡","Equivalence Checker","Are two formulas the same? Compare their truth tables row by row.","var(--green)"],
+ ["induction","⇊","Induction & Dominoes","Base case, then the chain — watch P(k) → P(k+1) topple.","var(--acc2)"],
 ];
 
-/* guided proof for the proof module practice-extra (shown in Learn) */
-
-/* ============================ state ============================ */
-const KEY='sh_logic';
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
-function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
-let P=load(); P.done=P.done||{}; P.xp=P.xp||0; P.pass=P.pass||{};
-function persist(){save(P)}
-
-const app=document.getElementById('app');
-let view='home', curMod=null, curTab='learn';
-
-/* ============================ views ============================ */
-function render(){
-  if(view==='home') return renderHome();
-  if(view==='lab') return renderLab();
-  if(view==='prog') return renderProg();
-  if(view==='mod') return renderMod();
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
 }
-function renderHome(){
-  const done=Object.keys(P.done).length;
-  app.innerHTML=`
-    <div class="eyebrow">Reasoning · propositional → predicate</div>
-    <h1>Logic, <em>from the ground up</em></h1>
-    <p class="lede">Eight modules from "what makes an argument valid" to quantifiers and fallacies — each with a lesson and graded practice. Plus a live <b>Truth-Table Lab</b> that evaluates any formula you type.</p>
-    <button class="card labcard" style="width:100%;text-align:left;cursor:pointer" onclick="go('lab')">
-      <h3>🔬 Truth-Table Lab</h3>
-      <p style="color:var(--dim);margin:5px 0 0;font-size:.92em">Type a formula — get its full truth table, classification, and check argument validity. Open anytime.</p>
-    </button>
-    <div class="sec">The course · ${done}/${MODULES.length} complete</div>
-    ${MODULES.map((m,i)=>`
-      <button class="mod ${P.done[m.id]?'done':''}" onclick="openMod('${m.id}')">
-        <span class="num">${P.done[m.id]?'✓':i+1}</span>
-        <span class="mt"><b>${m.n}</b><small>${m.sub}</small></span>
-        <span class="go">›</span>
-      </button>`).join('')}
-    <p style="color:var(--faint);font-size:.82em;text-align:center;margin-top:18px">Progress is saved on this device.</p>`;
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#16223a,#131a28);border-color:#2f4260">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL COURSE IN LOGIC & PROOF</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Connectives → truth tables → equivalence → quantifiers → valid arguments → proof, and the provable limits of proof itself. Worked examples, interactive labs (🔧), and practice. Take it in order — every part builds on the last.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
 }
-function openMod(id){curMod=MODULES.find(m=>m.id===id);curTab='learn';view='mod';setNav('home');render();window.scrollTo(0,0);}
-function renderMod(){
-  const m=curMod;
-  app.innerHTML=`
-    <div class="backbar"><button class="b" onclick="go('home')">‹ All modules</button></div>
-    <div class="tabs2">
-      <button class="${curTab==='learn'?'on':''}" onclick="setTab('learn')">Learn</button>
-      <button class="${curTab==='practice'?'on':''}" onclick="setTab('practice')">Practice</button>
-    </div>
-    <div id="modbody"></div>`;
-  if(curTab==='learn'){
-    document.getElementById('modbody').innerHTML=`<div class="reader">${m.learn}</div>
-      <button class="btn" style="margin-top:8px" onclick="setTab('practice')">Practice this module ›</button>`;
-  } else {
-    renderPractice(m);
-  }
-}
-function setTab(t){curTab=t;render();window.scrollTo(0,0);}
-
-let answered={};
-function renderPractice(m){
-  answered={};
-  const body=document.getElementById('modbody');
-  body.innerHTML=`<div id="qs"></div>
-    <div id="pfoot"></div>`;
-  drawQs(m);
-}
-function drawQs(m){
-  const qs=document.getElementById('qs');
-  qs.innerHTML=m.practice.map((p,qi)=>`
-    <div class="q" id="q${qi}">
-      <div class="qn">QUESTION ${qi+1} / ${m.practice.length}</div>
-      <div class="qt">${p.q}</div>
-      <div id="opts${qi}">${p.o.map((o,oi)=>`<button class="opt" onclick="pick(${qi},${oi})">${o}</button>`).join('')}</div>
-      <div class="sol" id="sol${qi}"><span class="l">Why</span>${p.s}</div>
-    </div>`).join('');
-  updateFoot(m);
-}
-function pick(qi,oi){
-  const m=curMod, p=m.practice[qi];
-  if(answered[qi]!==undefined) return;
-  answered[qi]=oi;
-  const opts=document.querySelectorAll(`#opts${qi} .opt`);
-  opts.forEach((b,bi)=>{
-    b.style.pointerEvents='none';
-    if(bi===p.a){b.classList.add('correct');b.innerHTML+='<span class="mk">✓</span>';}
-    else if(bi===oi){b.classList.add('wrong');b.innerHTML+='<span class="mk">✗</span>';}
-  });
-  document.getElementById('sol'+qi).classList.add('show');
-  updateFoot(m);
-}
-function updateFoot(m){
-  const total=m.practice.length;
-  const ans=Object.keys(answered).length;
-  const correct=Object.entries(answered).filter(([qi,oi])=>m.practice[qi].a===+oi).length;
-  const foot=document.getElementById('pfoot');
-  if(ans<total){
-    foot.innerHTML=`<p style="text-align:center;color:var(--faint);font-size:.85em;margin:6px 0 16px">${ans}/${total} answered · ${correct} correct</p>`;
-    return;
-  }
-  const passed=correct>=Math.ceil(total*0.75);
-  if(passed && !P.done[m.id]){ P.done[m.id]=1; P.xp+=25; persist(); toast('Module complete · +25 XP'); }
-  P.pass[m.id]=correct+'/'+total; persist();
-  foot.innerHTML=`<div class="card" style="text-align:center">
-    <div style="font-size:1.6em;font-weight:800;color:${passed?'var(--teal)':'var(--gold)'}">${correct}/${total}</div>
-    <p style="color:var(--dim);margin:4px 0 12px">${passed?'Module complete — nicely reasoned. ✓':'Review the explanations and try again to pass (75%+).'}</p>
-    <div style="display:flex;gap:9px">
-      <button class="ghost" style="flex:1" onclick="setTab('learn')">Reread</button>
-      ${passed?`<button class="btn" style="flex:1" onclick="nextMod()">Next module ›</button>`:`<button class="btn" style="flex:1" onclick="setTab('practice')">Retry</button>`}
-    </div></div>`;
-}
-function nextMod(){
-  const i=MODULES.findIndex(m=>m.id===curMod.id);
-  if(i<MODULES.length-1){ openMod(MODULES[i+1].id); }
-  else { go('home'); toast('You finished the course! 🎓'); }
-}
-
-/* ============================ TRUTH-TABLE LAB ============================ */
-/* tokenizer → recursive-descent parser → evaluator over all assignments */
-function tokenize(src){
-  // map every operator to a non-letter sentinel so variable letters never collide
-  const s=src.replace(/<->|↔|≡/g,'=').replace(/->|→|⊃/g,'>')
-    .replace(/\band\b/gi,'&').replace(/\bor\b/gi,'|')
-    .replace(/[~!¬]/g,'!').replace(/[∧·]/g,'&').replace(/[∨]/g,'|');
-  const t=[];
-  for(const ch of s){
-    if(/[A-Za-z]/.test(ch)) t.push({v:ch.toUpperCase()});
-    else if(ch==='!') t.push({op:'N'});
-    else if(ch==='&') t.push({op:'A'});
-    else if(ch==='|') t.push({op:'O'});
-    else if(ch==='>') t.push({op:'I'});
-    else if(ch==='=') t.push({op:'B'});
-    else if(ch==='('||ch===')') t.push({p:ch});
-    else if(/\s/.test(ch)) continue;
-    else throw new Error('Unexpected "'+ch+'"');
-  }
-  return t;
-}
-function parse(tokens){
-  let i=0;
-  const peek=()=>tokens[i], next=()=>tokens[i++];
-  function prim(){
-    const t=next();
-    if(!t) throw new Error('Unexpected end of formula');
-    if(t.p==='('){ const e=iff(); const c=next(); if(!c||c.p!==')') throw new Error('Missing ")"'); return e; }
-    if(t.v) return {v:t.v};
-    if(t.op==='N') return {op:'N',a:prim()};
-    throw new Error('Expected a variable or "("');
-  }
-  function unary(){ if(peek()&&peek().op==='N'){ next(); return {op:'N',a:unary()}; } return prim(); }
-  function bin(sub,ops){ let l=sub(); while(peek()&&ops.includes(peek().op)){ const o=next().op; const r=sub(); l={op:o,a:l,b:r}; } return l; }
-  const and=()=>bin(unary,['A']);
-  const or =()=>bin(and,['O']);
-  function imp(){ const l=or(); if(peek()&&peek().op==='I'){ next(); return {op:'I',a:l,b:imp()}; } return l; } // right-assoc
-  function iff(){ return bin(imp,['B']); }
-  const tree=iff();
-  if(i<tokens.length) throw new Error('Unexpected extra input');
-  return tree;
-}
-function vars(node,set){ if(node.v) set.add(node.v); if(node.a)vars(node.a,set); if(node.b)vars(node.b,set); return set; }
-function evl(node,env){
-  if(node.v) return env[node.v];
-  switch(node.op){
-    case 'N': return !evl(node.a,env);
-    case 'A': return evl(node.a,env)&&evl(node.b,env);
-    case 'O': return evl(node.a,env)||evl(node.b,env);
-    case 'I': return !evl(node.a,env)||evl(node.b,env);
-    case 'B': return evl(node.a,env)===evl(node.b,env);
-  }
-}
-function buildTable(formula){
-  const tree=parse(tokenize(formula));
-  const vs=[...vars(tree,new Set())].sort();
-  if(vs.length>5) throw new Error('Please use at most 5 distinct variables (A–Z).');
-  const rows=[]; const n=vs.length;
-  for(let m=(1<<n)-1;m>=0;m--){
-    const env={}; vs.forEach((v,k)=>env[v]=!!(m&(1<<(n-1-k))));
-    rows.push({env,val:evl(tree,env)});
-  }
-  const allT=rows.every(r=>r.val), allF=rows.every(r=>!r.val);
-  return {vs,rows,cls:allT?'taut':allF?'contra':'cont'};
-}
-function niceFormula(f){
-  return f.replace(/<->|↔/g,' ↔ ').replace(/->|→/g,' → ').replace(/[~!]/g,'¬').replace(/&/g,' ∧ ').replace(/\|/g,' ∨ ').replace(/\s+/g,' ').trim();
-}
-let labMode='formula';
 function renderLab(){
-  app.innerHTML=`
-    <div class="eyebrow">Interactive</div>
-    <h1>🔬 Truth-Table <em>Lab</em></h1>
-    <div class="tabs2">
-      <button class="${labMode==='formula'?'on':''}" onclick="setLabMode('formula')">Formula</button>
-      <button class="${labMode==='arg'?'on':''}" onclick="setLabMode('arg')">Argument</button>
-    </div>
-    <div id="labbody"></div>`;
-  if(labMode==='formula') labFormula(); else labArg();
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · logic you can run</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
 }
-function setLabMode(m){labMode=m;renderLab();}
-function labFormula(){
-  document.getElementById('labbody').innerHTML=`
-    <div class="card">
-      <p style="color:var(--dim);font-size:.9em;margin-bottom:9px">Type a formula. Use variables A–E and operators below (or type <span class="sym">~ &amp; | -&gt; &lt;-&gt;</span>).</p>
-      <input class="labin" id="finput" value="(P -> Q) <-> (~Q -> ~P)" autocapitalize="characters" autocomplete="off" spellcheck="false">
-      <div class="keys" id="keys"></div>
-      <button class="btn" onclick="runFormula()">Build truth table</button>
-    </div>
-    <div id="fout"></div>`;
-  const keys=[['A','A'],['B','B'],['C','C'],['P','P'],['Q','Q'],['R','R'],['¬','~'],['∧','&'],['∨','|'],['→','->'],['↔','<->'],['(','('],[')',')']];
-  document.getElementById('keys').innerHTML=keys.map(([l,v])=>`<button onclick="ins('${v}')">${l}</button>`).join('')+
-    `<button class="wide" onclick="clr()">clear</button>`;
-  runFormula();
+/* practice */
+const DR=[
+ {q:`p is true and q is false. What is the value of &nbsp;p → q?`,a:["True","False","Undefined","Depends on r"],c:1,e:"A conditional is false in exactly one case: a true antecedent with a false consequent. T → F = F."},
+ {q:`Which of these is a tautology (true in every row)?`,a:["p ∧ ¬p","p → q","p ∨ ¬p","p ∧ q"],c:2,e:"p ∨ ¬p is the law of excluded middle — one of p, ¬p is always true, so the disjunction is always true."},
+ {q:`By De Morgan's law, ¬(p ∧ q) is equivalent to:`,a:["¬p ∧ ¬q","¬p ∨ ¬q","p ∨ q","¬(p ∨ q)"],c:1,e:"Negation turns ∧ into ∨ and negates each part: ¬(p ∧ q) ≡ ¬p ∨ ¬q."},
+ {q:`The contrapositive of "If it rains, the ground is wet" is:`,a:["If the ground is wet, it rained","If it doesn't rain, the ground isn't wet","If the ground isn't wet, it didn't rain","If the ground is wet, it didn't rain"],c:2,e:"Contrapositive of p → q is ¬q → ¬p: negate both parts and swap. It is always equivalent to the original."},
+ {q:`The negation of "All swans are white" is:`,a:["No swans are white","All swans are non-white","Some swan is not white","Some swans are white"],c:2,e:"¬∀x P(x) ≡ ∃x ¬P(x). The opposite of 'all are' is 'at least one isn't' — a single counterexample, not 'none are'."},
+ {q:`The negation of "There exists a prime that is even" is:`,a:["Every prime is odd (no prime is even)","Some prime is odd","There exists a prime that is odd","Every number is prime"],c:0,e:"¬∃x P(x) ≡ ∀x ¬P(x). 'Nothing is P' — here, every prime fails to be even, i.e. no prime is even."},
+ {q:`From "p → q" and "¬q", concluding "¬p" is the valid form called:`,a:["Modus ponens","Modus tollens","Hypothetical syllogism","Affirming the consequent"],c:1,e:"Deny the consequent to deny the antecedent: p → q, ¬q ⊢ ¬p. That's modus tollens."},
+ {q:`From "p → q" and "q", concluding "p" is:`,a:["Modus ponens (valid)","Modus tollens (valid)","Affirming the consequent (invalid)","Disjunctive syllogism (valid)"],c:2,e:"Invalid: q could be true for other reasons. Counterexample p=F, q=T makes both premises true but the conclusion false."},
+ {q:`"You can't trust her argument — she's been convicted of fraud." This is:`,a:["Modus tollens","An ad hominem fallacy","A valid syllogism","A false dilemma"],c:1,e:"Ad hominem: attacking the person rather than the argument. Her character doesn't bear on whether her reasoning is correct."},
+ {q:`To prove a statement S by contradiction, you begin by assuming:`,a:["S is true","¬S, and then derive a contradiction","the contrapositive of S","a base case for S"],c:1,e:"Assume the negation ¬S; if it forces an impossibility, ¬S is false, so S must be true."},
+ {q:`In proving 1+2+…+n = n(n+1)/2 by induction, the base case checks:`,a:["n = 0 gives 0","n = 1: 1 = 1·2/2","the step P(k) → P(k+1)","every n up to 100"],c:1,e:"The base case establishes the smallest case, n = 1: the left side is 1 and the right side is 1·2/2 = 1. ✓"},
+ {q:`An argument that is valid but has a false premise is:`,a:["Sound","Unsound (valid but not sound)","Invalid","A tautology"],c:1,e:"Soundness = valid + all premises actually true. Valid form with a false premise is valid but unsound, so it guarantees nothing about the world."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
 }
-function ins(v){const el=document.getElementById('finput');el.value+=v;el.focus();}
-function clr(){document.getElementById('finput').value='';document.getElementById('finput').focus();}
-function runFormula(){
-  const raw=document.getElementById('finput').value.trim();
-  const out=document.getElementById('fout');
-  if(!raw){out.innerHTML='';return;}
-  let t; try{ t=buildTable(raw); }catch(e){ out.innerHTML=`<div class="verdict err">⚠ ${e.message}</div>`; return; }
-  const label={taut:'Tautology — true in every row',contra:'Contradiction — false in every row',cont:'Contingency — true in some rows, false in others'}[t.cls];
-  const head=t.vs.map(v=>`<th>${v}</th>`).join('')+`<th class="res">${niceFormula(raw)}</th>`;
-  const body=t.rows.map(r=>`<tr>${t.vs.map(v=>`<td class="${r.env[v]?'T':'F'}">${r.env[v]?'T':'F'}</td>`).join('')}<td class="res ${r.val?'T':'F'}">${r.val?'T':'F'}</td></tr>`).join('');
-  out.innerHTML=`<div class="verdict ${t.cls}">${label}</div>
-    <div class="ttwrap"><table class="tt"><tr>${head}</tr>${body}</table></div>`;
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const p1=P.done.connect&&P.done.ttables&&P.done.taut&&P.done.equiv&&P.done.valid;
+  const p2=P.done.quant&&P.done.negq&&P.done.translate;
+  const p3=P.done.forms&&P.done.fallacy;
+  const p4=P.done.direct&&P.done.contra&&P.done.induct&&P.done.limits;
+  const badges=[["Ⅰ","Propositional",p1],["Ⅱ","Predicate",p2],["Ⅲ","Arguments",p3],["Ⅳ","Proof",p4],["🎯","Sharp",ds>=10],["⊢","Logician",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#1c2740" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fa8d9"/><stop offset="1" stop-color="#5b86c4"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#e6ecf5" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#93a2bd" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full course in logic & proof. ⊢":pc>=50?"Past halfway — the machinery of proof awaits.":"The art of certainty, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
 }
-function labArg(){
-  document.getElementById('labbody').innerHTML=`
-    <div class="card">
-      <p style="color:var(--dim);font-size:.9em;margin-bottom:9px">Enter <b>premises</b> (one per line) and a <b>conclusion</b>. The Lab checks validity: is it impossible for every premise to be true while the conclusion is false?</p>
-      <textarea class="labin" id="prem" rows="3" autocapitalize="characters" autocomplete="off" spellcheck="false" style="resize:vertical">P -> Q
-P</textarea>
-      <div style="color:var(--faint);font-size:.75em;margin:8px 2px 4px;font-family:ui-monospace,monospace">CONCLUSION</div>
-      <input class="labin" id="concl" value="Q" autocapitalize="characters" autocomplete="off" spellcheck="false">
-      <button class="btn" style="margin-top:11px" onclick="runArg()">Check validity</button>
-    </div>
-    <div id="aout"></div>`;
-  runArg();
-}
-function runArg(){
-  const prem=document.getElementById('prem').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  const concl=document.getElementById('concl').value.trim();
-  const out=document.getElementById('aout');
-  if(!prem.length||!concl){out.innerHTML='';return;}
-  let trees,ct,vs;
-  try{
-    trees=prem.map(p=>parse(tokenize(p)));
-    ct=parse(tokenize(concl));
-    const set=new Set(); trees.forEach(t=>vars(t,set)); vars(ct,set);
-    vs=[...set].sort();
-    if(vs.length>6) throw new Error('Too many distinct variables (max 6).');
-  }catch(e){ out.innerHTML=`<div class="verdict err">⚠ ${e.message}</div>`; return; }
-  const n=vs.length; let counter=null;
-  for(let m=0;m<(1<<n);m++){
-    const env={}; vs.forEach((v,k)=>env[v]=!!(m&(1<<(n-1-k))));
-    const allPrem=trees.every(t=>evl(t,env));
-    if(allPrem && !evl(ct,env)){ counter=env; break; }
-  }
-  if(!counter){
-    out.innerHTML=`<div class="verdict taut">✓ Valid — no way to make all premises true and the conclusion false.</div>`;
-  } else {
-    const row=vs.map(v=>`${v} = <b>${counter[v]?'T':'F'}</b>`).join(' &nbsp; ');
-    out.innerHTML=`<div class="verdict contra">✗ Invalid — counterexample found.</div>
-      <div class="card" style="font-family:ui-monospace,monospace;font-size:.9em">Set ${row}<br><span style="color:var(--dim)">→ every premise is true, yet the conclusion is false.</span></div>`;
-  }
-}
-
-/* ============================ progress ============================ */
-function renderProg(){
-  const done=Object.keys(P.done).length, total=MODULES.length;
-  const pct=Math.round(done/total*100);
-  app.innerHTML=`
-    <div class="eyebrow">Your progress</div>
-    <h1>Progress</h1>
-    <div class="card" style="text-align:center">
-      <div class="prog-ring" style="--p:${pct}"><i>${pct}%</i></div>
-      <p style="margin-top:12px;color:var(--dim)">${done} of ${total} modules complete · <b style="color:var(--teal)">${P.xp} XP</b></p>
-    </div>
-    <div class="sec">Modules</div>
-    ${MODULES.map(m=>`<div class="mod ${P.done[m.id]?'done':''}" onclick="openMod('${m.id}')">
-      <span class="num">${P.done[m.id]?'✓':'·'}</span>
-      <span class="mt"><b>${m.n}</b><small>${P.pass[m.id]?'best: '+P.pass[m.id]:'not yet attempted'}</small></span>
-      <span class="go">›</span></div>`).join('')}
-    <button class="ghost" style="width:100%;margin-top:14px" onclick="resetProg()">Reset progress</button>`;
-}
-function resetProg(){ if(confirm('Reset all logic progress?')){ P={done:{},xp:0,pass:{}}; persist(); render(); } }
-
-/* ============================ nav ============================ */
-function go(v){ view=v; setNav(v); render(); window.scrollTo(0,0); }
-function setNav(v){ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
-let toastT;
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2000); }
-
-render();
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
 </script>
-</body></html>
+</body>
+</html>

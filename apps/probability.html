@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Probability">
+<meta name="theme-color" content="#120e06">
+<title>Probability & Statistics — a course</title>
+<style>
+:root{
+  --bg:#120e06;--panel:#1a1409;--card:#1c160c;--line:#3a2f1c;--ink:#f0e9da;--mut:#b3a488;--faint:#726445;
+  --acc:#f0b840;--acc2:#e08b3a;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#2a1e0c 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(18,14,6,.96),rgba(18,14,6,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#1a1206;font-size:20px;box-shadow:0 3px 14px rgba(240,184,64,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#1a1206;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#4a5c2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#140f07;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#ddd4c2;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#ddd4c2;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#f6efe0;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#140f07;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#140f07;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#e6ddc9}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#12160f;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#0b0906;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#070502}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.simctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(18,14,6,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#140f07;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#1a1206;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:82px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(20,17,12,.92);color:#d9a441;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+
+<header>
+  <div class="logo">🎲</div>
+  <div><h1>Probability & Statistics</h1><div class="sub">reasoning under uncertainty</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">📊</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("prob_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("prob_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Probability foundations",lessons:[
+   {id:"sample",n:"Sample spaces & events",sub:"the language of chance",lab:"lln"},
+   {id:"rules",n:"The rules of probability",sub:"complement, addition, multiplication"},
+   {id:"cond",n:"Conditional probability & independence",sub:"what one fact tells you about another"},
+   {id:"bayes",n:"Bayes' theorem",sub:"updating beliefs — and the base rate trap",lab:"bayes"},
+ ]},
+ {ic:"②",t:"Part II · Random variables & distributions",lessons:[
+   {id:"rv",n:"Random variables",sub:"turning outcomes into numbers"},
+   {id:"expect",n:"Expectation & variance",sub:"the mean and the spread of a distribution"},
+   {id:"binom",n:"The binomial distribution",sub:"counting successes in n trials"},
+   {id:"normal",n:"The normal distribution",sub:"the bell curve & the 68–95–99.7 rule",lab:"normal"},
+ ]},
+ {ic:"③",t:"Part III · Statistics & sampling",lessons:[
+   {id:"popsamp",n:"Populations & samples",sub:"parameters, statistics, and the mean"},
+   {id:"clt",n:"Sampling distributions & the CLT",sub:"why averages become normal",lab:"clt"},
+   {id:"ci",n:"Standard error & confidence intervals",sub:"how sure are we, really?"},
+ ]},
+ {ic:"④",t:"Part IV · Inference & pitfalls",lessons:[
+   {id:"pvalue",n:"Hypothesis testing & p-values",sub:"what they do and don't mean"},
+   {id:"corr",n:"Correlation vs causation",sub:"the most abused idea in statistics"},
+   {id:"regr",n:"Linear regression",sub:"the line of best fit",lab:"regression"},
+   {id:"fallacies",n:"Common fallacies",sub:"base rates, gamblers, p-hacking, Simpson"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+
+C.sample=`<p>Probability is the mathematics of <b>uncertainty</b> — a way to attach exact numbers to how likely things are. It begins with three plain ideas.</p>
+<p>The <b>sample space</b> S is the set of everything that could happen. Roll one die and S = {1,2,3,4,5,6}. An <b>event</b> is any subset of the sample space — a collection of outcomes you care about. "Rolling an even number" is the event {2,4,6}.</p>
+<p>The <b>probability</b> of an event is a number between 0 and 1 measuring how likely it is: 0 means impossible, 1 means certain. When every outcome is equally likely, it's just counting:</p>
+<div class="eq box">P(event) = ${frac("number of favorable outcomes","total number of outcomes")}</div>
+<p>So P(even) = 3/6 = 0.5. Every probability obeys three axioms (Kolmogorov's): each P is ≥ 0, the whole sample space has P(S) = 1, and the probability of any of several <i>mutually exclusive</i> events is the sum of their probabilities.</p>
+<p><b>But what does the number 0.5 mean?</b> The frequency interpretation: if you repeated the experiment forever, the fraction of times the event happens would settle toward its probability. This is the <b>Law of Large Numbers</b> — the bridge between abstract probability and the messy real world. Flip the coins below and watch the running proportion of heads wander at first, then home in on 0.5.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The point</span>Probability is not a promise about the next flip — a fair coin can land heads ten times running. It's a promise about the <i>long run</i>. Short-run noise, long-run order.</div>`;
+
+C.rules=`<p>From the axioms, a handful of rules let you build the probability of complicated events out of simple ones.</p>
+<p><b>The complement rule.</b> Either an event happens or it doesn't, so their probabilities sum to 1:</p>
+<div class="eq box">P(not A) = 1 − P(A)</div>
+<p>Often the easiest way to find P(A) is to find the probability of the opposite and subtract. "At least one head in 3 flips" is fiddly directly, but its opposite — "no heads at all" — is ${frac("1","8")}, so the answer is 1 − ${frac("1","8")} = ${frac("7","8")}.</p>
+<p><b>The addition rule</b> (for "A or B"). If A and B can't both happen (mutually exclusive), just add. If they <i>can</i> overlap, add and subtract the double-counted middle:</p>
+<div class="eq box">P(A or B) = P(A) + P(B) − P(A and B)</div>
+<p>Draw one card: P(king or heart) = ${frac("4","52")} + ${frac("13","52")} − ${frac("1","52")} = ${frac("16","52")}. The king of hearts got counted twice, so we remove it once.</p>
+<p><b>The multiplication rule</b> (for "A and B"). For <b>independent</b> events — where one has no bearing on the other — multiply:</p>
+<div class="eq box">P(A and B) = P(A) · P(B) &nbsp;(independent)</div>
+<div class="wk"><div class="wl">Worked example · two dice</div>
+<div class="step">P(a 6 on the first die) = ${frac("1","6")}. P(a 6 on the second) = ${frac("1","6")}. The dice don't influence each other.</div>
+<div class="step">P(both sixes) = ${frac("1","6")} · ${frac("1","6")} = ${frac("1","36")} ≈ 0.028.</div></div>
+<div class="callout"><span class="l">Watch the word</span>"Or" pushes you toward <b>adding</b>; "and" toward <b>multiplying</b>. But multiplication only works clean when the events are independent — which is exactly what the next lesson unpacks.</div>`;
+
+C.cond=`<p>Most of the time events <i>do</i> affect each other, and new information changes the odds. The <b>conditional probability</b> of A given that B has happened, written P(A | B), is defined as:</p>
+<div class="eq box">P(A | B) = ${frac("P(A and B)","P(B)")}</div>
+<p>Read it as "of the world where B is true, what fraction also has A?" You've shrunk your sample space down to B and are asking how much of A survives inside it. Rearranging gives the <b>general multiplication rule</b>, which always holds:</p>
+<div class="eq box">P(A and B) = P(B) · P(A | B)</div>
+<div class="wk"><div class="wl">Worked example · drawing two aces</div>
+<div class="step">Draw two cards without replacement. P(first ace) = ${frac("4","52")}.</div>
+<div class="step">Given the first was an ace, only 3 aces remain in 51 cards: P(second ace | first ace) = ${frac("3","51")}.</div>
+<div class="step">P(both aces) = ${frac("4","52")} · ${frac("3","51")} = ${frac("12","2652")} = ${frac("1","221")} ≈ 0.0045.</div></div>
+<p><b>Independence</b> is the special case where the condition changes nothing:</p>
+<div class="eq box">A, B independent ⟺ P(A | B) = P(A)</div>
+<p>Knowing B tells you nothing about A. Coin flips are independent — the coin has no memory. Cards drawn without replacement are <i>not</i>: the first draw reshapes the deck for the second.</p>
+<div class="callout"><span class="l">The trap ahead</span>P(A | B) and P(B | A) are <b>different questions</b> and usually different numbers. P(positive test | sick) is not P(sick | positive test). Confusing the two is the single most common — and most consequential — error in all of statistics. Bayes' theorem, next, is the fix.</div>`;
+
+C.bayes=`<p>Here is the crown jewel of probabilistic reasoning: the rule for <b>updating a belief when evidence arrives</b>. It comes straight from the definition of conditional probability, flipped around.</p>
+<div class="eq box">P(A | B) = ${frac("P(B | A) · P(A)","P(B)")}</div>
+<p>P(A) is the <b>prior</b> — what you believed before. P(A | B) is the <b>posterior</b> — your updated belief after seeing evidence B. The factor P(B | A) is how well A predicts the evidence. The point is that the answer depends critically on the prior — the <b>base rate</b> — and our intuition brutally neglects it.</p>
+<div class="wk"><div class="wl">Worked example · the medical test</div>
+<div class="step">A disease affects <b>1%</b> of people. A test is <b>99% sensitive</b> (catches 99% of sick people) and <b>95% specific</b> (correctly clears 95% of healthy people). You test positive. What's the chance you're actually sick?</div>
+<div class="step">Imagine <b>10,000</b> people. 1% = <b>100 are sick</b>, 9,900 are healthy.</div>
+<div class="step">Of the 100 sick: 99% test positive → <b>99 true positives</b>.</div>
+<div class="step">Of the 9,900 healthy: 5% test positive anyway → <b>495 false positives</b>.</div>
+<div class="step">Positives total 99 + 495 = 594. So P(sick | positive) = ${frac("99","594")} = <b>16.7%</b>.</div></div>
+<p>Despite a "99% accurate" test and a positive result, you are more likely <b>healthy than sick</b> — because the disease is rare, the flood of false positives from the huge healthy majority swamps the true positives. Move the sliders in the lab and watch this reverse: raise the base rate and a positive result finally means something.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The lesson doctors get wrong</span>When surveyed, most physicians answer this kind of question with "about 95%." The correct answer can be under 20%. Always ask: how common is the thing to begin with? Rare conditions make positive tests untrustworthy.</div>`;
+
+C.rv=`<p>To do arithmetic with chance, we attach numbers to outcomes. A <b>random variable</b> X is a rule that assigns a number to every outcome in the sample space.</p>
+<p>Flip three coins and let X = the number of heads. Then X can be 0, 1, 2, or 3, each with its own probability. The list of values and their probabilities is the <b>distribution</b> of X:</p>
+<div class="eq box">P(X=0)=${frac("1","8")}, &nbsp;P(X=1)=${frac("3","8")}, &nbsp;P(X=2)=${frac("3","8")}, &nbsp;P(X=3)=${frac("1","8")}</div>
+<p>Notice the probabilities sum to 1 — they always must, because <i>something</i> happens. This is a <b>probability mass function</b> (pmf): it spreads a total "mass" of 1 across the possible values.</p>
+<p>Random variables come in two flavors:</p>
+<ul>
+<li><b>Discrete</b> — the values are separated, countable: a die roll, a count of heads, the number of emails in an hour. Probability lives on individual points.</li>
+<li><b>Continuous</b> — the values form a smooth range: a height, a temperature, a waiting time. Here probability is smeared over intervals, described by a density (Part II's normal distribution is the star example).</li>
+</ul>
+<div class="callout"><span class="l">Why bother</span>Once outcomes are numbers, we can ask what they average to, how much they scatter, and what shape their distribution has. That's the whole rest of the subject — and it starts with two summaries: the mean and the variance.</div>`;
+
+C.expect=`<p>A distribution can be complicated; we summarize it with two numbers. The <b>expectation</b> (or mean) E[X] is the long-run average value — each outcome weighted by its probability:</p>
+<div class="eq box">E[X] = μ = Σ x · P(X = x)</div>
+<div class="wk"><div class="wl">Worked example · expected value of a die</div>
+<div class="step">Each face 1–6 has probability ${frac("1","6")}.</div>
+<div class="step">E[X] = 1·${frac("1","6")} + 2·${frac("1","6")} + ⋯ + 6·${frac("1","6")} = ${frac("1+2+3+4+5+6","6")} = ${frac("21","6")} = <b>3.5</b>.</div>
+<div class="step"><span class="r">You never roll a 3.5 — the expectation is a balance point, not a possible outcome.</span></div></div>
+<p>Expectation is exactly what a fair price should be. If a lottery pays \$10 with probability 0.01 and \$0 otherwise, E[winnings] = 0.01·10 = <b>\$0.10</b> — pay more than a dime and you lose money on average.</p>
+<p>The mean says where the distribution sits; the <b>variance</b> says how widely it scatters. It's the expected <i>squared</i> distance from the mean:</p>
+<div class="eq box">Var(X) = σ² = E[(X − μ)²] &nbsp;·&nbsp; σ = √(Var)</div>
+<p>The <b>standard deviation</b> σ is the square root, which puts the spread back into the original units. Small σ means outcomes huddle near the mean; large σ means they fly all over. A die has σ ≈ 1.71.</p>
+<div class="callout"><span class="l">Two numbers, most of the story</span>Mean and standard deviation are the workhorse summary of any distribution. For the bell curve coming up, they're the <i>only</i> two numbers you need — together they pin down the whole shape.</div>`;
+
+C.binom=`<p>One pattern appears everywhere: repeat the same yes/no trial n times, each independent, each with success probability p, and count the successes. That count follows the <b>binomial distribution</b>.</p>
+<p>The probability of exactly k successes in n trials is:</p>
+<div class="eq box">P(X = k) = ${frac("n!","k!(n−k)!")} · ${sup("p","k")} · ${sup("(1−p)","n−k")}</div>
+<p>Read the pieces: ${sup("p","k")} for the k successes, ${sup("(1−p)","n−k")} for the n−k failures, and the front factor ${frac("n!","k!(n−k)!")} (the <b>binomial coefficient</b>, "n choose k") counts how many different orderings give k successes.</p>
+<div class="wk"><div class="wl">Worked example · 2 heads in 5 flips</div>
+<div class="step">Fair coin, n = 5, p = ${frac("1","2")}, want k = 2.</div>
+<div class="step">Number of ways to place 2 heads among 5 flips: ${frac("5!","2!·3!")} = 10.</div>
+<div class="step">Each specific sequence has probability (${frac("1","2")})⁵ = ${frac("1","32")}.</div>
+<div class="step">P(X=2) = 10 · ${frac("1","32")} = ${frac("10","32")} = <b>0.3125</b>.</div></div>
+<p>The binomial's mean and standard deviation have tidy formulas — no summing required:</p>
+<div class="eq box">mean = np &nbsp;·&nbsp; standard deviation = √(np(1−p))</div>
+<p>So in 100 flips of a fair coin, you expect np = 50 heads, give or take √(100·½·½) = 5. Seeing 55 heads is unremarkable; seeing 80 would be astonishing.</p>
+<div class="callout"><span class="l">A preview</span>Pile up enough independent trials and the binomial's jagged bars smooth into a bell. That's no coincidence — it's the Central Limit Theorem, the engine of Part III.</div>`;
+
+C.normal=`<p>The <b>normal distribution</b> — the bell curve — is the most important distribution in statistics. Heights, measurement errors, test scores, and (crucially) the averages of almost anything all pile up into its symmetric hump.</p>
+<p>For a continuous variable, probability isn't attached to single points — the chance of a height being <i>exactly</i> 180.000… cm is zero. Instead we use a <b>probability density</b>: a curve where <b>area under it equals probability</b>. The total area is 1, and the probability of landing in any interval is the area over that interval. Height alone means nothing; area is everything.</p>
+<p>A normal distribution is fixed by just two numbers — its mean μ (where the peak sits) and its standard deviation σ (how wide it spreads). Its signature is the <b>68–95–99.7 rule</b>:</p>
+<div class="eq box">≈68% within 1σ of μ &nbsp;·&nbsp; ≈95% within 2σ &nbsp;·&nbsp; ≈99.7% within 3σ</div>
+<div class="wk"><div class="wl">Worked example · reading the rule</div>
+<div class="step">Adult IQ scores are ~normal with μ = 100, σ = 15.</div>
+<div class="step">68% of people fall in 100 ± 15, i.e. between <b>85 and 115</b>.</div>
+<div class="step">95% fall in 100 ± 30 → 70 to 130. Only ~2.5% score above 130 (half of the outer 5%).</div></div>
+<p>Any value can be converted to a <b>z-score</b> — how many standard deviations it sits from the mean — which lets you compare across different bell curves: z = (x − μ)/σ. A z of 2 is at the 97.5th percentile, always. Drag the slider in the lab to shade areas and read off probabilities directly.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why it's everywhere</span>Not because nature loves bells, but because <i>adding up many small independent effects</i> produces one, whatever the pieces look like. That theorem — the CLT — is next.</div>`;
+
+C.popsamp=`<p>Statistics turns probability around. Probability asks: given the coin is fair, what will the flips look like? Statistics asks the harder, real question: given the flips I saw, <i>what is the coin?</i> We reason from a sample back to the source.</p>
+<p>The <b>population</b> is the entire group you care about — every voter, every widget off the line. A <b>sample</b> is the subset you actually measure. A number describing the population is a <b>parameter</b> (fixed but usually unknown); the matching number from your sample is a <b>statistic</b> (known but random, since another sample would give another value).</p>
+<div class="eq box">population mean μ, sd σ &nbsp;⟵ estimated by ⟶&nbsp; sample mean x̄, sd s</div>
+<p>The <b>sample mean</b> averages your data; it's our best estimate of μ:</p>
+<div class="eq box">x̄ = ${frac("1","n")} Σ ${sup("x","i")}</div>
+<p>The <b>sample standard deviation</b> measures spread, but with a subtle twist — we divide by <b>n − 1</b>, not n:</p>
+<div class="eq box">s = √( ${frac("1","n − 1")} Σ (${sup("x","i")} − x̄)² )</div>
+<p>Dividing by n − 1 (Bessel's correction) corrects a bias: the data always hugs its own mean a little too tightly, so using n would systematically underestimate the true spread.</p>
+<div class="callout"><span class="l">The whole ballgame</span>A sample is only trustworthy if it's <b>random and representative</b>. A biased sample — polling only landlines, surveying only volunteers — gives a precise answer to the wrong question. No amount of math fixes bad sampling.</div>`;
+
+C.clt=`<p>Here's the deepest idea in the whole subject. Your sample mean x̄ is itself random — draw a new sample and you get a new x̄. If you imagine all the x̄ values you <i>could</i> get, they form the <b>sampling distribution of the mean</b>. Three facts about it change everything.</p>
+<p><b>1. It's centered on the truth.</b> The mean of all possible sample means equals the population mean μ. The sample mean is an unbiased estimator.</p>
+<p><b>2. It's tighter than the population.</b> Averaging cancels out extremes, so the sampling distribution's spread — the <b>standard error</b> — shrinks with sample size:</p>
+<div class="eq box">standard error = ${frac("σ","√n")}</div>
+<p><b>3. It's normal — no matter what the population looks like.</b> This is the <b>Central Limit Theorem</b>:</p>
+<div class="eq box">for large n, x̄ is approximately Normal(μ, ${frac("σ","√n")})</div>
+<p>Even if the population is wildly skewed — incomes, dice, coin flips, anything with finite variance — the distribution of its <i>averages</i> becomes a bell curve as n grows. In the lab, sample from a lumpy, skewed population and watch the histogram of averages morph into a clean bell as you increase the sample size.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Why this is the engine</span>The CLT is why the normal distribution rules statistics and why we can put error bars on anything. It converts "I measured a messy sample" into "my estimate is normally distributed around the truth, and I know exactly how wide" — which is what makes the confidence interval next possible.</div>`;
+
+C.ci=`<p>An estimate without a margin of error is half a statement. A poll saying "52%" is meaningless until you know whether it's 52% ± 1% or 52% ± 8%. The <b>confidence interval</b> supplies that range.</p>
+<p>From the CLT, the sample mean sits within about 2 standard errors of the truth 95% of the time. Turn that around and build an interval <i>around your estimate</i>:</p>
+<div class="eq box">x̄ ± z · ${frac("σ","√n")} &nbsp;(z ≈ 1.96 for 95%)</div>
+<p>The half-width, z·SE, is the <b>margin of error</b>. It shrinks as n grows — but only as √n, so to halve your error you must <b>quadruple</b> your sample. Precision is expensive.</p>
+<div class="wk"><div class="wl">Worked example · reading a confidence interval</div>
+<div class="step">A sample of 400 people has mean height x̄ = 170 cm, with σ ≈ 10 cm.</div>
+<div class="step">Standard error = ${frac("10","√400")} = ${frac("10","20")} = 0.5 cm.</div>
+<div class="step">95% margin = 1.96 × 0.5 ≈ 1.0 cm. Interval: 170 ± 1.0 = <b>[169, 171] cm</b>.</div></div>
+<p><b>What "95% confident" actually means.</b> It is <i>not</i> "a 95% chance the true value is in this interval" — the true value is fixed, either in or out. It means the <b>procedure</b> works 95% of the time: if you repeated the whole sampling-and-interval process endlessly, 95% of the intervals you built would capture the true parameter. This one either did or didn't; the confidence is in the method, not this particular range.</p>
+<div class="callout"><span class="l">The honest reading</span>Wider interval = more uncertainty. A narrow interval far from a claim is strong evidence; a wide interval is a shrug. Always report the interval, never just the point estimate.</div>`;
+
+C.pvalue=`<p>How do we decide whether an effect is real or just noise? The standard machinery is the <b>hypothesis test</b>. It's a formal argument by contradiction.</p>
+<p>You set up two claims. The <b>null hypothesis</b> (H₀) is the boring default — no effect, no difference, the coin is fair. The <b>alternative</b> (H₁) is what you suspect — there is an effect. Then you assume the null is true and ask: <i>how surprising is my data under that assumption?</i></p>
+<p>That surprise is the <b>p-value</b>:</p>
+<div class="eq box">p = P(data this extreme or more &nbsp;|&nbsp; H₀ is true)</div>
+<p>A small p-value means your data would be very unlikely if nothing were going on — so you doubt the null. By convention p &lt; 0.05 is called "statistically significant," but that threshold is an arbitrary line, not a law of nature.</p>
+<p><b>What a p-value is NOT.</b> This is where nearly everyone goes wrong:</p>
+<ul>
+<li>It is <b>not</b> the probability the null hypothesis is true. It assumes the null and asks about the data — the reverse conditional (remember Bayes: P(data | H₀) ≠ P(H₀ | data)).</li>
+<li>It is <b>not</b> the probability your result was due to chance.</li>
+<li>A large p-value does <b>not</b> prove the null — absence of evidence isn't evidence of absence.</li>
+<li>A tiny p-value does <b>not</b> mean the effect is large or important — with a huge sample, trivial effects get tiny p-values.</li>
+</ul>
+<div class="callout"><span class="l">The right reading</span>"If there were truly no effect, data like mine would appear only 3% of the time." That's all p = 0.03 says. It's evidence against the null, weighed alongside the effect size, the study design, and prior plausibility — never a verdict on its own.</div>`;
+
+C.corr=`<p>Two quantities are <b>correlated</b> when they move together. The <b>correlation coefficient</b> r measures the strength and direction of a straight-line relationship, on a fixed scale:</p>
+<div class="eq box">−1 ≤ r ≤ +1</div>
+<p>r = +1 is a perfect upward line, r = −1 a perfect downward one, r = 0 no linear relationship. r = 0.8 is strong and positive; r = −0.3 is weak and negative. Crucially, r captures only <i>linear</i> association — a perfect U-shaped relationship can have r near 0.</p>
+<p><b>And here is the warning stamped on all of statistics:</b></p>
+<div class="eq box" style="text-align:center">correlation does not imply causation</div>
+<p>That A and B rise together can mean A causes B, B causes A, both are driven by a hidden third factor C (a <b>confounder</b>), or it's pure coincidence. Ice cream sales correlate with drownings — but neither causes the other; hot weather (the confounder) drives both. Countries with more Nobel laureates eat more chocolate; the link is wealth, not cocoa.</p>
+<p>To actually establish causation you need more: a <b>randomized controlled experiment</b> that intervenes and breaks the confounders, or careful causal reasoning that rules out the alternatives. Observation alone can only ever whisper "these two are associated."</p>
+<div class="callout"><span class="l">The reflex to build</span>Every time you see "X linked to Y," ask three questions: Could Y cause X instead? Could something else cause both? Was it randomized? If the answer to the last is no, hold the causal story loosely.</div>`;
+
+C.regr=`<p>When two variables are related, <b>linear regression</b> draws the single straight line that best summarizes the relationship — the <b>line of best fit</b>:</p>
+<div class="eq box">ŷ = a + b·x</div>
+<p>b is the <b>slope</b>: how much y changes per one-unit rise in x. a is the <b>intercept</b>: the predicted y when x = 0. "Best fit" has a precise meaning — <b>least squares</b>: the line that minimizes the sum of squared vertical distances (the residuals) from the points to the line. That criterion gives clean formulas:</p>
+<div class="eq box">b = ${frac("Σ(x − x̄)(y − ȳ)","Σ(x − x̄)²")} &nbsp;·&nbsp; a = ȳ − b·x̄</div>
+<p>Notice the line always passes through the point of averages (x̄, ȳ). How well does it fit? The <b>coefficient of determination</b> R² — the square of the correlation r — reports the fraction of the variation in y that the line explains:</p>
+<div class="eq box">0 ≤ R² ≤ 1</div>
+<p>R² = 0.9 means the line accounts for 90% of y's variability (a tight fit); R² = 0.1 means it barely helps. In the lab, drag the points and watch the least-squares line and its equation and R² recompute live — notice how a single far-off outlier can swing the whole line.</p>
+<div class="callout"><span class="l">Use it, don't abuse it</span>Regression finds the best line even when a line is the wrong model, and a good fit is still just correlation — the slope isn't a causal effect unless the design earns it. And beware <b>extrapolation</b>: a line fit on adults tells you nothing reliable about newborns.</div>`;
+
+C.fallacies=`<p>Statistical reasoning fails in a few classic, seductive ways. Knowing their names is half the defense.</p>
+<p><b>Base-rate neglect.</b> Ignoring how common something is to begin with — the medical-test trap from Bayes. A "positive" for a rare condition is usually a false alarm. Always anchor on the prior before reacting to the evidence.</p>
+<p><b>The gambler's fallacy.</b> Believing that independent events "balance out" in the short run — that after five reds on the roulette wheel, black is "due." The wheel has no memory; each spin is still 50/50. Past independent outcomes cannot influence future ones. (Its mirror, the "hot hand" fallacy, over-reads short streaks as momentum.)</p>
+<p><b>p-hacking.</b> Testing many hypotheses and reporting only the ones that hit p &lt; 0.05. If you run 20 tests on pure noise, on average one will be "significant" by chance alone. Trawling the data for anything that clears the bar, then presenting it as if it were the plan, manufactures fake discoveries. The fix: pre-register the hypothesis, correct for multiple comparisons, replicate.</p>
+<p><b>Simpson's paradox.</b> A trend that appears in every subgroup can <b>reverse</b> when the groups are combined — because a lurking variable is distributed unevenly. A treatment can look better in both mild and severe cases separately, yet worse overall, if the sicker patients were disproportionately given it. Aggregating hides the confounder.</p>
+<div class="wk"><div class="wl">Simpson's paradox · a real shape</div>
+<div class="step">Drug A cures 81% of mild cases (vs B's 87%... wait — A cures 93% of mild and 73% of severe; B cures 87% and 69%. A beats B in <i>both</i>.)</div>
+<div class="step">But if A mostly treated severe patients and B mostly mild ones, B's <i>overall</i> cure rate can come out higher — reversing the truth.</div>
+<div class="step"><span class="r">The lesson: always ask what's being averaged, and what got mixed together.</span></div></div>
+<div class="callout"><span class="l">The through-line</span>Every one of these is a failure to ask "compared to what?" — the base rate, the independence, the other tests you didn't report, the subgroup you averaged away. Good statistics is relentless about the denominator and the comparison.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+const normCDF=(x,mu,sd)=>0.5*(1+erf((x-mu)/(sd*Math.SQRT2)));
+const normPDF=(x,mu,sd)=>Math.exp(-0.5*((x-mu)/sd)**2)/(sd*Math.sqrt(2*Math.PI));
+
+/* --- Law of large numbers --- */
+function simLLN(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>experiment <select id="mode"><option value="coin">coin — proportion of heads</option><option value="die">die — running average</option></select></label>
+   <div class="row"><button class="btn sm" id="run">▶ Run</button><button class="btn sm" id="one">+100 trials</button><button class="btn sm" id="rst">Reset</button></div></div></div>`;
+  const cv=$("canvas",el);let mode="coin",running=false,hist=[],hits=0,tot=0,sum=0;
+  const target=()=>mode==="coin"?0.5:3.5;
+  const trial=()=>{if(mode==="coin"){const h=Math.random()<0.5?1:0;hits+=h;tot++;return hits/tot;}else{const d=1+Math.floor(Math.random()*6);sum+=d;tot++;return sum/tot;}};
+  function reset(){running=false;hist=[];hits=0;tot=0;sum=0;$("#run",el).textContent="▶ Run";}
+  function batch(k){for(let i=0;i<k;i++){const v=trial();hist.push(v);}if(hist.length>4000)running=false;}
+  $("#mode",el).onchange=e=>{mode=e.target.value;reset();};
+  $("#run",el).onclick=()=>{running=!running;$("#run",el).textContent=running?"⏸ Pause":"▶ Run";};
+  $("#one",el).onclick=()=>batch(100);
+  $("#rst",el).onclick=reset;
+  function draw(){const {x,w,h}=fit(cv,210);
+    if(running)batch(Math.max(1,Math.floor(hist.length/60)+1));
+    const yr=mode==="coin"?[0,1]:[1,6];const tv=target();
+    const n=Math.max(50,hist.length);
+    const X=i=>(i/n)*w;const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);
+    // target line
+    x.strokeStyle="#54c6b0";x.lineWidth=1.5;x.setLineDash([5,4]);x.beginPath();x.moveTo(0,Y(tv));x.lineTo(w,Y(tv));x.stroke();x.setLineDash([]);
+    x.fillStyle="#54c6b0";x.font="11px ui-monospace,monospace";x.fillText("true value "+tv,6,Y(tv)-6);
+    // running curve
+    x.strokeStyle="#f0b840";x.lineWidth=2;x.beginPath();
+    for(let i=0;i<hist.length;i++){const px=X(i),py=Y(hist[i]);i?x.lineTo(px,py):x.moveTo(px,py);}x.stroke();
+    const cur=hist.length?hist[hist.length-1]:tv;
+    $("#ro",el).innerHTML=`trials: <b>${hist.length}</b> &nbsp; current ${mode==="coin"?"proportion heads":"average"} = <b>${cur.toFixed(4)}</b> &nbsp; target <b style="color:var(--teal)">${tv}</b><br><span style="color:var(--faint)">wild early swings settle toward the true value — that's the Law of Large Numbers</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Bayes visualizer --- */
+function simBayes(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>base rate (prevalence): <b id="bl">1%</b><input type="range" id="b" min="0.001" max="0.5" step="0.001" value="0.01"></label>
+   <label>sensitivity (true +): <b id="sl">99%</b><input type="range" id="se" min="0.5" max="1" step="0.005" value="0.99"></label>
+   <label>specificity (true −): <b id="pl">95%</b><input type="range" id="sp" min="0.5" max="1" step="0.005" value="0.95"></label></div></div>`;
+  const cv=$("canvas",el);let base=0.01,sens=0.99,spec=0.95;
+  $("#b",el).oninput=e=>{base=+e.target.value;$("#bl",el).textContent=(base*100).toFixed(1)+"%";};
+  $("#se",el).oninput=e=>{sens=+e.target.value;$("#sl",el).textContent=(sens*100).toFixed(1)+"%";};
+  $("#sp",el).oninput=e=>{spec=+e.target.value;$("#pl",el).textContent=(spec*100).toFixed(1)+"%";};
+  const cols=40,rows=25,N=1000;
+  function draw(){const {x,w,h}=fit(cv,250);x.clearRect(0,0,w,h);
+    const sick=Math.round(base*N),healthy=N-sick;
+    const tp=Math.round(sick*sens),fn=sick-tp;
+    const fp=Math.round(healthy*(1-spec)),tn=healthy-fp;
+    // build category array: order tp, fn, fp, tn
+    const cat=[];for(let i=0;i<tp;i++)cat.push(0);for(let i=0;i<fn;i++)cat.push(1);for(let i=0;i<fp;i++)cat.push(2);for(let i=0;i<tn;i++)cat.push(3);
+    const colors=["#f0b840","#e07b3a","#ef7a6a","#2a2013"];
+    const gw=w,cw=gw/cols,ch=(h-14)/rows,r=Math.min(cw,ch)*0.36;
+    for(let i=0;i<N;i++){const cx=(i%cols)*cw+cw/2,cy=Math.floor(i/cols)*ch+ch/2;
+      x.fillStyle=colors[cat[i]];x.beginPath();x.arc(cx,cy,r,0,7);x.fill();}
+    const post=(tp+fp)>0?tp/(tp+fp):0;
+    $("#ro",el).innerHTML=`<span style="color:#f0b840">■ true positive ${tp}</span> &nbsp; <span style="color:#ef7a6a">■ false positive ${fp}</span> &nbsp; <span style="color:#e07b3a">■ missed (false −) ${fn}</span> &nbsp; <span style="color:#7a6c50">■ true negative ${tn}</span><br>Of the <b>${tp+fp}</b> who test positive, only <b style="color:var(--acc)">${(post*100).toFixed(1)}%</b> (${tp}) are actually sick. &nbsp; <span style="color:var(--faint)">P(sick | positive)</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Central Limit Theorem --- */
+function simCLT(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>population <select id="pop"><option value="die">die (uniform 1–6)</option><option value="skew">skewed (heavy tail)</option><option value="bi">two peaks</option></select></label>
+   <label>sample size n = <b id="nl">5</b><input type="range" id="n" min="1" max="40" step="1" value="5"></label>
+   <div class="row"><button class="btn sm" id="rst">Reset</button></div></div></div>`;
+  const cv=$("canvas",el);let n=5,pop="die",bins=new Array(60).fill(0),count=0,lo=1,hi=6,pmu=3.5,psd=1.708;
+  function popStats(){
+    if(pop==="die"){lo=1;hi=6;pmu=3.5;psd=Math.sqrt(35/12);}
+    else if(pop==="skew"){lo=0;hi=6;pmu=1;psd=1;}      // exponential-ish, mean≈1
+    else {lo=0;hi=6;pmu=3;psd=Math.sqrt(9);}           // two peaks near 0 and 6, mean 3
+  }
+  function sample1(){
+    if(pop==="die")return 1+Math.floor(Math.random()*6);
+    if(pop==="skew"){let v=-Math.log(1-Math.random());return Math.min(6,v);}    // exp(1) clipped
+    return Math.random()<0.5?Math.random()*1.2:4.8+Math.random()*1.2;           // two clusters
+  }
+  function reset(){bins.fill(0);count=0;}
+  $("#pop",el).onchange=e=>{pop=e.target.value;popStats();reset();};
+  $("#n",el).oninput=e=>{n=+e.target.value;$("#nl",el).textContent=n;reset();};
+  $("#rst",el).onclick=reset;
+  popStats();
+  function draw(){const {x,w,h}=fit(cv,230);x.clearRect(0,0,w,h);
+    // accumulate several sample-means per frame
+    for(let s=0;s<40;s++){let sum=0;for(let i=0;i<n;i++)sum+=sample1();const m=sum/n;
+      let b=Math.floor((m-lo)/(hi-lo)*bins.length);b=Math.max(0,Math.min(bins.length-1,b));bins[b]++;count++;}
+    const maxb=Math.max(1,...bins);const bw=w/bins.length;
+    for(let i=0;i<bins.length;i++){const bh=(bins[i]/maxb)*(h-24);
+      x.fillStyle="rgba(240,184,64,.35)";x.strokeStyle="#f0b840";x.lineWidth=1;
+      x.fillRect(i*bw,h-bh,bw-0.5,bh);}
+    // overlay the CLT-predicted normal: mean pmu, sd psd/sqrt(n)
+    const se=psd/Math.sqrt(n);const X=v=>((v-lo)/(hi-lo))*w;
+    // scale normal to histogram: peak of normal density * binwidth * count / maxb...
+    const binw=(hi-lo)/bins.length;
+    x.strokeStyle="#54c6b0";x.lineWidth=2.5;x.beginPath();let st=false;
+    for(let px=0;px<=w;px+=2){const v=lo+px/w*(hi-lo);const dens=normPDF(v,pmu,se)*binw*count;
+      const py=h-24-(dens/maxb)*(h-24)+((h-24)-(h-24));const yy=(h-24)-(dens/maxb)*(h-24);
+      if(yy<-40){st=false;continue;}st?x.lineTo(px,yy):x.moveTo(px,yy);st=true;}x.stroke();
+    x.fillStyle="#b3a488";x.font="11px ui-monospace,monospace";x.textAlign="center";
+    x.fillText("distribution of the sample mean (n="+n+")",w/2,14);x.textAlign="left";
+    $("#ro",el).innerHTML=`samples drawn: <b>${count}</b> &nbsp; population mean μ=<b>${pmu.toFixed(2)}</b>, σ=<b>${psd.toFixed(2)}</b> &nbsp; predicted std error σ/√n = <b style="color:var(--teal)">${se.toFixed(3)}</b><br><span style="color:var(--faint)">raise n and the histogram of averages narrows and turns into the teal bell — whatever the population shape</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Regression --- */
+function simRegression(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><div class="row"><button class="btn sm" id="add">+ Point</button><button class="btn sm" id="rst">Reset</button></div>
+   <span style="font-size:12px;color:var(--faint)">drag any point</span></div></div>`;
+  const cv=$("canvas",el);const xr=[0,10],yr=[0,10];
+  let pts=[[1,2],[2,2.6],[3,4.2],[4,4],[5,5.6],[6,5.2],[7,7.4],[8,7.1],[9,9]];
+  let drag=-1;
+  function stats(){const n=pts.length;if(n<2)return null;
+    let sx=0,sy=0;pts.forEach(p=>{sx+=p[0];sy+=p[1];});const mx=sx/n,my=sy/n;
+    let sxx=0,sxy=0,syy=0;pts.forEach(p=>{sxx+=(p[0]-mx)**2;sxy+=(p[0]-mx)*(p[1]-my);syy+=(p[1]-my)**2;});
+    if(sxx===0)return null;const b=sxy/sxx,a=my-b*mx;const r=sxy/Math.sqrt(sxx*syy);
+    return {a,b,r2:r*r,mx,my};}
+  const px2d=(p,w,h)=>[((p[0]-xr[0])/(xr[1]-xr[0]))*w,h-((p[1]-yr[0])/(yr[1]-yr[0]))*h];
+  const d2px=(mx,my,w,h)=>[xr[0]+mx/w*(xr[1]-xr[0]),yr[0]+(h-my)/h*(yr[1]-yr[0])];
+  function pointerPos(e){const rect=cv.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;const cy=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;return [cx,cy];}
+  function down(e){e.preventDefault();const [cx,cy]=pointerPos(e);const w=cv.clientWidth,h=cv.clientHeight;
+    let best=-1,bd=400;pts.forEach((p,i)=>{const [ux,uy]=px2d(p,w,h);const dd=(ux-cx)**2+(uy-cy)**2;if(dd<bd){bd=dd;best=i;}});drag=best;}
+  function move(e){if(drag<0)return;e.preventDefault();const [cx,cy]=pointerPos(e);const w=cv.clientWidth,h=cv.clientHeight;
+    let [dx,dy]=d2px(cx,cy,w,h);dx=Math.max(xr[0],Math.min(xr[1],dx));dy=Math.max(yr[0],Math.min(yr[1],dy));pts[drag]=[dx,dy];}
+  function up(){drag=-1;}
+  cv.addEventListener("pointerdown",down);cv.addEventListener("pointermove",move);window.addEventListener("pointerup",up);
+  cleanups.push(()=>{cv.removeEventListener("pointerdown",down);cv.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up);});
+  $("#add",el).onclick=()=>{pts.push([Math.random()*10,Math.random()*10]);};
+  $("#rst",el).onclick=()=>{pts=[[1,2],[2,2.6],[3,4.2],[4,4],[5,5.6],[6,5.2],[7,7.4],[8,7.1],[9,9]];};
+  function draw(){const {x,w,h}=fit(cv,250);x.clearRect(0,0,w,h);
+    // grid
+    x.strokeStyle="#241c10";x.lineWidth=1;for(let g=0;g<=10;g+=2){const gx=g/10*w,gy=h-g/10*h;x.beginPath();x.moveTo(gx,0);x.lineTo(gx,h);x.moveTo(0,gy);x.lineTo(w,gy);x.stroke();}
+    const st=stats();
+    if(st){const y0=st.a+st.b*xr[0],y1=st.a+st.b*xr[1];const [ax,ay]=px2d([xr[0],y0],w,h),[bx,by]=px2d([xr[1],y1],w,h);
+      // residuals
+      x.strokeStyle="#b78bef55";x.lineWidth=1;pts.forEach(p=>{const [ux,uy]=px2d(p,w,h);const fy=st.a+st.b*p[0];const [,vy]=px2d([p[0],fy],w,h);x.beginPath();x.moveTo(ux,uy);x.lineTo(ux,vy);x.stroke();});
+      x.strokeStyle="#54c6b0";x.lineWidth=2.5;x.beginPath();x.moveTo(ax,ay);x.lineTo(bx,by);x.stroke();}
+    pts.forEach(p=>{const [ux,uy]=px2d(p,w,h);x.fillStyle="#f0b840";x.beginPath();x.arc(ux,uy,6,0,7);x.fill();x.strokeStyle="#1a1206";x.lineWidth=1.5;x.stroke();});
+    if(st)$("#ro",el).innerHTML=`best fit: <b>ŷ = ${st.a.toFixed(2)} ${st.b>=0?"+":"−"} ${Math.abs(st.b).toFixed(2)}·x</b> &nbsp; R² = <b style="color:var(--teal)">${st.r2.toFixed(3)}</b><br><span style="color:var(--faint)">violet = residuals the line minimizes · drag a point far off and watch R² collapse</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Normal / 68-95-99.7 --- */
+function simNormal(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>mean μ = <b id="ml">0</b><input type="range" id="mu" min="-3" max="3" step="0.1" value="0"></label>
+   <label>std dev σ = <b id="sl">1</b><input type="range" id="sd" min="0.4" max="2.5" step="0.05" value="1"></label>
+   <label>value x = <b id="xl">1.0</b><input type="range" id="xx" min="-8" max="8" step="0.1" value="1"></label></div></div>`;
+  const cv=$("canvas",el);let mu=0,sd=1,xv=1;
+  $("#mu",el).oninput=e=>{mu=+e.target.value;$("#ml",el).textContent=mu.toFixed(1);};
+  $("#sd",el).oninput=e=>{sd=+e.target.value;$("#sl",el).textContent=sd.toFixed(2);};
+  $("#xx",el).oninput=e=>{xv=+e.target.value;$("#xl",el).textContent=xv.toFixed(1);};
+  function draw(){const {x,w,h}=fit(cv,230);x.clearRect(0,0,w,h);
+    const xr=[-8,8];const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;
+    const peak=normPDF(mu,mu,sd);const Y=d=>h-8-(d/peak)*(h-30);
+    // shaded bands 1,2,3 sigma
+    const bands=[[3,"rgba(240,184,64,.10)"],[2,"rgba(240,184,64,.16)"],[1,"rgba(240,184,64,.28)"]];
+    bands.forEach(([k,col])=>{x.fillStyle=col;x.beginPath();let first=true;
+      for(let px=X(mu-k*sd);px<=X(mu+k*sd);px+=2){const v=xr[0]+px/w*(xr[1]-xr[0]);const py=Y(normPDF(v,mu,sd));first?x.moveTo(px,py):x.lineTo(px,py);first=false;}
+      x.lineTo(X(mu+k*sd),h-8);x.lineTo(X(mu-k*sd),h-8);x.closePath();x.fill();});
+    // shade area left of x (cumulative)
+    x.fillStyle="rgba(84,198,176,.30)";x.beginPath();x.moveTo(X(xr[0]),h-8);let f=true;
+    for(let px=0;px<=X(xv);px+=2){const v=xr[0]+px/w*(xr[1]-xr[0]);const py=Y(normPDF(v,mu,sd));f?x.lineTo(px,py):x.lineTo(px,py);f=false;}
+    x.lineTo(X(xv),h-8);x.closePath();x.fill();
+    // curve
+    x.strokeStyle="#f0b840";x.lineWidth=2.5;x.beginPath();let s=false;
+    for(let px=0;px<=w;px+=2){const v=xr[0]+px/w*(xr[1]-xr[0]);const py=Y(normPDF(v,mu,sd));s?x.lineTo(px,py):x.moveTo(px,py);s=true;}x.stroke();
+    // baseline + sigma ticks
+    x.strokeStyle="#3a2f1c";x.beginPath();x.moveTo(0,h-8);x.lineTo(w,h-8);x.stroke();
+    x.strokeStyle="#54c6b0";x.lineWidth=1.5;x.beginPath();x.moveTo(X(xv),Y(normPDF(xv,mu,sd)));x.lineTo(X(xv),h-8);x.stroke();
+    const z=(xv-mu)/sd,cdf=normCDF(xv,mu,sd);
+    $("#ro",el).innerHTML=`z-score = (x−μ)/σ = <b>${z.toFixed(2)}</b> &nbsp; P(X &lt; ${xv.toFixed(1)}) = area = <b style="color:var(--teal)">${(cdf*100).toFixed(1)}%</b><br>bands: μ±1σ ≈ <b>68%</b> · μ±2σ ≈ <b>95%</b> · μ±3σ ≈ <b>99.7%</b> of the area`;
+  }
+  raf(draw);
+}
+
+const SIMS={lln:simLLN,bayes:simBayes,clt:simCLT,regression:simRegression,normal:simNormal};
+const LABS=[
+ ["lln","∞","Law of Large Numbers","Flip coins or roll dice — watch the running proportion converge.","var(--acc)"],
+ ["bayes","⊕","Bayes Visualizer","Base rate, sensitivity, specificity — see why a positive test can still mean healthy.","var(--red)"],
+ ["clt","∿","Central Limit Theorem","Average a skewed variable and watch the histogram become a bell.","var(--teal)"],
+ ["normal","◠","The Bell Curve","Shade the 68–95–99.7 bands and read off probabilities.","var(--acc2)"],
+ ["regression","╱","Line of Best Fit","Drag points; the least-squares line and R² recompute live.","var(--violet)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#241a0c,#1c160c);border-color:#4a3a1c">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL PROBABILITY & STATISTICS COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Chance → random variables → the bell curve → sampling → inference. Worked examples, interactive labs (🔧), and practice. Take it in order; the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · statistics you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`Roll one fair die. P(rolling a number greater than 4)?`,a:["${a}".replace("${a}","1/6"),"1/3","1/2","2/3"],c:1,e:"Favorable outcomes are 5 and 6 → 2 of 6 = 1/3."},
+ {q:`P(not A) equals…`,a:["1 − P(A)","P(A) − 1","1 / P(A)","P(A)²"],c:0,e:"Complement rule: an event and its opposite cover everything, so they sum to 1."},
+ {q:`A bag has 3 red and 2 blue balls. Draw two without replacing. P(both red)?`,a:["9/25","3/10","1/2","6/20"],c:1,e:"First red 3/5, then (given one gone) 2/4. Multiply: (3/5)(2/4)=6/20=3/10. Conditional probability — the draws aren't independent."},
+ {q:`A disease affects 1% of people. A test is 99% sensitive and 95% specific. You test positive. Roughly how likely are you actually sick?`,a:["~99%","~95%","~17%","~50%"],c:2,e:"Base-rate neglect trap. Per 10,000: 99 true positives vs 495 false positives → 99/594 ≈ 17%. Rare disease ⟹ most positives are false alarms."},
+ {q:`A game pays \$6 with probability 1/3 and \$0 otherwise. Its expected value is…`,a:["\$6","\$3","\$2","\$0"],c:2,e:"E = 6·(1/3) + 0·(2/3) = \$2. Pay more than \$2 to play and you lose on average."},
+ {q:`Flip a fair coin 4 times. P(exactly 3 heads)? (Binomial)`,a:["1/2","3/16","4/16","1/8"],c:2,e:"C(4,3)=4 ways, each (1/2)⁴=1/16 → 4/16 = 1/4. So 4/16."},
+ {q:`Scores are normal with μ=100, σ=15. About what % fall between 70 and 130?`,a:["68%","95%","99.7%","50%"],c:1,e:"70 to 130 is μ ± 2σ. The 68–95–99.7 rule gives ≈95%."},
+ {q:`The Central Limit Theorem says that as sample size grows, the distribution of the sample mean…`,a:["matches the population's shape","becomes approximately normal","becomes uniform","has larger spread"],c:1,e:"Regardless of the population's shape (with finite variance), averages become approximately normal, centered on μ, with spread σ/√n."},
+ {q:`A study reports p = 0.03. What does this mean?`,a:["There's a 3% chance the null is true","If the null were true, data this extreme would occur only 3% of the time","The effect is large","97% chance the result is real"],c:1,e:"A p-value is P(data this extreme | null true) — NOT the probability the null (or the hypothesis) is true. That reversal is the classic misreading."},
+ {q:`Ice cream sales and drowning deaths rise together across the year. Best conclusion?`,a:["Ice cream causes drowning","A confounder (hot weather) drives both","Drowning causes ice cream sales","They are unrelated"],c:1,e:"Correlation ≠ causation. Summer heat is the lurking third variable driving both — a confounder."},
+ {q:`A roulette wheel lands red 6 times in a row. On the next spin, black is…`,a:["more likely — it's due","less likely","exactly as likely as before","certain"],c:2,e:"Gambler's fallacy. Spins are independent; the wheel has no memory. The odds are unchanged by past results."},
+ {q:`In a regression, R² = 0.81 means…`,a:["the slope is 0.81","81% of the variation in y is explained by the line","81% of points lie on the line","the correlation is 0.81"],c:1,e:"R² is the fraction of y's variance explained by the fit (here 81%). It equals the correlation squared, so r = 0.9."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Foundations",P.done.sample&&P.done.rules&&P.done.cond&&P.done.bayes],["②","Distributions",P.done.rv&&P.done.expect&&P.done.binom&&P.done.normal],["③","Sampling",P.done.popsamp&&P.done.clt&&P.done.ci],["④","Inference",P.done.pvalue&&P.done.corr&&P.done.regr&&P.done.fallacies],["🎯","Sharp",ds>=10],["🎓","Statistician",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#2a2013" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0b840"/><stop offset="1" stop-color="#e08b3a"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#f0e9da" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#b3a488" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full stats course. 🎓":pc>=50?"Past halfway — the Central Limit Theorem awaits.":"Reasoning under uncertainty, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>
