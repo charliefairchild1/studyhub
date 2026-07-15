@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mathematics — From Proof to Calculus</title>
+<meta name="theme-color" content="#0b0e18">
+<style>
+:root{--bg:#0b0e18;--panel:#121728;--panel2:#182036;--ink:#e9ecf6;--dim:#9aa4c4;--faint:#65708f;--acc:#7f9cf0;--acc2:#5ad1c0;--gold:#e5b657;--red:#f0866f;--rule:#242c44}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+body{background:radial-gradient(1000px 620px at 82% -10%,#182448 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",system-ui,sans-serif;line-height:1.55;min-height:100vh;
+  padding:calc(env(safe-area-inset-top) + 52px) 15px calc(env(safe-area-inset-bottom) + 78px)}
+.wrap{max-width:660px;margin:0 auto}
+.eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:1.9em;font-weight:600;line-height:1.1}
+h1 em{font-style:italic;color:var(--acc)}
+.lede{color:var(--dim);margin:11px 0 18px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:15px;padding:17px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);font-weight:700;margin:18px 2px 9px}
+.mod{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:13px 15px;margin-bottom:9px;cursor:pointer;text-align:left;width:100%;color:var(--ink);font:inherit}
+.mod:active{background:var(--panel2)}
+.mod.done{border-color:#2f5c53}
+.mod .num{width:30px;height:30px;border-radius:50%;background:var(--panel2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9em;color:var(--acc);flex-shrink:0}
+.mod.done .num{background:linear-gradient(135deg,var(--acc2),#2f9c8c);color:#052019;border-color:transparent}
+.mod .mt{flex:1;min-width:0}.mod .mt b{font-weight:700}.mod .mt small{display:block;color:var(--dim);font-size:.8em;margin-top:1px}
+.mod .go{color:var(--faint);font-size:1.2em}
+.labcard{background:linear-gradient(135deg,#141d33,#132a30);border:1px solid #2a3a5a}
+.labcard h3{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;font-size:1.15em}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.backbar .b{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;font-size:.82em;cursor:pointer}
+.tabs2{display:flex;gap:7px;margin-bottom:15px}
+.tabs2 button{flex:1;background:var(--panel);border:1px solid var(--rule);color:var(--dim);border-radius:10px;padding:9px;font:inherit;font-weight:700;font-size:.85em;cursor:pointer}
+.tabs2 button.on{background:var(--acc);color:#08122b;border-color:var(--acc)}
+.reader h2{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;font-size:1.4em;margin:2px 0 4px}
+.reader h4{color:var(--acc);font-size:1.02em;margin:18px 0 6px}
+.reader p{color:#ccd3ea;margin:11px 0}
+.reader ul{color:#ccd3ea;padding-left:20px;margin:10px 0}.reader li{margin:5px 0}
+.reader b{color:var(--ink)}
+.def{background:var(--panel2);border-left:3px solid var(--acc);border-radius:0 11px 11px 0;padding:12px 15px;margin:14px 0}
+.def .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:5px}
+.note{background:#13221f;border:1px solid #2b4a44;border-radius:11px;padding:11px 14px;margin:14px 0;color:#cfe6df;font-size:.94em}
+.note .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);display:block;margin-bottom:4px}
+.eq{font-family:"Iowan Old Style",Georgia,serif;font-size:1.14em;text-align:center;background:var(--panel2);border:1px solid var(--rule);border-radius:10px;padding:13px;margin:13px 0;overflow-x:auto;white-space:nowrap}
+.sym{font-family:ui-monospace,monospace;color:var(--acc);font-weight:600}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .18em;font-size:.92em}
+.frac>span:first-child{border-bottom:1.4px solid currentColor;padding:0 .35em}
+.frac>span:last-child{padding:0 .35em}
+/* lab */
+.labin{width:100%;background:#0a0e1a;border:1px solid var(--rule);color:var(--ink);border-radius:11px;padding:11px 12px;font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chips button{background:var(--panel2);border:1px solid var(--rule);color:var(--acc);border-radius:20px;padding:7px 12px;font:inherit;font-size:.86em;cursor:pointer}
+.chips button.on{background:var(--acc);color:#08122b;border-color:var(--acc)}
+canvas{width:100%;height:auto;display:block;background:#080b14;border:1px solid var(--rule);border-radius:12px;margin:8px 0}
+.slider{display:flex;flex-direction:column;gap:3px;margin:10px 0}
+.slider label{font-size:.8em;color:var(--dim);display:flex;justify-content:space-between}
+.slider input[type=range]{width:100%;accent-color:var(--acc)}
+.readout{font-family:ui-monospace,monospace;font-size:.88em;color:var(--dim);line-height:1.8;margin-top:6px}
+.readout b{color:var(--acc)}
+/* practice */
+.q{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px;margin-bottom:12px}
+.q .qn{font-family:ui-monospace,monospace;font-size:.72em;color:var(--faint);letter-spacing:1px}
+.q .qt{font-weight:600;margin:6px 0 12px;font-size:1.04em}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--rule);border-radius:11px;padding:12px 14px;margin-bottom:8px;color:var(--ink);font:inherit;font-size:.98em;cursor:pointer}
+.opt:active{background:#1d2740}
+.opt.correct{border-color:var(--acc2);background:#12251f}
+.opt.wrong{border-color:var(--red);background:#2a1613}
+.opt .mk{float:right;font-weight:800}
+.sol{margin-top:8px;padding:12px 14px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;font-size:.92em;color:#d6ddf0;display:none}
+.sol.show{display:block}
+.sol .l{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px}
+.btn{background:var(--acc);color:#08122b;border:none;border-radius:12px;padding:14px;font:700 1.02em/1 inherit;cursor:pointer;width:100%}
+.btn:active{transform:translateY(1px)}
+.ghost{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:12px;padding:11px 16px;font:600 .92em/1 inherit;cursor:pointer}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#080b14ee;backdrop-filter:blur(10px);border-top:1px solid var(--rule);padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);z-index:20}
+nav button{flex:1;background:none;border:0;color:var(--faint);font-size:.68em;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:3px}
+nav button .i{font-size:1.3em}nav button.on{color:var(--acc)}
+.prog-ring{--p:0;width:60px;height:60px;border-radius:50%;background:conic-gradient(var(--acc) calc(var(--p)*1%),#1a2338 0);display:flex;align-items:center;justify-content:center;margin:0 auto}
+.prog-ring i{width:48px;height:48px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--acc);font-style:normal}
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:#0a0e1a;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;font-size:.9em;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%)}
+a.hubback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(11,14,24,.9);color:var(--acc);border:1px solid #2a3a5a;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)}
+@media (max-width:380px){
+  body{font-size:15px;padding-left:12px;padding-right:12px}
+  h1{font-size:1.6em}.lede{font-size:.95em}
+  .card{padding:14px}.mod{padding:11px 12px;gap:10px}.mod .num{width:27px;height:27px}
+  .reader h2{font-size:1.25em}.eq{font-size:1.02em;padding:11px 9px}
+  .opt{padding:11px 12px}.def,.note{padding:11px 12px}.chips button{padding:6px 10px;font-size:.82em}
+}
+</style></head>
+<body>
+<a href="../index.html" class="hubback">&lsaquo; Hub</a>
+<div class="wrap" id="app"></div>
+<nav id="nav">
+  <button data-v="home" class="on"><span class="i">📐</span>Learn</button>
+  <button data-v="lab"><span class="i">📈</span>Lab</button>
+  <button data-v="prog"><span class="i">📊</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+const F=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const MODULES=[
+ {id:'proof',n:'Proof & the Logic of Math',sub:'how we know things for certain',learn:`
+  <h2>Proof &amp; the Logic of Math</h2>
+  <p>Mathematics is the one field where claims are settled <b>for certain</b>, by <b>proof</b> — a chain of steps from accepted truths (axioms, definitions) to a conclusion, each step forced by logic. This module is the toolkit; everything after it is <i>discovered</i> with these tools.</p>
+  <h4>The main proof techniques</h4>
+  <div class="def"><span class="l">Direct proof</span>Assume the hypothesis, deduce the conclusion. To show "if n is even then n² is even": write n = 2k, then n² = 4k² = 2(2k²), which is even. ∎</div>
+  <div class="def"><span class="l">Contrapositive</span>To prove <span class="sym">P → Q</span>, prove the equivalent <span class="sym">¬Q → ¬P</span>. To show "if n² is even then n is even," instead show "if n is odd then n² is odd" — often easier.</div>
+  <div class="def"><span class="l">Contradiction</span>Assume the claim is <i>false</i> and derive an impossibility. The gem: <b>√2 is irrational</b>. Suppose √2 = a/b in lowest terms. Then 2b² = a², so a is even, a = 2c, so 2b² = 4c², b² = 2c², so b is even too — but then a/b wasn't in lowest terms. Contradiction. ∎</div>
+  <div class="def"><span class="l">Induction</span>To prove a statement for all n ≥ 1: show it for n = 1 (<b>base case</b>), then show "if it holds for n, it holds for n+1" (<b>inductive step</b>). Like dominoes. E.g. 1 + 2 + … + n = ${F('n(n+1)','2')}.</div>
+  <div class="note"><span class="l">Connection</span>The rules that make each step "forced" — modus ponens, quantifiers, De Morgan — are exactly the <b>Logic</b> course. If proof feels shaky, do that course first; it is the grammar of everything here.</div>`,
+  practice:[
+   {q:'Proving <span class="sym">P → Q</span> by instead proving <span class="sym">¬Q → ¬P</span> is proof by:',o:['Contrapositive','Contradiction','Induction','Direct proof'],a:0,s:'The contrapositive ¬Q → ¬P is logically equivalent to P → Q, so proving it proves the original.'},
+   {q:'The proof that √2 is irrational works by:',o:['Assuming it is rational and reaching a contradiction','Direct construction','Induction on n','Checking many cases'],a:0,s:'It assumes √2 = a/b in lowest terms, then shows a and b are both even — contradicting "lowest terms."'},
+   {q:'In induction, the inductive step proves:',o:['If it holds for n, it holds for n+1','It holds for n = 1','It holds for all n at once','It fails somewhere'],a:0,s:'Base case anchors n=1; the inductive step propagates truth from n to n+1, covering all n like dominoes.'},
+   {q:'"n = 2k so n² = 2(2k²)" is a direct proof that:',o:['Even² is even','Odd² is odd','√2 is irrational','n is prime'],a:0,s:'Writing an even n as 2k and factoring shows n² has a factor of 2 — a direct proof.'}
+  ]},
+ {id:'sets',n:'Sets, Functions & Relations',sub:'the vocabulary of all math',learn:`
+  <h2>Sets, Functions &amp; Relations</h2>
+  <p>A <b>set</b> is a collection of distinct objects (its <b>elements</b>). We write <span class="sym">x ∈ A</span> ("x is in A"). Sets are the substrate everything is built on.</p>
+  <h4>Building sets</h4>
+  <ul>
+   <li><b>Roster:</b> A = {1, 2, 3}. &nbsp;<b>Builder:</b> A = { x ∈ ℝ : x &gt; 0 } (the positive reals).</li>
+   <li><b>Subset</b> <span class="sym">A ⊆ B</span>: every element of A is in B. The empty set <span class="sym">∅</span> is a subset of everything.</li>
+   <li><b>Union</b> <span class="sym">A ∪ B</span> (in either), <b>intersection</b> <span class="sym">A ∩ B</span> (in both), <b>complement</b> <span class="sym">Aᶜ</span> (not in A).</li>
+  </ul>
+  <h4>Functions</h4>
+  <div class="def"><span class="l">Definition · Function</span>A function <span class="sym">f : A → B</span> assigns to <i>each</i> element of the <b>domain</b> A exactly one element of the <b>codomain</b> B. The <b>range</b> is the set of outputs actually hit.</div>
+  <p>Three properties that matter everywhere:</p>
+  <ul>
+   <li><b>Injective</b> (one-to-one): different inputs give different outputs. f(x)=2x is injective; f(x)=x² is not (±2 → 4).</li>
+   <li><b>Surjective</b> (onto): every element of B is hit.</li>
+   <li><b>Bijective</b>: both — a perfect pairing. Exactly the functions with an <b>inverse</b> f⁻¹.</li>
+  </ul>
+  <p><b>Composition</b> <span class="sym">(g ∘ f)(x) = g(f(x))</span> — do f, then g. This is the seed of the chain rule you'll meet in calculus.</p>
+  <div class="note"><span class="l">Why care</span>"Derivative," "integral," "linear map," "solution of an equation" are all just <i>functions</i> with special properties. Getting fluent here makes calculus feel like vocabulary you already own.</div>`,
+  practice:[
+   {q:'A function is <b>injective</b> when:',o:['Different inputs always give different outputs','Every output is achieved','It has an inverse automatically','Its domain is ℝ'],a:0,s:'Injective = one-to-one: f(a)=f(b) forces a=b. (f(x)=x² fails, since 2 and −2 both map to 4.)'},
+   {q:'A function has an inverse exactly when it is:',o:['Bijective','Injective only','Surjective only','Continuous'],a:0,s:'You need both one-to-one (so inverse is well-defined) and onto (so every point has a pre-image): bijective.'},
+   {q:'<span class="sym">(g ∘ f)(x)</span> means:',o:['g(f(x)) — apply f then g','f(g(x))','g(x)·f(x)','g(x)+f(x)'],a:0,s:'Composition applies the inner function first: f, then feed the result into g.'},
+   {q:'The empty set ∅ is a subset of:',o:['Every set','No set','Only itself','Only ℝ'],a:0,s:'Vacuously, every element of ∅ (there are none) is in any set, so ∅ ⊆ A for all A.'}
+  ]},
+ {id:'algebra',n:'Numbers & Algebra',sub:'the machinery of symbols',learn:`
+  <h2>Numbers &amp; Algebra</h2>
+  <p>The number systems nest: <b>naturals</b> ℕ ⊂ <b>integers</b> ℤ ⊂ <b>rationals</b> ℚ ⊂ <b>reals</b> ℝ ⊂ <b>complex</b> ℂ. Each fixes a limitation of the last (ℤ adds subtraction, ℚ adds division, ℝ fills the gaps like √2 and π, ℂ adds √−1 = i).</p>
+  <h4>Exponents & logarithms</h4>
+  <p>The laws of exponents are the backbone of everything from growth to calculus:</p>
+  <div class="eq">xᵃ · xᵇ = xᵃ⁺ᵇ &nbsp;·&nbsp; (xᵃ)ᵇ = xᵃᵇ &nbsp;·&nbsp; x⁻ᵃ = 1/xᵃ &nbsp;·&nbsp; x^(1/2) = √x</div>
+  <p>A <b>logarithm</b> is the inverse of exponentiation: <span class="sym">log_b(y) = x</span> means <span class="sym">bˣ = y</span>. So logs turn multiplication into addition — <span class="sym">log(ab) = log a + log b</span> — which is why they tame exponential growth.</p>
+  <h4>Solving quadratics</h4>
+  <p>For <span class="sym">ax² + bx + c = 0</span>, the quadratic formula gives both roots:</p>
+  <div class="eq">x = ${F('−b ± √(b² − 4ac)','2a')}</div>
+  <p>The <b>discriminant</b> b²−4ac tells the story before you solve: positive → two real roots, zero → one (repeated), negative → two complex roots. It comes from <b>completing the square</b>, the trick of rewriting ax²+bx+c as a(x+h)²+k.</p>
+  <div class="note"><span class="l">Fluency test</span>You should be able to factor x²−5x+6 = (x−2)(x−3), expand (a+b)² = a²+2ab+b², and simplify ${F('1','x')} + ${F('1','y')} = ${F('x+y','xy')} without thinking. These reflexes make calculus about <i>ideas</i>, not arithmetic.</p>`,
+  practice:[
+   {q:'The set that first lets you divide any two nonzero numbers is:',o:['ℚ (rationals)','ℤ (integers)','ℕ (naturals)','ℝ (reals)'],a:0,s:'Integers lack division (1/2 ∉ ℤ). The rationals ℚ = a/b close it under division.'},
+   {q:'<span class="sym">xᵃ · xᵇ</span> equals:',o:['xᵃ⁺ᵇ','xᵃᵇ','x^(a−b)','xᵃ·ᵇ'],a:0,s:'Multiplying powers with the same base adds exponents.'},
+   {q:'<span class="sym">log(ab)</span> equals:',o:['log a + log b','log a · log b','log a − log b','(log a)/(log b)'],a:0,s:'Logs convert products to sums — the defining property that made log tables so powerful.'},
+   {q:'For ax²+bx+c=0, a <b>negative</b> discriminant b²−4ac means:',o:['Two complex roots','Two real roots','One repeated real root','No roots at all'],a:0,s:'√(negative) is imaginary, so the two roots are complex conjugates.'},
+   {q:'x² − 5x + 6 factors as:',o:['(x−2)(x−3)','(x−1)(x−6)','(x+2)(x+3)','(x−5)(x+6)'],a:0,s:'Need two numbers multiplying to 6 and adding to 5: 2 and 3. (Check: −2−3=−5, (−2)(−3)=6.)'}
+  ]},
+ {id:'functions',n:'Functions & Trigonometry',sub:'curves, growth, and angles',learn:`
+  <h2>Functions &amp; Trigonometry</h2>
+  <p>A handful of function families model almost everything:</p>
+  <ul>
+   <li><b>Polynomials</b> (x², x³−x…) — smooth, tame, the workhorses.</li>
+   <li><b>Exponential</b> <span class="sym">eˣ</span> — growth proportional to size; the base <b>e ≈ 2.718</b> is special because eˣ is its own derivative.</li>
+   <li><b>Logarithm</b> <span class="sym">ln x</span> — inverse of eˣ, the natural ruler for anything spanning orders of magnitude.</li>
+  </ul>
+  <h4>Trigonometry — the mathematics of rotation</h4>
+  <p>Put a point on the <b>unit circle</b> at angle θ (measured in <b>radians</b>, where a full turn is 2π). Then by definition:</p>
+  <div class="eq">cos θ = x-coordinate &nbsp;·&nbsp; sin θ = y-coordinate &nbsp;·&nbsp; tan θ = ${F('sin θ','cos θ')}</div>
+  <p>Because the point is <i>on</i> the unit circle (radius 1), the Pythagorean theorem gives the single most-used identity in all of math:</p>
+  <div class="eq">sin²θ + cos²θ = 1</div>
+  <p>Both functions <b>oscillate</b> between −1 and 1 with period 2π. That periodicity makes sin and cos the natural language of waves, orbits, springs, and (via Fourier) <i>any</i> repeating signal. Key angle-sum identity, worth knowing:</p>
+  <div class="eq">sin(a + b) = sin a cos b + cos a sin b</div>
+  <div class="note"><span class="l">Radians, not degrees</span>Calculus only behaves nicely in radians — e.g. ${F('d','dx')} sin x = cos x is true <i>only</i> in radians. Think of an angle as an <b>arc length</b> on the unit circle, and the whole subject clicks.</div>`,
+  practice:[
+   {q:'The base <b>e</b> is special because:',o:['eˣ is its own derivative','e = 3 exactly','eˣ is a straight line','e is rational'],a:0,s:'d/dx eˣ = eˣ. This self-replicating property makes e the natural base of growth and calculus.'},
+   {q:'On the unit circle at angle θ, cos θ is:',o:['The x-coordinate','The y-coordinate','The radius','The arc length'],a:0,s:'By definition cos θ is the horizontal coordinate, sin θ the vertical, of the point at angle θ on the unit circle.'},
+   {q:'sin²θ + cos²θ equals:',o:['1','0','θ','2'],a:0,s:'It is the Pythagorean theorem for the unit-circle point (x,y)=(cos θ, sin θ): x²+y²=1.'},
+   {q:'A full turn around the circle, in radians, is:',o:['2π','π','360','1'],a:0,s:'Radians measure arc length on the unit circle; the full circumference is 2π.'},
+   {q:'The natural logarithm ln x is the inverse of:',o:['eˣ','x²','sin x','1/x'],a:0,s:'ln and eˣ undo each other: ln(eˣ)=x and e^(ln x)=x.'}
+  ]},
+ {id:'limits',n:'Limits & Continuity',sub:'the idea calculus is built on',learn:`
+  <h2>Limits &amp; Continuity</h2>
+  <p>Every idea in calculus — derivative, integral, series — is secretly a <b>limit</b>: the value a function <i>approaches</i> as the input approaches something, even if it never arrives.</p>
+  <div class="def"><span class="l">Intuition · Limit</span><span class="sym">lim (x→a) f(x) = L</span> means: we can make f(x) as close to L as we like, just by taking x close enough to a (but not equal to a).</div>
+  <p>The classic that <i>needs</i> limits: <span class="sym">f(x) = (x²−1)/(x−1)</span> is undefined at x = 1 (0/0). But for every x ≠ 1 it equals x + 1, so as x → 1 it approaches <b>2</b>. The limit sees the destination the function is heading toward, ignoring the hole.</p>
+  <h4>Limit laws</h4>
+  <p>Limits play nicely: the limit of a sum is the sum of limits, same for products and quotients (when the denominator's limit isn't 0). This lets you compute most limits by substitution — the interesting cases are the <b>indeterminate</b> ones like 0/0 and ∞/∞.</p>
+  <h4>Continuity</h4>
+  <div class="def"><span class="l">Definition · Continuous</span>f is continuous at a when <span class="sym">lim (x→a) f(x) = f(a)</span> — the limit exists, f(a) exists, and they agree. Informally: you can draw it without lifting your pen.</div>
+  <p>Continuity buys powerful guarantees. The <b>Intermediate Value Theorem</b>: if f is continuous on [a,b] and takes values below and above some y, it must hit y somewhere between — this is why a continuous temperature that was 10° and later 20° was, at some instant, exactly 15°.</p>
+  <div class="note"><span class="l">The move to remember</span>A limit answers "where is this <i>heading</i>?" — a question that stays meaningful even where the function breaks, divides by zero, or shrinks to an instant. That's the crack through which all of calculus enters.</div>`,
+  practice:[
+   {q:'<span class="sym">lim (x→1) (x²−1)/(x−1)</span> equals:',o:['2','0','1','undefined'],a:0,s:'For x≠1, (x²−1)/(x−1)=(x−1)(x+1)/(x−1)=x+1, which approaches 1+1=2. The limit ignores the hole at x=1.'},
+   {q:'f is <b>continuous</b> at a when:',o:['lim(x→a) f(x) = f(a)','f(a) = 0','f is a polynomial','the limit is ∞'],a:0,s:'Continuity requires the limit to exist, f(a) to exist, and the two to be equal — no jumps or holes.'},
+   {q:'A limit is useful precisely because it can describe behavior where:',o:['The function itself is undefined (like 0/0)','The function equals zero','x is negative','the graph is a line'],a:0,s:'Limits capture where a function is heading even at points it never reaches or where it divides by zero — exactly the cases calculus needs.'},
+   {q:'The Intermediate Value Theorem needs f to be:',o:['Continuous on the interval','Differentiable everywhere','A polynomial','Increasing'],a:0,s:'Continuity alone guarantees a continuous curve hits every intermediate value between its endpoints.'}
+  ]},
+ {id:'deriv',n:'Derivatives',sub:'instantaneous rate of change',learn:`
+  <h2>Derivatives</h2>
+  <p>The <b>derivative</b> measures how fast a function changes — the slope of its graph at a single point. It's the limit of the slope of a shrinking secant line:</p>
+  <div class="eq">f′(x) = lim (h→0) ${F('f(x+h) − f(x)','h')}</div>
+  <p>Physically: if x(t) is position, the derivative ẋ = <span class="sym">dx/dt</span> is <b>velocity</b>; its derivative is <b>acceleration</b>. The derivative turns "where is it?" into "how fast, and which way?"</p>
+  <h4>The rules (so you never take a limit again)</h4>
+  <ul>
+   <li><b>Power rule:</b> ${F('d','dx')} xⁿ = n xⁿ⁻¹. &nbsp;(So x³ → 3x², and x → 1.)</li>
+   <li><b>Constant multiple / sum:</b> derivatives distribute over + and scale.</li>
+   <li><b>Product rule:</b> (fg)′ = f′g + fg′.</li>
+   <li><b>Quotient rule:</b> (f/g)′ = (f′g − fg′)/g².</li>
+   <li><b>Chain rule:</b> ${F('d','dx')} f(g(x)) = f′(g(x))·g′(x) — the rule for compositions, and the most important one.</li>
+  </ul>
+  <p>Staple derivatives: <span class="sym">(eˣ)′ = eˣ</span>, <span class="sym">(ln x)′ = 1/x</span>, <span class="sym">(sin x)′ = cos x</span>, <span class="sym">(cos x)′ = −sin x</span>.</p>
+  <h4>What it's for</h4>
+  <p><b>Optimization:</b> a smooth function's maxima and minima occur where <span class="sym">f′(x) = 0</span> (the tangent is flat). Set the derivative to zero, solve, and you've found the peaks and valleys — the single most useful trick in applied math, from economics to physics.</p>
+  <div class="note"><span class="l">See it live</span>Open the <b>Lab → Derivative</b>: drag the point along a curve and watch the tangent line's slope — that slope <i>is</i> f′ at that point.</div>`,
+  practice:[
+   {q:'By the power rule, ${F0} of x³ is:',o:['3x²','x²','3x','x⁴/4'],a:0,s:'d/dx xⁿ = n·xⁿ⁻¹, so x³ → 3x².'},
+   {q:'The derivative is, geometrically, the:',o:['Slope of the tangent line','Area under the curve','Height of the curve','Length of the curve'],a:0,s:'f′(x) is the limiting slope of secant lines — the slope of the tangent at that point.'},
+   {q:'The chain rule says ${F1} f(g(x)) equals:',o:['f′(g(x))·g′(x)','f′(x)·g′(x)','f′(g′(x))','f(g′(x))'],a:0,s:'Differentiate the outer function at the inner value, then multiply by the inner derivative.'},
+   {q:'Smooth maxima and minima of f occur where:',o:['f′(x) = 0','f(x) = 0','f″(x) = 0','x = 0'],a:0,s:'At a peak or valley the tangent is horizontal, so the derivative vanishes: f′(x)=0 (the critical points).'},
+   {q:'If x(t) is position, then dx/dt is:',o:['Velocity','Acceleration','Distance','Force'],a:0,s:'The first time-derivative of position is velocity; the second is acceleration.'}
+  ]},
+ {id:'integ',n:'Integrals',sub:'accumulation and area',learn:`
+  <h2>Integrals</h2>
+  <p>If the derivative takes things apart (rate at an instant), the <b>integral</b> puts them back together (total accumulated). Two faces of one idea:</p>
+  <ul>
+   <li><b>Indefinite integral / antiderivative:</b> <span class="sym">∫ f(x) dx</span> = the function whose derivative is f. Since constants vanish under differentiation, add "+ C."</li>
+   <li><b>Definite integral:</b> <span class="sym">∫ₐᵇ f(x) dx</span> = the <b>signed area</b> between the curve and the x-axis from a to b.</li>
+  </ul>
+  <h4>Area as a limit of rectangles</h4>
+  <p>Slice [a,b] into n thin strips, approximate each by a rectangle of height f(xᵢ), and sum. As n → ∞ the strips shrink and the sum converges to the exact area — a <b>Riemann sum</b> becoming an integral:</p>
+  <div class="eq">∫ₐᵇ f(x) dx = lim (n→∞) Σ f(xᵢ) Δx</div>
+  <h4>The Fundamental Theorem of Calculus</h4>
+  <div class="def"><span class="l">The bridge</span>Differentiation and integration are <b>inverse operations</b>. If F′ = f, then <span class="sym">∫ₐᵇ f(x) dx = F(b) − F(a)</span>. So to find an area, you don't sum infinitely many rectangles — you just find an antiderivative and subtract.</div>
+  <p>This is the theorem that makes calculus <i>practical</i>. Example: ∫₀¹ x² dx = [x³/3]₀¹ = 1/3.</p>
+  <h4>Two essential techniques</h4>
+  <ul>
+   <li><b>Substitution</b> — the chain rule in reverse: spot an inner function and its derivative.</li>
+   <li><b>Integration by parts</b> — the product rule in reverse: <span class="sym">∫ u dv = uv − ∫ v du</span>.</li>
+  </ul>
+  <div class="note"><span class="l">See it live</span>Open the <b>Lab → Area</b>: increase the number of rectangles and watch the Riemann sum converge to the true area under the curve.</div>`,
+  practice:[
+   {q:'The Fundamental Theorem says <span class="sym">∫ₐᵇ f(x) dx</span> equals (where F′=f):',o:['F(b) − F(a)','f(b) − f(a)','F(b)·F(a)','f′(b) − f′(a)'],a:0,s:'Evaluate any antiderivative F at the endpoints and subtract — no infinite sum needed.'},
+   {q:'A definite integral <span class="sym">∫ₐᵇ f dx</span> represents the:',o:['Signed area between the curve and the x-axis','Slope at b','Length of the curve','Maximum of f'],a:0,s:'It accumulates f·dx across [a,b] — the (signed) area, counting area below the axis as negative.'},
+   {q:'<span class="sym">∫₀¹ x² dx</span> equals:',o:['1/3','1','2/3','1/2'],a:0,s:'Antiderivative of x² is x³/3; evaluate 1³/3 − 0 = 1/3.'},
+   {q:'The "+C" in an indefinite integral appears because:',o:['Constants vanish when you differentiate','Integrals are always positive','C is the area','It fixes units'],a:0,s:'Any two antiderivatives differ by a constant, since d/dx(C)=0 — so the antiderivative is only determined up to +C.'},
+   {q:'Integration by parts, <span class="sym">∫ u dv = uv − ∫ v du</span>, is the reverse of the:',o:['Product rule','Chain rule','Power rule','Quotient rule'],a:0,s:'It comes from integrating the product rule (uv)′ = u′v + uv′ and rearranging.'}
+  ]},
+ {id:'series',n:'Sequences & Series',sub:'adding up infinitely many things',learn:`
+  <h2>Sequences &amp; Series</h2>
+  <p>A <b>sequence</b> is an ordered list a₁, a₂, a₃, …; a <b>series</b> is what you get by adding its terms: <span class="sym">Σ aₙ</span>. The startling fact of analysis is that adding <i>infinitely</i> many positive numbers can give a <b>finite</b> total.</p>
+  <h4>The geometric series</h4>
+  <p>When each term is a fixed ratio r times the last, and |r| &lt; 1, the infinite sum converges to a clean value:</p>
+  <div class="eq">a + ar + ar² + ar³ + … = ${F('a','1 − r')} &nbsp;&nbsp;(|r| &lt; 1)</div>
+  <p>So 1 + ½ + ¼ + ⅛ + … = 2. This is why Zeno's paradox dissolves: infinitely many steps, finite distance.</p>
+  <h4>Convergence tests</h4>
+  <ul>
+   <li><b>nth-term test:</b> if aₙ doesn't → 0, the series <i>diverges</i>. (Necessary, not sufficient.)</li>
+   <li><b>Ratio test:</b> if |aₙ₊₁/aₙ| → L &lt; 1, it converges. This is the practical workhorse.</li>
+   <li>Warning: the <b>harmonic series</b> 1 + ½ + ⅓ + ¼ + … diverges, even though its terms → 0. Slowly to infinity.</li>
+  </ul>
+  <h4>Taylor series — turning functions into polynomials</h4>
+  <div class="def"><span class="l">The payoff</span>Most functions can be written as an infinite polynomial built from their derivatives at a point. The famous ones:</div>
+  <div class="eq">eˣ = 1 + x + ${F('x²','2!')} + ${F('x³','3!')} + …</div>
+  <div class="eq">sin x = x − ${F('x³','3!')} + ${F('x⁵','5!')} − …</div>
+  <p>This is how calculators compute eˣ and sin x, and how physicists approximate hard problems: keep the first few terms, discard the rest. "Small-angle" sin θ ≈ θ — which you'll use for the pendulum — is just the first term of that series.</p>`,
+  practice:[
+   {q:'1 + ½ + ¼ + ⅛ + … converges to:',o:['2','∞','1','3/2'],a:0,s:'Geometric with a=1, r=½: sum = a/(1−r) = 1/(1−½) = 2.'},
+   {q:'The geometric series a + ar + ar² + … converges only when:',o:['|r| < 1','r > 1','r = 1','a < 1'],a:0,s:'Ratios with |r|<1 shrink terms fast enough to give the finite sum a/(1−r); otherwise it diverges.'},
+   {q:'The harmonic series 1 + ½ + ⅓ + ¼ + … :',o:['Diverges, though its terms → 0','Converges to 2','Converges to e','Is geometric'],a:0,s:'A famous surprise: the terms shrink to 0 but too slowly — the sum grows without bound.'},
+   {q:'The small-angle approximation sin θ ≈ θ is:',o:['The first term of the Taylor series of sin','A coincidence','Only true in degrees','Exact for all θ'],a:0,s:'sin x = x − x³/3! + … ; for small x the higher terms are negligible, leaving sin x ≈ x.'},
+   {q:'If aₙ does NOT approach 0, the series Σaₙ:',o:['Diverges','Converges','Equals a/(1−r)','Is geometric'],a:0,s:'The nth-term test: terms must shrink to 0 for any hope of convergence. If they don\'t, it diverges.'}
+  ]},
+ {id:'linalg',n:'Linear Algebra',sub:'vectors, matrices & transformations',learn:`
+  <h2>Linear Algebra</h2>
+  <p>Where calculus studies change, <b>linear algebra</b> studies space, direction, and transformation. Its object is the <b>vector</b> — a list of numbers <span class="sym">v = (v₁, …, vₙ)</span> you can picture as an arrow, with two operations: <b>add</b> (tip to tail) and <b>scale</b> (stretch).</p>
+  <h4>The dot product</h4>
+  <p>Two vectors combine into a single number that encodes <b>angle and alignment</b>:</p>
+  <div class="eq">u · v = u₁v₁ + u₂v₂ + … = |u| |v| cos θ</div>
+  <p>So <span class="sym">u · v = 0</span> means <b>perpendicular</b>. The length (norm) is <span class="sym">|v| = √(v · v)</span>. Dot products are how you measure projection, work (force · displacement), and similarity.</p>
+  <h4>Matrices as transformations</h4>
+  <div class="def"><span class="l">Key idea</span>A <b>matrix</b> A is a machine that takes a vector and returns a vector — a <b>linear transformation</b> (rotations, scalings, shears). "Linear" means it respects addition and scaling: A(u+v)=Au+Av.</div>
+  <p>A system of linear equations is just <span class="sym">Ax = b</span>: "which input x does the machine A send to b?" Solving it (Gaussian elimination) is the computational heart of the subject. For 2×2, the <b>determinant</b> ad−bc tells you if A is invertible (nonzero) and how it scales areas.</p>
+  <h4>Eigenvectors — the special directions</h4>
+  <div class="def"><span class="l">Definition · Eigenvector</span>A nonzero vector v is an <b>eigenvector</b> of A if A only <i>stretches</i> it, without rotating: <span class="sym">A v = λ v</span>. The factor λ is its <b>eigenvalue</b>.</div>
+  <p>Eigenvectors are the axes along which a transformation acts simplest. They run through everything: the stable modes of a vibrating system, principal components in data, the energy levels of quantum mechanics, and the phase-space structure you'll meet in the mechanics course.</p>`,
+  practice:[
+   {q:'Two vectors are perpendicular exactly when their dot product is:',o:['0','1','|u||v|','negative'],a:0,s:'u·v = |u||v|cos θ; cos 90° = 0, so perpendicularity ⇔ dot product zero.'},
+   {q:'A matrix A acting on a vector represents a:',o:['Linear transformation','Number','Derivative','Probability'],a:0,s:'Ax maps input vectors to output vectors linearly — rotations, scalings, shears, projections.'},
+   {q:'v is an <b>eigenvector</b> of A (eigenvalue λ) when:',o:['A v = λ v','A v = 0','v · A = 1','A = λ'],a:0,s:'A merely scales v by λ without changing its direction — the defining eigen-equation.'},
+   {q:'The system "Ax = b" asks:',o:['Which x does A map to b','What is A times b','The area of A','The slope of b'],a:0,s:'It is the vector form of a system of linear equations: find the input x whose image under A is b.'},
+   {q:'A 2×2 matrix is invertible exactly when its determinant is:',o:['Nonzero','Positive','Equal to 1','Zero'],a:0,s:'Determinant ad−bc ≠ 0 means the transformation does not collapse space, so it can be undone.'}
+  ]},
+ {id:'multi',n:'Multivariable Calculus',sub:'calculus in many dimensions',learn:`
+  <h2>Multivariable Calculus</h2>
+  <p>The world isn't one-dimensional. A temperature field, a landscape's height, a potential energy — all are functions of several variables, <span class="sym">f(x, y, …)</span>. Calculus generalizes to them beautifully.</p>
+  <h4>Partial derivatives</h4>
+  <div class="def"><span class="l">Definition · Partial derivative</span><span class="sym">∂f/∂x</span> is the ordinary derivative with respect to x while <b>holding every other variable fixed</b> — the slope if you walk due east across the surface.</div>
+  <p>For f(x,y) = x²y: <span class="sym">∂f/∂x = 2xy</span> (treat y as a constant) and <span class="sym">∂f/∂y = x²</span> (treat x as a constant).</p>
+  <h4>The gradient</h4>
+  <p>Collect the partials into a vector and you get the <b>gradient</b>:</p>
+  <div class="eq">∇f = ( ${F('∂f','∂x')} , ${F('∂f','∂y')} )</div>
+  <p>The gradient points in the direction of <b>steepest ascent</b>, and its length is that steepest slope. This is why "gradient descent" — stepping downhill against ∇f — is how nearly every machine-learning model is trained. In physics, force is the downhill gradient of potential energy: <span class="sym">F = −∇V</span>.</p>
+  <h4>The multivariable chain rule</h4>
+  <p>If x and y themselves depend on time, then f changes at the combined rate:</p>
+  <div class="eq">${F('df','dt')} = ${F('∂f','∂x')} ${F('dx','dt')} + ${F('∂f','∂y')} ${F('dy','dt')}</div>
+  <p>This exact formula is the engine of the <b>Euler–Lagrange equation</b> — the doorway to Lagrangian mechanics. Finally, <b>double integrals</b> <span class="sym">∬ f dA</span> accumulate over a 2-D region, giving volume just as the single integral gave area.</p>
+  <div class="note"><span class="l">Where this goes</span>Partial derivatives, the gradient, and this chain rule are precisely the tools the <b>Action</b> course assumes. Finish here and you're ready for Lagrangian &amp; Hamiltonian mechanics.</div>`,
+  practice:[
+   {q:'For f(x,y) = x²y, the partial <span class="sym">∂f/∂x</span> is:',o:['2xy','x²','2x','y'],a:0,s:'Hold y constant and differentiate x²y in x: 2xy.'},
+   {q:'The gradient ∇f points in the direction of:',o:['Steepest ascent','Steepest descent','Constant f','the x-axis'],a:0,s:'∇f points uphill most steeply; its negative points downhill (used in gradient descent).'},
+   {q:'A partial derivative ∂f/∂x is computed by:',o:['Differentiating in x while holding other variables fixed','Differentiating in every variable','Integrating over y','Setting x = 0'],a:0,s:'Treat all other variables as constants and take an ordinary derivative in x.'},
+   {q:'In physics, force relates to potential energy by:',o:['F = −∇V','F = ∇V','F = ∫V','F = V²'],a:0,s:'Force is the negative gradient of potential energy — it points downhill in V, toward lower energy.'},
+   {q:'The multivariable chain rule df/dt for f(x(t),y(t)) is:',o:['(∂f/∂x)(dx/dt) + (∂f/∂y)(dy/dt)','(∂f/∂x)(∂f/∂y)','dx/dt + dy/dt','∂f/∂x · ∂f/∂y'],a:0,s:'Each variable contributes its partial times its own rate; sum the contributions.'}
+  ]},
+ {id:'ode',n:'Differential Equations',sub:'the language of change itself',learn:`
+  <h2>Differential Equations</h2>
+  <p>A <b>differential equation</b> relates a function to its own derivatives. It doesn't hand you the answer — it describes the <i>rule of change</i>, and you solve for the function that obeys it. This is how nature's laws are actually written.</p>
+  <h4>First-order: growth and decay</h4>
+  <p>The simplest interesting equation says "the rate of change is proportional to the amount":</p>
+  <div class="eq">${F('dy','dt')} = k y &nbsp;&nbsp;⟹&nbsp;&nbsp; y(t) = y₀ eᵏᵗ</div>
+  <p>Positive k → exponential growth (populations, compound interest); negative k → decay (radioactivity, cooling). You solve it by <b>separation of variables</b>: gather y's on one side, t's on the other, integrate both.</p>
+  <h4>Second-order: oscillation</h4>
+  <p>Newton's law <span class="sym">F = ma</span> is a second-order ODE, because acceleration is the <i>second</i> derivative of position. For a mass on a spring, F = −kx gives:</p>
+  <div class="eq">${F('d²x','dt²')} = −ω² x &nbsp;&nbsp;⟹&nbsp;&nbsp; x(t) = A cos(ω t + φ)</div>
+  <p>The solution <b>oscillates</b> forever with angular frequency <span class="sym">ω = √(k/m)</span> — <b>simple harmonic motion</b>, the heartbeat of physics. Pendulums, circuits, sound, light, and quantum wavefunctions all reduce to this one equation.</p>
+  <div class="def"><span class="l">Why it matters</span>An equation of motion <i>is</i> a differential equation. The entire point of Lagrangian and Hamiltonian mechanics is to <b>generate</b> the right differential equation from an energy function — and then solve it exactly like this.</div>
+  <div class="note"><span class="l">🎓 Capstone</span>You've now built the full ladder: proof → sets → algebra → functions → limits → derivatives → integrals → series → linear algebra → multivariable → differential equations. That is exactly the mathematics the <b>Action</b> course stands on. Open it next — you're ready for least action, Lagrange, and Hamilton.</div>`,
+  practice:[
+   {q:'The equation dy/dt = ky has solution:',o:['y₀ eᵏᵗ','y₀ + kt','kt²','sin(kt)'],a:0,s:'Rate proportional to amount gives exponential growth/decay: y = y₀eᵏᵗ.'},
+   {q:'Newton\'s law F = ma is a differential equation of order:',o:['Second','First','Third','Zeroth'],a:0,s:'Acceleration is the second derivative of position, so F=ma relates x to x″ — second order.'},
+   {q:'The equation ẍ = −ω²x describes:',o:['Simple harmonic (oscillating) motion','Exponential growth','A straight line','Random motion'],a:0,s:'Its solutions are sines and cosines of angular frequency ω — oscillation, i.e. SHM.'},
+   {q:'For a spring with F = −kx on mass m, the angular frequency ω is:',o:['√(k/m)','k/m','√(m/k)','km'],a:0,s:'Matching mẍ = −kx to ẍ = −ω²x gives ω² = k/m, so ω = √(k/m).'},
+   {q:'The role of Lagrangian/Hamiltonian mechanics is to:',o:['Generate the differential equation of motion from an energy function','Avoid calculus','Replace algebra','Measure area'],a:0,s:'They take a Lagrangian/Hamiltonian (built from energies) and produce the equations of motion — which you then solve as ODEs.'}
+  ]}
+];
+/* patch the {F0}/{F1} placeholders used inside a couple of practice questions */
+MODULES.forEach(m=>m.practice.forEach(p=>{p.q=p.q.replace('${F0}',F('d','dx')).replace('${F1}',F('d','dx'));}));
+
+/* ============================ state ============================ */
+const KEY='sh_math';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
+let P=load(); P.done=P.done||{}; P.xp=P.xp||0; P.pass=P.pass||{};
+function persist(){save(P)}
+const app=document.getElementById('app');
+let view='home', curMod=null, curTab='learn';
+
+function render(){ if(view==='home')return renderHome(); if(view==='lab')return renderLab(); if(view==='prog')return renderProg(); if(view==='mod')return renderMod(); }
+function renderHome(){
+  const done=Object.keys(P.done).length;
+  app.innerHTML=`
+    <div class="eyebrow">Mathematics · proof → calculus → beyond</div>
+    <h1>Mathematics, <em>in depth</em></h1>
+    <p class="lede">Eleven rigorous modules, from how proof works to differential equations — each with a real lesson and graded practice. Built to carry you all the way into the <b>Action</b> mechanics course.</p>
+    <button class="card labcard" style="width:100%;text-align:left;cursor:pointer" onclick="go('lab')">
+      <h3>📈 Graphing Lab</h3>
+      <p style="color:var(--dim);margin:5px 0 0;font-size:.92em">See a derivative as a tangent slope, and an integral as area — drag, and watch the ideas move.</p>
+    </button>
+    <div class="sec">The course · ${done}/${MODULES.length} complete</div>
+    ${MODULES.map((m,i)=>`
+      <button class="mod ${P.done[m.id]?'done':''}" onclick="openMod('${m.id}')">
+        <span class="num">${P.done[m.id]?'✓':i+1}</span>
+        <span class="mt"><b>${m.n}</b><small>${m.sub}</small></span>
+        <span class="go">›</span></button>`).join('')}
+    <p style="color:var(--faint);font-size:.82em;text-align:center;margin-top:18px">Progress is saved on this device.</p>`;
+}
+function openMod(id){curMod=MODULES.find(m=>m.id===id);curTab='learn';view='mod';setNav('home');render();window.scrollTo(0,0);}
+function renderMod(){
+  const m=curMod;
+  app.innerHTML=`
+    <div class="backbar"><button class="b" onclick="go('home')">‹ All modules</button></div>
+    <div class="tabs2">
+      <button class="${curTab==='learn'?'on':''}" onclick="setTab('learn')">Learn</button>
+      <button class="${curTab==='practice'?'on':''}" onclick="setTab('practice')">Practice</button>
+    </div>
+    <div id="modbody"></div>`;
+  if(curTab==='learn'){
+    document.getElementById('modbody').innerHTML=`<div class="reader">${m.learn}</div>
+      <button class="btn" style="margin-top:8px" onclick="setTab('practice')">Practice this module ›</button>`;
+  } else renderPractice(m);
+}
+function setTab(t){curTab=t;render();window.scrollTo(0,0);}
+let answered={};
+function renderPractice(m){ answered={}; document.getElementById('modbody').innerHTML=`<div id="qs"></div><div id="pfoot"></div>`; drawQs(m); }
+function drawQs(m){
+  document.getElementById('qs').innerHTML=m.practice.map((p,qi)=>`
+    <div class="q" id="q${qi}">
+      <div class="qn">QUESTION ${qi+1} / ${m.practice.length}</div>
+      <div class="qt">${p.q}</div>
+      <div id="opts${qi}">${p.o.map((o,oi)=>`<button class="opt" onclick="pick(${qi},${oi})">${o}</button>`).join('')}</div>
+      <div class="sol" id="sol${qi}"><span class="l">Why</span>${p.s}</div>
+    </div>`).join('');
+  updateFoot(m);
+}
+function pick(qi,oi){
+  const m=curMod,p=m.practice[qi];
+  if(answered[qi]!==undefined)return; answered[qi]=oi;
+  document.querySelectorAll(`#opts${qi} .opt`).forEach((b,bi)=>{
+    b.style.pointerEvents='none';
+    if(bi===p.a){b.classList.add('correct');b.innerHTML+='<span class="mk">✓</span>';}
+    else if(bi===oi){b.classList.add('wrong');b.innerHTML+='<span class="mk">✗</span>';}
+  });
+  document.getElementById('sol'+qi).classList.add('show'); updateFoot(m);
+}
+function updateFoot(m){
+  const total=m.practice.length, ans=Object.keys(answered).length;
+  const correct=Object.entries(answered).filter(([qi,oi])=>m.practice[qi].a===+oi).length;
+  const foot=document.getElementById('pfoot');
+  if(ans<total){ foot.innerHTML=`<p style="text-align:center;color:var(--faint);font-size:.85em;margin:6px 0 16px">${ans}/${total} answered · ${correct} correct</p>`; return; }
+  const passed=correct>=Math.ceil(total*0.75);
+  if(passed && !P.done[m.id]){ P.done[m.id]=1; P.xp+=25; persist(); toast('Module complete · +25 XP'); }
+  P.pass[m.id]=correct+'/'+total; persist();
+  foot.innerHTML=`<div class="card" style="text-align:center">
+    <div style="font-size:1.6em;font-weight:800;color:${passed?'var(--acc2)':'var(--gold)'}">${correct}/${total}</div>
+    <p style="color:var(--dim);margin:4px 0 12px">${passed?'Module complete — well done. ✓':'Reread the lesson and retry to pass (75%+).'}</p>
+    <div style="display:flex;gap:9px">
+      <button class="ghost" style="flex:1" onclick="setTab('learn')">Reread</button>
+      ${passed?`<button class="btn" style="flex:1" onclick="nextMod()">Next module ›</button>`:`<button class="btn" style="flex:1" onclick="setTab('practice')">Retry</button>`}
+    </div></div>`;
+}
+function nextMod(){ const i=MODULES.findIndex(m=>m.id===curMod.id); if(i<MODULES.length-1)openMod(MODULES[i+1].id); else{go('home');toast('Course complete! 🎓 On to Action.');} }
+
+/* ============================ GRAPHING LAB ============================ */
+const FUNCS=[
+  {n:'x²',f:x=>x*x},
+  {n:'x³ − x',f:x=>x*x*x-x},
+  {n:'sin x',f:x=>Math.sin(x)},
+  {n:'eˣ',f:x=>Math.exp(x)},
+  {n:'1/(1+x²)',f:x=>1/(1+x*x)}
+];
+let labFn=0, labMode='deriv', labX0=1, labN=8, labB=2;
+function renderLab(){
+  app.innerHTML=`
+    <div class="eyebrow">Interactive</div>
+    <h1>📈 Graphing <em>Lab</em></h1>
+    <div class="tabs2">
+      <button class="${labMode==='deriv'?'on':''}" onclick="setLabMode('deriv')">Derivative</button>
+      <button class="${labMode==='area'?'on':''}" onclick="setLabMode('area')">Area</button>
+    </div>
+    <div class="card">
+      <div class="chips" id="fnchips"></div>
+      <canvas id="cv" width="640" height="440"></canvas>
+      <div id="ctl"></div>
+      <div class="readout" id="ro"></div>
+    </div>
+    <p style="color:var(--dim);font-size:.9em">${labMode==='deriv'
+      ? 'The green line is the <b>tangent</b> at the moving point — its slope <i>is</i> the derivative f′(x₀). Watch how the slope is 0 exactly at the peaks and valleys.'
+      : 'The bars are a <b>Riemann sum</b> approximating the area under the curve from 0 to b. Add more rectangles and watch the estimate close in on the true integral.'}</p>`;
+  document.getElementById('fnchips').innerHTML=FUNCS.map((fn,i)=>`<button class="${i===labFn?'on':''}" onclick="setFn(${i})">${fn.n}</button>`).join('');
+  drawCtl(); drawLab();
+}
+function setLabMode(m){labMode=m;renderLab();}
+function setFn(i){labFn=i;renderLab();}
+function drawCtl(){
+  const c=document.getElementById('ctl');
+  if(labMode==='deriv'){
+    c.innerHTML=`<div class="slider"><label><span>point x₀</span><span id="x0v">${labX0.toFixed(2)}</span></label>
+      <input type="range" min="-3" max="3" step="0.05" value="${labX0}" oninput="labX0=+this.value;document.getElementById('x0v').textContent=labX0.toFixed(2);drawLab();"></div>`;
+  } else {
+    c.innerHTML=`<div class="slider"><label><span>rectangles n</span><span id="nv">${labN}</span></label>
+      <input type="range" min="2" max="60" step="1" value="${labN}" oninput="labN=+this.value;document.getElementById('nv').textContent=labN;drawLab();"></div>
+      <div class="slider"><label><span>upper limit b</span><span id="bv">${labB.toFixed(2)}</span></label>
+      <input type="range" min="0.5" max="3" step="0.05" value="${labB}" oninput="labB=+this.value;document.getElementById('bv').textContent=labB.toFixed(2);drawLab();"></div>`;
+  }
+}
+function drawLab(){
+  const cv=document.getElementById('cv'); if(!cv)return;
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  const f=FUNCS[labFn].f, xmin=-3, xmax=3;
+  // auto y-range by sampling
+  let ymin=Infinity,ymax=-Infinity;
+  for(let i=0;i<=200;i++){const x=xmin+(xmax-xmin)*i/200;const y=f(x);if(isFinite(y)){ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);}}
+  const pad=(ymax-ymin)*0.15||1; ymin-=pad; ymax+=pad; if(ymin>0)ymin=0; if(ymax<0)ymax=0;
+  const X=x=>(x-xmin)/(xmax-xmin)*W, Y=y=>H-(y-ymin)/(ymax-ymin)*H;
+  ctx.clearRect(0,0,W,H);
+  // grid + axes
+  ctx.strokeStyle='#1a2338';ctx.lineWidth=1;
+  for(let gx=-3;gx<=3;gx++){ctx.beginPath();ctx.moveTo(X(gx),0);ctx.lineTo(X(gx),H);ctx.stroke();}
+  ctx.strokeStyle='#33405f';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(X(0),0);ctx.lineTo(X(0),H);ctx.stroke();
+  // area rectangles
+  const ro=document.getElementById('ro');
+  if(labMode==='area'){
+    const a=0,b=labB,dx=(b-a)/labN; let sum=0;
+    ctx.fillStyle='rgba(90,209,192,.22)';ctx.strokeStyle='rgba(90,209,192,.7)';ctx.lineWidth=1;
+    for(let i=0;i<labN;i++){const xm=a+(i+0.5)*dx;const h=f(xm);sum+=h*dx;
+      const x0=X(a+i*dx),x1=X(a+(i+1)*dx),y0=Y(0),y1=Y(h);
+      ctx.fillRect(x0,Math.min(y0,y1),x1-x0,Math.abs(y1-y0));
+      ctx.strokeRect(x0,Math.min(y0,y1),x1-x0,Math.abs(y1-y0));}
+    // fine reference
+    let ref=0;const RN=4000,rdx=(b-a)/RN;for(let i=0;i<RN;i++){ref+=f(a+(i+0.5)*rdx)*rdx;}
+    ro.innerHTML=`∫₀<sup>${b.toFixed(2)}</sup> ${FUNCS[labFn].n} dx &nbsp; Riemann(n=${labN}) = <b>${sum.toFixed(4)}</b> &nbsp;·&nbsp; true ≈ ${ref.toFixed(4)} &nbsp;·&nbsp; error ${Math.abs(sum-ref).toFixed(4)}`;
+  }
+  // the curve
+  ctx.strokeStyle='#7f9cf0';ctx.lineWidth=2.4;ctx.beginPath();let started=false;
+  for(let i=0;i<=640;i++){const x=xmin+(xmax-xmin)*i/640;const y=f(x);if(!isFinite(y)){started=false;continue;}
+    const px=X(x),py=Y(y); if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);}
+  ctx.stroke();
+  // tangent
+  if(labMode==='deriv'){
+    const x0=labX0,h=1e-4,slope=(f(x0+h)-f(x0-h))/(2*h),y0=f(x0);
+    ctx.strokeStyle='#5ad1c0';ctx.lineWidth=2;ctx.beginPath();
+    const xl=xmin,xr=xmax;ctx.moveTo(X(xl),Y(y0+slope*(xl-x0)));ctx.lineTo(X(xr),Y(y0+slope*(xr-x0)));ctx.stroke();
+    ctx.fillStyle='#e5b657';ctx.beginPath();ctx.arc(X(x0),Y(y0),5,0,7);ctx.fill();
+    ro.innerHTML=`f(x) = ${FUNCS[labFn].n} &nbsp;·&nbsp; at x₀ = <b>${x0.toFixed(2)}</b>: &nbsp; f(x₀) = ${y0.toFixed(3)} &nbsp;·&nbsp; slope f′(x₀) = <b>${slope.toFixed(3)}</b>`;
+  }
+}
+
+/* ============================ progress ============================ */
+function renderProg(){
+  const done=Object.keys(P.done).length,total=MODULES.length,pct=Math.round(done/total*100);
+  app.innerHTML=`
+    <div class="eyebrow">Your progress</div>
+    <h1>Progress</h1>
+    <div class="card" style="text-align:center">
+      <div class="prog-ring" style="--p:${pct}"><i>${pct}%</i></div>
+      <p style="margin-top:12px;color:var(--dim)">${done} of ${total} modules complete · <b style="color:var(--acc)">${P.xp} XP</b></p>
+    </div>
+    <div class="sec">Modules</div>
+    ${MODULES.map(m=>`<div class="mod ${P.done[m.id]?'done':''}" onclick="openMod('${m.id}')">
+      <span class="num">${P.done[m.id]?'✓':'·'}</span>
+      <span class="mt"><b>${m.n}</b><small>${P.pass[m.id]?'best: '+P.pass[m.id]:'not yet attempted'}</small></span>
+      <span class="go">›</span></div>`).join('')}
+    <button class="ghost" style="width:100%;margin-top:14px" onclick="resetProg()">Reset progress</button>`;
+}
+function resetProg(){ if(confirm('Reset all math progress?')){ P={done:{},xp:0,pass:{}}; persist(); render(); } }
+
+/* ============================ nav ============================ */
+function go(v){view=v;setNav(v);render();window.scrollTo(0,0);}
+function setNav(v){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2000);}
+render();
+</script>
+</body></html>
