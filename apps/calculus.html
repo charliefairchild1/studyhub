@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Calculus">
+<meta name="theme-color" content="#0e0b06">
+<title>Calculus — a real course</title>
+<style>
+:root{
+  --bg:#0e0b06;--panel:#1a1409;--card:#1c160c;--line:#3a2f1c;--ink:#f0e9da;--mut:#b3a488;--faint:#726445;
+  --acc:#f0a840;--acc2:#e07b3a;--teal:#54c6b0;--violet:#b78bef;--green:#7ecb8a;--red:#ef7a6a;--r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 620px at 80% -12%,#2a1e0c 0%,var(--bg) 58%) fixed;color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:linear-gradient(180deg,rgba(14,11,6,.96),rgba(14,11,6,.82) 70%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;gap:11px}
+header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800;color:#1a1206;font-size:20px;box-shadow:0 3px 14px rgba(240,168,64,.3)}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+header .spacer{flex:1}.xp{font-size:12px;color:var(--mut);text-align:right}.xp b{color:var(--acc);font-size:15px}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 15px;border-radius:12px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+.btn:active{transform:scale(.98)}.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#1a1206;border-color:transparent}
+.btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}.btn.wide{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-weight:750;margin:6px 2px 10px}
+.mod{margin-bottom:20px}
+.mod .mh{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px}.mod .mh .ic{font-size:16px;color:var(--acc)}
+.mod .mh .t{font-weight:750;font-size:15px}.mod .mh .p{margin-left:auto;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.lesson.done{border-color:#4a5c2e}
+.lesson .num{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:#140f07;color:var(--mut);border:1px solid var(--line)}
+.lesson.done .num{background:linear-gradient(135deg,var(--green),#4a9a5a);color:#06170e;border-color:transparent}
+.lesson .nm{flex:1;min-width:0}.lesson .nm b{font-weight:650}.lesson .nm small{display:block;color:var(--mut);font-size:12px}
+.lesson .lab{font-size:11px;color:var(--teal);border:1px solid #2a4a44;border-radius:20px;padding:2px 8px;font-weight:700}
+.lesson .go{color:var(--faint);font-size:19px}
+.reader h2{font-family:Georgia,serif;font-size:1.5em;margin:2px 0 4px;font-weight:600}
+.reader .tag{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.reader p{color:#ddd4c2;margin:12px 0}.reader b{color:var(--ink)}.reader ul,.reader ol{color:#ddd4c2;padding-left:20px}.reader li{margin:6px 0}
+.eq{font-family:"Cambria Math",Georgia,serif;font-size:1.3em;text-align:center;margin:16px 0;color:#f6efe0;line-height:1.6;overflow-x:auto;padding:6px 2px}
+.eq.box{background:#140f07;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 12px;text-align:left}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.05}
+.frac .n{border-bottom:1.6px solid currentColor;padding:0 .4em}.frac .d{padding:1px .4em 0}
+.wk{background:#140f07;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.wk .wl{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.wk .step{margin:7px 0;color:#e6ddc9}.wk .step .r{color:var(--faint);font-size:.85em}
+.callout{background:#12160f;border:1px solid #2f4a33;border-radius:12px;padding:12px 14px;margin:14px 0;color:#cfe6d3;font-size:.95em}
+.callout .l{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+kbd{font-family:Georgia,serif;font-style:italic;color:var(--acc)}
+.simwrap{background:#0b0906;border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0}
+.simwrap canvas{width:100%;display:block;border-radius:8px;touch-action:none;background:#070502}
+.simctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.simctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.simctl input[type=range]{width:100%;accent-color:var(--acc)}
+.readout{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.7}.readout b{color:var(--acc)}
+.q .stem{font-size:1.05em;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;cursor:pointer}
+.opt.correct{border-color:var(--green);background:#13210f}.opt.wrong{border-color:var(--red);background:#231211}.opt:disabled{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(14,11,6,.93);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--faint);padding:10px 0 9px;font:inherit;font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button.on{color:var(--acc)}nav .ic{font-size:19px;line-height:1}
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.backbar .b{background:none;border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 13px;font:inherit;font-weight:650;cursor:pointer;font-size:13px}
+.prog-ring{width:120px;height:120px;margin:0 auto 8px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:#140f07;border:1px solid var(--line);border-radius:20px;padding:6px 12px;margin:4px;font-size:13px;font-weight:600}.badge.on{border-color:var(--acc);color:var(--acc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#1a1206;border:1px solid var(--acc);color:var(--acc);padding:10px 17px;border-radius:999px;font-weight:650;z-index:50;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1}
+.next-lesson{margin-top:20px}
+</style>
+<style>header{padding-left:80px}</style>
+</head>
+<body>
+<a href="../index.html" id="hubback" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;background:rgba(14,11,6,.92);color:#f0a840;border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45)">&lsaquo; Hub</a>
+<header>
+  <div class="logo">∂</div>
+  <div><h1>Calculus</h1><div class="sub">the mathematics of change — a real course</div></div>
+  <div class="spacer"></div>
+  <div class="xp">Done<br><b id="xp">0</b></div>
+</header>
+<main>
+  <section id="tab-learn"></section>
+  <section id="tab-lab" class="hide"></section>
+  <section id="tab-drill" class="hide"></section>
+  <section id="tab-you" class="hide"></section>
+  <section id="tab-lesson" class="hide"></section>
+</main>
+<nav id="nav">
+  <button data-t="learn" class="on"><span class="ic">📖</span>Course</button>
+  <button data-t="lab"><span class="ic">📈</span>Lab</button>
+  <button data-t="drill"><span class="ic">✎</span>Practice</button>
+  <button data-t="you"><span class="ic">🎓</span>Progress</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function frac(n,d){return `<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;}
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1700);};
+let P=load();function load(){try{return JSON.parse(localStorage.getItem("calc_prog"))||{done:{},drill:{}};}catch(e){return{done:{},drill:{}};}}
+function save(){localStorage.setItem("calc_prog",JSON.stringify(P));}
+function markDone(id){if(!P.done[id]){P.done[id]=1;save();toast("Lesson complete ✓");}}
+const doneCount=()=>Object.keys(P.done).length;
+
+/* ============================ CURRICULUM ============================ */
+const MODULES=[
+ {ic:"①",t:"Part I · Limits — the foundation",lessons:[
+   {id:"whatis",n:"What calculus is",sub:"two questions, one miracle"},
+   {id:"limits",n:"Limits",sub:"getting arbitrarily close",lab:"limit"},
+   {id:"continuity",n:"Continuity",sub:"curves you can draw without lifting the pen"},
+ ]},
+ {ic:"②",t:"Part II · The Derivative",lessons:[
+   {id:"deriv",n:"The derivative, from scratch",sub:"the slope of a curve at a single point",lab:"tangent"},
+   {id:"rules",n:"The rules of differentiation",sub:"power, product, quotient, chain"},
+   {id:"keyfns",n:"Derivatives of sin, cos, eˣ, ln",sub:"the functions that run the world"},
+   {id:"apps",n:"What derivatives are for",sub:"rates, maxima, minima, shape",lab:"grapher"},
+ ]},
+ {ic:"③",t:"Part III · The Integral",lessons:[
+   {id:"integral",n:"The integral as area",sub:"adding up infinitely many slivers",lab:"riemann"},
+   {id:"ftc",n:"The Fundamental Theorem",sub:"why the two halves are inverses — the keystone"},
+   {id:"techniques",n:"Antiderivatives & techniques",sub:"reverse the rules; substitution; by parts"},
+   {id:"intapps",n:"What integrals are for",sub:"area, average, volume, total change"},
+ ]},
+ {ic:"④",t:"Part IV · Series & Beyond",lessons:[
+   {id:"series",n:"Sequences & series",sub:"can an infinite sum be finite?"},
+   {id:"taylor",n:"Taylor series",sub:"rebuild any function from its derivatives",lab:"taylor"},
+   {id:"beyond",n:"Beyond: many variables, and change itself",sub:"partial derivatives & differential equations"},
+ ]},
+];
+const ALL=MODULES.flatMap(m=>m.lessons);const LESSON=Object.fromEntries(ALL.map(l=>[l.id,l]));
+
+/* ---- lesson content ---- */
+const sup=(b,e)=>`${b}<sup>${e}</sup>`;
+const C={};
+C.whatis=`<p>Calculus is the mathematics of <b>change</b> and <b>accumulation</b>, and it was invented to answer two questions that look unrelated and turn out to be secretly the same.</p>
+<p><b>The tangent problem.</b> A car's position is a curve on a graph. Its average speed over an hour is easy — distance over time. But what is its speed at a single <i>instant</i>? At one point in time nothing has moved and no time has passed; the honest fraction is 0/0. That is the problem of the <b>derivative</b>: the exact slope of a curve at one point.</p>
+<p><b>The area problem.</b> If speed is changing every instant, how far did the car actually go? You'd have to add up the contribution of every one of infinitely many instants. That is the problem of the <b>integral</b>: the exact area under a curve.</p>
+<div class="eq box">the derivative — slope at a point &nbsp;·&nbsp; the integral — area under a curve</div>
+<p>For two thousand years these sat unsolved because both require taming the <b>infinite</b>: infinitely small steps, infinitely many pieces. The breakthrough — Newton's and Leibniz's — was a controlled way to do exactly that, called the <b>limit</b>. And the miracle, the <b>Fundamental Theorem of Calculus</b>, is that the two problems are <i>inverses</i> of each other: undoing a derivative gives you an area. Slope and area, the same coin.</p>
+<div class="callout"><span class="l">Why you're here</span>Every rate, every optimization, every physical law from a falling apple to a quantum field is written in this language. Learn it and the equations of physics stop being hieroglyphics and start being sentences.</div>`;
+
+C.limits=`<p>Everything rests on one idea: getting <b>arbitrarily close</b> without necessarily arriving. The <b>limit</b> of ${sup("f(x)","")} as x approaches a is the value f(x) homes in on as x gets ever nearer to a — whether or not f(a) itself is even defined.</p>
+<div class="eq box">${frac("lim","x→a")} f(x) = L</div>
+<p>Read it: "as x approaches a, f(x) approaches L." The trick is that we care about the <i>journey toward</i> a, not the destination itself. Consider the star example:</p>
+<div class="eq">f(x) = ${frac("sin x","x")} &nbsp;&nbsp; at x = 0</div>
+<p>Plug in x = 0 and you get 0/0 — undefined, meaningless. But <i>approach</i> 0 (in radians): at x = 0.1 the ratio is 0.9983; at 0.01 it's 0.99998; at 0.001 it's 0.9999998. The function never uses x = 0, yet it is unmistakably heading for <b>1</b>. So the limit is 1, even though f(0) doesn't exist. That gap — between where a function <i>goes</i> and where it <i>is</i> — is the whole game.</p>
+<p><b>One-sided limits.</b> Sometimes the approach from the left (x→a⁻) and from the right (x→a⁺) disagree. If they differ, the two-sided limit doesn't exist — the function "jumps." <b>Limits at infinity</b> ask where f settles as x runs off forever: ${frac("1","x")} → 0 as x → ∞.</p>
+<p>Try it below: drag x toward the point and watch f(x) close in on a value the function may never actually reach.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The point</span>A limit lets us say something exact about "infinitely close" without dividing by zero. Every derivative and every integral is secretly a limit in disguise.</div>`;
+
+C.continuity=`<p>A function is <b>continuous</b> at a point if its limit there equals its actual value — no holes, no jumps, no explosions:</p>
+<div class="eq box">${frac("lim","x→a")} f(x) = f(a)</div>
+<p>Intuitively: you can draw it through that point without lifting your pen. Polynomials, sines, cosines, and exponentials are continuous everywhere. Things break at <b>holes</b> (a single point missing, like sin x / x at 0), <b>jumps</b> (a step, where left and right limits differ), and <b>asymptotes</b> (1/x at 0, shooting to infinity).</p>
+<p>Continuity matters because the powerful theorems demand it. The <b>Intermediate Value Theorem</b>: if a continuous function is negative here and positive there, it must be zero somewhere between — it can't teleport past the axis. That's why a root exists, why a rotating chair has a level spot, why two antipodal points on Earth share a temperature.</p>
+<div class="callout"><span class="l">Bridge</span>Differentiability is even stronger than continuity: a function can be continuous but have a sharp corner (like |x| at 0) where no single tangent slope exists. Smooth ⟹ continuous, but not the reverse.</div>`;
+
+C.deriv=`<p>Here it is — the definition the entire subject is built on. The <b>derivative</b> of f at x, written f′(x) or ${frac("dy","dx")}, is the slope of the line <i>tangent</i> to the curve at that point: its instantaneous rate of change.</p>
+<p>We sneak up on the impossible "slope at one point" using a limit. Pick a second point a tiny distance h away. The line through the two points (a <b>secant</b>) has an honest, ordinary slope:</p>
+<div class="eq">slope of secant = ${frac("f(x+h) − f(x)","h")}</div>
+<p>Now let h shrink toward 0. The second point slides into the first, the secant pivots into the <b>tangent</b>, and its slope approaches the instantaneous slope:</p>
+<div class="eq box">f′(x) = ${frac("lim","h→0")} ${frac("f(x+h) − f(x)","h")}</div>
+<p>Watch it happen below — drag h down toward zero and see the secant become the tangent, its slope settling on the true derivative.</p>
+<div id="__sim"></div>
+<div class="wk"><div class="wl">Worked example · the derivative of x²</div>
+<div class="step">f(x+h) = (x+h)² = x² + 2xh + h²</div>
+<div class="step">${frac("f(x+h)−f(x)","h")} = ${frac("2xh + h²","h")} = 2x + h <span class="r">(the h² and one h cancel)</span></div>
+<div class="step">as h → 0, this → <b>2x</b>. So the derivative of x² is 2x.</div></div>
+<p>Check it: at x = 3 the parabola's slope is 6; at x = 0 it's flat (slope 0). Exactly right.</p>`;
+
+C.rules=`<p>Computing every derivative from the limit would be exhausting. Instead we prove a handful of <b>rules</b> once and then just apply them. These five do almost everything.</p>
+<div class="eq box"><b>Power:</b> ${frac("d","dx")} ${sup("x","n")} = n·${sup("x","n−1")}</div>
+<p>Bring the exponent down front, drop it by one. So x³ → 3x², x → 1, and √x = ${sup("x","1/2")} → ½${sup("x","−1/2")}. Constants have slope 0; a constant multiple pulls out front.</p>
+<div class="eq"><b>Sum:</b> (f+g)′ = f′ + g′</div>
+<div class="eq"><b>Product:</b> (f·g)′ = f′g + f g′</div>
+<div class="eq"><b>Quotient:</b> (f/g)′ = ${frac("f′g − f g′","g²")}</div>
+<div class="eq box"><b>Chain:</b> ${frac("d","dx")} f(g(x)) = f′(g(x)) · g′(x)</div>
+<p>The <b>chain rule</b> is the one that unlocks real problems: to differentiate a function of a function, differentiate the outside (leaving the inside alone) and multiply by the derivative of the inside.</p>
+<div class="wk"><div class="wl">Worked example · chain rule</div>
+<div class="step">y = (3x² + 1)⁴</div>
+<div class="step">outside is (·)⁴ → 4(·)³; inside is 3x²+1 → 6x</div>
+<div class="step">y′ = 4(3x²+1)³ · 6x = <b>24x(3x²+1)³</b></div></div>
+<div class="callout"><span class="l">Practice pays off here</span>These four rules, fluent, are 90% of a first calculus course. The Practice tab drills them — do them until they're reflex, because every physics derivation leans on them.</div>`;
+
+C.keyfns=`<p>Beyond powers, three families of functions run all of science, and their derivatives are worth memorizing cold.</p>
+<div class="eq box">${frac("d","dx")} sin x = cos x &nbsp;&nbsp; ${frac("d","dx")} cos x = −sin x</div>
+<p>Sine and cosine chase each other in a four-step cycle (sin → cos → −sin → −cos → sin). This is exactly why they describe everything that <b>oscillates</b> — springs, waves, alternating current, orbits.</p>
+<div class="eq box">${frac("d","dx")} ${sup("e","x")} = ${sup("e","x")}</div>
+<p>The exponential ${sup("e","x")} is <b>its own derivative</b> — the unique function whose rate of growth equals its current size. That property is the entire reason e ≈ 2.71828 matters: it's the natural language of anything whose growth is proportional to itself — populations, compound interest, radioactive decay, cooling.</p>
+<div class="eq box">${frac("d","dx")} ln x = ${frac("1","x")}</div>
+<p>The natural logarithm's derivative is the beautifully simple 1/x — which also quietly solves the one gap in the power rule (the antiderivative of 1/x, coming in Part III).</p>
+<div class="callout"><span class="l">Why e is inevitable</span>Ask "what function equals its own slope?" and solve it, and e falls out with no choice in the matter — the way π falls out of any circle. It isn't a human convention; it's forced.</div>`;
+
+C.apps=`<p>A derivative is a <b>rate</b>, so it answers "how fast, how steep, which way." Three uses cover most of it.</p>
+<p><b>Rates of change.</b> If position is s(t), then velocity is s′(t) and acceleration is s″(t) (the derivative of the derivative). Every "per" quantity — meters per second, cost per unit, reaction rate — is a derivative.</p>
+<p><b>Finding maxima and minima.</b> At a peak or a valley the curve is momentarily flat, so <b>f′ = 0</b>. Solve f′(x) = 0 to find the candidates (critical points); the second derivative tells you which is which — f″ &lt; 0 means a peak (concave down), f″ &gt; 0 a valley (concave up). This single move is how you optimize <i>anything</i>: maximum profit, least material, fastest path, lowest energy.</p>
+<div class="wk"><div class="wl">Worked example · optimization</div>
+<div class="step">Maximize the area of a rectangle with perimeter 20. Let width x, so height 10−x, area A = x(10−x) = 10x − x².</div>
+<div class="step">A′ = 10 − 2x. Set = 0 → x = 5.</div>
+<div class="step">A″ = −2 &lt; 0, so it's a maximum. The best rectangle is a <b>5×5 square</b>, area 25.</div></div>
+<p><b>The shape of a curve.</b> The sign of f′ says increasing (+) or decreasing (−); the sign of f″ says concave up (∪) or down (∩); where f″ changes sign is an <b>inflection point</b>. Below, watch a function and its derivative together — see how f′ crosses zero exactly where f turns around.</p>
+<div id="__sim"></div>`;
+
+C.integral=`<p>Now the other half. To find the <b>area</b> under a curve — which turns out to mean the total accumulation of a changing quantity — we slice it into thin rectangles, add their areas, and let the slices get infinitely thin.</p>
+<p>Chop the interval [a,b] into n strips of width Δx. On each, build a rectangle up to the curve. Their total area (a <b>Riemann sum</b>) approximates the region:</p>
+<div class="eq box">Area ≈ Σ f(${sup("x","i")}) · Δx</div>
+<p>With few rectangles it's crude; the tops overshoot and undershoot. But as n → ∞ and Δx → 0, the staircase melts onto the curve and the sum converges to the <b>exact</b> area — the <b>definite integral</b>:</p>
+<div class="eq box">${frac("","")}∫${frac("b","a").replace('class="frac"','class="frac" style="font-size:.6em;vertical-align:middle"')} f(x) dx = ${frac("lim","n→∞")} Σ f(${sup("x","i")}) Δx</div>
+<p>The elongated S (∫, for "sum") gathers infinitely many slivers f(x)·dx, each of height f(x) and infinitesimal width dx. Drag the slider below from a few fat rectangles to many thin ones and watch the sum home in on the true area.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">Not just area</span>If f is a speed, the area under it is distance. If f is a flow rate, the area is total volume. The integral is the master tool for "add up a quantity that's changing continuously."</div>`;
+
+C.ftc=`<p>This is the summit of the whole subject — the theorem that fuses the two halves and makes integrals actually computable. Newton and Leibniz's discovery, in one line:</p>
+<div class="eq box">∫${frac("b","a").replace('class="frac"','class="frac" style="font-size:.6em"')} f(x) dx = F(b) − F(a), &nbsp; where F′ = f</div>
+<p>To find the area under f, you don't need infinite sums at all. You just need an <b>antiderivative</b> F — any function whose derivative is f — and you evaluate it at the two endpoints and subtract. <b>Differentiation and integration are inverse operations.</b></p>
+<p>Why on earth should the area under a curve be computed by <i>undoing a slope</i>? Here's the intuition. Define A(x) = the area accumulated from a up to x. Nudge x forward by a hair dx: the area grows by a thin strip of height f(x) and width dx, so dA = f(x)·dx. That means:</p>
+<div class="eq box">${frac("dA","dx")} = f(x)</div>
+<p>The <i>rate</i> at which area accumulates <b>is the height of the curve.</b> So the area function is an antiderivative of f — which is the theorem. Accumulation and rate-of-change are two views of one relationship.</p>
+<div class="wk"><div class="wl">Worked example · area under x² from 0 to 3</div>
+<div class="step">Need F with F′ = x². Reverse the power rule: F = x³/3 (since (x³/3)′ = x²).</div>
+<div class="step">∫₀³ x² dx = F(3) − F(0) = ${frac("27","3")} − 0 = <b>9</b>.</div>
+<div class="step"><span class="r">No infinite sum required — just an antiderivative and a subtraction.</span></div></div>
+<div class="callout"><span class="l">The keystone</span>Everything before this was setup. This is the payoff: the reason calculus is a <i>calculus</i> — a system of computation — and not just a philosophy of the infinite.</div>`;
+
+C.techniques=`<p>Since integrating means "find an antiderivative," you get a table by reading the derivative rules backwards:</p>
+<div class="eq box">∫ ${sup("x","n")} dx = ${frac(sup("x","n+1"),"n+1")} + C &nbsp;(n ≠ −1) &nbsp;·&nbsp; ∫ ${frac("1","x")} dx = ln|x| + C</div>
+<div class="eq">∫ ${sup("e","x")} dx = ${sup("e","x")} + C &nbsp;·&nbsp; ∫ cos x dx = sin x + C &nbsp;·&nbsp; ∫ sin x dx = −cos x + C</div>
+<p>The "+ C" is essential: derivatives destroy constants (the slope of x²+5 and of x² are identical), so an indefinite integral recovers a whole family, differing by a constant.</p>
+<p>Two techniques handle most of the rest, each the reverse of a derivative rule:</p>
+<p><b>u-substitution</b> (undoes the chain rule). Spot an inside function whose derivative is also present, rename it u, and the integral collapses.</p>
+<div class="wk"><div class="wl">Worked example · u-substitution</div>
+<div class="step">∫ 2x·cos(x²) dx. &nbsp; Let u = x², so du = 2x dx.</div>
+<div class="step">The integral becomes ∫ cos u du = sin u + C = <b>sin(x²) + C</b>.</div></div>
+<p><b>Integration by parts</b> (undoes the product rule): ∫ u dv = uv − ∫ v du. It trades a hard integral for an easier one — the tool for things like ∫ x·eˣ dx or ∫ x·sin x dx.</p>
+<div class="callout"><span class="l">Honest note</span>Not every function has an antiderivative you can write down (∫ e<sup>−x²</sup> dx, the bell curve, doesn't). When symbols fail, the Riemann sum from Part III still gives the number — that's numerical integration, what every computer does.</div>`;
+
+C.intapps=`<p>Anywhere a quantity accumulates from a changing rate, an integral gives the total. A few workhorses:</p>
+<p><b>Total change.</b> ∫ (rate) dt = total accumulated. Integrate velocity to get distance; integrate power to get energy; integrate a flow to get the amount delivered. This is just the Fundamental Theorem read as physics.</p>
+<p><b>Area between two curves.</b> ${frac("","")}∫ (top − bottom) dx — subtract the lower curve from the upper and integrate across where they overlap.</p>
+<p><b>Average value.</b> The mean height of a function over [a,b] is its area divided by its width:</p>
+<div class="eq box">average of f = ${frac("1","b − a")} ∫${frac("b","a").replace('class="frac"','class="frac" style="font-size:.6em"')} f(x) dx</div>
+<p><b>Volumes.</b> Spin a curve around an axis and it sweeps out a solid; slice it into thin disks of area π·[f(x)]² and integrate to get the volume. The same slice-and-sum logic builds every volume, center of mass, and moment in engineering.</p>
+<div class="callout"><span class="l">The pattern</span>Notice it's always the same move: cut the thing into infinitesimal pieces, write the contribution of one piece, and integrate. Master that reflex and you can set up integrals you've never seen before — the beginning of doing calculus rather than reciting it.</div>`;
+
+C.series=`<p>Can you add up infinitely many numbers and get a finite total? Sometimes — and the answer reshaped mathematics. A <b>sequence</b> is an ordered list (1, ½, ¼, …); a <b>series</b> is its running sum.</p>
+<p>The <b>geometric series</b> is the clean case: keep multiplying by a ratio r with |r| &lt; 1 and the pieces shrink fast enough that the total is finite:</p>
+<div class="eq box">1 + r + r² + r³ + ⋯ = ${frac("1","1 − r")} &nbsp;(|r| &lt; 1)</div>
+<p>So ½ + ¼ + ⅛ + ⋯ = 1 — exactly, not approximately. This is Zeno's paradox dissolved: infinitely many steps can cover a finite distance.</p>
+<p>But shrinking terms are <b>not enough</b>. The <b>harmonic series</b> 1 + ½ + ⅓ + ¼ + ⋯ has terms going to zero, yet its sum grows without bound to infinity — it just does so agonizingly slowly. Deciding whether a given series <b>converges</b> (settles to a number) or <b>diverges</b> (runs away) is a craft with a toolkit of tests, but the governing question is always: do the terms die fast enough?</p>
+<div class="callout"><span class="l">Why care</span>Because if you can turn a scary function into an infinite series of simple powers, you can compute it, differentiate it, and integrate it term by term. That is the next lesson — and it's how your calculator actually finds sin(37°).</div>`;
+
+C.taylor=`<p>Here is one of the most powerful ideas in mathematics: <b>almost any function can be rebuilt as an infinite polynomial</b> — and its own derivatives at a single point are the blueprint.</p>
+<p>The <b>Taylor series</b> of f around 0 (also called Maclaurin) is:</p>
+<div class="eq box">f(x) = f(0) + f′(0)x + ${frac("f″(0)","2!")}x² + ${frac("f‴(0)","3!")}x³ + ⋯</div>
+<p>Each term corrects the last: the constant matches the height, the linear term matches the slope, the quadratic matches the curvature, and so on — every derivative pins down one more wiggle. The three most famous fall out beautifully:</p>
+<div class="eq box">${sup("e","x")} = 1 + x + ${frac("x²","2!")} + ${frac("x³","3!")} + ⋯</div>
+<div class="eq">sin x = x − ${frac("x³","3!")} + ${frac("x⁵","5!")} − ⋯ &nbsp;·&nbsp; cos x = 1 − ${frac("x²","2!")} + ${frac("x⁴","4!")} − ⋯</div>
+<p>Below, start with a straight line and add terms one at a time — watch the polynomial reach out and hug the curve, further with every derivative you feed it.</p>
+<div id="__sim"></div>
+<div class="callout"><span class="l">The punchline that stuns everyone</span>Feed x = iπ into the eˣ series and it reorganizes, term by term, into the sine and cosine series — proving Euler's identity, e<sup>iπ</sup> + 1 = 0. The exponential and the circle were the same thing all along. Series are how you see it.</div>`;
+
+C.beyond=`<p>You now hold the core of single-variable calculus. Two doorways lead onward, and both open straight into physics.</p>
+<p><b>Many variables.</b> Real systems depend on more than one thing — temperature over a whole surface, a field through all of space. A <b>partial derivative</b> (∂) asks how a quantity changes as you wiggle <i>one</i> variable and freeze the rest. Collect them and you get the <b>gradient</b>, the direction of steepest increase — the arrow every optimizer and every hiker follows uphill. Multiple integrals then add a quantity up over an area or a volume instead of a line.</p>
+<p><b>Change itself.</b> A <b>differential equation</b> is an equation whose unknown is a <i>function</i>, related to its own derivatives — a rule for how a system evolves. "The rate of cooling is proportional to the temperature gap" is written ${frac("dT","dt")} = −k(T − T<sub>room</sub>), and solving it <i>predicts the future</i>. Nearly every law of nature is a differential equation:</p>
+<div class="eq box">Newton: F = m${frac("d²x","dt²")} &nbsp;·&nbsp; radioactivity: ${frac("dN","dt")} = −λN</div>
+<p>Solving them is where calculus becomes prophecy — where "here is the rule, and here is the present" turns into "here is the entire future." That is the doorway into mechanics, electromagnetism, and quantum theory.</p>
+<div class="callout"><span class="l">Where next</span>The companion <b>Action</b> app takes this straight into Lagrangian & Hamiltonian mechanics; the <b>Polymath</b> app spends it across every science. You have the language now. Go read the universe.</div>`;
+
+/* ============================ SIMS ============================ */
+let cleanups=[];
+function clearSims(){cleanups.forEach(f=>{try{f();}catch(e){}});cleanups=[];}
+function raf(fn){let id,run=true;const l=t=>{if(!run)return;fn(t);id=requestAnimationFrame(l);};id=requestAnimationFrame(l);cleanups.push(()=>{run=false;cancelAnimationFrame(id);});}
+function fit(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth-24;const dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+// generic grapher helpers
+function axes(x,w,h,xr,yr){const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w,Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+  x.strokeStyle="#3a2f1c";x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(w,Y(0));x.moveTo(X(0),0);x.lineTo(X(0),h);x.stroke();return {X,Y};}
+function plot(x,w,h,X,Y,f,color,lw){x.strokeStyle=color;x.lineWidth=lw||2;x.beginPath();let started=false;
+  for(let px=0;px<=w;px+=2){const xv=X.inv(px);const yv=f(xv);if(!isFinite(yv)){started=false;continue;}const py=Y(yv);if(py<-50||py>h+50){started=false;continue;}started?x.lineTo(px,py):x.moveTo(px,py);started=true;}x.stroke();}
+
+/* --- limit: sin x / x approaching 0 --- */
+function simLimit(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>x approaches 0 <input type="range" id="x" min="-2" max="2" step="0.001" value="1.2"></label></div></div>`;
+  const cv=$("canvas",el);let xv=1.2;$("#x",el).oninput=e=>xv=+e.target.value;
+  const f=t=>t===0?1:Math.sin(t)/t;
+  function draw(){const {x,w,h}=fit(cv,200);const xr=[-2.2,2.2],yr=[-0.2,1.25];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);axes(x,w,h,xr,yr);
+    plot(x,w,h,X,Y,f,"#f0a840",2.5);
+    // hollow point at the limit (0,1)
+    x.fillStyle="#070502";x.strokeStyle="#54c6b0";x.lineWidth=2;x.beginPath();x.arc(X(0),Y(1),5,0,7);x.fill();x.stroke();
+    const px=X(xv),py=Y(f(xv));x.fillStyle="#e07b3a";x.beginPath();x.arc(px,py,6,0,7);x.fill();
+    x.strokeStyle="#b3a48844";x.setLineDash([3,3]);x.beginPath();x.moveTo(px,py);x.lineTo(px,Y(0));x.stroke();x.setLineDash([]);
+    $("#ro",el).innerHTML=`x = <b>${xv.toFixed(3)}</b> &nbsp; f(x) = sin x / x = <b>${f(xv).toFixed(5)}</b> &nbsp; → heading for <b style="color:var(--teal)">1</b> (though f(0) itself is undefined)`;
+  }
+  raf(draw);
+}
+
+/* --- secant to tangent --- */
+function simTangent(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>gap h → 0 <input type="range" id="h" min="0.02" max="2.5" step="0.01" value="1.8"></label>
+   <label>point x <input type="range" id="x" min="-2" max="2" step="0.05" value="0.8"></label></div></div>`;
+  const cv=$("canvas",el);let hh=1.8,x0=0.8;$("#h",el).oninput=e=>hh=+e.target.value;$("#x",el).oninput=e=>x0=+e.target.value;
+  const f=t=>0.45*t*t*t-0.2*t;const df=t=>1.35*t*t-0.2;
+  function draw(){const {x,w,h}=fit(cv,220);const xr=[-2.4,2.4],yr=[-2.4,2.4];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);axes(x,w,h,xr,yr);plot(x,w,h,X,Y,f,"#f0a840",2.5);
+    const x1=x0,y1=f(x1),x2=x0+hh,y2=f(x2);const sec=(y2-y1)/(x2-x1);
+    // secant line
+    x.strokeStyle="#54c6b0";x.lineWidth=2;x.beginPath();x.moveTo(0,Y(y1+sec*(xr[0]-x1)));x.lineTo(w,Y(y1+sec*(xr[1]-x1)));x.stroke();
+    // true tangent
+    const m=df(x1);x.strokeStyle="#b78bef55";x.lineWidth=1.5;x.setLineDash([5,4]);x.beginPath();x.moveTo(0,Y(y1+m*(xr[0]-x1)));x.lineTo(w,Y(y1+m*(xr[1]-x1)));x.stroke();x.setLineDash([]);
+    x.fillStyle="#e07b3a";x.beginPath();x.arc(X(x1),Y(y1),6,0,7);x.fill();x.fillStyle="#54c6b0";x.beginPath();x.arc(X(x2),Y(y2),5,0,7);x.fill();
+    $("#ro",el).innerHTML=`secant slope = <b>${sec.toFixed(3)}</b> &nbsp; true derivative f′(${x0.toFixed(1)}) = <b style="color:var(--violet)">${m.toFixed(3)}</b><br><span style="color:var(--faint)">shrink h and the teal secant pivots onto the dashed tangent — the slopes meet</span>`;
+  }
+  raf(draw);
+}
+
+/* --- function & its derivative --- */
+function simGrapher(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro">The orange curve f, and its derivative f′ in violet. Where f′ crosses zero, f has a peak or valley.</div></div>`;
+  const cv=$("canvas",el);const f=t=>0.3*t*t*t-1.1*t;const df=t=>0.9*t*t-1.1;
+  function draw(){const {x,w,h}=fit(cv,230);const xr=[-2.6,2.6],yr=[-2.6,2.6];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);axes(x,w,h,xr,yr);
+    plot(x,w,h,X,Y,df,"#b78bef",1.8);plot(x,w,h,X,Y,f,"#f0a840",2.5);
+    // mark f'=0 points (x=±sqrt(1.1/0.9))
+    const xc=Math.sqrt(1.1/0.9);[xc,-xc].forEach(c=>{x.fillStyle="#54c6b0";x.beginPath();x.arc(X(c),Y(f(c)),5,0,7);x.fill();
+      x.strokeStyle="#54c6b055";x.setLineDash([3,3]);x.beginPath();x.moveTo(X(c),Y(f(c)));x.lineTo(X(c),Y(0));x.stroke();x.setLineDash([]);});
+  }
+  raf(draw);
+}
+
+/* --- Riemann sums --- */
+function simRiemann(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>rectangles: <b id="nn">6</b> <input type="range" id="n" min="2" max="120" step="1" value="6"></label></div></div>`;
+  const cv=$("canvas",el);let n=6;$("#n",el).oninput=e=>{n=+e.target.value;$("#nn",el).textContent=n;};
+  const f=t=>0.6+0.9*Math.sin(t*0.9)+0.15*t;const a=0,b=6;const exact=integrate(f,a,b,4000);
+  function integrate(g,lo,hi,N){let s=0,dx=(hi-lo)/N;for(let i=0;i<N;i++)s+=g(lo+(i+0.5)*dx)*dx;return s;}
+  function draw(){const {x,w,h}=fit(cv,210);const xr=[-0.4,6.4],yr=[-0.3,3];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);
+    const dx=(b-a)/n;let sum=0;
+    for(let i=0;i<n;i++){const xm=a+(i+0.5)*dx,ym=f(xm);sum+=ym*dx;
+      const px=X(a+i*dx),pw=X(a+(i+1)*dx)-px;x.fillStyle="rgba(240,168,64,.28)";x.strokeStyle="#f0a840";x.lineWidth=1;
+      x.fillRect(px,Y(ym),pw,Y(0)-Y(ym));x.strokeRect(px,Y(ym),pw,Y(0)-Y(ym));}
+    axes(x,w,h,xr,yr);plot(x,w,h,X,Y,f,"#e07b3a",2.5);
+    $("#ro",el).innerHTML=`<b>${n}</b> rectangles → sum = <b>${sum.toFixed(4)}</b> &nbsp; true integral = <b style="color:var(--teal)">${exact.toFixed(4)}</b> &nbsp; error <b>${Math.abs(sum-exact).toFixed(4)}</b><br><span style="color:var(--faint)">slide toward 120 and the staircase melts onto the curve</span>`;
+  }
+  raf(draw);
+}
+
+/* --- Taylor series --- */
+function simTaylor(el){
+  el.innerHTML=`<div class="simwrap"><canvas></canvas><div class="readout" id="ro"></div>
+   <div class="simctl"><label>function <select id="fn"><option value="sin">sin x</option><option value="exp">eˣ</option><option value="cos">cos x</option></select></label>
+   <label>terms: <b id="kk">1</b> <input type="range" id="k" min="1" max="9" step="1" value="1"></label></div></div>`;
+  const cv=$("canvas",el);let terms=1,fn="sin";$("#k",el).oninput=e=>{terms=+e.target.value;$("#kk",el).textContent=terms;};$("#fn",el).onchange=e=>fn=e.target.value;
+  const fact=k=>{let r=1;for(let i=2;i<=k;i++)r*=i;return r;};
+  const target={sin:Math.sin,cos:Math.cos,exp:Math.exp};
+  function taylor(t){let s=0;for(let k=0;k<terms;k++){
+    if(fn==="exp")s+=Math.pow(t,k)/fact(k);
+    else if(fn==="sin"){const m=2*k+1;s+=(k%2?-1:1)*Math.pow(t,m)/fact(m);}
+    else {const m=2*k;s+=(k%2?-1:1)*Math.pow(t,m)/fact(m);}
+  }return s;}
+  function draw(){const {x,w,h}=fit(cv,220);const xr=[-6.5,6.5],yr=fn==="exp"?[-1,9]:[-2.4,2.4];
+    const X=v=>((v-xr[0])/(xr[1]-xr[0]))*w;X.inv=px=>xr[0]+px/w*(xr[1]-xr[0]);const Y=v=>h-((v-yr[0])/(yr[1]-yr[0]))*h;
+    x.clearRect(0,0,w,h);axes(x,w,h,xr,yr);
+    plot(x,w,h,X,Y,target[fn],"#4a3f28",4);       // true function, faint & thick
+    plot(x,w,h,X,Y,taylor,"#f0a840",2.5);          // approximation
+    x.fillStyle="#54c6b0";x.beginPath();x.arc(X(0),Y(target[fn](0)),4,0,7);x.fill();
+    $("#ro",el).innerHTML=`<b>${terms}</b> term${terms>1?"s":""} of the Taylor series for <b>${fn==="exp"?"eˣ":fn+" x"}</b> — add more and the orange curve hugs the real one further out from 0.`;
+  }
+  raf(draw);
+}
+const SIMS={limit:simLimit,tangent:simTangent,grapher:simGrapher,riemann:simRiemann,taylor:simTaylor};
+const LABS=[
+ ["tangent","△","Secant → Tangent","Watch the derivative be born: shrink h and a secant becomes the tangent.","var(--acc)"],
+ ["riemann","▭","Riemann Sums","Rectangles converging on the exact area under a curve.","var(--teal)"],
+ ["taylor","∿","Taylor Series","Add terms and watch a polynomial rebuild sin, cos, or eˣ.","var(--violet)"],
+ ["grapher","ƒ","A Curve & Its Slope","See f and f′ together — zeros of f′ are peaks and valleys of f.","var(--acc2)"],
+ ["limit","→","The Limit","sin x / x heading for 1 at a point it never reaches.","var(--green)"],
+];
+
+/* ============================ VIEWS ============================ */
+function openLesson(id){
+  clearSims();const l=LESSON[id];const sec=$("#tab-lesson");const i=ALL.findIndex(x=>x.id===id);const nx=ALL[i+1];
+  sec.innerHTML=`<div class="backbar"><button class="b" id="back">‹ Course</button></div>
+    <div class="reader card"><div class="tag">Lesson ${i+1} of ${ALL.length}</div><h2>${l.n}</h2>
+    <div id="body">${C[id]||"<p>Coming soon.</p>"}</div>
+    <div class="row next-lesson"><button class="btn pri" id="complete" style="flex:1">${P.done[id]?"✓ Completed — mark again":"Mark complete"}</button>
+    ${nx?'<button class="btn" id="next">Next ›</button>':""}</div></div>`;
+  showTab("lesson");
+  const m=$("#__sim",sec);if(m&&l.lab&&SIMS[l.lab])SIMS[l.lab](m);
+  $("#back",sec).onclick=()=>{clearSims();showTab("learn");};
+  $("#complete",sec).onclick=()=>{markDone(id);renderLearn();renderYou();$("#complete",sec).textContent="✓ Completed — mark again";updateXP();};
+  if(nx)$("#next",sec).onclick=()=>openLesson(nx.id);
+  window.scrollTo(0,0);
+}
+function renderLearn(){
+  const sec=$("#tab-learn");
+  sec.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#241a0c,#1c160c);border-color:#4a3a1c">
+    <div style="font-size:13px;color:var(--acc);font-weight:700;letter-spacing:.5px">A REAL CALCULUS COURSE</div>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Limits → derivatives → integrals → the Fundamental Theorem → series. Worked examples, interactive labs (🔧), and practice. Take it in order; the ideas build.</div></div>`;
+  MODULES.forEach(m=>{const done=m.lessons.filter(l=>P.done[l.id]).length;const el=document.createElement("div");el.className="mod";
+    el.innerHTML=`<div class="mh"><span class="ic">${m.ic}</span><span class="t">${m.t}</span><span class="p">${done}/${m.lessons.length}</span></div>`+
+      m.lessons.map(l=>{const i=ALL.findIndex(x=>x.id===l.id)+1;return `<div class="lesson ${P.done[l.id]?'done':''}" data-l="${l.id}"><div class="num">${P.done[l.id]?'✓':i}</div>
+        <div class="nm"><b>${l.n}</b><small>${l.sub}</small></div>${l.lab?'<span class="lab">🔧 lab</span>':''}<span class="go">›</span></div>`;}).join("");
+    sec.appendChild(el);});
+  $$(".lesson",sec).forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
+}
+function renderLab(){
+  const sec=$("#tab-lab");
+  sec.innerHTML=`<div class="sec">Interactive labs · calculus you can move</div>`+LABS.map(l=>`<div class="lesson" data-lab="${l[0]}"><div class="num" style="color:${l[4]}">${l[1]}</div><div class="nm"><b>${l[2]}</b><small>${l[3]}</small></div><span class="go">›</span></div>`).join("");
+  $$("[data-lab]",sec).forEach(x=>x.onclick=()=>{clearSims();sec.innerHTML=`<div class="backbar"><button class="b" id="lb">‹ Lab</button></div><div class="card"><div id="__sim"></div></div>`;SIMS[x.dataset.lab]($("#__sim",sec));$("#lb",sec).onclick=()=>{clearSims();renderLab();};window.scrollTo(0,0);});
+}
+/* practice */
+const DR=[
+ {q:`Evaluate: ${frac("lim","x→0")} ${frac("sin x","x")}`,a:["0","1","∞","undefined"],c:1,e:"Approaching 0, sin x / x → 1 (in radians). The value at 0 is undefined, but the limit exists."},
+ {q:`${frac("d","dx")} x⁵ = ?`,a:["5x⁴","x⁴","5x⁶","4x⁵"],c:0,e:"Power rule: bring the 5 down, drop the exponent by one → 5x⁴."},
+ {q:`${frac("d","dx")} sin x = ?`,a:["cos x","−cos x","−sin x","sin x"],c:0,e:"sin → cos → −sin → −cos, a four-step cycle. First step: cos x."},
+ {q:`Chain rule: ${frac("d","dx")} (x² + 1)³ = ?`,a:["3(x²+1)²","6x(x²+1)²","3(2x)²","2x·3"],c:1,e:"Outside 3(·)², inside derivative 2x → 3(x²+1)²·2x = 6x(x²+1)²."},
+ {q:`${frac("d","dx")} eˣ = ?`,a:["x·eˣ⁻¹","eˣ","1","x eˣ"],c:1,e:"eˣ is its own derivative — the defining property of e."},
+ {q:`A curve has a maximum where…`,a:["f(x) = 0","f′(x) = 0 and f″ < 0","f″(x) = 0","f′(x) > 0"],c:1,e:"Flat tangent (f′=0) that's concave down (f″<0) is a peak."},
+ {q:`∫ x² dx = ?`,a:["2x + C","x³ + C","${x3} + C".replace("${x3}","x³/3"),"3x³ + C"],c:2,e:"Reverse the power rule: raise the exponent, divide by the new exponent → x³/3 + C."},
+ {q:`The Fundamental Theorem says ∫ₐᵇ f dx = …`,a:["F(b)+F(a)","F(b)−F(a) where F′=f","f(b)−f(a)","the slope at b"],c:1,e:"Find an antiderivative F (F′=f), evaluate at the endpoints, subtract."},
+ {q:`u-substitution: ∫ 2x·cos(x²) dx = ?`,a:["sin(x²) + C","2 sin(x²) + C","cos(x²) + C","x² sin x + C"],c:0,e:"Let u=x², du=2x dx → ∫cos u du = sin u + C = sin(x²)+C."},
+ {q:`½ + ¼ + ⅛ + ¹⁄₁₆ + ⋯ = ?`,a:["∞","2","1","½"],c:2,e:"Geometric series with r=½ starting at ½: sum = (½)/(1−½) = 1. Exactly one."},
+ {q:`First three terms of the Taylor series of eˣ:`,a:["1 + x + x²","1 + x + x²/2","x + x² + x³","1 + x²/2 + x⁴/24"],c:1,e:"eˣ = 1 + x + x²/2! + x³/3! + ⋯ , so 1 + x + x²/2."},
+ {q:`A differential equation is an equation whose unknown is…`,a:["a number","a function, tied to its own derivatives","a matrix","an integral"],c:1,e:"You solve for a whole function from a rule about its rates of change — the language of physical law."},
+];
+function renderDrill(){
+  const sec=$("#tab-drill");const score=Object.values(P.drill).filter(v=>v==='ok').length;
+  sec.innerHTML=`<div class="card" style="text-align:center"><div class="sec" style="justify-content:center">Practice</div>
+    <div style="font-size:34px;font-weight:800;color:var(--acc)" id="ps">${score}/${DR.length}</div><div style="color:var(--mut);font-size:13px">worked out and checked instantly</div></div>`;
+  DR.forEach((d,i)=>{const card=document.createElement("div");card.className="card q";
+    card.innerHTML=`<div class="stem">${i+1}. ${d.q}</div>`+d.a.map((o,j)=>`<button class="opt" data-i="${j}">${o}</button>`).join("")+`<div class="exp" style="display:none;color:var(--mut);font-size:13px;margin-top:8px"></div>`;
+    sec.appendChild(card);const opts=$$(".opt",card);
+    if(P.drill[i]){opts.forEach((b,j)=>{b.disabled=true;if(j===d.c)b.classList.add("correct");});$(".exp",card).style.display="block";$(".exp",card).innerHTML="✓ "+d.e;}
+    opts.forEach((b,j)=>b.onclick=()=>{opts.forEach(o=>o.disabled=true);if(j===d.c){b.classList.add("correct");P.drill[i]='ok';toast("Correct ✓");}else{b.classList.add("wrong");opts[d.c].classList.add("correct");P.drill[i]='no';}
+      $(".exp",card).style.display="block";$(".exp",card).innerHTML=(j===d.c?"✓ ":"")+d.e;save();const s=Object.values(P.drill).filter(v=>v==='ok').length;$("#ps").textContent=s+"/"+DR.length;updateXP();});
+  });
+}
+function renderYou(){
+  const sec=$("#tab-you");const dn=doneCount(),tot=ALL.length,pc=Math.round(dn/tot*100);const ds=Object.values(P.drill).filter(v=>v==='ok').length;
+  const R=52,cir=2*Math.PI*R,off=cir*(1-dn/tot);
+  const badges=[["①","Limits",P.done.limits&&P.done.continuity],["②","Differentiator",P.done.deriv&&P.done.rules&&P.done.keyfns],["③","Integrator",P.done.integral&&P.done.ftc],["④","Series",P.done.taylor],["🎯","Sharp",ds>=9],["🎓","Calculus",dn>=tot]];
+  sec.innerHTML=`<div class="card" style="text-align:center">
+    <svg class="prog-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#2a2013" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${cir}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0a840"/><stop offset="1" stop-color="#e07b3a"/></linearGradient></defs>
+    <text x="60" y="58" text-anchor="middle" fill="#f0e9da" font-size="26" font-weight="800">${pc}%</text><text x="60" y="76" text-anchor="middle" fill="#b3a488" font-size="10">${dn}/${tot} lessons</text></svg>
+    <div style="color:var(--mut);font-size:14px">${pc===100?"You've completed a full calculus course. 🎓":pc>=50?"Past the halfway mark — the Fundamental Theorem awaits.":"The language of change, one lesson at a time."}</div></div>
+    <div class="card"><div class="sec">Mastery</div><div>${badges.map(b=>`<span class="badge ${b[2]?'on':''}">${b[0]} ${b[1]}${b[2]?' ✓':''}</span>`).join("")}</div></div>
+    <div class="card"><div class="sec">Stats</div><div class="readout" style="color:var(--mut)">Lessons complete &nbsp; <b>${dn} / ${tot}</b><br>Practice correct &nbsp;&nbsp; <b>${ds} / ${DR.length}</b></div>
+    <button class="btn wide" id="install" style="margin-top:12px">⤓ Install on your iPhone</button>
+    <button class="btn wide" id="reset" style="margin-top:8px;color:var(--red)">Reset progress</button></div>`;
+  $("#install",sec).onclick=installSheet;$("#reset",sec).onclick=()=>{if(confirm("Erase all progress?")){P={done:{},drill:{}};save();updateXP();renderYou();}};
+}
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;});
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function installSheet(){if(deferred){deferred.prompt();deferred.userChoice.then(()=>deferred=null);return;}if(isIOS())alert("Install on your iPhone:\n\n1. Tap the Share button in Safari.\n2. Scroll and tap “Add to Home Screen”.\n3. Tap Add.");else alert("Open your browser menu → “Install app”.");}
+function showTab(t){["learn","lab","drill","you","lesson"].forEach(x=>$("#tab-"+x).classList.toggle("hide",x!==t));$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));}
+$$("#nav button").forEach(b=>b.onclick=()=>{clearSims();const t=b.dataset.t;showTab(t);({learn:renderLearn,lab:renderLab,drill:renderDrill,you:renderYou})[t]();window.scrollTo(0,0);});
+function updateXP(){$("#xp").textContent=doneCount();}
+updateXP();renderLearn();
+/* sw handled by the Study hub */
+</script>
+</body>
+</html>
