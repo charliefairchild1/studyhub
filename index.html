@@ -217,7 +217,26 @@ html,body{max-width:100%;overflow-x:hidden}
 </div>
 
 <script>
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+// --- never show a blank screen: surface errors + offer a one-tap reset ---
+window.addEventListener('error', function(ev){
+  try{ var b=document.getElementById('errbar'); if(!b){ b=document.createElement('div'); b.id='errbar';
+    b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#3a1420;color:#ffd7de;font:13px/1.4 -apple-system,system-ui;padding:10px 12px;border-top:1px solid #7a2740';
+    document.body.appendChild(b); }
+    b.innerHTML='⚠︎ '+(ev.message||'error')+' <button onclick="studyReset()" style="margin-left:8px;background:#7a2740;color:#fff;border:0;border-radius:6px;padding:4px 9px">Reset app</button>';
+  }catch(e){}
+});
+function studyReset(){ try{ if('caches' in window) caches.keys().then(ks=>ks.forEach(k=>caches.delete(k)));
+  if(navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs=>{rs.forEach(r=>r.unregister()); location.reload(true);});
+  else location.reload(true); }catch(e){ location.reload(true); } }
+// --- self-updating service worker: apply new versions immediately, no stuck cache ---
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{ const nw=reg.installing; if(!nw)return;
+      nw.addEventListener('statechange',()=>{ if(nw.state==='activated' && navigator.serviceWorker.controller) location.reload(); }); });
+  }).catch(()=>{});
+  let refreshed=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!refreshed){refreshed=true; location.reload();} });
+}
 const $=id=>document.getElementById(id);
 function todayKey(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
 
@@ -225,7 +244,7 @@ function todayKey(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6
 const CATS=[
  ['Daily','📓',[['journal','📓','Journal','reflect + a PTO check-in'],['habits','✅','Habits','build streaks that stick']]],
  ['Games','🎮',[['chess','♟️','Chess','influence maps, PTO eval, play the engine'],['poker','🂡','Poker','equity, EV coach, range trainer, a bot']]],
- ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
+ ['Language','🗣️',[['spanish','🇪🇸','Spanish','SRS, verbs, cognates, dictation'],['tokipona','🟢','Toki Pona','learn the 120-word language of good'],['vaya','🔡','Vaya','a constructed PEP-native language']]],
  ['Mind','🧠',[['logic','⊢','Logic','learn to reason — truth tables to proofs'],['gauntlet','⚖️','The Gauntlet','an ethics game — rule a town by the Poietism rule'],['ethics','🎭','Ethics Arena','moral dilemmas — find your framework'],['religions','☸','Religions','what the faiths claim — and how to argue about it'],['two-selves','🧠','Two Selves','conscious vs. subconscious'],['poietism','📚','Poietism','study the philosophy'],['doomsday','📅','Doomsday','day-of-week mental math']]],
  ['Science','⚛️',[['calculus','∂','Calculus','limits → derivatives → integrals → series'],['linalg','⧉','Linear Algebra','vectors, matrices, transformations'],['probability','🎲','Probability & Stats','reasoning under uncertainty'],['action','∫','Action','Lagrangian & Hamiltonian mechanics'],['em','⚡','Electricity & Magnetism','fields, circuits, and light'],['thermo','🔥','Thermodynamics','heat, energy, and entropy'],['waves','〰️','Waves & Optics','vibration, interference, light'],['quantum','⚛','Quantum Mechanics','the physics of the very small'],['chem','⚗','Chemistry','atoms, bonds, and reactions'],['bio','🧬','Biology','the logic of living things'],['polymath','✦','Polymath','a tour of every science']]],
  ['Writing','✍️',[['animal-book','📖','The Animal That Bets','the book'],['animal-essay','📝','…the Essay','the short version'],['poietism-pamphlet','📜','Poietism Field Guide','20+ pages'],['poietism-paper','📄','Poietism Paper','the core essay'],['poietism-naming','🔤','Naming Poietism','how the name was chosen']]],
@@ -240,6 +259,7 @@ const TRACKS=[
  ['koin','⚖️','Economics of Friendship','Understand Koin, from friendly intro to manifesto.',['koin-welcome','koin','koin-essential','koin-kids','koin-teaching','koin-pamphlet']],
  ['games','🎮','Master the Games','Chess, poker, and an ethics game through the PEP/PTO lens.',['chess','poker','gauntlet']],
  ['spanish','🇪🇸','Learn Spanish','The one-month sprint to conversation.',['spanish']],
+ ['tokipona','🟢','Learn Toki Pona','120 words, one small mind — grammar, cards, and practice.',['tokipona']],
  ['investing','📈','Invest by Trajectory','From reading the world to a real plan.',['transformation-map','portfolio-planner','spacex-pto','spacex-invest']],
  ['mathematics','📐','Master Mathematics','A rigorous path from proof to calculus — then into mechanics.',['mathematics','action']],
  ['logic','⊢','Learn Logic','From validity and truth tables to proofs and quantifiers.',['logic']],
@@ -397,7 +417,8 @@ function nextIntro(){ if(istep>=ISTEPS-1){ endIntro(); return; } istep++; update
 function endIntro(){ localStorage.setItem('sh_intro','1'); $('intro').classList.add('hide'); }
 function replayIntro(){ istep=0; localStorage.removeItem('sh_intro'); showIntro(); }
 
-renderHome(); showIntro(); showFlash();
+try{ renderHome(); showIntro(); showFlash(); }
+catch(err){ window.dispatchEvent(new ErrorEvent('error',{message:'Home render: '+err.message})); }
 </script>
 </body>
 </html>

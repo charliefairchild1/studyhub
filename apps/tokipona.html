@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>toki pona · o kama sona</title>
+<style>
+:root{--bg:#0f1410;--panel:#161d18;--panel2:#1c2620;--line:#2a3830;--ink:#e9f2ea;--mut:#8ba394;--faint:#5c6f63;
+ --acc:#6fbf8f;--acc2:#4f9e73;--hl:#e0c24a;--bad:#e07a7a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,system-ui,Segoe UI,Roboto;padding-bottom:72px}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+header{text-align:center;padding:14px 0 6px}
+h1{margin:0;font-size:26px;letter-spacing:.5px}h1 span{color:var(--acc)}
+.tag{color:var(--mut);font-size:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:18px;margin:0 0 8px}
+h3{font-size:15px;margin:16px 0 4px;color:var(--acc)}
+button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 15px;font:inherit;cursor:pointer}
+button.go{background:linear-gradient(135deg,var(--acc2),#3c7a58);border-color:var(--acc2);font-weight:700}
+.tp{color:var(--acc);font-weight:700}
+.en{color:var(--mut)}
+b{color:#fff}
+/* bottom nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:#0c110d;border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;border-radius:0;color:var(--faint);font-size:11px;padding:9px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button.on{color:var(--acc)}
+nav button i{font-style:normal;font-size:19px}
+.page{display:none}.page.on{display:block}
+/* words */
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.word{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.word .w{font-weight:700;color:var(--acc);font-size:17px}
+.word .g{color:var(--mut);font-size:13px;line-height:1.4}
+.cathdr{color:var(--hl);font-size:13px;letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px}
+input,select{width:100%;background:#0c110d;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font:inherit}
+/* flashcard */
+.flash{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;user-select:none}
+.flash .big{font-size:46px;font-weight:800;color:var(--acc)}
+.flash .sub{color:var(--mut);margin-top:10px;font-size:17px}
+.flash .hintline{color:var(--faint);font-size:13px;margin-top:16px}
+.rate{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.rate button{padding:12px 4px;font-size:13px}
+.rate .again{border-color:#7a3a3a}.rate .good{border-color:#3a6a4a}.rate .easy{border-color:#3a5a7a}
+.bar{height:7px;background:#0c110d;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:8px}
+.stat b{font-size:24px;display:block}.stat span{color:var(--faint);font-size:12px}
+/* quiz */
+.opt{display:block;width:100%;text-align:left;margin:7px 0}
+.opt.ok{background:#1c3a28;border-color:var(--acc)}
+.opt.no{background:#3a1c1c;border-color:var(--bad)}
+.ex{background:#101812;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.ex .tp{font-size:18px}
+.muted{color:var(--mut);font-size:14px}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;color:var(--mut);margin:2px}
+a{color:var(--acc)}
+.big-quote{font-size:20px;text-align:center;color:var(--acc);margin:10px 0}
+</style></head>
+<body>
+<div class="wrap">
+<header><h1>toki <span>pona</span></h1><div class="tag">the language of good — 120 words, one small mind</div></header>
+<div id="app"></div>
+</div>
+
+<nav id="nav">
+  <button data-p="learn" class="on"><i>📖</i>Learn</button>
+  <button data-p="words"><i>🔤</i>Words</button>
+  <button data-p="cards"><i>🎴</i>Cards</button>
+  <button data-p="quiz"><i>✍️</i>Practice</button>
+  <button data-p="phrase"><i>💬</i>Phrases</button>
+</nav>
+
+<script>
+// ================= DATA: the 120 official words (nimi pu) =================
+const WORDS=[
+ // particles / grammar
+ ["li","particle: joins subject to its verb/adjective (not used with mi/sina)","gram"],
+ ["e","particle: marks the direct object","gram"],
+ ["en","particle: joins multiple subjects ('and')","gram"],
+ ["pi","particle: regroups modifiers — 'of'","gram"],
+ ["la","particle: frames context — 'if / when / in the context of'","gram"],
+ ["o","particle: hey! — address, command, or wish","gram"],
+ ["a","interjection: ah!, oh! — emphasis, emotion","gram"],
+ ["anu","or","gram"],
+ ["taso","but; only, just","gram"],
+ ["nanpa","number; (ordinal marker: nanpa wan = first)","gram"],
+ // pronouns / people
+ ["mi","I, me, we, us; my, our","people"],
+ ["sina","you; your","people"],
+ ["ona","he, she, it, they; his, her, its","people"],
+ ["jan","person, human, someone","people"],
+ ["meli","woman, female; wife","people"],
+ ["mije","man, male; husband","people"],
+ ["mama","parent, ancestor, origin, caretaker","people"],
+ ["kulupu","group, community, society","people"],
+ ["olin","love, deep affection, respect","people"],
+ ["unpa","sex; sexual or marital partnership","people"],
+ // nature / world
+ ["telo","water, liquid, fluid; to wash","nature"],
+ ["kasi","plant, tree, leaf, herb","nature"],
+ ["kala","fish, sea creature","nature"],
+ ["soweli","land animal, mammal, beast","nature"],
+ ["waso","bird, flying creature","nature"],
+ ["pipi","insect, bug, spider","nature"],
+ ["akesi","reptile, amphibian; 'creepy' animal","nature"],
+ ["kili","fruit, vegetable, mushroom","nature"],
+ ["kiwen","hard object, rock, stone, metal","nature"],
+ ["ko","semisolid — paste, powder, clay, dough","nature"],
+ ["kon","air, breath, spirit, essence, the unseen","nature"],
+ ["ma","land, earth, country, outdoor area","nature"],
+ ["mun","moon, star, night-sky object","nature"],
+ ["suno","sun, light, brightness; to shine","nature"],
+ ["sewi","up, high, above; sky; divine, sacred","nature"],
+ ["seli","fire, heat, warmth; cooked","nature"],
+ ["lete","cold, cool; raw","nature"],
+ ["nena","bump, hill, mountain, nose, button","nature"],
+ ["ma","land, earth, country","nature"],
+ // body
+ ["sijelo","body, physical state, torso, health","body"],
+ ["lawa","head; mind; to lead, control, rule","body"],
+ ["luka","hand, arm; (also: five)","body"],
+ ["noka","foot, leg; bottom, under","body"],
+ ["uta","mouth, lips; oral","body"],
+ ["insa","inside, center, stomach, contents","body"],
+ ["monsi","back, behind, rear","body"],
+ ["sinpin","front, face, chest, wall","body"],
+ ["selo","skin, outer layer, shell, boundary","body"],
+ ["pilin","heart, feeling; to feel, think, sense","body"],
+ // actions / verbs
+ ["kama","to come, arrive, become, happen","verb"],
+ ["tawa","to go; to, toward; for; moving","verb"],
+ ["awen","to stay, wait, keep, remain, continue","verb"],
+ ["pali","to do, make, work, build","verb"],
+ ["pana","to give, send, emit, release","verb"],
+ ["jo","to have, hold, carry, contain","verb"],
+ ["moku","food, drink; to eat, drink","verb"],
+ ["lukin","eye; to see, look, watch, read; to seek","verb"],
+ ["kute","ear; to hear, listen; to obey","verb"],
+ ["sona","knowledge; to know, understand","verb"],
+ ["toki","language, speech; to talk, say; hello","verb"],
+ ["wile","to want, need, wish; must","verb"],
+ ["ken","can, be able; possible; permitted","verb"],
+ ["open","to open, begin, turn on","verb"],
+ ["pini","end, finished, past; to close","verb"],
+ ["alasa","to hunt, forage, gather, seek","verb"],
+ ["utala","fight, battle, conflict; to attack","verb"],
+ ["pakala","mistake, break, damage; oops!","verb"],
+ ["weka","away, absent, gone; to remove","verb"],
+ ["kepeken","to use; with, by means of","verb"],
+ ["esun","market, shop, trade; to buy, sell","verb"],
+ ["lape","sleep, rest","verb"],
+ ["moli","death; to die, kill; dead","verb"],
+ ["kalama","sound, noise; to make a sound","verb"],
+ ["sitelen","image, symbol, writing; to draw, write","verb"],
+ ["mu","animal sound; any onomatopoeia","verb"],
+ // qualities
+ ["pona","good, positive, simple; to fix, improve","qual"],
+ ["ike","bad, negative, complex, harmful","qual"],
+ ["suli","big, large, tall, important, adult","qual"],
+ ["lili","small, little, few, young","qual"],
+ ["mute","many, much, very, more; quantity","qual"],
+ ["sin","new, fresh, another; again","qual"],
+ ["ante","different, other, changed","qual"],
+ ["sama","same, similar; as, like; sibling, peer","qual"],
+ ["nasa","strange, silly, foolish, dizzy, drunk","qual"],
+ ["wawa","power, strength, energy; strong, intense","qual"],
+ ["suwi","sweet, cute, adorable","qual"],
+ ["jaki","dirty, gross, disgusting, toxic","qual"],
+ ["wan","one; united; a part","qual"],
+ ["tu","two","qual"],
+ ["ala","no, not, zero, none","qual"],
+ ["ale","all, everything, universe; 100","qual"],
+ ["mani","money, wealth, currency, livestock","qual"],
+ ["lon","be located, real, present, true; at, in","qual"],
+ ["tan","from, because of; cause, reason","qual"],
+ // colors
+ ["kule","color, colorful; kind, category","color"],
+ ["loje","red","color"],
+ ["jelo","yellow","color"],
+ ["laso","blue, green","color"],
+ ["walo","white, light-colored","color"],
+ ["pimeja","black, dark","color"],
+ // things / concepts
+ ["ijo","thing, object, matter","thing"],
+ ["ni","this, that","thing"],
+ ["seme","what, which — (question word)","thing"],
+ ["nimi","word, name","thing"],
+ ["nasin","way, path, method, doctrine, road","thing"],
+ ["tenpo","time, moment, period, occasion","thing"],
+ ["musi","fun, play, art, game; amusing","thing"],
+ ["ilo","tool, device, machine","thing"],
+ ["tomo","house, building, room, indoor space","thing"],
+ ["supa","horizontal surface — table, floor, furniture","thing"],
+ ["poki","container — box, bowl, cup, bag","thing"],
+ ["len","cloth, clothing, fabric; hidden","thing"],
+ ["lupa","hole, door, window, orifice","thing"],
+ ["lipu","flat object — paper, book, page, document","thing"],
+ ["sike","circle, ball, wheel, round; cycle","thing"],
+ ["palisa","long hard thing — rod, stick, branch","thing"],
+ ["linja","long flexible thing — string, hair, rope","thing"],
+ ["pan","grain, bread, rice, pasta, cereal","thing"],
+ ["sike","circle, ball, round; a cycle","thing"],
+ ["poka","side, hip; beside, nearby; with","thing"],
+ ["kin","also, too, indeed (emphasis)","thing"],
+ ["pu","the official Toki Pona book; to read it","thing"],
+];
+// de-dupe (a couple words repeat across categories in the source list)
+const SEEN={}; const DICT=[]; for(const x of WORDS){ if(!SEEN[x[0]]){SEEN[x[0]]=1; DICT.push({w:x[0],g:x[1],cat:x[2]});} }
+const CATS={gram:"grammar particles",people:"people & pronouns",nature:"nature & world",body:"the body",verb:"actions",qual:"qualities & amounts",color:"colors",thing:"things & ideas"};
+
+// ================= STATE =================
+const LS='tokipona_v1';
+let S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
+S.srs=S.srs||{}; S.quiz=S.quiz||{seen:0,right:0};
+function save(){localStorage.setItem(LS,JSON.stringify(S));}
+const today=()=>Math.floor(Date.now()/864e5);
+// Leitner-ish SRS: box 0..5, due day
+const BOX_INT=[0,1,2,4,8,16,32];
+function due(){ const t=today(); return DICT.filter(d=>{const e=S.srs[d.w]; return !e||e.due<=t;}); }
+function grade(w,q){ const e=S.srs[w]||{box:0}; if(q==='again')e.box=0; else if(q==='easy')e.box=Math.min(6,e.box+2); else e.box=Math.min(6,e.box+1);
+  e.due=today()+BOX_INT[e.box]; e.last=today(); S.srs[w]=e; save(); }
+function learnedCount(){ return Object.keys(S.srs).filter(w=>(S.srs[w].box||0)>=3).length; }
+
+// ================= NAV =================
+const app=document.getElementById('app');
+let page='learn';
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{ page=b.dataset.p;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b)); render(); });
+function render(){ ({learn:renderLearn,words:renderWords,cards:renderCards,quiz:renderQuiz,phrase:renderPhrase}[page])(); window.scrollTo(0,0); }
+
+// ================= LEARN (grammar lessons) =================
+const LESSONS=[
+ ["The big idea","Toki Pona has about <b>120 words</b>. There's no word for most specific things — instead you <b>combine simple words</b> and let <b>context</b> fill in the rest. <span class='tp'>ilo</span> is 'tool'; <span class='tp'>ilo toki</span> (talk-tool) is a phone. The language forces you to say what things <i>are</i>, simply. That's the whole game.",
+   [["toki!","hello / language"],["pona","good","(also: thanks!)"]]],
+ ["Word order: mi / sina","With <span class='tp'>mi</span> (I) and <span class='tp'>sina</span> (you) as the subject, put the verb or adjective straight after — <b>no particle</b>.",
+   [["mi moku","I eat / I am eating"],["sina pona","you are good"],["mi lape","I sleep"],["sina suli","you are big"]]],
+ ["li — for everyone else","For any other subject, put <span class='tp'>li</span> between the subject and its verb/adjective.",
+   [["jan li moku","the person eats"],["ona li suli","it/they is big"],["telo li lete","the water is cold"],["soweli li pona","the animal is good"]]],
+ ["e — the object","Mark the <b>direct object</b> (the thing acted upon) with <span class='tp'>e</span>.",
+   [["mi moku e kili","I eat fruit"],["ona li lukin e sina","they see you"],["mi wile e telo","I want water"],["jan li pali e tomo","the person builds a house"]]],
+ ["Modifiers come after","An adjective goes <b>after</b> the word it describes. <span class='tp'>jan pona</span> = 'good person' = a friend. Stack as many as you like.",
+   [["jan pona","good person → friend"],["tomo mi","my house"],["telo nasa","crazy water → alcohol"],["jan suli mute","many important people"]]],
+ ["pi — regrouping","Without <span class='tp'>pi</span>, each modifier attaches to the first noun. Use <span class='tp'>pi</span> to say 'of' — to group modifiers together.",
+   [["jan pona mute","many friends"],["jan pi pona mute","person of much goodness → a very good person"],["tomo pi telo nasa","house of alcohol → a bar"]]],
+ ["en — joining subjects","Join two subjects with <span class='tp'>en</span> (it means 'and', but only for subjects).",
+   [["mi en sina","you and I"],["jan en soweli li moku","the person and the animal eat"]]],
+ ["la — context / if","<span class='tp'>la</span> attaches a context to the front of a sentence: time, condition, 'if/when'.",
+   [["tenpo pini la mi lape","in the past, I slept"],["sina kama la mi pilin pona","if you come, I feel good"],["tenpo suno ni la mi pali","today, I work"]]],
+ ["o — commands & wishes","<span class='tp'>o</span> gives a command or a wish. Address someone: <span class='tp'>jan o!</span> Command: <span class='tp'>o kute!</span> Wish: <span class='tp'>mi o lape</span> (I should sleep).",
+   [["o kute!","listen!"],["sina o pona","(may you) be well / take care"],["jan Ana o!","hey Ana!"],["o moku ala","don't eat"]]],
+ ["Questions","Ask 'what/which' with <span class='tp'>seme</span> in the slot you're asking about. Ask yes/no with <span class='tp'>X ala X</span> or <span class='tp'>… anu seme?</span>",
+   [["sina pali e seme?","what do you do?"],["ona li jan seme?","who are they?"],["sina pona ala pona?","are you okay?"],["sina moku anu seme?","are you eating (or what)?"]]],
+ ["Answering","There's no plain 'yes/no'. Echo the verb for yes; add <span class='tp'>ala</span> for no. <span class='tp'>lon</span> ('true') and <span class='tp'>ala</span> ('no') work casually.",
+   [["— sina pona ala pona?","are you good?"],["pona!","(I'm) good = yes"],["pona ala","not good = no"],["lon","true / yeah"]]],
+ ["Prepositions","A few words act as prepositions after the verb: <span class='tp'>tawa</span> (to), <span class='tp'>tan</span> (from), <span class='tp'>lon</span> (at/in), <span class='tp'>kepeken</span> (using), <span class='tp'>poka</span> (with/beside), <span class='tp'>sama</span> (like).",
+   [["mi tawa tomo","I go to the house"],["mi moku kepeken ilo","I eat using a tool"],["ona li lon ma","they are in the land"],["mi pali sama sina","I work like you"]]],
+ ["Numbers","The book system: <span class='tp'>wan</span> 1, <span class='tp'>tu</span> 2, and build up — <span class='tp'>luka</span> 5, <span class='tp'>mute</span> 20, <span class='tp'>ale</span> 100. Small numbers add up: <span class='tp'>tu wan</span> = 3. Or just use <span class='tp'>lili</span> (few) / <span class='tp'>mute</span> (many) — most speakers do.",
+   [["wan","1"],["tu","2"],["tu wan","3"],["luka","5 (a hand)"],["mute","many / 20"]]],
+];
+function renderLearn(){
+  app.innerHTML=`<div class="card"><h2>o kama sona — come, learn</h2>
+    <p class="muted">12 short lessons take you from zero to reading. Tap through, then hit <b>Cards</b> to lock in the words and <b>Practice</b> to test yourself.</p>
+    <div class="bar" style="margin-top:8px"><i style="width:${Math.round(learnedCount()/DICT.length*100)}%"></i></div>
+    <div class="muted" style="margin-top:6px">${learnedCount()} / ${DICT.length} words learned</div></div>`
+   + LESSONS.map((l,i)=>`<div class="card"><h3 style="color:var(--hl)">${i+1} · ${l[0]}</h3><p>${l[1]}</p>
+      ${l[2].map(ex=>`<div class="ex"><span class="tp">${ex[0]}</span> — <span class="en">${ex[1]}</span>${ex[2]?` <span class="muted">${ex[2]}</span>`:''}</div>`).join('')}
+    </div>`).join('')
+   + `<div class="card" style="text-align:center"><div class="big-quote">o pona!</div><p class="muted">You've seen the whole grammar. Toki Pona really is this small — the rest is vocabulary and practice.</p><button class="go" onclick="document.querySelector('#nav [data-p=cards]').click()">Practice the words →</button></div>`;
+}
+
+// ================= WORDS (browsable dictionary) =================
+let wq='';
+function renderWords(){
+  const q=wq.toLowerCase().trim();
+  const list=DICT.filter(d=>!q||d.w.includes(q)||d.g.toLowerCase().includes(q));
+  let html=`<div class="card"><input id="ws" placeholder="search a word or meaning…" value="${wq}"><div class="muted" style="margin-top:8px">${DICT.length} words · the whole language fits on one screen</div></div>`;
+  const byCat={}; list.forEach(d=>{(byCat[d.cat]=byCat[d.cat]||[]).push(d);});
+  for(const c in CATS){ if(!byCat[c])continue;
+    html+=`<div class="cathdr">${CATS[c]}</div><div class="wgrid">`+byCat[c].map(d=>{const e=S.srs[d.w]; const dot=e&&e.box>=3?'●':'○';
+      return `<div class="word"><div class="w">${d.w} <span style="color:var(--faint);font-size:12px">${dot}</span></div><div class="g">${d.g}</div></div>`;}).join('')+`</div>`;
+  }
+  app.innerHTML=html;
+  const ws=document.getElementById('ws'); ws.oninput=()=>{wq=ws.value; const p=ws.selectionStart; renderWords(); const n=document.getElementById('ws'); n.focus(); n.setSelectionRange(p,p);};
+}
+
+// ================= CARDS (SRS flashcards) =================
+let deck=[], card=null, flipped=false, dir='tp2en';
+function renderCards(){
+  deck=due(); if(!deck.length){ app.innerHTML=`<div class="card" style="text-align:center"><h2>o pona a! ✓</h2><p class="muted">No cards due right now — your memory's fresh. Come back later, or review anything below.</p>
+    <div class="stat" style="margin-top:12px"><div><b>${learnedCount()}</b><span>learned</span></div><div><b>${Object.keys(S.srs).length}</b><span>started</span></div><div><b>${DICT.length}</b><span>total</span></div></div>
+    <button class="go" style="margin-top:14px" onclick="forceReview()">Review 12 anyway</button></div>`; return; }
+  if(!card||deck.indexOf(card)<0) card=deck[Math.floor(Math.random()*deck.length)];
+  flipped=false; drawCard();
+}
+function forceReview(){ deck=[...DICT].sort(()=>Math.random()-.5).slice(0,12); card=deck[0]; flipped=false; drawCard(); }
+function drawCard(){
+  const front = dir==='tp2en'? card.w : card.g;
+  const back  = dir==='tp2en'? card.g : card.w;
+  app.innerHTML=`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span class="muted">${deck.length} due</span>
+      <button style="padding:5px 10px;font-size:13px" onclick="flipDir()">${dir==='tp2en'?'toki pona → english':'english → toki pona'}</button>
+    </div>
+    <div class="flash" id="fc">
+      <div class="big">${flipped?back:front}</div>
+      ${flipped?`<div class="sub">${front}</div>`:''}
+      <div class="hintline">${flipped?'how well did you know it?':'tap to reveal'}</div>
+    </div>
+    ${flipped?`<div class="rate">
+      <button class="again" onclick="rate('again')">Again<br><span class="muted">&lt;1d</span></button>
+      <button class="good" onclick="rate('good')">Good<br><span class="muted">soon</span></button>
+      <button class="easy" onclick="rate('easy')">Easy<br><span class="muted">later</span></button></div>`:''}
+    <div class="stat" style="margin-top:14px"><div><b>${learnedCount()}</b><span>learned</span></div><div><b>${Object.keys(S.srs).length}</b><span>started</span></div><div><b>${DICT.length}</b><span>total</span></div></div>
+  </div>`;
+  const fc=document.getElementById('fc'); fc.onclick=()=>{ if(!flipped){flipped=true; drawCard();} };
+}
+function flipDir(){ dir=dir==='tp2en'?'en2tp':'tp2en'; drawCard(); }
+function rate(q){ grade(card.w,q); card=null; renderCards(); }
+
+// ================= QUIZ (practice) =================
+let quizItem=null, quizMode='mc';
+function renderQuiz(){
+  // multiple choice: show a word (or meaning), pick the match
+  const d=DICT[Math.floor(Math.random()*DICT.length)];
+  const t2e=Math.random()<0.55;
+  const others=[...DICT].filter(x=>x.w!==d.w).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[...others,d].sort(()=>Math.random()-.5);
+  quizItem={d,t2e};
+  app.innerHTML=`<div class="card">
+    <div style="display:flex;justify-content:space-between"><h2 style="margin:0">Practice</h2><span class="muted">${S.quiz.right}/${S.quiz.seen} right</span></div>
+    <p class="muted" style="margin:6px 0 2px">${t2e?'What does this word mean?':'Which word means this?'}</p>
+    <div class="big-quote">${t2e?d.w:d.g}</div>
+    <div id="opts">${opts.map(o=>`<button class="opt" data-w="${o.w}">${t2e?o.g:o.w}</button>`).join('')}</div>
+    <div id="fb"></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Build a sentence</h3><p class="muted">Try translating, then reveal. (self-check)</p>
+    <div class="ex"><span class="en">${SENT[0]}</span><div id="sr" style="margin-top:6px"><button style="padding:6px 12px;font-size:13px" onclick="document.getElementById('sr').innerHTML='<span class=\\'tp\\'>'+SENT[1]+'</span>'">reveal</button></div></div>
+  </div>`;
+  const sent=SENTS[Math.floor(Math.random()*SENTS.length)]; window.SENT=sent;
+  document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{
+    const right=b.dataset.w===d.w; S.quiz.seen++; if(right)S.quiz.right++; save();
+    document.querySelectorAll('#opts .opt').forEach(x=>{ x.disabled=true; if(x.dataset.w===d.w)x.classList.add('ok'); else if(x===b)x.classList.add('no'); });
+    document.getElementById('fb').innerHTML=`<div class="ex" style="margin-top:10px"><span class="tp">${d.w}</span> — <span class="en">${d.g}</span></div><button class="go" style="margin-top:8px" onclick="renderQuiz()">Next →</button>`;
+  });
+}
+const SENTS=[
+ ["I want to eat good food.","mi wile moku e moku pona"],
+ ["You are my friend.","sina jan pona mi"],
+ ["The animal is big and strong.","soweli li suli li wawa"],
+ ["What do you want?","sina wile e seme?"],
+ ["Today I feel good.","tenpo suno ni la mi pilin pona"],
+ ["I go to the house of my parent.","mi tawa tomo mama mi"],
+ ["The water is cold.","telo li lete"],
+ ["Please listen to me.","o kute e mi"],
+ ["I don't know.","mi sona ala"],
+ ["We are learning the language of good.","mi kama sona e toki pona"],
+];
+window.SENT=SENTS[0];
+
+// ================= PHRASES =================
+const PHRASES=[
+ ["toki!","hello! (lit. 'language/talk')"],
+ ["toki, jan pona!","hi, friend!"],
+ ["sina pilin seme?","how do you feel?"],
+ ["mi pilin pona","I feel good"],
+ ["pona!","thanks! / good!"],
+ ["mi wile e ni","I want this"],
+ ["ni li seme?","what is this?"],
+ ["ona li seme?","what/who is that?"],
+ ["mi sona ala","I don't know"],
+ ["o awen","hold on / stay / wait"],
+ ["mi tawa","I'm leaving (bye)"],
+ ["tawa pona!","goodbye! (safe travels)"],
+ ["o moku pona","enjoy your meal"],
+ ["o lape pona","sleep well"],
+ ["mi olin e sina","I love you"],
+ ["ike a!","oh no! / that's bad!"],
+ ["pakala!","damn! / oops!"],
+ ["sina pona","you're kind / take care"],
+ ["tenpo pona","good times / have a good time"],
+ ["nimi sina li seme?","what is your name?"],
+ ["nimi mi li ___","my name is ___"],
+ ["mi kama sona","I am learning"],
+];
+function renderPhrase(){
+  app.innerHTML=`<div class="card"><h2>toki lili — useful phrases</h2><p class="muted">The everyday lines. Say them out loud.</p></div>`
+   + `<div class="card">`+PHRASES.map(p=>`<div class="ex"><span class="tp">${p[0]}</span><br><span class="en">${p[1]}</span></div>`).join('')+`</div>`
+   + `<div class="card"><h3 style="margin-top:0">nasin — a note on the spirit</h3><p class="muted">Toki Pona was made by Sonja Lang as a language of <b>simplicity and mindfulness</b>. Its smallness is the point: with 120 words you're pushed to strip an idea to its essence. <span class="tp">ilo pi toki</span>, <span class="tp">jan pona</span>, <span class="tp">telo nasa</span> — you'll start seeing the world in small, honest pieces. <span class="tp">pona!</span></p></div>`;
+}
+
+render();
+</script>
+</body></html>
