@@ -91,9 +91,8 @@ details.more>summary::-webkit-details-marker{display:none}
 .cat-list a:active{background:var(--panel2)}.cat-list a .pp{display:block;color:var(--faint);font-size:.7em;font-family:ui-monospace,monospace}
 .page{display:none}.page.on{display:block}
 /* aurora + polish */
-body::before{content:'';position:fixed;inset:-45% -15% auto -15%;height:75%;z-index:-1;
-  background:conic-gradient(from 180deg at 50% 50%,#d9a44120,#7fae8b1c,#b98fd91c,#6fa8d91c,#d9a44120);
-  filter:blur(75px);opacity:.55;animation:spin 46s linear infinite}
+body::before{content:'';position:fixed;inset:-20% -15% auto -15%;height:55%;z-index:-1;
+  background:radial-gradient(ellipse at 50% 0%,#d9a4411f,transparent 70%);opacity:.7}
 @keyframes spin{to{transform:rotate(360deg)}}
 a.tile{transition:transform .12s,border-color .15s,box-shadow .2s}
 a.tile:active{transform:scale(.96)}
@@ -103,7 +102,7 @@ h1{text-shadow:0 0 30px rgba(217,164,65,.15)}
 /* intro onboarding */
 .intro{position:fixed;inset:0;z-index:60;background:#0c0a06;overflow:hidden}
 .intro.hide{display:none}
-.intro .aur{position:absolute;inset:-30%;background:conic-gradient(from 0deg,#d9a441,#7fae8b,#b98fd9,#6fa8d9,#d9a441);filter:blur(95px);opacity:.4;animation:spin 22s linear infinite}
+.intro .aur{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,#d9a44133,transparent 65%);opacity:.6}
 .intro .steps{position:absolute;inset:0;display:flex;transition:transform .5s cubic-bezier(.6,.05,.2,1)}
 .intro .st{min-width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 34px 160px;gap:16px}
 .intro .em{font-size:4em;filter:drop-shadow(0 0 26px rgba(217,164,65,.5));animation:float 3s ease-in-out infinite}
@@ -228,15 +227,9 @@ window.addEventListener('error', function(ev){
 function studyReset(){ try{ if('caches' in window) caches.keys().then(ks=>ks.forEach(k=>caches.delete(k)));
   if(navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs=>{rs.forEach(r=>r.unregister()); location.reload(true);});
   else location.reload(true); }catch(e){ location.reload(true); } }
-// --- self-updating service worker: apply new versions immediately, no stuck cache ---
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').then(reg=>{
-    reg.addEventListener('updatefound',()=>{ const nw=reg.installing; if(!nw)return;
-      nw.addEventListener('statechange',()=>{ if(nw.state==='activated' && navigator.serviceWorker.controller) location.reload(); }); });
-  }).catch(()=>{});
-  let refreshed=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!refreshed){refreshed=true; location.reload();} });
-}
+// --- service worker: plain registration. HTML is network-first inside the SW,
+//     so new content shows when online; no auto-reload (that can loop on iOS PWAs). ---
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 const $=id=>document.getElementById(id);
 function todayKey(){ return new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10); }
 
@@ -417,7 +410,9 @@ function nextIntro(){ if(istep>=ISTEPS-1){ endIntro(); return; } istep++; update
 function endIntro(){ localStorage.setItem('sh_intro','1'); $('intro').classList.add('hide'); }
 function replayIntro(){ istep=0; localStorage.removeItem('sh_intro'); showIntro(); }
 
-try{ renderHome(); showIntro(); showFlash(); }
+// Open straight to the working home page. The intro overlay was heavy on iOS and
+// non-essential — reach it anytime via "Replay intro" on the You tab.
+try{ renderHome(); showFlash(); }
 catch(err){ window.dispatchEvent(new ErrorEvent('error',{message:'Home render: '+err.message})); }
 </script>
 </body>
