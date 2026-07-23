@@ -55,6 +55,27 @@ input,select{width:100%;background:#0c110d;border:1px solid var(--line);color:va
 .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;color:var(--mut);margin:2px}
 a{color:var(--acc)}
 .big-quote{font-size:20px;text-align:center;color:var(--acc);margin:10px 0}
+/* guided player — full screen, no scroll */
+.player{position:fixed;left:0;right:0;top:0;bottom:calc(54px + env(safe-area-inset-bottom));display:flex;flex-direction:column;background:var(--bg);z-index:10}
+.p-top{padding:calc(env(safe-area-inset-top) + 12px) 18px 0}
+.p-bar{height:6px;background:#0c110d;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.p-bar i{display:block;height:100%;background:var(--acc);transition:width .35s ease}
+.p-count{color:var(--faint);font-size:12px;margin-top:7px;display:flex;justify-content:space-between}
+.p-count a{color:var(--faint)}
+.p-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px 22px;gap:14px;overflow:hidden;cursor:pointer}
+.p-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+.p-btn{width:100%;padding:17px;border-radius:15px;border:0;background:linear-gradient(135deg,var(--acc2),#3c7a58);color:#fff;font-weight:800;font-size:17px;cursor:pointer}
+.q-word{font-size:clamp(46px,15vw,96px);font-weight:800;color:var(--acc);line-height:1}
+.q-gloss{font-size:21px;color:var(--ink)}
+.q-title{font-size:23px;font-weight:800;color:var(--hl);line-height:1.2}
+.q-body{font-size:17.5px;color:var(--ink);max-width:470px;line-height:1.55}
+.q-tp{font-size:clamp(30px,9vw,46px);color:var(--acc);font-weight:800;line-height:1.15}
+.q-en{font-size:19px;color:var(--mut)}
+.q-note{color:var(--faint);font-size:14px}
+.tap-hint{color:var(--faint);font-size:13px;margin-top:4px}
+.q-opt{display:block;width:100%;max-width:430px;margin:7px auto;padding:15px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-size:16px;cursor:pointer}
+.q-opt.ok{background:#1c3a28;border-color:var(--acc)}
+.q-opt.no{background:#3a1c1c;border-color:var(--bad);opacity:.65}
 </style></head>
 <body>
 <div class="wrap">
@@ -302,16 +323,45 @@ const LESSONS=[
  ["Phrases you'll actually use","Set expressions worth memorizing whole.",
    [["toki!","hi / hello"],["pona!","thanks / good / nice"],["mi sona ala","I don't know"],["o awen pona","take care"],["sina pona a!","you're the best!"]]],
 ];
-function renderLearn(){
-  app.innerHTML=`<div class="card"><h2>o kama sona — come, learn</h2>
-    <p class="muted">${LESSONS.length} lessons take you from zero to fluent reading — the full grammar, then every word by theme. Tap through, then hit <b>Cards</b> to lock in the words and <b>Practice</b> to test yourself.</p>
-    <div class="bar" style="margin-top:8px"><i style="width:${Math.round(learnedCount()/DICT.length*100)}%"></i></div>
-    <div class="muted" style="margin-top:6px">${learnedCount()} / ${DICT.length} words learned</div></div>`
-   + LESSONS.map((l,i)=>`<div class="card"><h3 style="color:var(--hl)">${i+1} · ${l[0]}</h3><p>${l[1]}</p>
-      ${l[2].map(ex=>`<div class="ex"><span class="tp">${ex[0]}</span> — <span class="en">${ex[1]}</span>${ex[2]?` <span class="muted">${ex[2]}</span>`:''}</div>`).join('')}
-    </div>`).join('')
-   + `<div class="card" style="text-align:center"><div class="big-quote">o pona!</div><p class="muted">You've seen the whole grammar. Toki Pona really is this small — the rest is vocabulary and practice.</p><button class="go" onclick="document.querySelector('#nav [data-p=cards]').click()">Practice the words →</button></div>`;
+// ---- build a one-screen-at-a-time course from the lessons (no scrolling) ----
+const DICTMAP={}; DICT.forEach(d=>DICTMAP[d.w]=d.g);
+function shortG(g){ g=g.replace(/^(particle|interjection|number):\s*/i,''); g=g.split(/[;(]/)[0]; return g.split(',').slice(0,2).join(',').trim(); }
+function makeCheck(w){ const ans=shortG(DICTMAP[w]);
+  const others=DICT.filter(d=>d.w!==w && shortG(d.g)!==ans).sort(()=>Math.random()-.5).slice(0,3).map(d=>shortG(d.g));
+  return {t:'check',w,ans,opts:[...others,ans].sort(()=>Math.random()-.5)}; }
+function buildSteps(){ const steps=[], seen=[];
+  LESSONS.forEach(l=>{ steps.push({t:'note',title:l[0],body:l[1]});
+    l[2].forEach(ex=>{ steps.push({t:'ex',tp:ex[0],en:ex[1],note:ex[2]||''});
+      ex[0].toLowerCase().replace(/[^a-z ]/g,'').split(/\s+/).forEach(tok=>{ if(DICTMAP[tok]&&seen.indexOf(tok)<0)seen.push(tok); }); });
+    if(seen.length>=4){ const pool=seen.slice(-10); steps.push(makeCheck(pool[Math.floor(Math.random()*pool.length)])); }
+  });
+  steps.push({t:'done'}); return steps; }
+const STEPS=buildSteps();
+function renderLearn(){ drawStep(); }
+function drawStep(){
+  const i=Math.min(Math.max(0,S.pos||0),STEPS.length-1); const s=STEPS[i];
+  const pct=Math.round(i/(STEPS.length-1)*100);
+  let stage='';
+  if(s.t==='note') stage=`<div class="q-title">${s.title}</div><div class="q-body">${s.body}</div><div class="tap-hint">tap to continue →</div>`;
+  else if(s.t==='ex') stage=`<div class="q-tp">${s.tp}</div><div class="q-en">${s.en}</div>${s.note?`<div class="q-note">${s.note}</div>`:''}<div class="tap-hint">tap to continue →</div>`;
+  else if(s.t==='check') stage=`<div class="q-body" style="color:var(--mut)">what does this mean?</div><div class="q-word" style="font-size:clamp(42px,13vw,84px)">${s.w}</div><div id="opts" style="width:100%">${s.opts.map(o=>`<button class="q-opt" data-o="${encodeURIComponent(o)}">${o}</button>`).join('')}</div>`;
+  else stage=`<div style="font-size:60px">🌱</div><div class="q-title">o pona a!</div><div class="q-body">You've been through the whole course — the grammar and every word, in context. Toki Pona really is this small. Keep the words fresh in <b>Cards</b>, or start over anytime.</div>`;
+  app.innerHTML=`<div class="player">
+    <div class="p-top"><div class="p-bar"><i style="width:${pct}%"></i></div>
+      <div class="p-count"><span>${i+1} / ${STEPS.length}</span><span><a href="#" id="restart">restart</a></span></div></div>
+    <div class="p-stage" id="stage">${stage}</div>
+    <div class="p-foot">${s.t==='check'?'<div class="tap-hint" style="text-align:center"><a href="#" id="skip">skip</a></div>':s.t==='done'?'<button class="p-btn" id="again">Start over</button>':'<button class="p-btn" id="cont">Continue</button>'}</div>
+  </div>`;
+  if(s.t==='note'||s.t==='ex'){ document.getElementById('stage').onclick=advance; const c=document.getElementById('cont'); if(c)c.onclick=advance; }
+  if(s.t==='check'){ document.querySelectorAll('#opts .q-opt').forEach(b=>b.onclick=()=>{
+      const o=decodeURIComponent(b.dataset.o);
+      if(o===s.ans){ b.classList.add('ok'); const e=S.srs[s.w]||{box:0}; e.box=Math.min(6,(e.box||0)+1); e.due=today()+BOX_INT[e.box]; S.srs[s.w]=e; save(); setTimeout(advance,430); }
+      else b.classList.add('no'); });
+    document.getElementById('skip').onclick=e=>{e.preventDefault(); advance();}; }
+  if(s.t==='done'){ document.getElementById('again').onclick=()=>{ S.pos=0; save(); drawStep(); }; }
+  document.getElementById('restart').onclick=e=>{e.preventDefault(); if(confirm('Restart the course from the beginning?')){ S.pos=0; save(); drawStep(); }};
 }
+function advance(){ if((S.pos||0)<STEPS.length-1){ S.pos=(S.pos||0)+1; save(); drawStep(); } }
 
 // ================= WORDS (browsable dictionary) =================
 let wq='';
