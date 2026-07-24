@@ -5,438 +5,289 @@
 <title>Aim the Throw</title>
 <meta name="theme-color" content="#0d0b07">
 <style>
-:root{--bg:#0d0b07;--panel:#171208;--panel2:#1f1810;--ink:#efe6d2;--dim:#a99a7c;--faint:#6f6350;--gold:#d9a441;--green:#8bc39a;--red:#e08a6f;--blue:#7fb0e0;--rule:#332a1c}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{max-width:100%;overflow-x:hidden}
-body{background:radial-gradient(1100px 700px at 70% -12%,#1c1408,#0d0b07 60%) fixed;color:var(--ink);
-  font-family:"Iowan Old Style",Palatino,Georgia,serif;min-height:100vh;line-height:1.6}
-a.hub{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:99;background:rgba(13,11,7,.9);color:var(--gold);
-  border:1px solid #4a3a1c;border-radius:20px;padding:7px 12px 7px 9px;font:600 14px/1 -apple-system,system-ui,sans-serif;
-  text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-/* trajectory header */
-#hdr{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d0b07e8;backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);
-  padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;display:none}
-#hdr.on{display:block}
-#hdr .row{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px}
-#hdr .lab{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);white-space:nowrap}
-#traj{flex:1;height:26px;display:block}
-#hdr .td{font-family:ui-monospace,monospace;font-size:10px;color:var(--faint);white-space:nowrap}
-#hdr .td b{color:var(--green)}#hdr .td i{color:var(--red);font-style:normal}
-/* stage */
-#stage{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 64px) 20px calc(env(safe-area-inset-bottom) + 40px);
-  min-height:100vh;display:flex;flex-direction:column;justify-content:center}
-.eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
-h1{font-size:2.5em;font-weight:600;line-height:1.05;margin-bottom:6px}
-h1 em{font-style:italic;color:var(--gold)}
-h2{font-size:1.7em;font-weight:600;line-height:1.1;color:var(--gold);margin-bottom:6px}
-.sub{color:var(--dim);font-style:italic;font-size:1.05em;margin-bottom:22px}
-.body{font-size:1.14em;color:#e2d7c0;margin-bottom:16px}
-.body.small{font-size:1.02em;color:var(--dim)}
-.tag{display:inline-block;font-family:ui-monospace,monospace;font-size:.66em;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
-  border:1px solid var(--rule);border-radius:20px;padding:4px 11px;margin-bottom:14px}
-.opts{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-.opt{background:var(--panel);border:1px solid var(--rule);border-radius:13px;padding:15px 17px;text-align:left;cursor:pointer;
-  color:var(--ink);font:inherit;font-size:1.06em;transition:border-color .15s,background .15s}
-.opt:hover{border-color:var(--gold)}
-.opt:active{background:var(--panel2)}
-.opt.picked{border-color:var(--gold);background:#241a0e}
-.opt.dim{opacity:.4}
-.reflect{margin-top:16px;padding:15px 17px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
-  font-style:italic;color:#e4dac4;font-size:1.02em;animation:fade .4s ease}
-.reflect .rl{font-family:ui-monospace,monospace;font-size:.6em;letter-spacing:2px;text-transform:uppercase;color:var(--faint);
-  font-style:normal;display:block;margin-bottom:6px}
-.delta{font-family:ui-monospace,monospace;font-size:.8em;font-style:normal;margin-top:9px}
-.delta .t{color:var(--green)}.delta .d{color:var(--red)}
-@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.go{margin-top:20px;width:100%;background:var(--gold);color:#1a1206;border:none;border-radius:13px;padding:16px;font:700 1.06em/1 -apple-system,system-ui,sans-serif;cursor:pointer}
-.go:active{transform:translateY(1px)}
-.ghost{background:none;border:1px solid var(--rule);color:var(--dim);border-radius:13px;padding:13px;font:600 .95em/1 -apple-system,system-ui,sans-serif;cursor:pointer;width:100%;margin-top:10px}
-.canvaswrap{margin:6px 0 12px}
-canvas.viz{width:100%;height:auto;display:block;background:#0a0805;border:1px solid var(--rule);border-radius:14px}
-.nodes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.node{border:1px solid var(--rule);border-radius:10px;padding:9px 12px;font-size:.95em;background:var(--panel);color:var(--dim);transition:.25s}
-.node.lit{background:#241a0e;border-color:var(--gold);color:var(--ink)}
-.node.walled{opacity:.28;text-decoration:line-through}
-.answer{font-size:1.15em;color:var(--gold);font-style:italic;min-height:1.5em;margin:8px 0}
-.selfbtns{display:flex;gap:8px;margin:10px 0}
-.selfbtns button{flex:1;background:var(--panel);border:1px solid var(--rule);color:var(--dim);border-radius:11px;padding:11px;font:inherit;font-size:.95em;cursor:pointer}
-.selfbtns button.on{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:700}
-.meterrow{display:flex;gap:14px;margin:14px 0;font-family:ui-monospace,monospace;font-size:.85em}
-.meterrow .m{flex:1}.meterrow .m .k{color:var(--faint);font-size:.85em}.meterrow .m .v{font-size:1.5em}
-.bars{height:8px;background:#0a0805;border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-top:4px}
-.bars>i{display:block;height:100%}
-.finale h1{font-size:2.1em}
-.field-line{font-size:1.15em;color:#e2d7c0;margin:14px 0;padding-left:14px;border-left:2px solid var(--rule)}
-.field-line b{color:var(--gold);font-weight:600}
-.standing{text-align:center;margin:14px 0}
-.standing .big{font-size:1.9em;color:var(--gold);font-style:italic}
-.standing .meta{color:var(--dim);margin-top:6px}
-.axiom{text-align:center;font-style:italic;color:var(--gold);font-size:1.2em;margin:22px 0 8px;line-height:1.4}
-.guard{font-size:.92em;color:var(--faint);border-top:1px solid var(--rule);margin-top:22px;padding-top:16px;font-style:italic}
-@media (max-width:380px){
-  #stage{padding-left:15px;padding-right:15px}
-  h1{font-size:2em}h2{font-size:1.4em}.body{font-size:1.06em}
-  .opt{padding:13px 14px;font-size:1em}
-}
+:root{--bg:#0d0b07;--panel:#171208;--panel2:#1f1810;--ink:#efe6d2;--dim:#a99a7c;--faint:#6f6350;--gold:#d9a441;--green:#7fd39a;--red:#e8795c;--blue:#7fb0e0;--rule:#332a1c}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;max-width:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+a.hub{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:6px;z-index:99;background:rgba(13,11,7,.85);color:var(--gold);
+  border:1px solid #4a3a1c;border-radius:16px;padding:5px 10px 5px 8px;font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top) + 6px) 12px calc(env(safe-area-inset-bottom) + 10px)}
+/* ---- chart ---- */
+.chartwrap{position:relative;flex:0 0 auto}
+.chartwrap .lab{position:absolute;top:6px;left:8px;font:700 9px/1 ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:var(--faint)}
+.chartwrap .td{position:absolute;top:6px;right:8px;font:700 11px/1 ui-monospace,monospace}
+.chartwrap .td b{color:var(--green)}.chartwrap .td i{color:var(--red);font-style:normal}
+canvas#chart{width:100%;height:118px;display:block;background:#0a0805;border:1px solid var(--rule);border-radius:12px}
+/* ---- meters ---- */
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
+.meter{background:var(--panel);border:1px solid var(--rule);border-radius:11px;padding:7px 6px;text-align:center;position:relative;transition:.2s}
+.meter .ic{font-size:15px;line-height:1}
+.meter .v{font:800 17px/1.1 ui-monospace,monospace;margin-top:2px}
+.meter .k{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.meter.pot .v{color:var(--blue)} .meter.cap .v{color:var(--gold)} .meter.floor .v{color:#b9d0e8} .meter.light .v{color:var(--green)}
+.meter.light.low{border-color:var(--red);animation:pulse 1s infinite}
+.meter.light.low .v{color:var(--red)}
+@keyframes pulse{50%{background:#2a1410}}
+.meter .bar{height:3px;background:#0a0805;border-radius:2px;margin-top:5px;overflow:hidden}
+.meter .bar>i{display:block;height:100%;background:currentColor;transition:width .3s}
+/* ---- world / omen ---- */
+.world{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:9px 11px;margin-bottom:8px}
+.world .top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--faint);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.omen{position:relative;height:22px;margin-top:7px;border-radius:11px;background:linear-gradient(90deg,#3a2016,#3a3016 45%,#163a2a);border:1px solid var(--rule);overflow:hidden}
+.omen .mk{position:absolute;top:-3px;width:4px;height:26px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff;transition:left .4s}
+.omen .lbl{position:absolute;top:3px;font-size:11px;font-weight:800}
+.omen .lbl.l{left:8px;color:#e8a06f}.omen .lbl.r{right:8px;color:var(--green)}
+.world .read{font-size:12px;color:var(--dim);margin-top:6px;min-height:16px}
+.world .read b{color:var(--ink)}
+.log{text-align:center;font-size:12.5px;color:var(--dim);min-height:18px;margin:2px 0 8px;font-weight:600}
+.log .g{color:var(--green)}.log .r{color:var(--red)}.log .y{color:var(--gold)}
+.spacer{flex:1 1 auto;min-height:0}
+/* ---- actions ---- */
+.acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.act{background:var(--panel);border:1px solid var(--rule);border-radius:13px;padding:11px 5px 9px;text-align:center;cursor:pointer;position:relative;transition:.12s}
+.act:active{transform:scale(.95)}
+.act .ai{font-size:21px;line-height:1}
+.act .an{font-size:12px;font-weight:700;margin-top:3px}
+.act .ac{font-size:10px;color:var(--blue);margin-top:2px;font-family:ui-monospace,monospace}
+.act .ac .lk{color:var(--faint)}
+.act.dis{opacity:.34;pointer-events:none}
+.act.hot{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.endturn{grid-column:1/4;background:linear-gradient(135deg,var(--gold),#b9832f);color:#1a1206;border:none;border-radius:13px;
+  padding:14px;font:800 15px/1 -apple-system,system-ui,sans-serif;cursor:pointer;margin-top:8px}
+.endturn:active{transform:translateY(1px)}
+/* ---- float deltas ---- */
+.float{position:fixed;font:800 20px/1 ui-monospace,monospace;pointer-events:none;z-index:80;animation:rise 1s ease-out forwards;text-shadow:0 2px 8px #000}
+@keyframes rise{0%{opacity:0;transform:translateY(6px) scale(.8)}18%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-38px) scale(1)}}
+/* ---- overlay screens (intro / end) ---- */
+.screen{position:absolute;inset:0;background:radial-gradient(900px 600px at 60% -10%,#1c1408,#0d0b07 62%);z-index:60;
+  display:flex;flex-direction:column;justify-content:center;padding:26px 24px calc(26px + env(safe-area-inset-bottom));text-align:center;overflow:auto}
+.screen .eb{font:700 11px/1 ui-monospace,monospace;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.screen h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.6em;font-weight:600;line-height:1.02}
+.screen h1 em{font-style:italic;color:var(--gold)}
+.screen h2{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;color:var(--gold);font-size:1.7em;margin:4px 0}
+.rules{list-style:none;margin:20px auto;max-width:340px;text-align:left;display:flex;flex-direction:column;gap:12px}
+.rules li{display:flex;gap:12px;align-items:center;font-size:15px;color:#e2d7c0}
+.rules li .e{font-size:24px;flex:0 0 30px;text-align:center}
+.rules li b{color:var(--gold)}
+.screen .btn{margin-top:22px;background:var(--gold);color:#1a1206;border:none;border-radius:14px;padding:16px 40px;font:800 17px/1 inherit;cursor:pointer;align-self:center}
+.endchart{margin:14px auto;max-width:420px;width:100%}
+.endchart canvas{width:100%;height:150px;background:#0a0805;border:1px solid var(--rule);border-radius:14px;display:block}
+.standing{font-family:"Iowan Old Style",Georgia,serif;font-style:italic;font-size:1.9em;color:var(--gold)}
+.sdesc{color:var(--dim);max-width:400px;margin:8px auto 0;font-size:15px;line-height:1.5}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:400px;margin:16px auto 0}
+.statgrid .s{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:9px 4px}
+.statgrid .s b{display:block;font:800 18px/1 ui-monospace,monospace;color:var(--ink)}
+.statgrid .s span{font-size:9.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
 </style></head>
 <body>
 <a href="../index.html" class="hub">&lsaquo; Hub</a>
-<div id="hdr"><div class="row">
-  <span class="lab">your becoming</span>
-  <canvas id="traj" width="600" height="52"></canvas>
-  <span class="td"><b id="tval">0</b> · <i id="dval">0</i></span>
-</div></div>
-<div id="stage"></div>
+<div id="app">
+  <div class="chartwrap"><canvas id="chart" width="600" height="236"></canvas>
+    <span class="lab">your becoming</span><span class="td" id="td"></span></div>
+  <div class="meters" id="meters"></div>
+  <div class="world" id="world"></div>
+  <div class="log" id="log">&nbsp;</div>
+  <div class="spacer"></div>
+  <div class="acts" id="acts"></div>
+</div>
+<div class="screen" id="screen"></div>
 
 <script>
-/* =================================================================
-   AIM THE THROW — a game whose structure is the philosophy.
-   You never see a score to beat; only the shape of your becoming.
-   T = transformation (potential turned constructive)
-   D = dissipation (waste, harm, potential thrown away / closed)
-   The whole run is integrated at the end into your "direction".
-==================================================================*/
-const stage=document.getElementById('stage');
-let T=0, D=0;               // running trajectory
-const hist=[];              // cumulative (T-D) after each recorded beat
-const tags={};              // choice tags feeding the finale
-function tag(k){tags[k]=(tags[k]||0)+1;}
-function record(t,d){ T+=t; D+=d; hist.push(T-D); drawTraj(); document.getElementById('tval').textContent=Math.round(T); document.getElementById('dval').textContent=Math.round(D); }
+/* ================= AIM THE THROW — a build/survival game =================
+   The mechanics ARE the philosophy:
+   • Light bleeds every turn → playing safe kills you (minimize surprise = the dark room)
+   • Read the shifting world (predict) → the informative gamble is how you grow
+   • Capacity compounds (trajectory > local reward)
+   • Floor unlocks bold Leaps and absorbs ruin (floor the downside → boldness)
+   • The chart is your trajectory; the end integrates it into your "direction"
+==========================================================================*/
+const A=id=>document.getElementById(id);
+let G;
+function fresh(){ return {
+  turn:1, maxTurn:14,
+  pot:4, cap:1.0, floor:0, light:10, lightMax:16,
+  T:0, D:0, hist:[0],
+  regime: Math.random()<0.5?'exp':'harsh', revealed:false, insight:0,
+  st:{venture:0,leap:0,build:0,fortify:0,steady:0,land:0,miss:0}, dead:false, cause:''
+}; }
 
-function drawTraj(){
-  const cv=document.getElementById('traj'); if(!cv)return;
-  const x=cv.getContext('2d'), W=cv.width, H=cv.height; x.clearRect(0,0,W,H);
-  if(hist.length<1)return;
-  const pts=[0,...hist]; const mn=Math.min(0,...pts), mx=Math.max(1,...pts);
-  const X=i=>i/(pts.length-1||1)*(W-4)+2, Y=v=>H-4-((v-mn)/((mx-mn)||1))*(H-8);
-  // zero line
-  x.strokeStyle='#2a2314';x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(W,Y(0));x.stroke();
-  x.strokeStyle='#d9a441';x.lineWidth=2;x.beginPath();
-  pts.forEach((v,i)=>{ i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)); }); x.stroke();
-  const lv=pts[pts.length-1];
-  x.fillStyle=lv>=0?'#8bc39a':'#e08a6f';x.beginPath();x.arc(X(pts.length-1),Y(lv),3.2,0,7);x.fill();
+const ACTS=[
+  {k:'steady', ic:'🌾', n:'Steady', cost:1, need:0},
+  {k:'venture',ic:'🎲', n:'Venture',cost:2, need:0},
+  {k:'build',  ic:'✦', n:'Build',  cost:2, need:0},
+  {k:'fortify',ic:'🛡', n:'Fortify',cost:2, need:0},
+  {k:'leap',   ic:'🚀', n:'Leap',   cost:4, need:3},
+];
+
+function potPerTurn(){ return 4 + Math.round((G.cap-1)*3); }
+function omenP(){ // displayed probability the world is EXPANSIVE
+  const conf=Math.min(0.9, 0.58 + G.insight*0.04);
+  if(G.revealed) return G.regime==='exp'?1:0;
+  const base = G.regime==='exp'?conf:1-conf;
+  return Math.max(0.05,Math.min(0.95, base));
 }
 
-/* ---------- tiny render helpers ---------- */
-function el(html){ stage.innerHTML=html; window.scrollTo(0,0); }
-function deltaStr(t,d){ let s=[]; if(t)s.push(`<span class="t">+${t} transformation</span>`); if(d)s.push(`<span class="d">+${d} dissipation</span>`); return s.join(' &nbsp;·&nbsp; '); }
-
-/* a generic choice beat: opts = [{label, t, d, reflect, tag}] */
-function choice(o, done){
-  el(`${o.tag?`<span class="tag">${o.tag}</span>`:''}${o.title?`<h2>${o.title}</h2>`:''}
-    <div class="body">${o.body}</div>
-    <div class="opts" id="opts">${o.opts.map((c,i)=>`<button class="opt" data-i="${i}">${c.label}</button>`).join('')}</div>
-    <div id="after"></div>`);
-  let done_=false;
-  document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{
-    if(done_)return; done_=true;
-    const c=o.opts[+b.dataset.i];
-    document.querySelectorAll('#opts .opt').forEach(x=>{x.style.pointerEvents='none'; if(x!==b)x.classList.add('dim');});
-    b.classList.add('picked');
-    if(c.tag)tag(c.tag);
-    record(c.t||0,c.d||0);
-    document.getElementById('after').innerHTML=`
-      <div class="reflect"><span class="rl">what that was</span>${c.reflect}
-        <div class="delta">${deltaStr(c.t||0,c.d||0)}</div></div>
-      <button class="go" id="cont">Continue &rsaquo;</button>`;
-    document.getElementById('cont').onclick=done;
-    document.getElementById('after').scrollIntoView({behavior:'smooth',block:'nearest'});
-  });
-}
-
-/* a prose beat */
-function say(o,done){
-  el(`${o.eyebrow?`<div class="eyebrow">${o.eyebrow}</div>`:''}${o.h1?`<h1>${o.h1}</h1>`:''}${o.h2?`<h2>${o.h2}</h2>`:''}
-    ${o.sub?`<div class="sub">${o.sub}</div>`:''}${(o.bodies||[o.body]).map(b=>`<div class="body ${o.small?'small':''}">${b}</div>`).join('')}
-    <button class="go" id="cont">${o.btn||'Continue'} &rsaquo;</button>`);
-  document.getElementById('cont').onclick=done;
-}
-
-/* act divider */
-function act(o,done){
-  document.getElementById('hdr').classList.add('on');
-  el(`<div class="eyebrow">Act ${o.n}</div><h1>${o.title}</h1><div class="sub">${o.sub}</div>
-    <div class="body small">${o.body}</div><button class="go" id="cont">Begin &rsaquo;</button>`);
-  document.getElementById('cont').onclick=done;
-}
-
-/* =================================================================
-   THE SCRIPT — a linear list of steps. Each step is fn(done).
-==================================================================*/
-const SCRIPT=[];
-const S=(fn)=>SCRIPT.push(fn);
-
-/* ---- opening ---- */
-S(d=>say({eyebrow:'a game of poiesis', h1:'Aim the <em>Throw</em>',
-  sub:'you cannot win this by scoring',
-  bodies:[
-   "Every choice you make will move two quantities — <b style='color:var(--green)'>transformation</b> (potential turned into something constructive) and <b style='color:var(--red)'>dissipation</b> (waste, harm, potential left in the ground).",
-   "But you are <b>never shown a number to beat</b>. Only the shape of your becoming, drawn along the top. The best move is rarely the one with the biggest immediate score — it is the one that improves the structure of your <i>future</i> moves.",
-   "At the very end, the game will integrate everything you did and show you the one thing no one can tell you from inside: your <b>direction</b>."],
-  btn:'Throw'}, d));
-
-/* ===================== ACT I — THE ENGINE ===================== */
-S(d=>act({n:'I',title:'The Engine',sub:'how minds are',
-  body:"Before what is good, what is true: a mind is not a window onto the world. It is a prediction machine, forever betting on the next instant — and learning only where the bet is wrong."}, d));
-
-/* Ch1 — The Residual */
-S(d=>choice({tag:'1 · the residual', title:'The gap',
-  body:"A face across a table. You must read it before it speaks: <b>friend</b>, or <b>threat</b>? You have a hunch — commit to it.",
-  opts:[
-   {label:'Read it as a friend',t:0,d:0,reflect:"You lean in — and the face hardens. You were wrong. Good: a sure thing teaches nothing. Dopamine goes quiet at the expected and blazes for the surprise. The wrongness is the opening."},
-   {label:'Read it as a threat',t:0,d:0,reflect:"You brace — and the face softens into a smile. You were wrong. Good: a sure thing teaches nothing. The wrongness is the opening — the only place learning lives."},
-  ]}, d));
-S(d=>choice({tag:'1 · the residual',
-  body:"The gap between what you predicted and what happened is the <b>residual</b> — reality's answer, the one impartial judge. What do you do with it?",
-  opts:[
-   {label:'Study the gap. Revise the model.',t:3,d:0,tag:'update',
-     reflect:"Knowledge is not a stockpile of certainties; it is a portfolio of bets, held seriously enough to act on, loosely enough to fold. You just folded a losing position and kept the information. That is all learning ever is."},
-   {label:'Dismiss it — you were basically right.',t:0,d:3,tag:'dismiss',
-     reflect:"You defended the model and threw away the only thing the moment gave you. The bet still lost; you just refused to be paid in information. This is how a mind stops learning without noticing."},
-  ]}, d));
-
-/* Ch2 — The Dark Room (explore vs exploit, with a brightness viz) */
-S(d=>darkRoom(d));
-function darkRoom(done){
-  let light=0.55, round=0; const total=4;
-  function frame(){
-    if(round>=total){ ending(); return; }
-    el(`<span class="tag">2 · the dark room</span><h2>${round===0?'The quiet room':'The room, now'}</h2>
-      <div class="canvaswrap"><canvas class="viz" id="room" width="600" height="200"></canvas></div>
-      <div class="body small">${round===0
-        ? "A mind that only ever minimizes surprise curls up where nothing can violate its expectations — a dark, silent room — and dies there content. Each turn you may take the <b>known good</b>, or the <b>informative gamble</b>."
-        : light<0.28 ? "The walls are closing. The light is almost gone. Boredom is the alarm that your model has stopped learning."
-        : "The room breathes with what you feed it."}</div>
-      <div class="opts" id="opts">
-        <button class="opt" data-k="safe">Take the known good <span style="color:var(--faint);font-size:.82em">— a small, certain gain</span></button>
-        <button class="opt" data-k="risk">Take the informative gamble <span style="color:var(--faint);font-size:.82em">— uncertain; it might cost you, or open the world</span></button>
-      </div>`);
-    drawRoom(light);
-    document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{
-      const k=b.dataset.k;
-      if(k==='safe'){ record(1,0); light=Math.max(0,light-0.16); tag('exploit');
-        flash("A sure, small gain — but the room dims. The model learned nothing, so the world shrank a little."); }
-      else { tag('explore');
-        const win=Math.random()<0.62;
-        if(win){ record(3,0); light=Math.min(1,light+0.2); flash("The gamble paid — not just in reward, but in light. The world got bigger."); }
-        else { record(0,1.5); light=Math.min(1,light+0.06); flash("The gamble stung. But even the loss carried information — the room did not darken. A bet against your own model is never fully wasted."); }
-      }
-      round++;
-    });
-  }
-  function flash(msg){
-    drawRoom(light);
-    document.getElementById('opts').innerHTML=`<div class="reflect"><span class="rl">the room responds</span>${msg}
-      <div class="delta">light ${light<0.28?'<span class="d">near dark</span>':light>0.7?'<span class="t">wide and bright</span>':'holding'}</div></div>
-      <button class="go" id="c">Continue &rsaquo;</button>`;
-    document.getElementById('c').onclick=frame;
-  }
-  function drawRoom(l){
-    const cv=document.getElementById('room'); if(!cv)return; const x=cv.getContext('2d'),W=cv.width,H=cv.height;
-    x.fillStyle='#0a0805';x.fillRect(0,0,W,H);
-    const r=30+l*260; const g=x.createRadialGradient(W/2,H/2,10,W/2,H/2,r);
-    g.addColorStop(0,`rgba(217,164,65,${0.15+l*0.6})`); g.addColorStop(1,'rgba(10,8,5,0)');
-    x.fillStyle=g; x.fillRect(0,0,W,H);
-    x.fillStyle=l<0.28?'#e08a6f':'#d9a441'; x.beginPath();x.arc(W/2,H/2,4+l*4,0,7);x.fill();
-  }
-  function ending(){
-    const alive=light>0.15;
-    say({h2: alive?'The room held':'The dark room',
-      body: alive
-        ? "You kept the world open. This is the whole trick of being alive to it: not the absence of risk, but the informative gamble — a permanent, low-level bet against your own current model. When the world goes quiet, a living mind manufactures its own uncertainty: dreams by night, games and questions by day."
-        : "You optimized yourself into stillness. Every choice reduced surprise, and surprise is the food of a mind. A perfectly predictable life is not peace; it is slow suffocation. Remember the alarm that was trying to save you — it was called boredom.",
-      btn:'Continue'}, done);
-  }
-  frame();
-}
-
-/* Ch3 — The Lens (two selves, one substrate) */
-S(d=>lens(d));
-function lens(done){
-  const nodes=[
-    {t:'the warmth of a kitchen',host:1,prot:0},
-    {t:'a door that once slammed',host:0,prot:1},
-    {t:'a friend who stayed',host:1,prot:0},
-    {t:'the sound of footsteps',host:0,prot:1},
-    {t:'your own name, spoken kindly',host:1,prot:0},
-    {t:'an exit, always located',host:0,prot:1},
+/* ---------------- rendering ---------------- */
+function render(){
+  // meters
+  const M=[
+    {c:'pot', ic:'⚡', v:G.pot, k:'Potential', bar:G.pot/8},
+    {c:'cap', ic:'✦', v:G.cap.toFixed(1), k:'Capacity', bar:(G.cap-1)/3},
+    {c:'floor',ic:'🛡',v:G.floor, k:'Floor', bar:G.floor/8},
+    {c:'light',ic:'◐', v:G.light, k:'Light', bar:G.light/G.lightMax},
   ];
-  let self='host';
-  const ans={host:"“The world is mostly warm. People stay.”", prot:"“The world is a room with exits. Stay ready.”"};
-  function frame(){
-    el(`<span class="tag">3 · the lens</span><h2>One substrate, two selves</h2>
-      <div class="body small">The same memory. The same person. Below, one shared store of nodes — nothing changes but the <b>self</b> that reads it: its attention, its drive, and the walls that make some memories simply unreachable. Ask each self the same question: <i>who are you, and what is the world?</i></div>
-      <div class="selfbtns"><button data-s="host" class="${self==='host'?'on':''}">host — built for connection</button><button data-s="prot" class="${self==='prot'?'on':''}">protector — built for safety</button></div>
-      <div class="answer">${ans[self]}</div>
-      <div class="nodes">${nodes.map(n=>{ const lit=n[self]; return `<span class="node ${lit?'lit':'walled'}">${n.t}</span>`; }).join('')}</div>
-      <div class="body small" style="color:var(--faint)">Same nodes. Opposite answers. The greyed-out memories are not gone — they are <b>walled</b>: present, but unreachable by this self. That gap is the amnesia, mechanically. Access, not data.</div>
-      <div class="opts" id="opts">
-        <button class="opt" data-k="lens">Neither self is the "real" one — the self is a lens, not a window</button>
-        <button class="opt" data-k="ess">One of them is the true me; the other is a malfunction</button>
-      </div>`);
-    document.querySelectorAll('.selfbtns button').forEach(b=>b.onclick=()=>{self=b.dataset.s;frame();});
-    document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{
-      if(b.dataset.k==='lens'){ record(3,0); tag('lens');
-        say({h2:'A lens, not a window',
-          body:"The self is not a transparent window onto its own contents. It is a configuration — attention, drive, and access-walls — laid over a shared substrate. Which is why one person can hold incompatible selves, and why what you cannot reach is not the same as what is not there. You are an instrument to be forged and spent, not a fixed essence to defend.",btn:'Continue'},done);
-      } else { record(0,2); tag('essence');
-        say({h2:'The knife was yours',
-          body:"To call one self real and the other a malfunction is to forget that you drew the line — to mistake the map's border for a joint of reality. The categories we lay over ourselves are wagers, not facts. Hold them loosely enough to redraw when the residual says the old cut has stopped paying.",btn:'Continue'},done);
-      }
-    });
-  }
-  frame();
+  A('meters').innerHTML=M.map(m=>`<div class="meter ${m.c} ${m.c==='light'&&G.light<=3?'low':''}">
+    <div class="ic">${m.ic}</div><div class="v">${m.v}</div><div class="k">${m.k}</div>
+    <div class="bar"><i style="width:${Math.max(0,Math.min(1,m.bar))*100}%"></i></div></div>`).join('');
+  // world / omen
+  const p=omenP();
+  A('world').innerHTML=`<div class="top"><span>Turn ${G.turn} / ${G.maxTurn}</span><span>${G.revealed?'READ ✓':'omen · '+Math.round(p*100)+'% ☀'}</span></div>
+    <div class="omen"><span class="lbl l">⛈ harsh</span><span class="lbl r">expansive ☀</span>
+      <span class="mk" style="left:${6+p*(88)}%"></span></div>
+    <div class="read">${G.revealed
+      ? (G.regime==='exp'?'The world is <b style="color:var(--green)">expansive</b> — ventures thrive.':'The world is <b style="color:var(--red)">harsh</b> — ventures fail.')
+      : 'Scout with a Venture to <b>read</b> the world before you Leap.'}</div>`;
+  // actions
+  A('acts').innerHTML=ACTS.map(a=>{
+    const locked=a.need&&G.floor<a.need, poor=G.pot<a.cost, dis=locked||poor;
+    const hot = a.k==='leap' && G.revealed && G.regime==='exp' && !dis;
+    return `<div class="act ${dis?'dis':''} ${hot?'hot':''}" data-k="${a.k}">
+      <div class="ai">${a.ic}</div><div class="an">${a.n}</div>
+      <div class="ac">⚡${a.cost}${a.need?` <span class="lk">🛡${a.need}</span>`:''}</div></div>`;
+  }).join('') + `<button class="endturn" id="end">End turn ▸ &nbsp;<span style="opacity:.7;font-weight:700">−1 ◐</span></button>`;
+  document.querySelectorAll('.act:not(.dis)').forEach(b=>b.onclick=e=>act(b.dataset.k,e));
+  A('end').onclick=endTurn;
+  drawChart('chart', G.hist);
+  A('td').innerHTML=`<b>${Math.round(G.T)}</b> · <i>${Math.round(G.D)}</i>`;
 }
 
-/* ===================== ACT II — THE GOOD ===================== */
-S(d=>act({n:'II',title:'The Good',sub:'what is worth doing',
-  body:"If a thing is real only as a transformation — a rock is just a process winning, for now, against dissipation — then the only question worth asking of any act is which way it makes you become. The good is to make: to turn potential into constructive transformation faster than it dissipates into waste."}, d));
+function floatDelta(txt,color,x,y){
+  const f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.color=color;
+  f.style.left=(x-14)+'px'; f.style.top=(y-10)+'px'; document.body.appendChild(f);
+  setTimeout(()=>f.remove(),1000);
+}
+function popAt(sel,txt,color){ const el=document.querySelector(sel); if(!el){return;} const r=el.getBoundingClientRect();
+  floatDelta(txt,color,r.left+r.width/2,r.top+r.height/2); }
 
-/* Ch4 — Potential → Transformation → Output (allocation) */
-S(d=>ptoAlloc(d));
-function ptoAlloc(done){
-  let pot=8, cap=1.0, round=0; const total=3; let outSum=0, capBuilt=0;
-  function frame(){
-    if(round>=total){ ending(); return; }
-    el(`<span class="tag">4 · potential → transformation → output</span><h2>Round ${round+1} of ${total}</h2>
-      <div class="body small">You hold <b>${pot} units of potential</b> — gradients that could be turned into something. Transformation is not only what you emit <i>now</i> (output); it is also the capacity you build for what you can transform <i>next</i>. Your transform rate is currently <b>×${cap.toFixed(1)}</b>.</div>
-      <div class="opts" id="opts">
-        <button class="opt" data-k="out">Spend it all on output now <span style="color:var(--faint);font-size:.82em">— biggest immediate result</span></button>
-        <button class="opt" data-k="mix">Split: some output, some capacity <span style="color:var(--faint);font-size:.82em">— less now, more later</span></button>
-        <button class="opt" data-k="build">Invest most into capacity <span style="color:var(--faint);font-size:.82em">— little now, compounding</span></button>
-      </div>`);
-    document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{
-      const k=b.dataset.k; let out=0,inv=0;
-      if(k==='out'){ out=pot; inv=0; tag('output'); }
-      if(k==='mix'){ out=pot*0.5; inv=pot*0.5; tag('build'); }
-      if(k==='build'){ out=pot*0.2; inv=pot*0.8; tag('build'); }
-      const gained=out*cap; outSum+=gained; record(Math.round(gained),0);
-      capBuilt+=inv; cap+=inv*0.12;
-      pot=Math.round(4+capBuilt*0.6);   // capacity feeds tomorrow's potential
-      round++;
-      const msg = k==='out'
-        ? "A big number, right now. But you spent the seed with the harvest — next round begins nearly where this one did."
-        : "Quieter now. But you raised the rate at which everything after this transforms — and next round's potential grew with it.";
-      document.getElementById('opts').innerHTML=`<div class="reflect"><span class="rl">what that was</span>${msg}
-        <div class="delta"><span class="t">+${Math.round(gained)} output</span> · rate now ×${cap.toFixed(1)} · potential next: ${pot}</div></div>
-        <button class="go" id="c">Continue &rsaquo;</button>`;
-      document.getElementById('c').onclick=frame;
-    });
-  }
-  function ending(){
-    const builder=capBuilt>=6;
-    say({h2: builder?'The compounding path':'The spent path',
-      body: builder
-        ? "You treated transformation as more than output — you spent some of every harvest on the capacity to harvest more. This is why trajectory beats reward: the best move is not the one with the biggest immediate score, but the one that improves the structure of every move after it."
-        : "You maximized the number in front of you, round after round — and each round began roughly where the last did. A pure reward-maximizer burns capacity for present output and blows up the moment the world shifts. Output is only one channel of transformation; you left the others closed.",
-      btn:'Continue'},done);
-  }
-  frame();
+/* ---------------- actions ---------------- */
+function commitT(amt){ G.T+=amt; G.hist.push(Math.round(G.T-G.D)); }
+function commitD(amt){ G.D+=amt; G.hist.push(Math.round(G.T-G.D)); }
+function setLight(dl){ G.light=Math.max(0,Math.min(G.lightMax,G.light+dl)); }
+
+function act(k,e){
+  const a=ACTS.find(x=>x.k===k); if(!a||G.pot<a.cost) return;
+  if(a.need && G.floor<a.need) return;
+  G.pot-=a.cost;
+  let log='';
+  if(k==='steady'){ const g=Math.round(2*G.cap); commitT(g); G.st.steady++;
+    popAt('.meter.pot',`+${g}`,'var(--green)'); log=`🌾 Steady <span class="g">+${g}</span>`; }
+  else if(k==='build'){ G.cap=Math.round((G.cap+0.3)*10)/10; G.st.build++;
+    popAt('.meter.cap','+.3','var(--gold)'); log=`✦ Capacity now <span class="y">×${G.cap.toFixed(1)}</span>`; }
+  else if(k==='fortify'){ G.floor+=2; G.st.fortify++;
+    popAt('.meter.floor','+2','#b9d0e8'); log=`🛡 Floor <span class="y">+2</span>`; }
+  else if(k==='venture'){ G.st.venture++; G.revealed=true; G.insight++;
+    if(G.regime==='exp'){ const g=Math.round(6*G.cap); commitT(g); setLight(2); G.st.land++;
+      popAt('.meter.pot',`+${g}`,'var(--green)'); log=`🎲 ☀ Venture landed <span class="g">+${g}</span> · <span class="g">+2◐</span>`; }
+    else { commitD(4); setLight(-1); G.st.miss++;
+      popAt('.meter.pot','−4','var(--red)'); log=`🎲 ⛈ Venture failed <span class="r">+4 waste</span> · but you learned`; } }
+  else if(k==='leap'){ G.st.leap++; G.revealed=true; G.insight++;
+    if(G.regime==='exp'){ const g=Math.round(14*G.cap); commitT(g); setLight(3); G.st.land++;
+      popAt('.chartwrap',`+${g}`,'var(--green)'); log=`🚀 ☀ LEAP <span class="g">+${g}</span> · <span class="g">+3◐</span>`; }
+    else { const dmg=10, absorbed=Math.min(G.floor,dmg), net=dmg-absorbed; G.floor-=absorbed;
+      commitD(net); setLight(-Math.ceil(net/2.5)); G.st.miss++;
+      popAt('.chartwrap',`−${net}`,'var(--red)');
+      log=`🚀 ⛈ LEAP into ruin — floor absorbed <span class="y">${absorbed}</span>, <span class="r">+${net} waste</span>`; } }
+  A('log').innerHTML=log||'&nbsp;';
+  if(G.light<=0){ return end('dark'); }
+  render();
 }
 
-/* Ch5 — Floor the Downside (two-scene) */
-S(d=>choice({tag:'5 · floor the downside', title:'The bet you can\'t afford',
-  body:"A bold, genuinely constructive bet is on the table — it could transform a great deal. But if it fails, you are ruined: no food, no shelter, nothing to fall back on. Nothing is floored.",
-  opts:[
-   {label:'Take the bold bet anyway',t:2,d:5,tag:'reckless',
-     reflect:"It failed, and there was nothing beneath you. Boldness without a floor isn't courage — it's a frightened maximizer gambling the rent. The ruin dissipated more than the bet could ever have made."},
-   {label:'Decline. You can\'t risk ruin.',t:0,d:3,tag:'timid',
-     reflect:"The sensible choice — and the potential stays in the ground. Dammed potential is itself a kind of dissipation. A caged creature cannot make the productive bets a floor would allow. Something has to change before boldness is even possible."},
-  ]}, d));
-S(d=>choice({tag:'5 · floor the downside', title:'Build the floor first',
-  body:"Now, before betting: you guarantee the downside. Needs met regardless of how the throw lands — a floor under yourself and everyone the bet touches. <i>Then</i> the same bold bet returns.",
-  opts:[
-   {label:'Floor the downside, then take the bet',t:5,d:0,tag:'floor',
-     reflect:"With ruin off the table, the frightened maximizer becomes a creature that can take real, creative risks — and this time the bet built something. Flooring the downside is not the opposite of boldness. It is its precondition. Bet-hedging is what makes the productive gamble survivable."},
-   {label:'The floor is enough; skip the bet',t:1,d:1,tag:'timid',
-     reflect:"Safety achieved, and held onto. But a floor is a launchpad, not a destination. You built the very thing that would have let you throw — and then chose not to throw."},
-  ]}, d));
-
-/* Ch6 — Redirect, Don't Abolish */
-S(d=>choice({tag:'6 · redirect, don\'t abolish', title:'The drive',
-  body:"There is a drive in you — the same betting circuit that built everything — and right now it fires at a dead channel: zero-sum status, the endless scroll, the slot machine's near-miss. It produces nothing. What do you do with it?",
-  opts:[
-   {label:'Abolish it — kill the craving for good',t:0,d:4,tag:'abolish',
-     reflect:"You can't. Evolution is a tinkerer, not an engineer — the snake still carries buried leg-bones, and the drive rebounds, stronger for being starved of dignity. The one thing you can never do with an ancient instinct is delete it."},
-   {label:'Re-aim it — point the same craving at something that builds',t:4,d:0,tag:'redirect',
-     reflect:"The instinct is fixed; only its object was ever a choice. You starved the dead channel — not the drive — and aimed the wager at making. This is the whole art: the camel bears the ledger, the lion says No to the old object, and the child turns the same fierce energy back into play that builds."},
-  ]}, d));
-
-/* ===================== ACT III — REALITY ===================== */
-S(d=>act({n:'III',title:'Reality',sub:'how it functions at scale',
-  body:"One mind aiming its throw is an ethic. A thousand minds, flowing value to one another, is an economy — and the same measure governs it. The question becomes: does the ledger see who <i>held</i> the value, or who <i>made</i> it?"}, d));
-
-/* Ch7 — Custody vs Contribution */
-S(d=>choice({tag:'7 · custody vs. contribution', title:'Who gets paid?',
-  body:"A meal delights a diner. Money moves — to whoever <b>held the contract</b> at the moment of exchange: the restaurant's owner. But the value was <i>made</i> by a chain: the cook who learned a craft, the teacher who taught the cook, the farmer, the friend who once believed in them. Money sees custody. What does a truer ledger see?",
-  opts:[
-   {label:'Pay only who held the contract',t:0,d:2,tag:'custody',
-     reflect:"That is what money already does — it records who held the contract, not who produced the value. We never had a judge of contribution. We had a bookkeeper of custody, and mistook the receipt for the verdict."},
-   {label:'Trace the influence graph back, and pay contribution',t:4,d:0,tag:'contribution',
-     reflect:"You are paid by every mind your mind made better; you pay every mind that ever made yours better; the economy is the integral. And nothing was subtracted from the diner — the meal was still eaten. Contribution is not a finite pool. Nobody pays; the world simply notes where the increase came from."},
-  ]}, d));
-S(d=>choice({tag:'7 · custody vs. contribution', title:'The temptation',
-  body:"Your contribution ledger has grown. Someone proposes: let a high balance <b>unlock</b> things — priority, access, a better seat. Let the score start gating who gets what.",
-  opts:[
-   {label:'Refuse. It pays; it must never gate.',t:3,d:0,tag:'nogate',
-     reflect:"The moment a balance starts gating anything is the moment it has become something else and must be opposed. A ledger that ranks who deserves the door is no longer the economics of friendship — it is a cage wearing its face. Keep it a record of gratitude, never a key."},
-   {label:'Allow it — let standing open doors',t:0,d:4,tag:'gate',
-     reflect:"And there it curdles into the thing the whole design existed to prevent: worth measured, then enforced. The ledger was meant to floor people and route thanks — not to sort them at the gate. This is the failure mode with a friendly face."},
-  ]}, d));
-
-/* ===================== FINALE — THE FIELD ===================== */
-S(d=>field());
-function field(){
-  document.getElementById('hdr').classList.add('on');
-  const ratio = (T)/(T+D||1);
-  // metamorphosis from tags
-  const explore=(tags.explore||0)+(tags.update||0)+(tags.redirect||0)+(tags.build||0);
-  const guard=(tags.dismiss||0)+(tags.essence||0)+(tags.timid||0)+(tags.custody||0);
-  const refuse=(tags.redirect||0)+(tags.update||0)+(tags.nogate||0)+(tags.lens||0);
-  let meta, metaNote;
-  if(explore>=4 && ratio>0.62){ meta='the child'; metaNote='a mind that seeks the residual rather than fleeing it — building and knocking down without guilt, affirming the throw. Heraclitus’ child, at play, to whom the kingdom belongs.'; }
-  else if(refuse>=3){ meta='the lion'; metaNote='the sacred No — you tore down models that had stopped predicting, and refused the cage that wore a friendly face. The child is one metamorphosis away.'; }
-  else { meta='the camel'; metaNote='you bore the ledger faithfully and kept the load — but caution, held too long, is its own slow dissipation. The lion’s No, and then the child’s Yes, are still ahead of you.'; }
-  // standing from ratio + shape
-  let standing, sdesc;
-  const rising = hist.length>2 && hist[hist.length-1] > hist[Math.floor(hist.length/2)];
-  if(ratio>0.66 && rising){ standing='The Maker'; sdesc='Your ratio of construction to dissipation rose across the whole arc. You were a channel, not a container — you forged early and gave late.'; }
-  else if(ratio>0.55){ standing='The Channel'; sdesc='More was made through you than was lost. The throw was aimed, if not always far.'; }
-  else if(ratio>0.42){ standing='The Wanderer'; sdesc='Motion and making and waste in roughly equal measure — a trajectory still looking for its shape.'; }
-  else { standing='The Dissipator'; sdesc='Motion without enough making. Much was moved; less was built. The good was never stillness — but it was never mere motion either.'; }
-
-  el(`<div class="finale">
-    <div class="eyebrow">the field</div>
-    <h1>Your <em>direction</em></h1>
-    <div class="sub">no one declared it — it emerged</div>
-    <div class="canvaswrap"><canvas class="viz" id="field" width="600" height="220"></canvas></div>
-    <div class="body small">You made a few dozen local flows. You were never once shown a destination — because direction is not a local property. No node, no vote, no leader can know it from inside. It is only the <b>shape of the integral</b>: a thousand small choices, each scored on whether it opened or closed the future, summed into a trajectory whose form is the heading. That curve above is yours. The field <i>is</i> the direction.</div>
-    <div class="standing"><div class="big">${standing}</div><div class="meta">${sdesc}</div></div>
-    <div class="field-line">Your last metamorphosis: <b>${meta}</b> — ${metaNote}</div>
-    <div class="axiom">The good is to make:<br>to turn potential into constructive transformation,<br>faster than it dissipates into waste.<br><span style="color:var(--dim);font-size:.85em">Affirm the throw. Aim it.</span></div>
-    <div class="guard"><b style="color:var(--gold)">A word this game owes you.</b> It scored you on a single axis — transformation against dissipation. That axis is real, but it is not the whole of the good: a path can be construction-positive and still be a horror on every other axis, and this game could not see those. And it carries priors it could not remove — every scenario above was a border someone drew, a bet about where the line falls. Hold all of it the way you should hold any category: seriously enough to act on, loosely enough to fold.</div>
-    <button class="go" id="again">Throw again &rsaquo;</button>
-    </div>`);
-  drawField();
-  document.getElementById('again').onclick=()=>{ T=0;D=0;hist.length=0;for(const k in tags)delete tags[k];
-    document.getElementById('hdr').classList.remove('on'); drawTraj(); i=0; next(); };
-  function drawField(){
-    const cv=document.getElementById('field'); if(!cv)return; const x=cv.getContext('2d'),W=cv.width,H=cv.height;
-    x.fillStyle='#0a0805';x.fillRect(0,0,W,H);
-    const pts=[0,...hist]; const mn=Math.min(0,...pts),mx=Math.max(1,...pts);
-    const X=i=>i/(pts.length-1||1)*(W-30)+15, Y=v=>H-16-((v-mn)/((mx-mn)||1))*(H-32);
-    x.strokeStyle='#2a2314';x.beginPath();x.moveTo(0,Y(0));x.lineTo(W,Y(0));x.stroke();
-    // fill under curve
-    const grad=x.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(217,164,65,.22)');grad.addColorStop(1,'rgba(217,164,65,0)');
-    x.beginPath();x.moveTo(X(0),Y(0));pts.forEach((v,i)=>x.lineTo(X(i),Y(v)));x.lineTo(X(pts.length-1),Y(0));x.closePath();x.fillStyle=grad;x.fill();
-    x.strokeStyle='#d9a441';x.lineWidth=2.5;x.beginPath();pts.forEach((v,i)=>{i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v));});x.stroke();
-    const lv=pts[pts.length-1]; x.fillStyle=lv>=0?'#8bc39a':'#e08a6f';x.beginPath();x.arc(X(pts.length-1),Y(lv),5,0,7);x.fill();
-  }
+function endTurn(){
+  setLight(-1);
+  if(G.light<=0){ return end('dark'); }
+  if(G.turn>=G.maxTurn){ return end('survive'); }
+  G.turn++; G.pot=potPerTurn(); G.revealed=false;
+  if(Math.random()<0.32) G.regime = G.regime==='exp'?'harsh':'exp'; // non-stationary
+  A('log').innerHTML='&nbsp;';
+  render();
 }
 
-/* ---------- runner ---------- */
-let i=0;
-function next(){ if(i>=SCRIPT.length)return; const step=SCRIPT[i++]; step(next); }
-next();
+/* ---------------- chart ---------------- */
+function drawChart(id,hist){
+  const cv=A(id); if(!cv)return; const x=cv.getContext('2d'),W=cv.width,H=cv.height;
+  x.clearRect(0,0,W,H);
+  const pts=hist.length?hist:[0]; const mn=Math.min(0,...pts), mx=Math.max(1,...pts);
+  const PADL=6, PADR=8;
+  const X=i=>PADL+ i/(Math.max(1,pts.length-1))*(W-PADL-PADR), Y=v=>H-14-((v-mn)/((mx-mn)||1))*(H-28);
+  x.strokeStyle='#241d12';x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(W,Y(0));x.stroke();
+  // fill
+  const grad=x.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(217,164,65,.22)');grad.addColorStop(1,'rgba(217,164,65,0)');
+  x.beginPath();x.moveTo(X(0),Y(0));pts.forEach((v,i)=>x.lineTo(X(i),Y(v)));x.lineTo(X(pts.length-1),Y(0));x.closePath();x.fillStyle=grad;x.fill();
+  x.strokeStyle='#d9a441';x.lineWidth=2.4;x.lineJoin='round';x.beginPath();
+  pts.forEach((v,i)=>{i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v));});x.stroke();
+  const lv=pts[pts.length-1]; x.fillStyle=lv>=0?'#7fd39a':'#e8795c';
+  x.beginPath();x.arc(X(pts.length-1),Y(lv),3.4,0,7);x.fill();
+}
+
+/* ---------------- screens ---------------- */
+function showScreen(html){ const s=A('screen'); s.innerHTML=html; s.style.display='flex'; }
+function hideScreen(){ A('screen').style.display='none'; }
+
+function intro(){
+  showScreen(`<div class="eb">a game of poiesis</div>
+    <h1>Aim the <em>Throw</em></h1>
+    <ul class="rules">
+      <li><span class="e">◐</span><div>Your <b>Light</b> drops every turn. Sit still and you die in the dark. <b>Make</b> to stay alive.</div></li>
+      <li><span class="e">🎲</span><div><b>Venture</b> to read the shifting world, then grow from the gamble. Safe play slowly bleeds out.</div></li>
+      <li><span class="e">✦</span><div><b>Build</b> capacity — it compounds. The best move improves your <i>future</i> moves.</div></li>
+      <li><span class="e">🚀</span><div><b>Floor</b> the downside to unlock the big <b>Leap</b> — and to survive it when the world turns harsh.</div></li>
+    </ul>
+    <div style="color:var(--faint);font-size:13px">The line at the top is your becoming. No score to beat — only its shape.</div>
+    <button class="btn" id="play">Throw ▸</button>`);
+  A('play').onclick=()=>{ G=fresh(); hideScreen(); render(); };
+}
+
+function end(kind){
+  G.dead = kind==='dark';
+  const ratio = G.T/(G.T+G.D||1);
+  const bold = G.st.venture+G.st.leap;
+  const built = G.st.build;
+  const rising = G.hist.length>3 && G.hist[G.hist.length-1] > G.hist[Math.floor(G.hist.length/2)];
+  let meta, standing, sdesc;
+  if(kind==='dark'){
+    standing = 'The Dark Room';
+    sdesc = G.st.steady>bold
+      ? 'You minimized surprise until the light went out. A perfectly safe life isn’t peace — it’s slow suffocation.'
+      : 'You overreached without a floor beneath you. Boldness without a floor isn’t courage; it’s a gamble with the rent.';
+    meta='—';
+  } else {
+    if(bold>=6 && built>=2 && ratio>0.6){ meta='the child'; }
+    else if(bold>=4){ meta='the lion'; }
+    else { meta='the camel'; }
+    if(ratio>0.66 && rising){ standing='The Maker'; sdesc='Construction outran waste across the whole arc — you forged, you compounded, you gave the throw its aim.'; }
+    else if(ratio>0.55){ standing='The Channel'; sdesc='More was made through you than was lost. The throw was aimed, if not always far.'; }
+    else if(ratio>0.45){ standing='The Wanderer'; sdesc='Making and waste in rough balance — a trajectory still finding its shape.'; }
+    else { standing='The Dissipator'; sdesc='Much was moved; less was built. Motion is not the same as making.'; }
+  }
+  showScreen(`<div class="eb">${kind==='dark'?'the light went out · turn '+G.turn:'the field · you survived'}</div>
+    <div class="standing">${standing}</div>
+    <div class="sdesc">${sdesc}</div>
+    <div class="endchart"><canvas id="echart" width="600" height="300"></canvas></div>
+    <div class="sdesc" style="color:var(--gold);font-style:italic">Your metamorphosis: ${meta}</div>
+    <div class="statgrid">
+      <div class="s"><b>${Math.round(G.T)}</b><span>transform</span></div>
+      <div class="s"><b>${Math.round(G.D)}</b><span>dissipate</span></div>
+      <div class="s"><b>×${G.cap.toFixed(1)}</b><span>capacity</span></div>
+      <div class="s"><b>${G.st.land}</b><span>bets landed</span></div>
+      <div class="s"><b>${G.st.build}</b><span>built</span></div>
+      <div class="s"><b>${G.turn}</b><span>turns</span></div>
+    </div>
+    <button class="btn" id="again">Throw again ▸</button>`);
+  drawChart('echart', G.hist);
+  A('again').onclick=()=>{ G=fresh(); hideScreen(); render(); };
+}
+
+intro();
 </script>
 </body></html>
