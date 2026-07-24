@@ -2,292 +2,322 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Aim the Throw</title>
+<title>Aim the Throw — a life</title>
 <meta name="theme-color" content="#0d0b07">
 <style>
-:root{--bg:#0d0b07;--panel:#171208;--panel2:#1f1810;--ink:#efe6d2;--dim:#a99a7c;--faint:#6f6350;--gold:#d9a441;--green:#7fd39a;--red:#e8795c;--blue:#7fb0e0;--rule:#332a1c}
+:root{--bg:#0d0b07;--panel:#171208;--panel2:#1f1810;--ink:#efe6d2;--dim:#a99a7c;--faint:#6f6350;--gold:#d9a441;--green:#7fd39a;--red:#e8795c;--blue:#7fb0e0;--pink:#e69ac0;--rule:#332a1c}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 html,body{height:100%;max-width:100%;overflow:hidden}
 body{background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 a.hub{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:6px;z-index:99;background:rgba(13,11,7,.85);color:var(--gold);
   border:1px solid #4a3a1c;border-radius:16px;padding:5px 10px 5px 8px;font:600 12px/1 -apple-system,system-ui,sans-serif;text-decoration:none}
-#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;
-  padding:calc(env(safe-area-inset-top) + 6px) 12px calc(env(safe-area-inset-bottom) + 10px)}
-/* ---- chart ---- */
+#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top) + 34px) 13px calc(env(safe-area-inset-bottom) + 12px)}
+/* chart */
 .chartwrap{position:relative;flex:0 0 auto}
 .chartwrap .lab{position:absolute;top:6px;left:8px;font:700 9px/1 ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:var(--faint)}
 .chartwrap .td{position:absolute;top:6px;right:8px;font:700 11px/1 ui-monospace,monospace}
 .chartwrap .td b{color:var(--green)}.chartwrap .td i{color:var(--red);font-style:normal}
-canvas#chart{width:100%;height:118px;display:block;background:#0a0805;border:1px solid var(--rule);border-radius:12px}
-/* ---- meters ---- */
-.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-.meter{background:var(--panel);border:1px solid var(--rule);border-radius:11px;padding:7px 6px;text-align:center;position:relative;transition:.2s}
-.meter .ic{font-size:15px;line-height:1}
-.meter .v{font:800 17px/1.1 ui-monospace,monospace;margin-top:2px}
-.meter .k{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-top:2px}
-.meter.pot .v{color:var(--blue)} .meter.cap .v{color:var(--gold)} .meter.floor .v{color:#b9d0e8} .meter.light .v{color:var(--green)}
-.meter.light.low{border-color:var(--red);animation:pulse 1s infinite}
-.meter.light.low .v{color:var(--red)}
-@keyframes pulse{50%{background:#2a1410}}
-.meter .bar{height:3px;background:#0a0805;border-radius:2px;margin-top:5px;overflow:hidden}
+canvas#chart{width:100%;height:84px;display:block;background:#0a0805;border:1px solid var(--rule);border-radius:12px}
+/* meters */
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.meter{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:6px 3px;text-align:center;transition:.2s}
+.meter .ic{font-size:14px}.meter .v{font:800 15px/1.1 ui-monospace,monospace;margin-top:1px}
+.meter .k{font-size:8px;letter-spacing:.3px;text-transform:uppercase;color:var(--faint);margin-top:1px}
+.meter.vit .v{color:var(--green)}.meter.cap .v{color:var(--gold)}.meter.floor .v{color:#b9d0e8}.meter.bond .v{color:var(--pink)}
+.meter.vit.low{border-color:var(--red)}.meter.vit.low .v{color:var(--red)}
+.meter .bar{height:3px;background:#0a0805;border-radius:2px;margin-top:4px;overflow:hidden}
 .meter .bar>i{display:block;height:100%;background:currentColor;transition:width .3s}
-/* ---- world / omen ---- */
-.world{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:9px 11px;margin-bottom:8px}
-.world .top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--faint);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.omen{position:relative;height:22px;margin-top:7px;border-radius:11px;background:linear-gradient(90deg,#3a2016,#3a3016 45%,#163a2a);border:1px solid var(--rule);overflow:hidden}
-.omen .mk{position:absolute;top:-3px;width:4px;height:26px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff;transition:left .4s}
-.omen .lbl{position:absolute;top:3px;font-size:11px;font-weight:800}
-.omen .lbl.l{left:8px;color:#e8a06f}.omen .lbl.r{right:8px;color:var(--green)}
-.world .read{font-size:12px;color:var(--dim);margin-top:6px;min-height:16px}
-.world .read b{color:var(--ink)}
-.log{text-align:center;font-size:12.5px;color:var(--dim);min-height:18px;margin:2px 0 8px;font-weight:600}
-.log .g{color:var(--green)}.log .r{color:var(--red)}.log .y{color:var(--gold)}
-.spacer{flex:1 1 auto;min-height:0}
-/* ---- actions ---- */
-.acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.act{background:var(--panel);border:1px solid var(--rule);border-radius:13px;padding:11px 5px 9px;text-align:center;cursor:pointer;position:relative;transition:.12s}
-.act:active{transform:scale(.95)}
-.act .ai{font-size:21px;line-height:1}
-.act .an{font-size:12px;font-weight:700;margin-top:3px}
-.act .ac{font-size:10px;color:var(--blue);margin-top:2px;font-family:ui-monospace,monospace}
-.act .ac .lk{color:var(--faint)}
-.act.dis{opacity:.34;pointer-events:none}
-.act.hot{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
-.endturn{grid-column:1/4;background:linear-gradient(135deg,var(--gold),#b9832f);color:#1a1206;border:none;border-radius:13px;
-  padding:14px;font:800 15px/1 -apple-system,system-ui,sans-serif;cursor:pointer;margin-top:8px}
-.endturn:active{transform:translateY(1px)}
-/* ---- float deltas ---- */
-.float{position:fixed;font:800 20px/1 ui-monospace,monospace;pointer-events:none;z-index:80;animation:rise 1s ease-out forwards;text-shadow:0 2px 8px #000}
-@keyframes rise{0%{opacity:0;transform:translateY(6px) scale(.8)}18%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-38px) scale(1)}}
-/* ---- overlay screens (intro / end) ---- */
-.screen{position:absolute;inset:0;background:radial-gradient(900px 600px at 60% -10%,#1c1408,#0d0b07 62%);z-index:60;
-  display:flex;flex-direction:column;justify-content:center;padding:26px 24px calc(26px + env(safe-area-inset-bottom));text-align:center;overflow:auto}
+/* age header */
+.agehdr{text-align:center;margin:2px 0 6px}
+.agehdr .st{font:800 12px/1 ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.agehdr .ag{font-size:11px;color:var(--faint);margin-top:2px}
+/* situation */
+.mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;min-height:0;overflow:auto}
+.sit{font-family:"Iowan Old Style",Georgia,serif;font-size:20px;line-height:1.4;color:#f0e7d2;margin:6px 4px 16px;text-align:center}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--panel);border:1px solid var(--rule);border-radius:13px;padding:14px 15px;text-align:left;color:var(--ink);font:inherit;font-size:15.5px;cursor:pointer;transition:.12s;display:flex;gap:10px;align-items:center}
+.opt:active{transform:scale(.98)}.opt:hover{border-color:var(--gold)}
+.opt .oi{font-size:19px;flex:0 0 24px;text-align:center}
+.opt.dis{opacity:.4;pointer-events:none}
+.opt.dis .lock{margin-left:auto;font-size:11px;color:var(--faint);font-family:ui-monospace,monospace}
+/* result */
+.result{text-align:center}
+.result .rt{font-family:"Iowan Old Style",Georgia,serif;font-size:17px;line-height:1.45;color:#e9dcc0;margin:14px 8px 4px;font-style:italic}
+.result .delta{font:800 13px/1 ui-monospace,monospace;margin:12px 0 4px}
+.result .delta .t{color:var(--green)}.result .delta .d{color:var(--red)}
+.cont{width:100%;background:linear-gradient(135deg,var(--gold),#b9832f);color:#1a1206;border:none;border-radius:14px;padding:16px;font:800 16px/1 -apple-system,system-ui,sans-serif;cursor:pointer;margin-top:10px}
+.cont:active{transform:translateY(1px)}
+/* float */
+.float{position:fixed;font:800 22px/1 ui-monospace,monospace;pointer-events:none;z-index:80;text-shadow:0 2px 10px #000;animation:rise 1.1s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translateY(8px) scale(.7)}18%{opacity:1;transform:translateY(0) scale(1.15)}100%{opacity:0;transform:translateY(-42px) scale(1)}}
+/* screens */
+.screen{position:fixed;inset:0;background:radial-gradient(900px 600px at 60% -10%,#1c1408,#0d0b07 62%);z-index:60;
+  display:flex;flex-direction:column;justify-content:center;padding:24px 24px calc(24px + env(safe-area-inset-bottom));text-align:center;overflow:auto}
 .screen .eb{font:700 11px/1 ui-monospace,monospace;letter-spacing:3px;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
 .screen h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:2.6em;font-weight:600;line-height:1.02}
 .screen h1 em{font-style:italic;color:var(--gold)}
-.screen h2{font-family:"Iowan Old Style",Georgia,serif;font-weight:600;color:var(--gold);font-size:1.7em;margin:4px 0}
-.rules{list-style:none;margin:20px auto;max-width:340px;text-align:left;display:flex;flex-direction:column;gap:12px}
-.rules li{display:flex;gap:12px;align-items:center;font-size:15px;color:#e2d7c0}
-.rules li .e{font-size:24px;flex:0 0 30px;text-align:center}
-.rules li b{color:var(--gold)}
-.screen .btn{margin-top:22px;background:var(--gold);color:#1a1206;border:none;border-radius:14px;padding:16px 40px;font:800 17px/1 inherit;cursor:pointer;align-self:center}
-.endchart{margin:14px auto;max-width:420px;width:100%}
-.endchart canvas{width:100%;height:150px;background:#0a0805;border:1px solid var(--rule);border-radius:14px;display:block}
-.standing{font-family:"Iowan Old Style",Georgia,serif;font-style:italic;font-size:1.9em;color:var(--gold)}
-.sdesc{color:var(--dim);max-width:400px;margin:8px auto 0;font-size:15px;line-height:1.5}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:400px;margin:16px auto 0}
-.statgrid .s{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:9px 4px}
-.statgrid .s b{display:block;font:800 18px/1 ui-monospace,monospace;color:var(--ink)}
-.statgrid .s span{font-size:9.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+.tut{list-style:none;margin:20px auto;max-width:340px;text-align:left;display:flex;flex-direction:column;gap:13px}
+.tut li{display:flex;gap:13px;align-items:center;font-size:15px;color:#e2d7c0}.tut li .e{font-size:22px;flex:0 0 26px;text-align:center}.tut li b{color:var(--gold)}
+.screen .btn{margin-top:6px;background:var(--gold);color:#1a1206;border:none;border-radius:14px;padding:16px 44px;font:800 17px/1 inherit;cursor:pointer;align-self:center}
+.standing{font-family:"Iowan Old Style",Georgia,serif;font-style:italic;font-size:2em;color:var(--gold);margin-top:2px}
+.sdesc{color:var(--dim);max-width:410px;margin:8px auto 0;font-size:14.5px;line-height:1.55}
+.grade{font:900 62px/1 "Iowan Old Style",Georgia,serif;color:var(--gold);margin:6px 0}
+.endchart{margin:12px auto;max-width:420px;width:100%}
+.endchart canvas{width:100%;height:130px;background:#0a0805;border:1px solid var(--rule);border-radius:14px;display:block}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:420px;margin:12px auto 0}
+.statgrid .s{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px 3px}
+.statgrid .s b{display:block;font:800 16px/1 ui-monospace,monospace;color:var(--ink)}
+.statgrid .s span{font-size:8px;color:var(--faint);text-transform:uppercase}
 </style></head>
 <body>
 <a href="../index.html" class="hub">&lsaquo; Hub</a>
 <div id="app">
-  <div class="chartwrap"><canvas id="chart" width="600" height="236"></canvas>
+  <div class="chartwrap"><canvas id="chart" width="600" height="168"></canvas>
     <span class="lab">your becoming</span><span class="td" id="td"></span></div>
   <div class="meters" id="meters"></div>
-  <div class="world" id="world"></div>
-  <div class="log" id="log">&nbsp;</div>
-  <div class="spacer"></div>
-  <div class="acts" id="acts"></div>
+  <div class="agehdr" id="agehdr"></div>
+  <div class="mid" id="mid"></div>
 </div>
 <div class="screen" id="screen"></div>
 
 <script>
-/* ================= AIM THE THROW — a build/survival game =================
-   The mechanics ARE the philosophy:
-   • Light bleeds every turn → playing safe kills you (minimize surprise = the dark room)
-   • Read the shifting world (predict) → the informative gamble is how you grow
-   • Capacity compounds (trajectory > local reward)
-   • Floor unlocks bold Leaps and absorbs ruin (floor the downside → boldness)
-   • The chart is your trajectory; the end integrates it into your "direction"
-==========================================================================*/
+/* ========== AIM THE THROW — a life, graded by the making ==========
+   Live a whole life of concrete choices. Each one MAKES (transformation)
+   or WASTES (dissipation). Four life-stats gate what you can do and what
+   your bold bets cost. At death, the Poietism rule grades the life:
+   did construction outrun dissipation, over the whole trajectory? */
 const A=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let G;
-function fresh(){ return {
-  turn:1, maxTurn:14,
-  pot:4, cap:1.0, floor:0, light:10, lightMax:16,
-  T:0, D:0, hist:[0],
-  regime: Math.random()<0.5?'exp':'harsh', revealed:false, insight:0,
-  st:{venture:0,leap:0,build:0,fortify:0,steady:0,land:0,miss:0}, dead:false, cause:''
-}; }
+function fresh(){ return { i:0, vit:7, cap:1.0, floor:0, bond:1, T:0, D:0, hist:[0], tags:{}, dead:false, plan:[] }; }
 
-const ACTS=[
-  {k:'steady', ic:'🌾', n:'Steady', cost:1, need:0},
-  {k:'venture',ic:'🎲', n:'Venture',cost:2, need:0},
-  {k:'build',  ic:'✦', n:'Build',  cost:2, need:0},
-  {k:'fortify',ic:'🛡', n:'Fortify',cost:2, need:0},
-  {k:'leap',   ic:'🚀', n:'Leap',   cost:4, need:3},
+/* ---------- content ---------- */
+const STAGES=[
+ {name:'Childhood', age:'age 8', decline:0, event:false, pool:[
+   {q:'A gap in the fence opens onto the woods behind your house.',
+    o:[{i:'🌲',a:'Slip through and explore',t:2,cap:0.2,tag:'explore',say:'You get lost, then find your way home. The world got a little bigger — and so did you.'},
+       {i:'🏠',a:'Stay in the yard where it’s safe',d:1,tag:'safe',say:'Safe. And a little smaller. Nothing surprised you today.'}]},
+   {q:'Class is easy and you’re bored stiff.',
+    o:[{i:'📖',a:'Teach yourself something harder',t:2,cap:0.3,tag:'explore',say:'You chase a question no one assigned. The boredom was an alarm — you answered it.'},
+       {i:'😴',a:'Coast — easy A’s are fine',d:1,tag:'coast',say:'Effortless marks. But a mind that’s never wrong never learns anything.'}]},
+   {q:'A new kid stands alone at the edge of the playground.',
+    o:[{i:'👋',a:'Go say hi',t:1,bond:1,tag:'open',say:'You make a friend. Small bets in people compound for decades.'},
+       {i:'🙈',a:'Stick with your own group',d:1,tag:'guard',say:'Easier. But you’ll never know who they were.'}]},
+ ]},
+ {name:'Adolescence', age:'age 15', decline:0, event:false, pool:[
+   {q:'You could take the hard class that might tank your grades — or the easy one.',
+    o:[{i:'🧗',a:'Take the hard one',t:2,cap:0.4,tag:'explore',say:'You struggle, and grow. The residual — where you were wrong — is where the learning lived.'},
+       {i:'🛝',a:'Take the easy A',d:1,tag:'coast',say:'Grades preserved, capacity flat. You optimized the number, not yourself.'}]},
+   {q:'Friends dare you to do something reckless for a laugh.',
+    o:[{i:'🎯',a:'Refuse — but propose something bold that builds',t:2,cap:0.2,tag:'redirect',say:'Same thrill, aimed somewhere that makes instead of breaks. You can’t kill the drive — only re-aim it.'},
+       {i:'💥',a:'Go along recklessly',d:2,vit:-1,tag:'reckless',say:'A story and a scar. The wager fired at nothing that lasts.'},
+       {i:'🚪',a:'Just leave, say nothing',d:1,tag:'safe',say:'You flinched rather than aimed. Avoidance isn’t the same as choosing.'}]},
+   {q:'You discover you love making something — music, code, a craft.',
+    o:[{i:'🔥',a:'Pour yourself into it',t:3,cap:0.4,tag:'build',say:'Hours vanish. You’ve found a channel the whole drive can pour through.'},
+       {i:'🗄️',a:'Set it aside — be practical',d:2,tag:'coast',say:'Sensible, maybe. But you dammed a river to keep the floor dry.'}]},
+ ]},
+ {name:'Coming of Age', age:'age 20', decline:0, event:false, pool:[
+   {q:'The fork: the safe steady path, or the risky thing you actually want.',
+    o:[{i:'🎲',a:'Chase what you want — no safety net yet',tag:'bet',resolve:g=>(g.floor>=2||g.cap>=1.7)
+        ?{t:8,cap:0.3,say:'Terrifying — and it works. You had just enough beneath you to survive the leap.'}
+        :{t:2,d:6,vit:-2,floor:-1,say:'You leapt with nothing under you. It broke, and the fall cost you years. Boldness needs a floor first.'}},
+       {i:'🏢',a:'Take the safe, steady job',t:1,floor:2,d:2,tag:'safe',say:'Security banked — and a whole possibility left in the ground. Dammed potential is its own kind of waste.'}]},
+   {q:'Someone offers easy money for something a little exploitative.',
+    o:[{i:'🧼',a:'Refuse — keep your channel clean',t:1,tag:'clean',say:'Poorer this month. But you didn’t fire the making-drive at pure extraction.'},
+       {i:'💵',a:'Take it — money’s money',d:3,floor:2,tag:'hoard',say:'The account grows. But money records who held the value, not who made it. This was custody, not contribution.'}]},
+   {q:'You fall for someone. It could end badly.',
+    o:[{i:'💛',a:'Open up, risk the heartbreak',t:2,bond:2,tag:'open',say:'You let someone in. Every real bond is a bet you can’t hedge.'},
+       {i:'🧱',a:'Guard yourself',d:1,tag:'guard',say:'Untouched, and untransformed. The walled-off self stays safe and small.'}]},
+ ]},
+ {name:'Building', age:'age 28', decline:1, event:true, pool:[
+   {q:'Your first real income. What do you do with it?',
+    o:[{i:'📈',a:'Invest in your capacity',t:3,cap:0.4,tag:'build',say:'You bet on your future ability to make. Capacity compounds — the best move improves every move after it.'},
+       {i:'🛡',a:'Build a security floor',t:1,floor:3,tag:'floor',say:'A floor under yourself. Not glamorous — but it’s what lets you throw boldly later.'},
+       {i:'💎',a:'Buy the status symbols',d:2,tag:'hoard',say:'You look the part. Custody displayed — but nothing was made or lifted.'}]},
+   {q:'A close friend is drowning and needs your time.',
+    o:[{i:'🤝',a:'Show up for them, whatever it costs',t:3,bond:2,floor:-1,tag:'give',say:'You lose a weekend and a little cushion. Inside a circle of trust, needs are just covered — that’s the economics of friendship.'},
+       {i:'📵',a:'You’re too busy right now',d:2,bond:-1,tag:'hoard',say:'You protect your time. The bond frays a little, quietly.'}]},
+   {q:'A newcomer asks you to teach them what you know.',
+    o:[{i:'🌱',a:'Teach them everything',t:3,bond:1,tag:'teach',say:'You’ll be paid, over a life, by every mind you made better. Ideas aren’t a finite pool.'},
+       {i:'🔒',a:'Keep your edge to yourself',d:2,tag:'hoard',say:'You stay ahead — for now. Hoarded knowledge dissipates the moment you stop being needed.'}]},
+ ]},
+ {name:'The Middle', age:'age 42', decline:1, event:true, pool:[
+   {q:'You’ve made it comfortable. It’s also gotten quietly boring.',
+    o:[{i:'✨',a:'Bet on something new and uncertain',tag:'bet',resolve:g=>(g.cap>=1.8||g.floor>=3)
+        ?{t:6,cap:0.3,say:'You reopen the world. Boredom was the alarm that your model had stopped learning — you answered it.'}
+        :{t:2,d:3,say:'A shaky pivot with thin reserves. It half-works. Even so, the room got brighter for trying.'}},
+       {i:'🛋️',a:'Coast on what already works',d:3,tag:'coast',say:'Comfortable. And the room dims by a shade you won’t notice for years.'}]},
+   {q:'A huge opportunity — it could transform everything, or ruin you.',
+    o:[{i:'🚀',a:'Go all in',tag:'bet',resolve:g=>(g.floor>=3)
+        ?{t:10,cap:0.3,say:'Floored and fearless, you made the throw of your life — and it landed.'}
+        :{t:2,d:8,vit:-2,floor:-2,tag:'reckless',say:'No floor beneath the leap. It cratered, and took much of what you’d built.'}},
+       {i:'🙅',a:'Too risky — pass',t:1,d:2,tag:'safe',say:'Prudent. And a great making, left forever in the ground.'}]},
+   {q:'Winning tempts you to cut corners and step on people.',
+    o:[{i:'🌤️',a:'Keep it clean, lift people as you rise',t:3,bond:1,tag:'clean',say:'Slower to the top, but the making was real and it carried others.'},
+       {i:'🦈',a:'Extract, dominate, win at their expense',d:4,floor:2,tag:'hoard',say:'You win — the wrong game. Motion and conquest, but the ledger of what you built runs thin.'}]},
+ ]},
+ {name:'Later Years', age:'age 60', decline:2, event:true, pool:[
+   {q:'You have more than you need — and there are real needs around you.',
+    o:[{i:'🎁',a:'Pour it back — mentor, fund, care',t:5,bond:2,tag:'give',say:'Forge early, give late. You became a channel, not a container.'},
+       {i:'🏰',a:'Hold it, gate it, guard it',d:4,tag:'hoard',say:'Custody, kept to the end. The heap is large; the trajectory of making has gone flat.'}]},
+   {q:'An old destructive habit still pulls at you.',
+    o:[{i:'🎯',a:'Re-aim the drive into something that builds',t:2,cap:0.2,tag:'redirect',say:'You don’t kill the old craving — you point it at making. That’s the only thing that ever works.'},
+       {i:'✊',a:'White-knuckle abolish it',d:2,vit:-1,tag:'reckless',say:'You try to delete a drive by force. It rebounds — you can only re-aim, never erase.'}]},
+   {q:'The thing you built — pass the torch, or hold onto control?',
+    o:[{i:'🕊️',a:'Hand it on — build something that outlives you',t:5,bond:1,tag:'give',say:'The final transformation: you turned your own authority into something that outlasts you.'},
+       {i:'👑',a:'Cling to control',d:3,tag:'hoard',say:'It stays yours — and only yours. What can’t be handed on dies with you.'}]},
+ ]},
+ {name:'Legacy', age:'age 75', decline:3, event:false, pool:[
+   {q:'Looking back, what do you tell the young ones who ask?',
+    o:[{i:'🌅',a:'Want the uncertain over the certain — and aim it at making',t:3,tag:'give',say:'You give them the whole thing in a breath: affirm the throw, and aim it.'},
+       {i:'🤐',a:'Keep it safe, keep it small, avoid trouble',d:2,tag:'safe',say:'Cautious wisdom — but a life spent minimizing surprise leaves little to hand down.'}]},
+ ]},
+];
+const EVENTS=[
+ {q:'Illness strikes hard.',
+   o:[{i:'🏥',a:'Weather it',tag:'',resolve:g=>g.floor>=2
+       ?{vit:-1,say:'Your security and support carry you through. You recover.'}
+       :{vit:-3,d:2,say:'With no cushion, it hits everything — health, savings, momentum.'}}]},
+ {q:'A stroke of luck: an unexpected windfall.',
+   o:[{i:'🎉',a:'Share the good fortune',t:3,bond:1,floor:1,tag:'give',say:'You spread it around. Nobody paid; the world just noted where the increase went.'},
+      {i:'🏦',a:'Bank it all for yourself',d:1,floor:3,tag:'hoard',say:'Secured. Custody grows; contribution doesn’t.'}]},
+ {q:'Someone you love dies.',
+   o:[{i:'🕯️',a:'Grieve',tag:'',resolve:g=>g.bond>=2
+       ?{vit:-1,bond:-1,say:'You are held by the people you invested in. The loss is survivable.'}
+       :{vit:-3,d:2,say:'You face it nearly alone. The isolation costs you as much as the grief.'}}]},
+ {q:'The world shifts — your skills go suddenly obsolete.',
+   o:[{i:'🔄',a:'Adapt',tag:'',resolve:g=>g.cap>=1.8
+       ?{t:2,cap:0.2,say:'Your broad capacity lets you pivot fast. Non-stationarity is exactly what you built for.'}
+       :{d:3,vit:-1,say:'Narrow and unadapted, you’re caught flat-footed by a changing world.'}}]},
+ {q:'You’re recognized publicly for your work.',
+   o:[{i:'🏆',a:'Accept it',tag:'',resolve:g=>(g.tags.build||0)+(g.tags.teach||0)>=2
+       ?{t:3,bond:1,say:'Earned. The making you did quietly for years is finally seen.'}
+       :{t:1,say:'A nice moment — though there’s less behind it than the applause suggests.'}}]},
 ];
 
-function potPerTurn(){ return 4 + Math.round((G.cap-1)*3); }
-function omenP(){ // displayed probability the world is EXPANSIVE
-  const conf=Math.min(0.9, 0.58 + G.insight*0.04);
-  if(G.revealed) return G.regime==='exp'?1:0;
-  const base = G.regime==='exp'?conf:1-conf;
-  return Math.max(0.05,Math.min(0.95, base));
+/* ---------- engine ---------- */
+function buildPlan(){
+  const plan=[];
+  STAGES.forEach((s,si)=>{
+    plan.push({kind:'stage', si});
+    const pool=[...s.pool].sort(()=>Math.random()-0.5);
+    const n=Math.min(si===0||si===STAGES.length-1?pool.length:2, pool.length);
+    for(let k=0;k<n;k++) plan.push({kind:'sit', sit:pool[k]});
+  });
+  return plan;
 }
-
-/* ---------------- rendering ---------------- */
 function render(){
-  // meters
   const M=[
-    {c:'pot', ic:'⚡', v:G.pot, k:'Potential', bar:G.pot/8},
-    {c:'cap', ic:'✦', v:G.cap.toFixed(1), k:'Capacity', bar:(G.cap-1)/3},
-    {c:'floor',ic:'🛡',v:G.floor, k:'Floor', bar:G.floor/8},
-    {c:'light',ic:'◐', v:G.light, k:'Light', bar:G.light/G.lightMax},
+    {c:'vit',ic:'◐',v:G.vit,k:'Vitality',bar:G.vit/10,low:G.vit<=3},
+    {c:'cap',ic:'✦',v:'×'+G.cap.toFixed(1),k:'Capacity',bar:(G.cap-1)/3},
+    {c:'floor',ic:'🛡',v:G.floor,k:'Security',bar:G.floor/8},
+    {c:'bond',ic:'🤝',v:G.bond,k:'Bonds',bar:G.bond/6},
   ];
-  A('meters').innerHTML=M.map(m=>`<div class="meter ${m.c} ${m.c==='light'&&G.light<=3?'low':''}">
-    <div class="ic">${m.ic}</div><div class="v">${m.v}</div><div class="k">${m.k}</div>
-    <div class="bar"><i style="width:${Math.max(0,Math.min(1,m.bar))*100}%"></i></div></div>`).join('');
-  // world / omen
-  const p=omenP();
-  A('world').innerHTML=`<div class="top"><span>Turn ${G.turn} / ${G.maxTurn}</span><span>${G.revealed?'READ ✓':'omen · '+Math.round(p*100)+'% ☀'}</span></div>
-    <div class="omen"><span class="lbl l">⛈ harsh</span><span class="lbl r">expansive ☀</span>
-      <span class="mk" style="left:${6+p*(88)}%"></span></div>
-    <div class="read">${G.revealed
-      ? (G.regime==='exp'?'The world is <b style="color:var(--green)">expansive</b> — ventures thrive.':'The world is <b style="color:var(--red)">harsh</b> — ventures fail.')
-      : 'Scout with a Venture to <b>read</b> the world before you Leap.'}</div>`;
-  // actions
-  A('acts').innerHTML=ACTS.map(a=>{
-    const locked=a.need&&G.floor<a.need, poor=G.pot<a.cost, dis=locked||poor;
-    const hot = a.k==='leap' && G.revealed && G.regime==='exp' && !dis;
-    return `<div class="act ${dis?'dis':''} ${hot?'hot':''}" data-k="${a.k}">
-      <div class="ai">${a.ic}</div><div class="an">${a.n}</div>
-      <div class="ac">⚡${a.cost}${a.need?` <span class="lk">🛡${a.need}</span>`:''}</div></div>`;
-  }).join('') + `<button class="endturn" id="end">End turn ▸ &nbsp;<span style="opacity:.7;font-weight:700">−1 ◐</span></button>`;
-  document.querySelectorAll('.act:not(.dis)').forEach(b=>b.onclick=e=>act(b.dataset.k,e));
-  A('end').onclick=endTurn;
-  drawChart('chart', G.hist);
-  A('td').innerHTML=`<b>${Math.round(G.T)}</b> · <i>${Math.round(G.D)}</i>`;
+  A('meters').innerHTML=M.map(m=>`<div class="meter ${m.c} ${m.low?'low':''}"><div class="ic">${m.ic}</div>
+    <div class="v">${m.v}</div><div class="k">${m.k}</div><div class="bar"><i style="width:${clamp(m.bar,0,1)*100}%"></i></div></div>`).join('');
+  drawChart('chart',G.hist); A('td').innerHTML=`<b>${Math.round(G.T)}</b> · <i>${Math.round(G.D)}</i>`;
 }
-
-function floatDelta(txt,color,x,y){
-  const f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.color=color;
-  f.style.left=(x-14)+'px'; f.style.top=(y-10)+'px'; document.body.appendChild(f);
-  setTimeout(()=>f.remove(),1000);
-}
-function popAt(sel,txt,color){ const el=document.querySelector(sel); if(!el){return;} const r=el.getBoundingClientRect();
-  floatDelta(txt,color,r.left+r.width/2,r.top+r.height/2); }
-
-/* ---------------- actions ---------------- */
-function commitT(amt){ G.T+=amt; G.hist.push(Math.round(G.T-G.D)); }
-function commitD(amt){ G.D+=amt; G.hist.push(Math.round(G.T-G.D)); }
-function setLight(dl){ G.light=Math.max(0,Math.min(G.lightMax,G.light+dl)); }
-
-function act(k,e){
-  const a=ACTS.find(x=>x.k===k); if(!a||G.pot<a.cost) return;
-  if(a.need && G.floor<a.need) return;
-  G.pot-=a.cost;
-  let log='';
-  if(k==='steady'){ const g=Math.round(2*G.cap); commitT(g); G.st.steady++;
-    popAt('.meter.pot',`+${g}`,'var(--green)'); log=`🌾 Steady <span class="g">+${g}</span>`; }
-  else if(k==='build'){ G.cap=Math.round((G.cap+0.3)*10)/10; G.st.build++;
-    popAt('.meter.cap','+.3','var(--gold)'); log=`✦ Capacity now <span class="y">×${G.cap.toFixed(1)}</span>`; }
-  else if(k==='fortify'){ G.floor+=2; G.st.fortify++;
-    popAt('.meter.floor','+2','#b9d0e8'); log=`🛡 Floor <span class="y">+2</span>`; }
-  else if(k==='venture'){ G.st.venture++; G.revealed=true; G.insight++;
-    if(G.regime==='exp'){ const g=Math.round(6*G.cap); commitT(g); setLight(2); G.st.land++;
-      popAt('.meter.pot',`+${g}`,'var(--green)'); log=`🎲 ☀ Venture landed <span class="g">+${g}</span> · <span class="g">+2◐</span>`; }
-    else { commitD(4); setLight(-1); G.st.miss++;
-      popAt('.meter.pot','−4','var(--red)'); log=`🎲 ⛈ Venture failed <span class="r">+4 waste</span> · but you learned`; } }
-  else if(k==='leap'){ G.st.leap++; G.revealed=true; G.insight++;
-    if(G.regime==='exp'){ const g=Math.round(14*G.cap); commitT(g); setLight(3); G.st.land++;
-      popAt('.chartwrap',`+${g}`,'var(--green)'); log=`🚀 ☀ LEAP <span class="g">+${g}</span> · <span class="g">+3◐</span>`; }
-    else { const dmg=10, absorbed=Math.min(G.floor,dmg), net=dmg-absorbed; G.floor-=absorbed;
-      commitD(net); setLight(-Math.ceil(net/2.5)); G.st.miss++;
-      popAt('.chartwrap',`−${net}`,'var(--red)');
-      log=`🚀 ⛈ LEAP into ruin — floor absorbed <span class="y">${absorbed}</span>, <span class="r">+${net} waste</span>`; } }
-  A('log').innerHTML=log||'&nbsp;';
-  if(G.light<=0){ return end('dark'); }
-  render();
-}
-
-function endTurn(){
-  setLight(-1);
-  if(G.light<=0){ return end('dark'); }
-  if(G.turn>=G.maxTurn){ return end('survive'); }
-  G.turn++; G.pot=potPerTurn(); G.revealed=false;
-  if(Math.random()<0.32) G.regime = G.regime==='exp'?'harsh':'exp'; // non-stationary
-  A('log').innerHTML='&nbsp;';
-  render();
-}
-
-/* ---------------- chart ---------------- */
-function drawChart(id,hist){
-  const cv=A(id); if(!cv)return; const x=cv.getContext('2d'),W=cv.width,H=cv.height;
-  x.clearRect(0,0,W,H);
-  const pts=hist.length?hist:[0]; const mn=Math.min(0,...pts), mx=Math.max(1,...pts);
-  const PADL=6, PADR=8;
-  const X=i=>PADL+ i/(Math.max(1,pts.length-1))*(W-PADL-PADR), Y=v=>H-14-((v-mn)/((mx-mn)||1))*(H-28);
-  x.strokeStyle='#241d12';x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(W,Y(0));x.stroke();
-  // fill
-  const grad=x.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(217,164,65,.22)');grad.addColorStop(1,'rgba(217,164,65,0)');
-  x.beginPath();x.moveTo(X(0),Y(0));pts.forEach((v,i)=>x.lineTo(X(i),Y(v)));x.lineTo(X(pts.length-1),Y(0));x.closePath();x.fillStyle=grad;x.fill();
-  x.strokeStyle='#d9a441';x.lineWidth=2.4;x.lineJoin='round';x.beginPath();
-  pts.forEach((v,i)=>{i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v));});x.stroke();
-  const lv=pts[pts.length-1]; x.fillStyle=lv>=0?'#7fd39a':'#e8795c';
-  x.beginPath();x.arc(X(pts.length-1),Y(lv),3.4,0,7);x.fill();
-}
-
-/* ---------------- screens ---------------- */
-function showScreen(html){ const s=A('screen'); s.innerHTML=html; s.style.display='flex'; }
-function hideScreen(){ A('screen').style.display='none'; }
-
-function intro(){
-  showScreen(`<div class="eb">a game of poiesis</div>
-    <h1>Aim the <em>Throw</em></h1>
-    <ul class="rules">
-      <li><span class="e">◐</span><div>Your <b>Light</b> drops every turn. Sit still and you die in the dark. <b>Make</b> to stay alive.</div></li>
-      <li><span class="e">🎲</span><div><b>Venture</b> to read the shifting world, then grow from the gamble. Safe play slowly bleeds out.</div></li>
-      <li><span class="e">✦</span><div><b>Build</b> capacity — it compounds. The best move improves your <i>future</i> moves.</div></li>
-      <li><span class="e">🚀</span><div><b>Floor</b> the downside to unlock the big <b>Leap</b> — and to survive it when the world turns harsh.</div></li>
-    </ul>
-    <div style="color:var(--faint);font-size:13px">The line at the top is your becoming. No score to beat — only its shape.</div>
-    <button class="btn" id="play">Throw ▸</button>`);
-  A('play').onclick=()=>{ G=fresh(); hideScreen(); render(); };
-}
-
-function end(kind){
-  G.dead = kind==='dark';
-  const ratio = G.T/(G.T+G.D||1);
-  const bold = G.st.venture+G.st.leap;
-  const built = G.st.build;
-  const rising = G.hist.length>3 && G.hist[G.hist.length-1] > G.hist[Math.floor(G.hist.length/2)];
-  let meta, standing, sdesc;
-  if(kind==='dark'){
-    standing = 'The Dark Room';
-    sdesc = G.st.steady>bold
-      ? 'You minimized surprise until the light went out. A perfectly safe life isn’t peace — it’s slow suffocation.'
-      : 'You overreached without a floor beneath you. Boldness without a floor isn’t courage; it’s a gamble with the rent.';
-    meta='—';
-  } else {
-    if(bold>=6 && built>=2 && ratio>0.6){ meta='the child'; }
-    else if(bold>=4){ meta='the lion'; }
-    else { meta='the camel'; }
-    if(ratio>0.66 && rising){ standing='The Maker'; sdesc='Construction outran waste across the whole arc — you forged, you compounded, you gave the throw its aim.'; }
-    else if(ratio>0.55){ standing='The Channel'; sdesc='More was made through you than was lost. The throw was aimed, if not always far.'; }
-    else if(ratio>0.45){ standing='The Wanderer'; sdesc='Making and waste in rough balance — a trajectory still finding its shape.'; }
-    else { standing='The Dissipator'; sdesc='Much was moved; less was built. Motion is not the same as making.'; }
+function step(){
+  if(G.dead)return;
+  if(G.i>=G.plan.length){ return end('old'); }
+  const b=G.plan[G.i];
+  if(b.kind==='stage'){
+    const s=STAGES[b.si];
+    if(s.decline){ G.vit=Math.max(0,G.vit-s.decline); }
+    A('agehdr').innerHTML=`<div class="st">${s.name}</div><div class="ag">${s.age}</div>`;
+    if(G.vit<=0){ return end('young'); }
+    G.i++;
+    // random life event entering adult stages
+    if(s.event && Math.random()<0.7){ presentSit(EVENTS[Math.floor(Math.random()*EVENTS.length)], true); return; }
+    render(); step(); return;
   }
-  showScreen(`<div class="eb">${kind==='dark'?'the light went out · turn '+G.turn:'the field · you survived'}</div>
-    <div class="standing">${standing}</div>
-    <div class="sdesc">${sdesc}</div>
-    <div class="endchart"><canvas id="echart" width="600" height="300"></canvas></div>
-    <div class="sdesc" style="color:var(--gold);font-style:italic">Your metamorphosis: ${meta}</div>
-    <div class="statgrid">
-      <div class="s"><b>${Math.round(G.T)}</b><span>transform</span></div>
-      <div class="s"><b>${Math.round(G.D)}</b><span>dissipate</span></div>
-      <div class="s"><b>×${G.cap.toFixed(1)}</b><span>capacity</span></div>
-      <div class="s"><b>${G.st.land}</b><span>bets landed</span></div>
-      <div class="s"><b>${G.st.build}</b><span>built</span></div>
-      <div class="s"><b>${G.turn}</b><span>turns</span></div>
-    </div>
-    <button class="btn" id="again">Throw again ▸</button>`);
-  drawChart('echart', G.hist);
-  A('again').onclick=()=>{ G=fresh(); hideScreen(); render(); };
+  presentSit(b.sit,false);
 }
-
+function presentSit(sit, isEvent){
+  render();
+  A('mid').innerHTML=`<div class="sit">${isEvent?'⟡ ':''}${sit.q}</div>
+    <div class="opts" id="opts">${sit.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="oi">${o.i}</span><span>${o.a}</span></button>`).join('')}</div>`;
+  document.querySelectorAll('#opts .opt').forEach(btn=>btn.onclick=()=>chooseOpt(sit,+btn.dataset.i,isEvent));
+}
+function chooseOpt(sit,idx,isEvent){
+  const o=sit.o[idx]; const r=o.resolve?o.resolve(G):o;
+  const t=r.t||0,d=r.d||0;
+  G.T+=t; G.D+=d;
+  G.vit=clamp(G.vit+(r.vit||0),0,10); G.cap=Math.max(0.1,Math.round((G.cap+(r.cap||0))*10)/10);
+  G.floor=Math.max(0,G.floor+(r.floor||0)); G.bond=Math.max(0,G.bond+(r.bond||0));
+  G.hist.push(Math.round(G.T-G.D));
+  const tg=o.tag||r.tag; if(tg)G.tags[tg]=(G.tags[tg]||0)+1;
+  if(t)floatAt('.chartwrap',`+${t}`,'var(--green)'); else if(d)floatAt('.chartwrap',`−${d}`,'var(--red)');
+  render();
+  if(!isEvent) G.i++;
+  const dead = G.vit<=0;
+  A('mid').innerHTML=`<div class="result"><div class="rt">${r.say}</div>
+    <div class="delta">${t?`<span class="t">+${t} made</span>`:''}${t&&d?' · ':''}${d?`<span class="d">${d} wasted</span>`:''}${!t&&!d?'&nbsp;':''}</div>
+    <button class="cont" id="cont">${dead?'…':'Continue ▸'}</button></div>`;
+  A('cont').onclick=()=>{ if(dead) return end('young'); if(isEvent) G.i++; step(); };
+}
+function floatAt(sel,txt,color){ const el=document.querySelector(sel); if(!el)return; const r=el.getBoundingClientRect();
+  const f=document.createElement('div');f.className='float';f.textContent=txt;f.style.color=color;
+  f.style.left=(r.left+r.width/2-14)+'px';f.style.top=(r.top+r.height/2)+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),1100);}
+function drawChart(id,hist){
+  const cv=A(id);if(!cv)return;const x=cv.getContext('2d'),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);
+  const pts=hist.length?hist:[0];const mn=Math.min(0,...pts),mx=Math.max(1,...pts);
+  const P=8,X=i=>P+i/Math.max(1,pts.length-1)*(W-2*P),Y=v=>H-14-((v-mn)/((mx-mn)||1))*(H-28);
+  x.strokeStyle='#241d12';x.lineWidth=1;x.beginPath();x.moveTo(0,Y(0));x.lineTo(W,Y(0));x.stroke();
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(217,164,65,.22)');g.addColorStop(1,'rgba(217,164,65,0)');
+  x.beginPath();x.moveTo(X(0),Y(0));pts.forEach((v,i)=>x.lineTo(X(i),Y(v)));x.lineTo(X(pts.length-1),Y(0));x.closePath();x.fillStyle=g;x.fill();
+  x.strokeStyle='#d9a441';x.lineWidth=2.4;x.lineJoin='round';x.beginPath();pts.forEach((v,i)=>{i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v));});x.stroke();
+  const lv=pts[pts.length-1];x.fillStyle=lv>=0?'#7fd39a':'#e8795c';x.beginPath();x.arc(X(pts.length-1),Y(lv),3.4,0,7);x.fill();
+}
+/* ---------- screens ---------- */
+function showScreen(h){const s=A('screen');s.innerHTML=h;s.style.display='flex';}
+function hideScreen(){A('screen').style.display='none';}
+function intro(){
+  showScreen(`<div class="eb">a life, graded by the making</div><h1>Aim the <em>Throw</em></h1>
+    <div class="sdesc" style="margin-bottom:2px">Live a whole life, one choice at a time. No score to chase — just live it.</div>
+    <ul class="tut">
+      <li><span class="e">⚖️</span><div>Every choice <b>makes</b> something or <b>wastes</b> it. The line up top is your life’s trajectory.</div></li>
+      <li><span class="e">🛡</span><div>Four life-stats gate what you can do — and a bold bet with no <b>Security</b> can ruin you.</div></li>
+      <li><span class="e">🌅</span><div>At death, the philosophy <b>grades the life</b>: did your making outrun your waste?</div></li>
+    </ul>
+    <button class="btn" id="play">Be born ▸</button>`);
+  A('play').onclick=()=>{ G=fresh(); G.plan=buildPlan(); hideScreen(); step(); };
+}
+function end(kind){
+  const ratio=G.T/(G.T+G.D||1);
+  const made=(G.tags.build||0)+(G.tags.give||0)+(G.tags.teach||0)+(G.tags.bet||0)+(G.tags.open||0)+(G.tags.explore||0)+(G.tags.clean||0)+(G.tags.redirect||0);
+  const wasted=(G.tags.hoard||0)+(G.tags.coast||0)+(G.tags.safe||0)+(G.tags.guard||0)+(G.tags.reckless||0);
+  const bold=(G.tags.bet||0)+(G.tags.explore||0)+(G.tags.open||0), gave=(G.tags.give||0)+(G.tags.teach||0), hoarded=(G.tags.hoard||0);
+  const rising=G.hist.length>3 && G.hist[G.hist.length-1]>G.hist[(G.hist.length/2)|0];
+  let grade,standing,meta,sdesc;
+  if(ratio>0.72&&rising&&gave>=2){grade='A';standing='The Maker';meta='the child';}
+  else if(ratio>0.62){grade='B';standing='The Channel';meta=bold>=3?'the lion':'the camel';}
+  else if(ratio>0.5){grade='C';standing='The Wanderer';meta='the camel';}
+  else if(ratio>0.38){grade='D';standing='The Hoarder';meta='the camel';}
+  else {grade='F';standing='The Dissipator';meta='—';}
+  // life-referential grade text
+  let bits=[];
+  if(bold>=3) bits.push('you affirmed the throw more often than you flinched'); else bits.push('you mostly chose the certain over the uncertain — a safe life is a smaller one');
+  if(gave>=2) bits.push('and you gave late what you forged early, a channel rather than a container'); else if(hoarded>=3) bits.push('but you held and gated more than you gave — custody, not contribution');
+  if((G.tags.reckless||0)>=2) bits.push('and you leapt a few times with no floor beneath you');
+  sdesc = (kind==='young'?'You died before your time. ':'You lived a full life. ') + bits.join(', ') + '.';
+  showScreen(`<div class="eb">${kind==='young'?'a life cut short':'the making is tallied'}</div>
+    <div class="grade">${grade}</div><div class="standing">${standing}</div>
+    <div class="sdesc">${sdesc}</div>
+    <div class="endchart"><canvas id="ec" width="600" height="260"></canvas></div>
+    <div class="sdesc" style="color:var(--gold);font-style:italic">You died ${meta==='—'?'still bearing the load':'as '+meta}. ${meta==='the child'?'Building and giving without guilt — the kingdom belongs to the child.':meta==='the lion'?'You learned to say No to the easy path.':meta==='the camel'?'You bore the load faithfully; the lion’s No and the child’s Yes were still ahead.':''}</div>
+    <div class="statgrid">
+      <div class="s"><b>${Math.round(G.T)}</b><span>made</span></div>
+      <div class="s"><b>${Math.round(G.D)}</b><span>wasted</span></div>
+      <div class="s"><b>×${G.cap.toFixed(1)}</b><span>capacity</span></div>
+      <div class="s"><b>${G.bond}</b><span>bonds</span></div>
+    </div>
+    <button class="btn" id="again">Live again ▸</button>`);
+  drawChart('ec',G.hist);
+  A('again').onclick=()=>{ G=fresh(); G.plan=buildPlan(); hideScreen(); step(); };
+  G.dead=true;
+}
 intro();
 </script>
 </body></html>
