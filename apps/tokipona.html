@@ -79,7 +79,7 @@ a{color:var(--acc)}
 </style></head>
 <body>
 <div class="wrap">
-<header><h1>toki <span>pona</span></h1><div class="tag">the language of good — 120 words, one small mind</div></header>
+<header><h1>toki <span>pona</span></h1><div class="tag">the language of good — 137 words, one small mind</div></header>
 <div id="app"></div>
 </div>
 
@@ -88,6 +88,7 @@ a{color:var(--acc)}
   <button data-p="words"><i>🔤</i>Words</button>
   <button data-p="cards"><i>🎴</i>Cards</button>
   <button data-p="quiz"><i>✍️</i>Practice</button>
+  <button data-p="read"><i>📚</i>Read</button>
   <button data-p="phrase"><i>💬</i>Phrases</button>
 </nav>
 
@@ -224,10 +225,26 @@ const WORDS=[
  ["poka","side, hip; beside, nearby; with","thing"],
  ["kin","also, too, indeed (emphasis)","thing"],
  ["pu","the official Toki Pona book; to read it","thing"],
+ // ---- nimi ku suli: the 15 most common words beyond pu (brings the total to 137) ----
+ ["namako","spice, extra, additional; to season","kusuli"],
+ ["kipisi","to cut, divide, split","kusuli"],
+ ["leko","square, block, cube; stairs","kusuli"],
+ ["monsuta","monster, fear; frightening","kusuli"],
+ ["tonsi","nonbinary or transgender person","kusuli"],
+ ["jasima","mirror, reflection; to reflect, echo","kusuli"],
+ ["soko","mushroom, fungus","kusuli"],
+ ["meso","medium, middle, moderate","kusuli"],
+ ["epiku","epic, awesome, cool","kusuli"],
+ ["kokosila","to speak a non–Toki-Pona language among speakers","kusuli"],
+ ["lanpan","to take, seize, grab, catch","kusuli"],
+ ["misikeke","medicine, cure, remedy","kusuli"],
+ ["oko","eye (an alternative to lukin)","kusuli"],
+ ["n","hmm, umm (thinking/hesitation sound)","kusuli"],
+ ["ku","the Toki Pona Dictionary book; to interact with it","kusuli"],
 ];
 // de-dupe (a couple words repeat across categories in the source list)
 const SEEN={}; const DICT=[]; for(const x of WORDS){ if(!SEEN[x[0]]){SEEN[x[0]]=1; DICT.push({w:x[0],g:x[1],cat:x[2]});} }
-const CATS={gram:"grammar particles",people:"people & pronouns",nature:"nature & world",body:"the body",verb:"actions",qual:"qualities & amounts",color:"colors",thing:"things & ideas"};
+const CATS={gram:"grammar particles",people:"people & pronouns",nature:"nature & world",body:"the body",verb:"actions",qual:"qualities & amounts",color:"colors",thing:"things & ideas",kusuli:"nimi ku suli (common non-pu)"};
 
 // ================= STATE =================
 const LS='tokipona_v1';
@@ -247,11 +264,11 @@ const app=document.getElementById('app');
 let page='learn';
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{ page=b.dataset.p;
   document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b)); render(); });
-function render(){ ({learn:renderLearn,words:renderWords,cards:renderCards,quiz:renderQuiz,phrase:renderPhrase}[page])(); window.scrollTo(0,0); }
+function render(){ ({learn:renderLearn,words:renderWords,cards:renderCards,quiz:renderQuiz,read:renderRead,phrase:renderPhrase}[page])(); window.scrollTo(0,0); }
 
 // ================= LEARN (grammar lessons) =================
 const LESSONS=[
- ["The big idea","Toki Pona has about <b>120 words</b>. There's no word for most specific things — instead you <b>combine simple words</b> and let <b>context</b> fill in the rest. <span class='tp'>ilo</span> is 'tool'; <span class='tp'>ilo toki</span> (talk-tool) is a phone. The language forces you to say what things <i>are</i>, simply. That's the whole game.",
+ ["The big idea","Toki Pona has about <b>137 words</b>. There's no word for most specific things — instead you <b>combine simple words</b> and let <b>context</b> fill in the rest. <span class='tp'>ilo</span> is 'tool'; <span class='tp'>ilo toki</span> (talk-tool) is a phone. The language forces you to say what things <i>are</i>, simply. That's the whole game.",
    [["toki!","hello / language"],["pona","good","(also: thanks!)"]]],
  ["Word order: mi / sina","With <span class='tp'>mi</span> (I) and <span class='tp'>sina</span> (you) as the subject, put the verb or adjective straight after — <b>no particle</b>.",
    [["mi moku","I eat / I am eating"],["sina pona","you are good"],["mi lape","I sleep"],["sina suli","you are big"]]],
@@ -477,10 +494,52 @@ const PHRASES=[
  ["nimi mi li ___","my name is ___"],
  ["mi kama sona","I am learning"],
 ];
+// ================= READ (graded stories) =================
+const STORIES=[
+ {t:"jan lili en soweli", lvl:"very easy", lines:[
+   ["jan lili li lon tomo.","A child is at home."],
+   ["soweli lili li lon poka ona.","A small animal is beside them."],
+   ["jan lili li olin e soweli.","The child loves the animal."],
+   ["ona li musi lon tenpo suno.","They play during the day."],
+   ["tenpo pini la ona li lape.","Afterwards, they sleep."]]},
+ {t:"moku pona", lvl:"easy", lines:[
+   ["mama mi li pali e moku.","My parent makes food."],
+   ["moku li seli li pona.","The food is warm and good."],
+   ["mi moku e kili e pan.","I eat fruit and bread."],
+   ["mi wile e telo kili.","I want juice (fruit-water)."],
+   ["mi pilin pona tan moku ni.","I feel good because of this meal."]]},
+ {t:"tawa ma", lvl:"medium", lines:[
+   ["tenpo suno ni la mi tawa ma ante.","Today I travel to another land."],
+   ["mi lukin e nena suli en telo laso.","I see big mountains and blue water."],
+   ["kon li lete taso suno li pona.","The air is cold, but the sun is nice."],
+   ["mi kama jo e sitelen mute.","I take many pictures."],
+   ["tenpo pini la mi tawa tomo. mi pilin pona.","Then I go home. I feel good."]]},
+ {t:"jan pi sona mute", lvl:"harder", lines:[
+   ["jan lili li wile sona e ale.","A child wanted to know everything."],
+   ["ona li tawa jan pi sona mute.","They went to a very wise person."],
+   ["jan sona li toki e ni: “o kute e kon. o lukin e ijo lili.”","The wise one said: “Listen to the wind. Look at small things.”"],
+   ["jan lili li kute li lukin lon tenpo mute.","The child listened and looked for a long time."],
+   ["ona li kama sona e ni: sona li kama tan tenpo en pilin, ala tan nimi taso.","They learned this: wisdom comes from time and feeling, not from words alone."]]},
+];
+let openStory=0, revealAll=false;
+function renderRead(){
+  app.innerHTML=`<div class="card"><h2>o lukin — read real stories</h2>
+    <p class="muted">Short graded readers, easy → harder. Read the <span class="tp">toki pona</span> first; tap any line to reveal the English. Use the 🔤 Words and 🔑 chords when you get stuck.</p>
+    <label class="muted" style="display:block;margin-top:6px"><input type="checkbox" id="revAll" ${revealAll?'checked':''}> show all translations</label></div>`
+   + STORIES.map((s,si)=>`<div class="card">
+       <h3 style="margin-top:0;color:var(--hl)">${s.t} <span class="pill">${s.lvl}</span></h3>
+       ${s.lines.map((l,li)=>`<div class="ex storyline" data-s="${si}" data-l="${li}" style="cursor:pointer">
+         <span class="tp">${l[0]}</span>
+         <div class="en" style="margin-top:4px;${revealAll?'':'display:none'}">${l[1]}</div></div>`).join('')}
+     </div>`).join('');
+  document.getElementById('revAll').onchange=e=>{ revealAll=e.target.checked; renderRead(); };
+  document.querySelectorAll('.storyline').forEach(el=>el.onclick=()=>{ const en=el.querySelector('.en'); en.style.display=en.style.display==='none'?'block':'none'; });
+}
+
 function renderPhrase(){
   app.innerHTML=`<div class="card"><h2>toki lili — useful phrases</h2><p class="muted">The everyday lines. Say them out loud.</p></div>`
    + `<div class="card">`+PHRASES.map(p=>`<div class="ex"><span class="tp">${p[0]}</span><br><span class="en">${p[1]}</span></div>`).join('')+`</div>`
-   + `<div class="card"><h3 style="margin-top:0">nasin — a note on the spirit</h3><p class="muted">Toki Pona was made by Sonja Lang as a language of <b>simplicity and mindfulness</b>. Its smallness is the point: with 120 words you're pushed to strip an idea to its essence. <span class="tp">ilo pi toki</span>, <span class="tp">jan pona</span>, <span class="tp">telo nasa</span> — you'll start seeing the world in small, honest pieces. <span class="tp">pona!</span></p></div>`;
+   + `<div class="card"><h3 style="margin-top:0">nasin — a note on the spirit</h3><p class="muted">Toki Pona was made by Sonja Lang as a language of <b>simplicity and mindfulness</b>. Its smallness is the point: with 137 words you're pushed to strip an idea to its essence. <span class="tp">ilo pi toki</span>, <span class="tp">jan pona</span>, <span class="tp">telo nasa</span> — you'll start seeing the world in small, honest pieces. <span class="tp">pona!</span></p></div>`;
 }
 
 render();
