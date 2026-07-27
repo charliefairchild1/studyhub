@@ -5,6 +5,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0e1116">
 <title>Vitals — your health, projected</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 :root{--bg:#0e1116;--panel:#161b22;--panel2:#1c232d;--line:#2a323d;--ink:#e9eef5;--mut:#8b95a4;--faint:#5a6472;
  --acc:#4ea1ff;--good:#48c78e;--warn:#e0b93a;--bad:#e0617a;--fat:#e08a4a}
@@ -96,18 +97,79 @@ function wDisp(kgval){ return kg()? (kgval*2.20462).toFixed(1)+' lb' : kgval.toF
 
 // ---------------- food database (kcal per common serving) ----------------
 const FOODS=[
- ["Egg (1 large)",78],["Banana",105],["Apple",95],["Orange",62],["Chicken breast (100g)",165],
- ["Rice, cooked (1 cup)",205],["White bread (slice)",79],["Oatmeal (1 cup)",158],["Milk (1 cup)",122],
- ["Greek yogurt (170g)",100],["Almonds (1oz)",164],["Peanut butter (2 tbsp)",188],["Avocado (half)",120],
- ["Salmon (100g)",208],["Ground beef 85% (100g)",250],["Pasta, cooked (1 cup)",221],["Potato, baked",161],
- ["Broccoli (1 cup)",55],["Cheese, cheddar (1oz)",113],["Pizza (1 slice)",285],["Hamburger",354],
- ["Fries (medium)",365],["Coffee, black",2],["Latte (medium)",190],["Orange juice (1 cup)",112],
- ["Soda (12oz)",140],["Beer (12oz)",153],["Wine (5oz)",125],["Protein shake",160],["Granola bar",120],
- ["Chocolate bar",235],["Ice cream (1/2 cup)",137],["Salad w/ dressing",180],["Burrito",580],
- ["Sushi roll (6pc)",255],["Tuna (100g)",132],["Sweet potato",112],["Black beans (1 cup)",227],
- ["Steak (100g)",271],["Bacon (2 slices)",92],["Donut",253],["Bagel",245],["Cereal w/ milk",250],
- ["Water",0],["Tea, unsweetened",2],["Energy drink",110],["Trail mix (1oz)",137],["Cookie",148],
+ // fruits
+ ["Banana",105],["Apple",95],["Orange",62],["Grapes (1 cup)",104],["Strawberries (1 cup)",49],
+ ["Blueberries (1 cup)",84],["Watermelon (1 cup)",46],["Pineapple (1 cup)",82],["Mango",202],["Pear",101],
+ ["Peach",59],["Grapefruit (half)",52],["Raspberries (1 cup)",64],["Cherries (1 cup)",97],["Kiwi",42],
+ // veg
+ ["Broccoli (1 cup)",55],["Carrots (1 cup)",52],["Spinach (1 cup)",7],["Salad w/ dressing",180],
+ ["Side salad (plain)",20],["Corn (1 cup)",132],["Green beans (1 cup)",44],["Tomato",22],["Cucumber (1 cup)",16],
+ ["Bell pepper",31],["Mushrooms (1 cup)",15],["Kale (1 cup)",33],["Peas (1 cup)",118],
+ // protein
+ ["Egg (1 large)",78],["Eggs, 2 scrambled",180],["Chicken breast (100g)",165],["Chicken thigh (100g)",209],
+ ["Chicken wings (4)",320],["Salmon (100g)",208],["Tuna (100g)",132],["Shrimp (100g)",99],["Cod (100g)",105],
+ ["Ground beef 85% (100g)",250],["Steak (100g)",271],["Pork chop (100g)",231],["Bacon (2 slices)",92],
+ ["Sausage link",85],["Turkey breast (100g)",135],["Tofu (100g)",76],["Black beans (1 cup)",227],
+ ["Lentils (1 cup)",230],["Chickpeas (1 cup)",269],["Ham (100g)",145],["Meatball (each)",57],
+ // grains / carbs
+ ["Rice, cooked (1 cup)",205],["Brown rice (1 cup)",216],["Pasta, cooked (1 cup)",221],["White bread (slice)",79],
+ ["Whole wheat bread (slice)",81],["Bagel",245],["Toast w/ butter",120],["Oatmeal (1 cup)",158],
+ ["Cereal w/ milk",250],["Tortilla",140],["Pita bread",165],["Quinoa (1 cup)",222],["Crackers (5)",80],
+ ["Potato, baked",161],["Mashed potatoes (1 cup)",214],["Sweet potato",112],["Noodles (1 cup)",219],
+ // dairy
+ ["Milk (1 cup)",122],["Skim milk (1 cup)",83],["Almond milk (1 cup)",39],["Greek yogurt (170g)",100],
+ ["Yogurt, flavored",150],["Cheese, cheddar (1oz)",113],["Mozzarella (1oz)",85],["String cheese",80],
+ ["Cottage cheese (1 cup)",206],["Butter (1 tbsp)",102],["Cream cheese (1 tbsp)",50],
+ // meals / fast food
+ ["Pizza (1 slice)",285],["Hamburger",354],["Cheeseburger",303],["Big fast-food burger",550],
+ ["Fries (medium)",365],["Chicken nuggets (6)",270],["Hot dog",290],["Burrito",580],["Taco",170],
+ ["Sushi roll (6pc)",255],["Sandwich",350],["Sub sandwich (6in)",400],["Ramen (bowl)",380],
+ ["Mac & cheese (1 cup)",310],["Fried rice (1 cup)",238],["Pad thai",400],["Curry w/ rice",500],
+ ["Grilled cheese",400],["Caesar salad w/ chicken",470],["Burrito bowl",650],["Chicken sandwich",450],
+ // snacks / sweets
+ ["Almonds (1oz)",164],["Peanut butter (2 tbsp)",188],["Avocado (half)",120],["Trail mix (1oz)",137],
+ ["Chips (1oz)",152],["Popcorn (1 cup)",31],["Pretzels (1oz)",108],["Granola bar",120],["Protein bar",210],
+ ["Cookie",148],["Chocolate bar",235],["Ice cream (1/2 cup)",137],["Donut",253],["Muffin",340],
+ ["Brownie",132],["Cake (slice)",350],["Candy (fun size)",80],["Dark chocolate (1oz)",170],["Cheese pizza roll (6)",210],
+ // drinks
+ ["Water",0],["Coffee, black",2],["Coffee w/ cream & sugar",60],["Latte (medium)",190],["Cappuccino",120],
+ ["Tea, unsweetened",2],["Orange juice (1 cup)",112],["Apple juice (1 cup)",114],["Soda (12oz)",140],
+ ["Diet soda",0],["Energy drink",110],["Sports drink (20oz)",130],["Beer (12oz)",153],["Light beer",103],
+ ["Wine (5oz)",125],["Liquor shot (1.5oz)",97],["Cocktail",210],["Smoothie (16oz)",280],["Protein shake",160],
+ ["Milkshake",530],["Lemonade (1 cup)",99],["Hot chocolate",190],["Kombucha",30],
 ];
+// keyword → rough kcal, to estimate anything not in the list (portion words scale it)
+const KCAL_KW=[
+ ["pizza",285],["burger",400],["cheeseburger",320],["fries",340],["burrito",580],["taco",180],["sandwich",350],
+ ["sub",420],["hot dog",290],["nugget",45],["wing",80],["sushi",250],["ramen",380],["noodle",220],["pasta",300],
+ ["spaghetti",330],["lasagna",400],["mac",310],["curry",450],["fried rice",240],["stir fry",350],["salad",180],
+ ["soup",180],["stew",250],["chili",280],["steak",350],["chicken",230],["beef",280],["pork",300],["fish",200],
+ ["salmon",280],["shrimp",150],["bacon",90],["sausage",180],["egg",80],["omelet",300],["tofu",120],
+ ["rice",210],["bread",90],["toast",100],["bagel",250],["muffin",340],["croissant",270],["pancake",90],
+ ["waffle",220],["cereal",200],["oatmeal",160],["potato",160],["mashed",210],["fry",340],["chips",150],
+ ["popcorn",120],["pretzel",110],["cracker",80],["nut",170],["almond",165],["peanut",190],["cheese",110],
+ ["yogurt",130],["milk",120],["smoothie",280],["shake",450],["juice",115],["soda",140],["beer",150],
+ ["wine",125],["cocktail",210],["coffee",60],["latte",190],["tea",5],["water",0],["cookie",150],
+ ["cake",350],["brownie",130],["donut",250],["ice cream",200],["chocolate",230],["candy",120],["pie",320],
+ ["fruit",80],["apple",95],["banana",105],["orange",62],["berry",60],["grape",100],["melon",50],
+ ["veg",40],["broccoli",55],["carrot",50],["salad bowl",250],["wrap",350],["quesadilla",500],["nachos",560],
+ ["pancakes",350],["french toast",350],["breakfast",450],["lunch",600],["dinner",700],["snack",180],["meal",550],
+];
+function estimateKcal(name){
+  const n=(name||'').toLowerCase(); if(!n.trim())return 0;
+  // exact-ish match in FOODS first
+  for(const f of FOODS){ if(f[0].toLowerCase().split(' (')[0]===n)return f[1]; }
+  let best=0;
+  for(const [kw,kc] of KCAL_KW){ if(n.includes(kw)){ best=kc; break; } }
+  if(!best) best=150; // generic fallback
+  // portion / quantity modifiers
+  if(/\blarge\b|\bbig\b|\bxl\b|\bjumbo\b/.test(n)) best*=1.4;
+  if(/\bsmall\b|\bmini\b|\bhalf\b|\blight\b/.test(n)) best*=0.6;
+  if(/\bdouble\b/.test(n)) best*=2;
+  const m=n.match(/(\d+)\s*(x|slice|piece|cup|can|bottle|glass|serving)?/);
+  if(m && +m[1]>1 && +m[1]<=12) best*=+m[1];
+  return Math.round(best);
+}
 // activities: kcal per minute per kg (rough MET/60)
 const ACTS=[
  ["Walking",0.063],["Running",0.135],["Cycling",0.100],["Swimming",0.110],["Weight lifting",0.083],
@@ -168,10 +230,11 @@ function rFood(){
       <div class="sugbox" id="sug" style="display:none"></div>
     </div>
     <div class="row" style="margin-top:10px">
-      <div><label>or type it</label><input id="fname" placeholder="food name"></div>
-      <div><label>calories</label><input id="fkcal" type="number" inputmode="numeric" placeholder="kcal"></div>
+      <div><label>or type anything</label><input id="fname" placeholder="e.g. chicken burrito"></div>
+      <div><label>calories <span id="estnote" class="muted"></span></label><input id="fkcal" type="number" inputmode="numeric" placeholder="kcal"></div>
     </div>
     <button class="go" id="fadd" style="margin-top:10px">Add</button>
+    <p class="muted" style="margin-top:6px">Type any food and I'll <b>estimate the calories</b> — edit the number if you know better.</p>
   </div>
   <div class="card">
     <h2>Today — ${fmt(got)} / ${fmt(t)} kcal</h2>
@@ -185,8 +248,11 @@ function rFood(){
     sug.style.display=hits.length?'block':'none';
     sug.querySelectorAll('div').forEach(el=>el.onclick=()=>{ addFood(el.dataset.n, +el.dataset.k); });
   };
-  document.getElementById('fadd').onclick=()=>{ const n=document.getElementById('fname').value.trim(); const k=+document.getElementById('fkcal').value;
-    if(n&&k>0) addFood(n,k); else alert('Enter a name and calories (or pick from search).'); };
+  const fname=document.getElementById('fname'), fkcal=document.getElementById('fkcal'), estnote=document.getElementById('estnote');
+  fname.oninput=()=>{ const est=estimateKcal(fname.value); if(fname.value.trim()){ fkcal.value=est; estnote.textContent='≈ estimate'; } else { fkcal.value=''; estnote.textContent=''; } };
+  fkcal.oninput=()=>{ estnote.textContent=''; };
+  document.getElementById('fadd').onclick=()=>{ const n=fname.value.trim(); const k=+fkcal.value||estimateKcal(n);
+    if(n&&k>0) addFood(n,k); else alert('Type a food (calories are estimated for you) or pick one from search.'); };
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ day().food.splice(+b.dataset.del,1); save(); render(); });
 }
 function addFood(name,kcal){ day().food.push({name,kcal}); save(); render(); }
@@ -195,15 +261,23 @@ function addFood(name,kcal){ day().food.push({name,kcal}); save(); render(); }
 function rMove(){
   const d=day(), w=lastWeight(), burned=d.move.reduce((s,m)=>s+m.kcal,0);
   app.innerHTML=`
+  <div class="card" style="border-color:#2f7fd6">
+    <h2>⌚ End of day — import from Apple Watch</h2>
+    <p class="muted">Snap a photo of your watch's <b>Activity</b> summary (the rings screen with Move / Exercise / Steps). I'll read the numbers — then you confirm them.</p>
+    <input type="file" id="wphoto" accept="image/*" capture="environment">
+    <div id="wresult" style="margin-top:10px"></div>
+    ${d.watch?`<div class="muted" style="margin-top:8px good">✓ Today from watch — Move ${fmt(d.watch.active||0)} kcal · ${d.watch.ex||0} min · ${fmt(d.watch.steps||0)} steps</div>`:''}
+  </div>
   <div class="card">
-    <h2>Log activity</h2>
+    <h2>Or log activity manually</h2>
     <div>${ACTS.map(a=>`<span class="pill" data-act="${a[0]}" data-rate="${a[1]}">${a[0]}</span>`).join('')}</div>
     <div id="actForm" style="margin-top:10px"></div>
   </div>
   <div class="card">
-    <h2>Today — burned ${fmt(burned)} kcal</h2>
+    <h2>Today — burned ${fmt(burned)} kcal${d.watch&&d.watch.steps?` · ${fmt(d.watch.steps)} steps`:''}</h2>
     ${d.move.length?d.move.map((m,i)=>`<div class="item"><span class="nm">${m.name} · ${m.min} min</span><span class="kc">${fmt(m.kcal)}</span><button class="sm" data-del="${i}">✕</button></div>`).join(''):'<div class="muted">No activity logged yet.</div>'}
   </div>`;
+  document.getElementById('wphoto').onchange=function(e){ const f=e.target.files[0]; if(f) ocrWatch(f); };
   document.querySelectorAll('[data-act]').forEach(p=>p.onclick=()=>{
     const name=p.dataset.act, rate=+p.dataset.rate;
     document.getElementById('actForm').innerHTML=`<label>${name} — how many minutes?</label>
@@ -214,6 +288,46 @@ function rMove(){
   });
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ d.move.splice(+b.dataset.del,1); save(); render(); });
 }
+// ---- Apple Watch photo OCR ----
+function parseWatch(text){
+  var res={active:'',ex:'',steps:''}, lines=text.split('\n');
+  lines.forEach(function(ln){ var low=ln.toLowerCase();
+    var nums=(ln.match(/[\d][\d,\.]*/g)||[]).map(function(x){return Math.round(+x.replace(/,/g,''));}).filter(function(n){return !isNaN(n);});
+    if(!nums.length)return;
+    if(!res.active && (low.includes('cal')||low.includes('move')||low.includes('active'))) res.active=nums[0];
+    else if(!res.ex && (low.includes('min')||low.includes('exerc'))) res.ex=nums[0];
+    else if(!res.steps && low.includes('step')) res.steps=Math.max.apply(null,nums);
+  });
+  var all=(text.match(/[\d][\d,]*/g)||[]).map(function(x){return Math.round(+x.replace(/,/g,''));}).filter(function(n){return !isNaN(n);});
+  if(!res.steps){ var big=all.filter(function(n){return n>=1000;}); if(big.length)res.steps=Math.max.apply(null,big); }
+  if(!res.active){ var mid=all.filter(function(n){return n>=40&&n<3000;}); if(mid.length)res.active=mid[0]; }
+  if(!res.ex){ var small=all.filter(function(n){return n>0&&n<=300;}); if(small.length)res.ex=small[0]; }
+  return res;
+}
+function ocrWatch(file){
+  var box=document.getElementById('wresult');
+  if(typeof Tesseract==='undefined'){ box.innerHTML=confirmForm({active:'',ex:'',steps:''},"Couldn't load the photo reader (offline?). Just type the numbers from your watch:"); return; }
+  box.innerHTML='<div class="muted">📷 Reading your watch photo… <span id="ocrp">0%</span></div>';
+  Tesseract.recognize(file,'eng',{logger:function(m){ if(m.status==='recognizing text'){ var p=document.getElementById('ocrp'); if(p)p.textContent=Math.round(m.progress*100)+'%'; }}})
+    .then(function(r){ var g=parseWatch(r.data.text||''); box.innerHTML=confirmForm(g,"I read these — check and fix any that are off, then Save:"); })
+    .catch(function(){ box.innerHTML=confirmForm({active:'',ex:'',steps:''},"Couldn't read that image. Type the numbers from your watch:"); });
+}
+function confirmForm(g,msg){
+  return '<div class="muted" style="margin-bottom:6px">'+msg+'</div>'+
+    '<div class="row3">'+
+      '<div><label>Move (kcal)</label><input id="wActive" type="number" inputmode="numeric" value="'+(g.active||'')+'"></div>'+
+      '<div><label>Exercise (min)</label><input id="wEx" type="number" inputmode="numeric" value="'+(g.ex||'')+'"></div>'+
+      '<div><label>Steps</label><input id="wSteps" type="number" inputmode="numeric" value="'+(g.steps||'')+'"></div>'+
+    '</div><button class="go" id="wSave" style="margin-top:10px">Save today from watch</button>';
+}
+document.addEventListener('click',function(e){ if(e.target&&e.target.id==='wSave'){
+  var d=day();
+  var active=+document.getElementById('wActive').value||0, ex=+document.getElementById('wEx').value||0, steps=+document.getElementById('wSteps').value||0;
+  d.watch={active:active,ex:ex,steps:steps};
+  d.move=d.move.filter(function(m){return m.name!=='Apple Watch (active energy)';});
+  if(active>0) d.move.push({name:'Apple Watch (active energy)',min:ex,kcal:active});
+  save(); render();
+}});
 
 // ---------------- BODY ----------------
 function rBody(){
