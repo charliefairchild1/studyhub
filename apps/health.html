@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e1116">
+<title>Vitals — your health, projected</title>
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--panel2:#1c232d;--line:#2a323d;--ink:#e9eef5;--mut:#8b95a4;--faint:#5a6472;
+ --acc:#4ea1ff;--good:#48c78e;--warn:#e0b93a;--bad:#e0617a;--fat:#e08a4a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,system-ui,Segoe UI,Roboto;padding-bottom:74px}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+header{text-align:center;padding:12px 0 4px}
+h1{margin:0;font-size:24px}h1 b{color:var(--acc)}
+.tag{color:var(--faint);font-size:12.5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;color:var(--acc);margin:14px 0 6px}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
+input,select{width:100%;background:#0c0f14;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px;font:inherit}
+button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 14px;font:inherit;cursor:pointer}
+button.go{background:linear-gradient(135deg,#2f7fd6,#245f9e);border-color:#2f7fd6;font-weight:700}
+button.sm{padding:6px 11px;font-size:13px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ring{--p:0;width:140px;height:140px;border-radius:50%;margin:4px auto;display:flex;align-items:center;justify-content:center;
+ background:conic-gradient(var(--acc) calc(var(--p)*1%), #232b36 0)}
+.ring .in{width:112px;height:112px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .big{font-size:26px;font-weight:800}.ring .lbl{font-size:11px;color:var(--mut)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:8px}
+.stat b{font-size:22px;display:block}.stat span{color:var(--faint);font-size:11.5px}
+.bar{height:9px;background:#0c0f14;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.item{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .kc{color:var(--mut);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12px;color:var(--mut);margin:3px 3px 0 0;cursor:pointer}
+.pill:active{background:var(--acc);color:#08121d}
+.muted{color:var(--mut);font-size:13px}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.fat{color:var(--fat)}
+nav{position:fixed;left:0;right:0;bottom:0;background:#0b0e13;border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;border-radius:0;color:var(--faint);font-size:10.5px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button.on{color:var(--acc)}nav button i{font-style:normal;font-size:18px}
+.proj{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.proj .p{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.proj .p .w{font-size:22px;font-weight:800}.proj .p .t{color:var(--faint);font-size:12px}
+svg{max-width:100%;display:block;margin:0 auto}
+a{color:var(--acc)}
+.suggest{position:relative}
+.sugbox{position:absolute;left:0;right:0;top:100%;background:#0c0f14;border:1px solid var(--line);border-radius:0 0 10px 10px;max-height:200px;overflow:auto;z-index:5}
+.sugbox div{padding:9px 11px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.sugbox div:active{background:var(--panel2)}
+</style></head>
+<body>
+<div class="wrap">
+<header><h1>Vitals<b>.</b></h1><div class="tag">log today · see who you could become</div></header>
+<div id="app"></div>
+</div>
+<nav id="nav">
+  <button data-p="today" class="on"><i>☀️</i>Today</button>
+  <button data-p="food"><i>🍽️</i>Food</button>
+  <button data-p="move"><i>🏃</i>Move</button>
+  <button data-p="body"><i>⚖️</i>Body</button>
+  <button data-p="future"><i>🔮</i>Future</button>
+</nav>
+
+<script>
+// ---------------- storage ----------------
+const LS='vitals_v1';
+let S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
+S.profile=S.profile||{sex:'male',age:30,height:175,activity:1.375,unit:'metric'};
+S.goals=S.goals||{mode:'lose',rate:0.5,calTarget:null,water:8,protein:null};
+S.days=S.days||{};
+function save(){localStorage.setItem(LS,JSON.stringify(S));}
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function day(k){k=k||todayKey(); if(!S.days[k])S.days[k]={food:[],move:[],water:0,weight:null,bodyfat:null}; return S.days[k];}
+function lastWeight(){ const ks=Object.keys(S.days).sort(); for(let i=ks.length-1;i>=0;i--){ if(S.days[ks[i]].weight)return S.days[ks[i]].weight; } return S.profile.startWeight||75; }
+function lastBF(){ const ks=Object.keys(S.days).sort(); for(let i=ks.length-1;i>=0;i--){ if(S.days[ks[i]].bodyfat!=null)return S.days[ks[i]].bodyfat; } return null; }
+
+// ---------------- health math ----------------
+function bmr(){ const p=S.profile,w=lastWeight(); // Mifflin-St Jeor (metric)
+  const base=10*w+6.25*p.height-5*p.age; return Math.round(base + (p.sex==='male'?5:-161)); }
+function tdee(){ // base activity + today's logged exercise
+  const burned=day().move.reduce((s,m)=>s+m.kcal,0);
+  return Math.round(bmr()*S.profile.activity + burned); }
+function calTarget(){ if(S.goals.calTarget)return S.goals.calTarget;
+  const t=tdee(); const perDay=S.goals.rate*7700/7; // kg/week → kcal/day
+  if(S.goals.mode==='lose')return Math.round(t-perDay);
+  if(S.goals.mode==='gain')return Math.round(t+perDay);
+  return t; }
+function intake(k){ return day(k).food.reduce((s,f)=>s+f.kcal,0); }
+function bmi(){ const w=lastWeight(),h=S.profile.height/100; return w/(h*h); }
+function fmt(n){ return Math.round(n).toLocaleString(); }
+function kg(){ return S.profile.unit==='imperial'; }
+function wDisp(kgval){ return kg()? (kgval*2.20462).toFixed(1)+' lb' : kgval.toFixed(1)+' kg'; }
+
+// ---------------- food database (kcal per common serving) ----------------
+const FOODS=[
+ ["Egg (1 large)",78],["Banana",105],["Apple",95],["Orange",62],["Chicken breast (100g)",165],
+ ["Rice, cooked (1 cup)",205],["White bread (slice)",79],["Oatmeal (1 cup)",158],["Milk (1 cup)",122],
+ ["Greek yogurt (170g)",100],["Almonds (1oz)",164],["Peanut butter (2 tbsp)",188],["Avocado (half)",120],
+ ["Salmon (100g)",208],["Ground beef 85% (100g)",250],["Pasta, cooked (1 cup)",221],["Potato, baked",161],
+ ["Broccoli (1 cup)",55],["Cheese, cheddar (1oz)",113],["Pizza (1 slice)",285],["Hamburger",354],
+ ["Fries (medium)",365],["Coffee, black",2],["Latte (medium)",190],["Orange juice (1 cup)",112],
+ ["Soda (12oz)",140],["Beer (12oz)",153],["Wine (5oz)",125],["Protein shake",160],["Granola bar",120],
+ ["Chocolate bar",235],["Ice cream (1/2 cup)",137],["Salad w/ dressing",180],["Burrito",580],
+ ["Sushi roll (6pc)",255],["Tuna (100g)",132],["Sweet potato",112],["Black beans (1 cup)",227],
+ ["Steak (100g)",271],["Bacon (2 slices)",92],["Donut",253],["Bagel",245],["Cereal w/ milk",250],
+ ["Water",0],["Tea, unsweetened",2],["Energy drink",110],["Trail mix (1oz)",137],["Cookie",148],
+];
+// activities: kcal per minute per kg (rough MET/60)
+const ACTS=[
+ ["Walking",0.063],["Running",0.135],["Cycling",0.100],["Swimming",0.110],["Weight lifting",0.083],
+ ["Yoga",0.042],["Hiking",0.100],["Basketball",0.110],["Soccer",0.117],["Elliptical",0.090],
+ ["Rowing",0.117],["Jump rope",0.183],["Dancing",0.083],["Tennis",0.117],["Housework",0.058],
+];
+
+// ---------------- nav ----------------
+const app=document.getElementById('app');
+let page='today';
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{page=b.dataset.p;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b)); render();});
+function render(){({today:rToday,food:rFood,move:rMove,body:rBody,future:rFuture}[page])(); window.scrollTo(0,0);}
+
+// ---------------- TODAY ----------------
+function rToday(){
+  const t=calTarget(), got=intake(), pct=Math.min(100,Math.round(got/Math.max(1,t)*100)), left=t-got;
+  const d=day(), w=lastWeight();
+  const need = !w || !S.profile.height;
+  app.innerHTML=`
+  ${need?`<div class="card" style="border-color:#2f7fd6"><h2>👋 Set up first</h2><p class="muted">Enter your body stats so the numbers are yours. Takes 20 seconds.</p><button class="go" onclick="go('body')">Go to Body →</button></div>`:''}
+  <div class="card" style="text-align:center">
+    <div class="ring" style="--p:${pct}"><div class="in"><div class="big">${fmt(got)}</div><div class="lbl">of ${fmt(t)} kcal</div></div></div>
+    <div class="${left>=0?'good':'bad'}" style="font-weight:700">${left>=0?fmt(left)+' kcal left today':fmt(-left)+' kcal over'}</div>
+    <div class="stat" style="margin-top:14px">
+      <div><b>${fmt(bmr())}</b><span>BMR</span></div>
+      <div><b>${fmt(tdee())}</b><span>burned/day</span></div>
+      <div><b>${wDisp(w)}</b><span>weight</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Today's goals</h2>
+    <div class="item"><span class="nm">🎯 Calories ≤ ${fmt(t)}</span><span class="kc ${got<=t?'good':'bad'}">${got<=t?'on track':'over'}</span></div>
+    <div class="item"><span class="nm">💧 Water</span><span class="kc">${d.water}/${S.goals.water} cups
+      <button class="sm" onclick="water(1)">+</button> <button class="sm" onclick="water(-1)">−</button></span></div>
+    <div class="item"><span class="nm">🏃 Move (burn ≥ 250)</span><span class="kc ${d.move.reduce((s,m)=>s+m.kcal,0)>=250?'good':''}">${fmt(d.move.reduce((s,m)=>s+m.kcal,0))} kcal</span></div>
+    <div class="item" style="border:0"><span class="nm">⚖️ Log weight today</span><span class="kc">${d.weight?'<span class=good>✓</span>':'<button class="sm" id="logw">log</button>'}</span></div>
+  </div>
+  <div class="card">
+    <h2>Quick add</h2>
+    <button class="go" onclick="go('food')">🍽️ Log food</button>
+    <button onclick="go('move')" style="margin-left:6px">🏃 Log activity</button>
+    <p class="muted" style="margin-top:10px">Eaten: <b>${fmt(got)}</b> · Burned (exercise): <b>${fmt(d.move.reduce((s,m)=>s+m.kcal,0))}</b> · Net balance: <b class="${got-tdee()<=0?'good':'bad'}">${got-tdee()>0?'+':''}${fmt(got-tdee())} kcal</b></p>
+  </div>`;
+}
+function water(n){ const d=day(); d.water=Math.max(0,d.water+n); save(); render(); }
+document.addEventListener('click',function(e){ if(e.target&&e.target.id==='logw') go('body'); });
+function go(p){ page=p; document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.p===p)); render(); }
+
+// ---------------- FOOD ----------------
+function rFood(){
+  const d=day(), got=intake(), t=calTarget();
+  app.innerHTML=`
+  <div class="card">
+    <h2>Add food or drink</h2>
+    <div class="suggest">
+      <input id="fq" placeholder="search food… (e.g. banana, pizza, latte)" autocomplete="off">
+      <div class="sugbox" id="sug" style="display:none"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label>or type it</label><input id="fname" placeholder="food name"></div>
+      <div><label>calories</label><input id="fkcal" type="number" inputmode="numeric" placeholder="kcal"></div>
+    </div>
+    <button class="go" id="fadd" style="margin-top:10px">Add</button>
+  </div>
+  <div class="card">
+    <h2>Today — ${fmt(got)} / ${fmt(t)} kcal</h2>
+    <div class="bar"><i style="width:${Math.min(100,got/Math.max(1,t)*100)}%;background:${got<=t?'var(--good)':'var(--bad)'}"></i></div>
+    <div style="margin-top:10px">${d.food.length?d.food.map((f,i)=>`<div class="item"><span class="nm">${f.name}</span><span class="kc">${fmt(f.kcal)}</span><button class="sm" data-del="${i}">✕</button></div>`).join(''):'<div class="muted">Nothing logged yet.</div>'}</div>
+  </div>`;
+  const fq=document.getElementById('fq'), sug=document.getElementById('sug');
+  fq.oninput=()=>{ const q=fq.value.toLowerCase().trim(); if(!q){sug.style.display='none';return;}
+    const hits=FOODS.filter(f=>f[0].toLowerCase().includes(q)).slice(0,8);
+    sug.innerHTML=hits.map(f=>`<div data-n="${f[0]}" data-k="${f[1]}">${f[0]} <span class="muted">· ${f[1]} kcal</span></div>`).join('');
+    sug.style.display=hits.length?'block':'none';
+    sug.querySelectorAll('div').forEach(el=>el.onclick=()=>{ addFood(el.dataset.n, +el.dataset.k); });
+  };
+  document.getElementById('fadd').onclick=()=>{ const n=document.getElementById('fname').value.trim(); const k=+document.getElementById('fkcal').value;
+    if(n&&k>0) addFood(n,k); else alert('Enter a name and calories (or pick from search).'); };
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ day().food.splice(+b.dataset.del,1); save(); render(); });
+}
+function addFood(name,kcal){ day().food.push({name,kcal}); save(); render(); }
+
+// ---------------- MOVE ----------------
+function rMove(){
+  const d=day(), w=lastWeight(), burned=d.move.reduce((s,m)=>s+m.kcal,0);
+  app.innerHTML=`
+  <div class="card">
+    <h2>Log activity</h2>
+    <div>${ACTS.map(a=>`<span class="pill" data-act="${a[0]}" data-rate="${a[1]}">${a[0]}</span>`).join('')}</div>
+    <div id="actForm" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h2>Today — burned ${fmt(burned)} kcal</h2>
+    ${d.move.length?d.move.map((m,i)=>`<div class="item"><span class="nm">${m.name} · ${m.min} min</span><span class="kc">${fmt(m.kcal)}</span><button class="sm" data-del="${i}">✕</button></div>`).join(''):'<div class="muted">No activity logged yet.</div>'}
+  </div>`;
+  document.querySelectorAll('[data-act]').forEach(p=>p.onclick=()=>{
+    const name=p.dataset.act, rate=+p.dataset.rate;
+    document.getElementById('actForm').innerHTML=`<label>${name} — how many minutes?</label>
+      <div class="row"><input id="amin" type="number" inputmode="numeric" placeholder="minutes"><button class="go" id="asave">Add</button></div>`;
+    document.getElementById('asave').onclick=()=>{ const mn=+document.getElementById('amin').value;
+      if(mn>0){ d.move.push({name,min:mn,kcal:Math.round(rate*w*mn)}); save(); render(); } };
+    document.getElementById('amin').focus();
+  });
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ d.move.splice(+b.dataset.del,1); save(); render(); });
+}
+
+// ---------------- BODY ----------------
+function rBody(){
+  const p=S.profile, d=day(), w=lastWeight(), bf=lastBF();
+  app.innerHTML=`
+  <div class="card">
+    <h2>Today's measurements</h2>
+    <div class="row">
+      <div><label>Weight (${kg()?'lb':'kg'})</label><input id="mw" type="number" inputmode="decimal" value="${d.weight?(kg()?(d.weight*2.20462).toFixed(1):d.weight):''}" placeholder="${kg()?(w*2.20462).toFixed(0):w.toFixed(0)}"></div>
+      <div><label>Body fat %</label><input id="mbf" type="number" inputmode="decimal" value="${d.bodyfat!=null?d.bodyfat:''}" placeholder="${bf!=null?bf:'optional'}"></div>
+    </div>
+    <button class="go" id="msave" style="margin-top:10px">Save today</button>
+    ${d.weight?'<span class="good" style="margin-left:8px">✓ logged today</span>':''}
+  </div>
+  <div class="card">
+    <h2>You right now</h2>
+    <div class="stat">
+      <div><b>${wDisp(w)}</b><span>weight</span></div>
+      <div><b class="${bmi()<18.5?'warn':bmi()<25?'good':bmi()<30?'warn':'bad'}">${bmi().toFixed(1)}</b><span>BMI</span></div>
+      <div><b class="fat">${bf!=null?bf+'%':'—'}</b><span>body fat</span></div>
+    </div>
+    ${bf!=null?`<p class="muted" style="margin-top:10px">Lean mass: <b>${wDisp(w*(1-bf/100))}</b> · Fat mass: <b class="fat">${wDisp(w*bf/100)}</b></p>`:''}
+    <div style="margin-top:10px">${weightChart()}</div>
+  </div>
+  <div class="card">
+    <h2>About you</h2>
+    <div class="row3">
+      <div><label>Sex</label><select id="psex"><option value="male" ${p.sex==='male'?'selected':''}>Male</option><option value="female" ${p.sex==='female'?'selected':''}>Female</option></select></div>
+      <div><label>Age</label><input id="page" type="number" value="${p.age}"></div>
+      <div><label>Height (cm)</label><input id="ph" type="number" value="${p.height}"></div>
+    </div>
+    <label>Daily activity level</label>
+    <select id="pact">
+      <option value="1.2" ${p.activity==1.2?'selected':''}>Sedentary (desk job)</option>
+      <option value="1.375" ${p.activity==1.375?'selected':''}>Light (1–3 workouts/wk)</option>
+      <option value="1.55" ${p.activity==1.55?'selected':''}>Moderate (3–5/wk)</option>
+      <option value="1.725" ${p.activity==1.725?'selected':''}>Very active (6–7/wk)</option>
+      <option value="1.9" ${p.activity==1.9?'selected':''}>Athlete</option>
+    </select>
+    <label style="margin-top:8px"><input type="checkbox" id="punit" ${kg()?'checked':''} style="width:auto"> Show weight in pounds (lb)</label>
+    <button class="go" id="psave" style="margin-top:10px">Save profile</button>
+  </div>`;
+  document.getElementById('msave').onclick=()=>{ let wv=parseFloat(document.getElementById('mw').value);
+    if(wv>0){ d.weight=kg()?wv/2.20462:wv; } const bfv=parseFloat(document.getElementById('mbf').value);
+    d.bodyfat=isNaN(bfv)?d.bodyfat:bfv; save(); render(); };
+  document.getElementById('psave').onclick=()=>{ p.sex=document.getElementById('psex').value; p.age=+document.getElementById('page').value||p.age;
+    p.height=+document.getElementById('ph').value||p.height; p.activity=+document.getElementById('pact').value;
+    p.unit=document.getElementById('punit').checked?'imperial':'metric'; save(); render(); };
+  document.getElementById('punit').onchange=()=>{ p.unit=document.getElementById('punit').checked?'imperial':'metric'; save(); render(); };
+}
+function weightChart(){
+  const ks=Object.keys(S.days).filter(k=>S.days[k].weight).sort();
+  if(ks.length<2) return '<div class="muted">Log your weight a few days to see the trend.</div>';
+  const ws=ks.map(k=>S.days[k].weight); const mn=Math.min(...ws),mx=Math.max(...ws),W=280,H=70;
+  const pts=ws.map((v,i)=>`${(i/(ws.length-1))*W},${H-4-((v-mn)/((mx-mn)||1))*(H-10)}`).join(' ');
+  return `<svg width="${W}" height="${H}"><polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2"/></svg><div class="muted" style="text-align:center">weight trend · ${ks.length} entries</div>`;
+}
+
+// ---------------- FUTURE ----------------
+function rFuture(){
+  const w=lastWeight(), t=tdee(), target=calTarget(), bf=lastBF();
+  // use recent average intake if available, else the target
+  const recent=Object.keys(S.days).filter(k=>S.days[k].food.length).slice(-7);
+  const avgIntake = recent.length? Math.round(recent.reduce((s,k)=>s+intake(k),0)/recent.length) : target;
+  const dailyBalance = avgIntake - t;              // + = surplus (gain), − = deficit (loss)
+  const kgPerDay = dailyBalance/7700;               // ~7700 kcal per kg
+  const proj=(days)=>{ let nw=w+kgPerDay*days; return Math.max(35, nw); };
+  const periods=[["1 week",7],["1 month",30],["3 months",91],["6 months",182],["1 year",365]];
+  const dir = kgPerDay<-0.0001?'losing':kgPerDay>0.0001?'gaining':'holding';
+  app.innerHTML=`
+  <div class="card">
+    <h2>🔮 Who you could become</h2>
+    <p class="muted">Based on your average intake (<b>${fmt(avgIntake)}</b> kcal/day) vs. what you burn (<b>${fmt(t)}</b> kcal/day), you're <b class="${dir==='losing'?'good':dir==='gaining'?'warn':''}">${dir}</b> about <b>${wDisp(Math.abs(kgPerDay*7))}</b> per week.</p>
+    <div class="proj" style="margin-top:12px">
+      ${periods.map(([lbl,dys])=>{ const nw=proj(dys); const diff=nw-w;
+        return `<div class="p"><div class="w">${wDisp(nw)}</div><div class="t">${lbl}<br><span class="${diff<0?'good':diff>0?'warn':''}">${diff>0?'+':''}${wDisp(diff).replace(' kg','').replace(' lb','')} ${kg()?'lb':'kg'}</span></div></div>`;}).join('')}
+    </div>
+    <div style="margin-top:14px">${futureChart(w,kgPerDay)}</div>
+  </div>
+  <div class="card">
+    <h2>At this pace</h2>
+    ${projLine(w, proj(365), bf, kgPerDay)}
+    <p class="muted" style="margin-top:10px">This is a straight-line estimate — real progress slows as your body changes (your burn drops as you lose weight). Re-check weekly and it self-corrects from your logged data.</p>
+  </div>
+  <div class="card">
+    <h2>Your goal</h2>
+    <label>I want to</label>
+    <select id="gmode"><option value="lose" ${S.goals.mode==='lose'?'selected':''}>Lose weight</option><option value="maintain" ${S.goals.mode==='maintain'?'selected':''}>Maintain</option><option value="gain" ${S.goals.mode==='gain'?'selected':''}>Gain weight/muscle</option></select>
+    <label>Pace (${kg()?'lb':'kg'} per week)</label>
+    <select id="grate"><option value="0.25" ${S.goals.rate==0.25?'selected':''}>Gentle (~${kg()?'0.5 lb':'0.25 kg'})</option><option value="0.5" ${S.goals.rate==0.5?'selected':''}>Standard (~${kg()?'1 lb':'0.5 kg'})</option><option value="0.75" ${S.goals.rate==0.75?'selected':''}>Aggressive (~${kg()?'1.5 lb':'0.75 kg'})</option></select>
+    <button class="go" id="gsave" style="margin-top:10px">Save goal</button>
+    <p class="muted" style="margin-top:8px">Target: eat <b>${fmt(calTarget())}</b> kcal/day.</p>
+  </div>`;
+  document.getElementById('gsave').onclick=()=>{ S.goals.mode=document.getElementById('gmode').value; S.goals.rate=+document.getElementById('grate').value; S.goals.calTarget=null; save(); render(); };
+}
+function projLine(w, y1, bf, kgPerDay){
+  let s=`In a year you'd be about <b>${wDisp(y1)}</b> (BMI ${(y1/((S.profile.height/100)**2)).toFixed(1)}).`;
+  if(bf!=null){ const fatLoss=(w-y1)*0.8; const newFatMass=Math.max(0, w*bf/100 - fatLoss); const newBF=Math.max(3, newFatMass/y1*100);
+    s+=` If most of the change is fat, your body fat could move from <b class="fat">${bf}%</b> toward <b class="fat">${newBF.toFixed(0)}%</b>.`; }
+  return `<p>${s}</p>`;
+}
+function futureChart(w,kgPerDay){
+  const W=300,H=90,days=365; const vals=[]; for(let i=0;i<=days;i+=7)vals.push(w+kgPerDay*i);
+  const mn=Math.min(...vals,w),mx=Math.max(...vals,w);
+  const pts=vals.map((v,i)=>`${(i/(vals.length-1))*W},${H-6-((v-mn)/((mx-mn)||1))*(H-14)}`).join(' ');
+  return `<svg width="${W}" height="${H}"><polyline points="${pts}" fill="none" stroke="${kgPerDay<=0?'var(--good)':'var(--warn)'}" stroke-width="2.5"/></svg><div class="muted" style="text-align:center">projected weight over the next year</div>`;
+}
+
+render();
+</script>
+</body></html>
