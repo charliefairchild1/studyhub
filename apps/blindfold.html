@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Blindfold Chess</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#14110c">
+<style>
+:root{--bg:#14110c;--ink:#efe7d6;--dim:#968a72;--gold:#d9a441;--line:#322a1f;
+  --panel:#1a1611;--panel2:#1c1712;--good:#5fcf8a;--bad:#e0617a;--live:#e0617a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
+body{font:15.5px/1.5 -apple-system,BlinkMacSystemFont,system-ui,Segoe UI,Roboto;
+  padding:calc(env(safe-area-inset-top) + 6px) 14px calc(env(safe-area-inset-bottom) + 40px)}
+.wrap{max-width:560px;margin:0 auto}
+header{text-align:center;padding:10px 0 4px}
+h1{margin:0;font-size:25px;font-family:"Iowan Old Style",Palatino,Georgia,serif}
+h1 .a{color:var(--gold)}
+.tag{color:var(--dim);font-size:12.5px;margin-top:2px}
+a.back{color:var(--dim);text-decoration:none;font-size:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.sb{justify-content:space-between}
+label.f{font-size:12px;color:var(--dim);display:block;margin-bottom:4px;letter-spacing:.3px;text-transform:uppercase}
+select,input,button{font:inherit}
+select,input.txt{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 10px;font-size:16px}
+button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{background:#241d15}
+button.gold{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:700}
+button.gold:active{background:#c4922f}
+button.mic{width:54px;height:54px;border-radius:50%;font-size:22px;flex:0 0 auto}
+button.mic.on{background:var(--live);border-color:var(--live);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,97,122,.6)}70%{box-shadow:0 0 0 12px rgba(224,97,122,0)}100%{box-shadow:0 0 0 0 rgba(224,97,122,0)}}
+.status{text-align:center;font-size:15px;padding:6px 0;min-height:24px}
+.status .chk{color:var(--bad);font-weight:700}
+.status .win{color:var(--good);font-weight:700}
+.heard{text-align:center;font-size:13px;color:var(--dim);min-height:20px;margin-top:2px}
+.heard b{color:var(--gold)}
+.heard.err b{color:var(--bad)}
+/* board */
+#boardwrap{display:flex;justify-content:center;margin:4px 0}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:min(92vw,420px);aspect-ratio:1;
+  border:2px solid #4a3c28;border-radius:6px;overflow:hidden;user-select:none}
+.sqr{display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);position:relative}
+.sqr.lt{background:#c9b790}.sqr.dk{background:#6f5a3c}
+.sqr .co{position:absolute;font-size:9px;color:#00000066;left:2px;top:1px}
+.wp{color:#fbf6ec;text-shadow:0 1px 1px #0008}
+.bp{color:#1a1206;text-shadow:0 1px 0 #ffffff33}
+.hidden{display:none}
+.blindnote{text-align:center;color:var(--dim);font-size:13px;padding:26px 10px;border:1px dashed var(--line);border-radius:12px;margin:4px 0}
+.blindnote b{color:var(--gold)}
+/* moves */
+.moves{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.9;
+  max-height:150px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.moves .mv{display:inline-block;min-width:52px}
+.moves .no{color:var(--dim)}
+.moves .last{background:var(--gold);color:#1a1206;border-radius:4px;padding:0 4px}
+.hint{color:var(--dim);font-size:12.5px;margin-top:8px;line-height:1.5}
+.hint code{background:var(--panel2);padding:1px 5px;border-radius:5px;color:var(--gold)}
+.foot{color:#6d6455;font-size:11.5px;text-align:center;margin-top:22px;line-height:1.6}
+.pill{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+details summary{cursor:pointer;color:var(--gold);font-size:13px}
+details{margin-top:10px}
+.mini{font-size:12.5px;padding:7px 10px}
+.grow{flex:1 1 auto;min-width:120px}
+</style></head>
+<body>
+<div class="wrap">
+<header>
+  <div class="row sb"><a class="back" href="../index.html">‹ Study</a><span class="pill" id="engpill">engine ready</span></div>
+  <h1>Blindfold <span class="a">Chess</span></h1>
+  <div class="tag">play the board in your head — say your moves out loud</div>
+</header>
+
+<div class="card">
+  <div class="row">
+    <div class="grow"><label class="f">Difficulty</label>
+      <select id="diff" style="width:100%">
+        <option value="1">Casual (very forgiving)</option>
+        <option value="2" selected>Club</option>
+        <option value="3">Strong</option>
+        <option value="4">Max (slow)</option>
+      </select></div>
+    <div class="grow"><label class="f">You play</label>
+      <select id="side" style="width:100%">
+        <option value="w" selected>White</option>
+        <option value="b">Black</option>
+        <option value="r">Random</option>
+      </select></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <label class="row" style="gap:6px"><input type="checkbox" id="blind" checked> Blindfold (hide board)</label>
+    <label class="row" style="gap:6px"><input type="checkbox" id="speak" checked> Speak moves</label>
+    <button class="gold grow" id="newgame">New game</button>
+  </div>
+</div>
+
+<div class="status" id="status">Press <b>New game</b> to begin.</div>
+<div class="heard" id="heard"></div>
+
+<div id="boardwrap"><div class="board" id="board"></div></div>
+<div class="blindnote hidden" id="blindnote">🙈 <b>Blindfold on.</b> The board is hidden. Track it in your head — moves are listed below and read aloud. Tap <b>Peek</b> if you're stuck.</div>
+
+<div class="card">
+  <div class="row">
+    <input class="txt grow" id="movein" placeholder="type or dictate — e4, Nf3, Bxc6, O-O…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" inputmode="text">
+    <button class="gold" id="playbtn">Play</button>
+    <button class="mic" id="micbtn" title="Say your move">🎙️</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="mini" id="peek">👁 Peek</button>
+    <button class="mini" id="undo">↩ Undo</button>
+    <button class="mini" id="hintbtn">💡 Legal?</button>
+    <button class="mini" id="repeat">🔊 Say last</button>
+    <span class="pill" id="peekpill" style="margin-left:auto">peeks: 0</span>
+  </div>
+  <div class="moves" id="movelist"><span class="no">Moves will appear here.</span></div>
+</div>
+
+<div class="hint">
+  <b>Saying moves:</b> just speak naturally — <code>e4</code>, <code>knight to f3</code>,
+  <code>bishop takes c6</code>, <code>castle kingside</code>, <code>e8 queen</code>.
+  Files can be letters or NATO (<code>alpha…hotel</code>). If it mishears, the box shows what it caught — just say it again or type it.
+  <details><summary>About voice &amp; chess.com</summary>
+  <b>On iPhone/iPad:</b> tap the 🎤 button (or tap the move box), then use the <b>microphone key on your keyboard</b> to dictate — say your move and hit Return. This works even when the app is added to your Home Screen.<br>
+  <b>On desktop:</b> the 🎙️ button uses live speech recognition (best in Chrome, needs mic permission + an internet connection).<br>
+  Playing your real <b>chess.com</b> games isn't possible from a private offline app like this — their live games need their own login and site.
+  So your opponent here is a built-in engine you can dial from forgiving to strong. Great news for blindfold practice: the engine never peeks either.
+  </details>
+</div>
+
+<div class="foot">The Study · Blindfold Chess · perft-verified move engine</div>
+</div>
+
+<script>
+// Self-contained 0x88 chess engine: legal move gen, SAN, make/unmake, minimax.
+// Designed to be inlined into the blindfold app. Perft-tested standalone.
+
+(function(root){
+'use strict';
+
+// 0x88 board. square = rank*16 + file. rank 0 = rank1 (white home). file 0 = a.
+// pieces: 'P','N','B','R','Q','K' upper=white, lower=black.
+var EMPTY = 0;
+
+function sq(file, rank){ return rank*16 + file; }
+function fileOf(s){ return s & 7; }
+function rankOf(s){ return s >> 4; }
+function onBoard(s){ return (s & 0x88) === 0; }
+function algeb(s){ return 'abcdefgh'[fileOf(s)] + (rankOf(s)+1); }
+function parseSq(str){
+  if(!str||str.length<2) return -1;
+  var f = 'abcdefgh'.indexOf(str[0].toLowerCase());
+  var r = parseInt(str[1],10)-1;
+  if(f<0||r<0||r>7) return -1;
+  return sq(f,r);
+}
+
+var KNIGHT = [33,31,18,14,-33,-31,-18,-14];
+var KING   = [16,17,1,-15,-16,-17,-1,15];
+var BISHOP = [17,15,-17,-15];
+var ROOK   = [16,-16,1,-1];
+
+function isWhite(p){ return p !== EMPTY && p === p.toUpperCase(); }
+function isBlack(p){ return p !== EMPTY && p === p.toLowerCase(); }
+function colorOf(p){ return isWhite(p) ? 'w' : 'b'; }
+
+function newGame(){
+  var b = new Array(128).fill(EMPTY);
+  function place(rank, arr){ for(var f=0;f<8;f++) b[sq(f,rank)] = arr[f]; }
+  place(0, ['R','N','B','Q','K','B','N','R']);
+  place(1, ['P','P','P','P','P','P','P','P']);
+  place(6, ['p','p','p','p','p','p','p','p']);
+  place(7, ['r','n','b','q','k','b','n','r']);
+  return {
+    board: b,
+    turn: 'w',
+    castling: {wK:true,wQ:true,bK:true,bQ:true},
+    ep: -1,           // en-passant target square (the square the capturing pawn lands on), or -1
+    halfmove: 0,
+    fullmove: 1
+  };
+}
+
+function cloneState(s){
+  return {
+    board: s.board.slice(),
+    turn: s.turn,
+    castling: {wK:s.castling.wK,wQ:s.castling.wQ,bK:s.castling.bK,bQ:s.castling.bQ},
+    ep: s.ep, halfmove: s.halfmove, fullmove: s.fullmove
+  };
+}
+
+function kingSquare(s, color){
+  var k = color==='w' ? 'K' : 'k';
+  for(var i=0;i<128;i++){ if(onBoard(i) && s.board[i]===k) return i; }
+  return -1;
+}
+
+// is square `target` attacked by side `by` ('w'/'b')
+function isAttacked(s, target, by){
+  var b = s.board;
+  // pawn attacks
+  if(by==='w'){
+    if(onBoard(target-17) && b[target-17]==='P') return true;
+    if(onBoard(target-15) && b[target-15]==='P') return true;
+  } else {
+    if(onBoard(target+17) && b[target+17]==='p') return true;
+    if(onBoard(target+15) && b[target+15]==='p') return true;
+  }
+  // knight
+  for(var i=0;i<8;i++){ var t=target+KNIGHT[i];
+    if(onBoard(t)){ var p=b[t]; if(p!==EMPTY && colorOf(p)===by && p.toUpperCase()==='N') return true; } }
+  // king
+  for(i=0;i<8;i++){ t=target+KING[i];
+    if(onBoard(t)){ p=b[t]; if(p!==EMPTY && colorOf(p)===by && p.toUpperCase()==='K') return true; } }
+  // sliding: bishop/queen diagonals
+  for(i=0;i<4;i++){ t=target+BISHOP[i];
+    while(onBoard(t)){ p=b[t];
+      if(p!==EMPTY){ if(colorOf(p)===by && (p.toUpperCase()==='B'||p.toUpperCase()==='Q')) return true; break; }
+      t+=BISHOP[i]; } }
+  // rook/queen orthogonals
+  for(i=0;i<4;i++){ t=target+ROOK[i];
+    while(onBoard(t)){ p=b[t];
+      if(p!==EMPTY){ if(colorOf(p)===by && (p.toUpperCase()==='R'||p.toUpperCase()==='Q')) return true; break; }
+      t+=ROOK[i]; } }
+  return false;
+}
+
+function inCheck(s, color){
+  return isAttacked(s, kingSquare(s,color), color==='w'?'b':'w');
+}
+
+// generate pseudo-legal moves for side to move
+function genPseudo(s){
+  var b=s.board, moves=[], us=s.turn, them = us==='w'?'b':'w';
+  for(var from=0; from<128; from++){
+    if(!onBoard(from)) continue;
+    var p=b[from];
+    if(p===EMPTY || colorOf(p)!==us) continue;
+    var pt=p.toUpperCase();
+    if(pt==='P'){
+      var dir = us==='w'?16:-16;
+      var startRank = us==='w'?1:6;
+      var promoRank = us==='w'?7:0;
+      var one = from+dir;
+      if(onBoard(one) && b[one]===EMPTY){
+        addPawn(moves, from, one, promoRank);
+        var two = from+dir*2;
+        if(rankOf(from)===startRank && b[two]===EMPTY)
+          moves.push({from:from,to:two,flag:'double'});
+      }
+      var caps=[dir+1, dir-1];
+      for(var c=0;c<2;c++){ var t=from+caps[c];
+        if(!onBoard(t)) continue;
+        if(b[t]!==EMPTY && colorOf(b[t])===them) addPawn(moves, from, t, promoRank);
+        else if(t===s.ep) moves.push({from:from,to:t,flag:'ep'});
+      }
+    } else if(pt==='N'){
+      for(var i=0;i<8;i++){ var to=from+KNIGHT[i];
+        if(onBoard(to) && (b[to]===EMPTY || colorOf(b[to])===them)) moves.push({from:from,to:to}); }
+    } else if(pt==='K'){
+      for(i=0;i<8;i++){ to=from+KING[i];
+        if(onBoard(to) && (b[to]===EMPTY || colorOf(b[to])===them)) moves.push({from:from,to:to}); }
+      // castling
+      genCastle(s, moves, from, us);
+    } else {
+      var dirs = pt==='B'?BISHOP : pt==='R'?ROOK : BISHOP.concat(ROOK);
+      for(i=0;i<dirs.length;i++){ to=from+dirs[i];
+        while(onBoard(to)){
+          if(b[to]===EMPTY){ moves.push({from:from,to:to}); }
+          else { if(colorOf(b[to])===them) moves.push({from:from,to:to}); break; }
+          to+=dirs[i];
+        } }
+    }
+  }
+  return moves;
+}
+
+function addPawn(moves, from, to, promoRank){
+  if(rankOf(to)===promoRank){
+    ['Q','R','B','N'].forEach(function(pr){ moves.push({from:from,to:to,promo:pr}); });
+  } else moves.push({from:from,to:to});
+}
+
+function genCastle(s, moves, from, us){
+  var b=s.board, them=us==='w'?'b':'w';
+  if(us==='w' && from===sq(4,0)){
+    if(s.castling.wK && b[sq(5,0)]===EMPTY && b[sq(6,0)]===EMPTY && b[sq(7,0)]==='R'
+       && !isAttacked(s,sq(4,0),them) && !isAttacked(s,sq(5,0),them) && !isAttacked(s,sq(6,0),them))
+      moves.push({from:from,to:sq(6,0),flag:'OO'});
+    if(s.castling.wQ && b[sq(3,0)]===EMPTY && b[sq(2,0)]===EMPTY && b[sq(1,0)]===EMPTY && b[sq(0,0)]==='R'
+       && !isAttacked(s,sq(4,0),them) && !isAttacked(s,sq(3,0),them) && !isAttacked(s,sq(2,0),them))
+      moves.push({from:from,to:sq(2,0),flag:'OOO'});
+  } else if(us==='b' && from===sq(4,7)){
+    if(s.castling.bK && b[sq(5,7)]===EMPTY && b[sq(6,7)]===EMPTY && b[sq(7,7)]==='r'
+       && !isAttacked(s,sq(4,7),them) && !isAttacked(s,sq(5,7),them) && !isAttacked(s,sq(6,7),them))
+      moves.push({from:from,to:sq(6,7),flag:'OO'});
+    if(s.castling.bQ && b[sq(3,7)]===EMPTY && b[sq(2,7)]===EMPTY && b[sq(1,7)]===EMPTY && b[sq(0,7)]==='r'
+       && !isAttacked(s,sq(4,7),them) && !isAttacked(s,sq(3,7),them) && !isAttacked(s,sq(2,7),them))
+      moves.push({from:from,to:sq(2,7),flag:'OOO'});
+  }
+}
+
+// apply move (mutates), returns undo info
+function makeMove(s, m){
+  var b=s.board, us=s.turn, them=us==='w'?'b':'w';
+  var undo = {m:m, captured:b[m.to], capSq:m.to, ep:s.ep, halfmove:s.halfmove,
+              castling:{wK:s.castling.wK,wQ:s.castling.wQ,bK:s.castling.bK,bQ:s.castling.bQ},
+              fullmove:s.fullmove};
+  var p=b[m.from];
+  var pt=p.toUpperCase();
+  // en passant capture
+  if(m.flag==='ep'){
+    var capPawnSq = us==='w' ? m.to-16 : m.to+16;
+    undo.captured = b[capPawnSq]; undo.capSq = capPawnSq;
+    b[capPawnSq]=EMPTY;
+  }
+  // move piece
+  b[m.to] = p; b[m.from]=EMPTY;
+  // promotion
+  if(m.promo) b[m.to] = us==='w' ? m.promo : m.promo.toLowerCase();
+  // castling rook move
+  if(m.flag==='OO'){ if(us==='w'){ b[sq(5,0)]=b[sq(7,0)]; b[sq(7,0)]=EMPTY; } else { b[sq(5,7)]=b[sq(7,7)]; b[sq(7,7)]=EMPTY; } }
+  if(m.flag==='OOO'){ if(us==='w'){ b[sq(3,0)]=b[sq(0,0)]; b[sq(0,0)]=EMPTY; } else { b[sq(3,7)]=b[sq(0,7)]; b[sq(0,7)]=EMPTY; } }
+  // update castling rights
+  if(pt==='K'){ if(us==='w'){ s.castling.wK=s.castling.wQ=false; } else { s.castling.bK=s.castling.bQ=false; } }
+  if(m.from===sq(0,0)||m.to===sq(0,0)) s.castling.wQ=false;
+  if(m.from===sq(7,0)||m.to===sq(7,0)) s.castling.wK=false;
+  if(m.from===sq(0,7)||m.to===sq(0,7)) s.castling.bQ=false;
+  if(m.from===sq(7,7)||m.to===sq(7,7)) s.castling.bK=false;
+  // ep target
+  s.ep = (m.flag==='double') ? (us==='w'? m.from+16 : m.from-16) : -1;
+  // clocks
+  if(pt==='P' || undo.captured!==EMPTY) s.halfmove=0; else s.halfmove++;
+  if(us==='b') s.fullmove++;
+  s.turn = them;
+  return undo;
+}
+
+function unmakeMove(s, undo){
+  var b=s.board, m=undo.m;
+  s.turn = s.turn==='w'?'b':'w';
+  var us=s.turn;
+  var p=b[m.to];
+  // undo promotion
+  if(m.promo) p = us==='w'?'P':'p';
+  b[m.from]=p; b[m.to]=EMPTY;
+  // restore captured
+  if(undo.captured!==EMPTY){ b[undo.capSq]=undo.captured; }
+  // castling rook back
+  if(m.flag==='OO'){ if(us==='w'){ b[sq(7,0)]=b[sq(5,0)]; b[sq(5,0)]=EMPTY; } else { b[sq(7,7)]=b[sq(5,7)]; b[sq(5,7)]=EMPTY; } }
+  if(m.flag==='OOO'){ if(us==='w'){ b[sq(0,0)]=b[sq(3,0)]; b[sq(3,0)]=EMPTY; } else { b[sq(0,7)]=b[sq(3,7)]; b[sq(3,7)]=EMPTY; } }
+  s.ep=undo.ep; s.halfmove=undo.halfmove; s.fullmove=undo.fullmove;
+  s.castling=undo.castling;
+}
+
+function legalMoves(s){
+  var pseudo=genPseudo(s), out=[], us=s.turn;
+  for(var i=0;i<pseudo.length;i++){
+    var u=makeMove(s,pseudo[i]);
+    if(!inCheck(s, us)) out.push(pseudo[i]);
+    unmakeMove(s,u);
+  }
+  return out;
+}
+
+// SAN for a move (given legal move list for disambiguation)
+function toSAN(s, m, legal){
+  if(m.flag==='OO') return finishSAN(s,m,'O-O');
+  if(m.flag==='OOO') return finishSAN(s,m,'O-O-O');
+  var p=s.board[m.from], pt=p.toUpperCase();
+  var capture = (s.board[m.to]!==EMPTY) || m.flag==='ep';
+  var san='';
+  if(pt==='P'){
+    if(capture) san += 'abcdefgh'[fileOf(m.from)] + 'x';
+    san += algeb(m.to);
+    if(m.promo) san += '='+m.promo;
+  } else {
+    san += pt;
+    // disambiguation
+    var amb = legal.filter(function(x){ return x.to===m.to && x.from!==m.from && s.board[x.from]===p; });
+    if(amb.length){
+      var sameFile = amb.some(function(x){ return fileOf(x.from)===fileOf(m.from); });
+      var sameRank = amb.some(function(x){ return rankOf(x.from)===rankOf(m.from); });
+      if(!sameFile) san += 'abcdefgh'[fileOf(m.from)];
+      else if(!sameRank) san += (rankOf(m.from)+1);
+      else san += algeb(m.from);
+    }
+    if(capture) san+='x';
+    san += algeb(m.to);
+  }
+  return finishSAN(s,m,san);
+}
+
+function finishSAN(s,m,san){
+  var u=makeMove(s,m);
+  var opp=s.turn;
+  if(inCheck(s,opp)){
+    san += legalMoves(s).length===0 ? '#' : '+';
+  }
+  unmakeMove(s,u);
+  return san;
+}
+
+// ---------- AI: minimax + alpha-beta ----------
+var VAL={P:100,N:320,B:330,R:500,Q:900,K:20000};
+// piece-square tables (white perspective, index by rank*8+file with rank0 = rank1)
+var PST_P=[0,0,0,0,0,0,0,0, 5,10,10,-20,-20,10,10,5, 5,-5,-10,0,0,-10,-5,5, 0,0,0,20,20,0,0,0,
+  5,5,10,25,25,10,5,5, 10,10,20,30,30,20,10,10, 50,50,50,50,50,50,50,50, 0,0,0,0,0,0,0,0];
+var PST_N=[-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,0,5,5,0,-20,-40, -30,5,10,15,15,10,5,-30,
+  -30,0,15,20,20,15,0,-30, -30,5,15,20,20,15,5,-30, -30,0,10,15,15,10,0,-30, -40,-20,0,0,0,0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50];
+var PST_B=[-20,-10,-10,-10,-10,-10,-10,-20, -10,5,0,0,0,0,5,-10, -10,10,10,10,10,10,10,-10,
+  -10,0,10,10,10,10,0,-10, -10,5,5,10,10,5,5,-10, -10,0,5,10,10,5,0,-10, -10,0,0,0,0,0,0,-10, -20,-10,-10,-10,-10,-10,-10,-20];
+var PST_R=[0,0,0,5,5,0,0,0, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5,
+  -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, 5,10,10,10,10,10,10,5, 0,0,0,0,0,0,0,0];
+var PST_Q=[-20,-10,-10,-5,-5,-10,-10,-20, -10,0,5,0,0,0,0,-10, -10,5,5,5,5,5,0,-10, 0,0,5,5,5,5,0,-5,
+  -5,0,5,5,5,5,0,-5, -10,0,5,5,5,5,0,-10, -10,0,0,0,0,0,0,-10, -20,-10,-10,-5,-5,-10,-10,-20];
+var PST_K=[20,30,10,0,0,10,30,20, 20,20,0,0,0,0,20,20, -10,-20,-20,-20,-20,-20,-20,-10, -20,-30,-30,-40,-40,-30,-30,-20,
+  -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30];
+function pstFor(pt){ return pt==='P'?PST_P:pt==='N'?PST_N:pt==='B'?PST_B:pt==='R'?PST_R:pt==='Q'?PST_Q:PST_K; }
+
+function evaluate(s){
+  var score=0;
+  for(var i=0;i<128;i++){ if(!onBoard(i)) continue;
+    var p=s.board[i]; if(p===EMPTY) continue;
+    var pt=p.toUpperCase();
+    var idx = rankOf(i)*8+fileOf(i);
+    var pst=pstFor(pt);
+    if(isWhite(p)){ score += VAL[pt] + pst[idx]; }
+    else { score -= VAL[pt] + pst[(7-rankOf(i))*8+fileOf(i)]; }
+  }
+  return score; // + = good for white
+}
+
+function orderMoves(s, moves){
+  // captures first (MVV-LVA-ish)
+  return moves.map(function(m){
+    var cap = s.board[m.to];
+    var sc = 0;
+    if(cap!==EMPTY) sc = VAL[cap.toUpperCase()]*10 - VAL[s.board[m.from].toUpperCase()];
+    if(m.promo) sc += 800;
+    return {m:m,sc:sc};
+  }).sort(function(a,b){return b.sc-a.sc;}).map(function(x){return x.m;});
+}
+
+function search(s, depth, alpha, beta){
+  if(depth===0) return evaluate(s);
+  var moves=legalMoves(s);
+  if(moves.length===0){
+    if(inCheck(s,s.turn)) return s.turn==='w' ? -100000-depth : 100000+depth; // mate
+    return 0; // stalemate
+  }
+  moves=orderMoves(s,moves);
+  if(s.turn==='w'){
+    var best=-Infinity;
+    for(var i=0;i<moves.length;i++){ var u=makeMove(s,moves[i]);
+      var v=search(s,depth-1,alpha,beta); unmakeMove(s,u);
+      if(v>best) best=v; if(best>alpha) alpha=best; if(alpha>=beta) break; }
+    return best;
+  } else {
+    best=Infinity;
+    for(i=0;i<moves.length;i++){ u=makeMove(s,moves[i]);
+      v=search(s,depth-1,alpha,beta); unmakeMove(s,u);
+      if(v<best) best=v; if(best<beta) beta=best; if(alpha>=beta) break; }
+    return best;
+  }
+}
+
+function bestMove(s, depth, randomness){
+  var moves=orderMoves(s, legalMoves(s));
+  if(moves.length===0) return null;
+  var scored=[];
+  for(var i=0;i<moves.length;i++){
+    var u=makeMove(s,moves[i]);
+    var v=search(s,depth-1,-Infinity,Infinity);
+    unmakeMove(s,u);
+    scored.push({m:moves[i], v:v});
+  }
+  var side=s.turn==='w'?1:-1;
+  scored.sort(function(a,b){ return side*(b.v-a.v); });
+  // randomness: pick among near-best for easier levels
+  if(randomness && randomness>0){
+    var top=scored[0].v;
+    var pool=scored.filter(function(x){ return Math.abs(x.v-top) <= randomness; });
+    return pool[Math.floor(Math.random()*pool.length)].m;
+  }
+  return scored[0].m;
+}
+
+// perft for testing
+function perft(s, depth){
+  if(depth===0) return 1;
+  var moves=legalMoves(s), n=0;
+  for(var i=0;i<moves.length;i++){ var u=makeMove(s,moves[i]); n+=perft(s,depth-1); unmakeMove(s,u); }
+  return n;
+}
+
+var API={ newGame:newGame, cloneState:cloneState, legalMoves:legalMoves, makeMove:makeMove,
+  unmakeMove:unmakeMove, toSAN:toSAN, inCheck:inCheck, bestMove:bestMove, evaluate:evaluate,
+  perft:perft, algeb:algeb, parseSq:parseSq, sq:sq, fileOf:fileOf, rankOf:rankOf, onBoard:onBoard,
+  kingSquare:kingSquare, colorOf:colorOf, isWhite:isWhite, isBlack:isBlack };
+if(typeof module!=='undefined' && module.exports) module.exports=API;
+root.Chess=API;
+})(typeof window!=='undefined'?window:this);
+
+/* ================= App logic ================= */
+var C = window.Chess;
+var G = {
+  state: null, human: 'w', hist: [], sanList: [], thinking: false, gameOver: false,
+  lastAI: null
+};
+var $ = function(id){ return document.getElementById(id); };
+var PIECE_UNI = {K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'};
+
+function diffCfg(){
+  var d = +$('diff').value;
+  return [null,{depth:2,rand:120},{depth:2,rand:30},{depth:3,rand:0},{depth:4,rand:0}][d];
+}
+
+/* ---------- rendering ---------- */
+function renderBoard(){
+  var b = G.state.board, flip = (G.human==='b');
+  var html='';
+  for(var rr=0; rr<8; rr++){
+    var rank = flip ? rr : 7-rr;
+    for(var ff=0; ff<8; ff++){
+      var file = flip ? 7-ff : ff;
+      var s = C.sq(file,rank);
+      var p = b[s];
+      var light = (file+rank)%2===1;
+      var glyph = p ? PIECE_UNI[p.toUpperCase()] : '';
+      var cls = p ? (C.isWhite(p)?'wp':'bp') : '';
+      var coord = (ff===0? (rank+1):'') ;
+      html += '<div class="sqr '+(light?'lt':'dk')+'">'+
+        (coord!==''? '<span class="co">'+coord+'</span>':'')+
+        '<span class="'+cls+'">'+glyph+'</span></div>';
+    }
+  }
+  $('board').innerHTML = html;
+}
+
+function updateBoardVisibility(peeking){
+  var blind = $('blind').checked;
+  var boardHidden = blind && !peeking;
+  $('boardwrap').classList.toggle('hidden', boardHidden);
+  $('blindnote').classList.toggle('hidden', !boardHidden);
+}
+
+function renderMoves(){
+  var ml = G.sanList;
+  if(!ml.length){ $('movelist').innerHTML='<span class="no">Moves will appear here.</span>'; return; }
+  var html='';
+  for(var i=0;i<ml.length;i++){
+    if(i%2===0) html += '<span class="no">'+(i/2+1)+'.</span> ';
+    var last = (i===ml.length-1);
+    html += '<span class="mv'+(last?' last':'')+'">'+ml[i]+'</span> ';
+  }
+  $('movelist').innerHTML = html;
+  var el=$('movelist'); el.scrollTop = el.scrollHeight;
+}
+
+/* ---------- speech out ---------- */
+function sanToWords(san){
+  if(san==='O-O') return 'castles kingside';
+  if(san==='O-O-O') return 'castles queenside';
+  var suffix='';
+  if(/#$/.test(san)){ suffix=' checkmate'; san=san.slice(0,-1); }
+  else if(/\+$/.test(san)){ suffix=' check'; san=san.slice(0,-1); }
+  var names={K:'king',Q:'queen',R:'rook',B:'bishop',N:'knight'};
+  var out='';
+  var promo='';
+  var pm = san.match(/=([QRBN])/); if(pm){ promo=' promotes to '+names[pm[1]]; san=san.replace(/=([QRBN])/,''); }
+  var pieceChar = /^[KQRBN]/.test(san) ? san[0] : '';
+  var body = pieceChar ? san.slice(1) : san;
+  if(pieceChar) out += names[pieceChar]+' ';
+  body = body.replace('x',' takes ');
+  // spell out squares: letter+digit -> "e 4"
+  body = body.replace(/([a-h])([1-8])/g, function(_,f,r){ return f.toUpperCase()+' '+r; });
+  out += body;
+  return (out+promo+suffix).replace(/\s+/g,' ').trim();
+}
+/* iOS/standalone detection + speech-synthesis unlock */
+var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+  (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+var ttsPrimed=false;
+function primeTTS(){
+  if(ttsPrimed || !('speechSynthesis' in window)) return;
+  ttsPrimed=true;
+  try{ var u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u);
+       if(speechSynthesis.getVoices) speechSynthesis.getVoices(); }catch(e){}
+}
+function say(text){
+  if(!$('speak').checked || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=0.95; u.pitch=1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+// iOS blocks speech until the first user gesture — unlock on the first tap.
+document.addEventListener('pointerdown', primeTTS, {once:true});
+document.addEventListener('touchstart', primeTTS, {once:true});
+
+/* ---------- status ---------- */
+function setStatus(){
+  var s=G.state;
+  if(G.gameOver){ return; }
+  var legal=C.legalMoves(s);
+  var turn = s.turn===G.human ? 'Your move' : 'Engine to move';
+  var chk = C.inCheck(s, s.turn);
+  if(legal.length===0){
+    if(chk){ var w = s.turn===G.human?'Engine':'You'; finishGame((w+' win — checkmate.'), true); }
+    else finishGame('Draw — stalemate.', false);
+    return;
+  }
+  var html = turn;
+  if(chk) html += ' <span class="chk">— check!</span>';
+  $('status').innerHTML = html;
+}
+function finishGame(msg, win){
+  G.gameOver=true;
+  $('status').innerHTML = '<span class="'+(win?'win':'')+'">'+msg+'</span>';
+  say(msg);
+}
+
+/* ---------- applying a move ---------- */
+function applyMove(m){
+  var legal=C.legalMoves(G.state);
+  var san=C.toSAN(G.state, m, legal);
+  C.makeMove(G.state, m);
+  G.sanList.push(san);
+  renderMoves();
+  if(!$('blind').checked) renderBoard();
+  return san;
+}
+
+function humanMove(m){
+  if(G.gameOver || G.thinking) return;
+  var san=applyMove(m);
+  say(sanToWords(san));
+  setHeard('You: <b>'+san+'</b>', false);
+  setStatus();
+  if(!G.gameOver) setTimeout(aiMove, 380);
+}
+
+function aiMove(){
+  if(G.gameOver) return;
+  G.thinking=true;
+  $('status').innerHTML = 'Engine thinking…';
+  setTimeout(function(){
+    var cfg=diffCfg();
+    var m=C.bestMove(G.state, cfg.depth, cfg.rand);
+    G.thinking=false;
+    if(!m){ setStatus(); return; }
+    var san=applyMove(m);
+    G.lastAI=san;
+    say(sanToWords(san));
+    setHeard('Engine: <b>'+san+'</b>', false);
+    setStatus();
+  }, 40);
+}
+
+/* ---------- move parsing (typed + spoken) ---------- */
+function normalizeFiles(t){
+  var map={alpha:'a',bravo:'b',charlie:'c',delta:'d',echo:'e',foxtrot:'f',golf:'g',hotel:'h',
+    able:'a',baker:'b',fox:'f',hank:'h'};
+  return t.replace(/\b(alpha|bravo|charlie|delta|echo|foxtrot|golf|hotel|able|baker|fox|hank)\b/g,
+    function(w){return ' '+map[w]+' ';});
+}
+function normalizeNums(t){
+  var map={one:'1',won:'1',two:'2',too:'2',three:'3',tree:'3',four:'4',fore:'4',five:'5',
+    six:'6',sicks:'6',seven:'7',eight:'8',ate:'8'};
+  return t.replace(/\b(one|won|two|too|three|tree|four|fore|five|six|sicks|seven|eight|ate)\b/g,
+    function(w){return map[w];});
+}
+// parse spoken/loose text -> {castle, piece, squares[], fromFile, promo}
+function parseLoose(text){
+  var t = ' '+text.toLowerCase().replace(/[.,!?]/g,' ')+' ';
+  // castling
+  if(/\bcastl/.test(t) || /\bo\s*-?\s*o\b/.test(t)){
+    var queen = /queen|long|o\s*-?\s*o\s*-?\s*o/.test(t);
+    return {castle: queen?'OOO':'OO'};
+  }
+  var piece='';
+  if(/\b(knight|night|nite|nights)\b/.test(t)) piece='N';
+  else if(/\bbishop/.test(t)) piece='B';
+  else if(/\b(rook|rooks|rock|brook)\b/.test(t)) piece='R';
+  else if(/\bqueen/.test(t)) piece='Q';
+  else if(/\bking/.test(t)) piece='K';
+  // promotion target (only if 'promote'/'equals'/'to a X' at end, or pawn-word + piece)
+  var promo=null;
+  var pm=t.match(/(promote|promotes|promotion|equals?|=|into|to a)\s+(queen|rook|bishop|knight|night)/);
+  if(pm){ promo = pm[2][0]==='n'? 'N' : {q:'Q',r:'R',b:'B'}[pm[2][0]]; }
+  // remove connective 'to' so "knight to f3" doesn't become a number
+  t = ' '+t.replace(/\bto\b/g,' ')+' ';
+  t = normalizeFiles(t);
+  t = normalizeNums(t);
+  // collapse "e 4" -> "e4"
+  t = t.replace(/\b([a-h])\s+([1-8])\b/g,'$1$2');
+  var squares = (t.match(/[a-h][1-8]/g)||[]);
+  var fromFile=null;
+  return {piece:piece, squares:squares, promo:promo, fromFile:fromFile};
+}
+
+function matchLoose(text){
+  var legal=C.legalMoves(G.state);
+  var p=parseLoose(text);
+  if(p.castle){
+    var mc=legal.filter(function(x){return x.flag===p.castle;});
+    return mc.length? {move:mc[0]} : {error:'can\'t castle '+(p.castle==='OO'?'kingside':'queenside')+' right now'};
+  }
+  if(!p.squares || !p.squares.length) return {error:'no square heard'};
+  var dest=C.parseSq(p.squares[p.squares.length-1]);
+  var cands=legal.filter(function(x){return x.to===dest;});
+  if(p.piece) cands=cands.filter(function(x){return G.state.board[x.from].toUpperCase()===p.piece;});
+  if(p.squares.length>=2){
+    var from=C.parseSq(p.squares[0]);
+    var f2=cands.filter(function(x){return x.from===from;});
+    if(f2.length) cands=f2;
+  }
+  if(cands.length>1 && p.promo){
+    var fp=cands.filter(function(x){return x.promo===p.promo;});
+    if(fp.length) cands=fp;
+  }
+  if(cands.length>1){ // default promotion to queen; also prefer non-promo dup collapse
+    var qp=cands.filter(function(x){return !x.promo || x.promo==='Q';});
+    if(qp.length) cands=qp;
+  }
+  if(cands.length===1) return {move:cands[0]};
+  if(cands.length===0) return {error:'no legal move'+(p.piece?' for that piece':'')+' to '+p.squares[p.squares.length-1]};
+  return {error:'which piece? try naming it (e.g. "knight")'};
+}
+
+// typed: try exact SAN first, then loose
+function matchTyped(raw){
+  var legal=C.legalMoves(G.state);
+  var t=raw.trim();
+  if(!t) return {error:''};
+  var norm=t.replace(/[+#]/g,'').replace(/0/g,'O').replace(/\s/g,'');
+  for(var i=0;i<legal.length;i++){
+    var san=C.toSAN(G.state, legal[i], legal).replace(/[+#]/g,'');
+    if(san.toLowerCase()===norm.toLowerCase()) return {move:legal[i]};
+  }
+  // coordinate form e2e4, e2-e4
+  var cm=norm.toLowerCase().match(/^([a-h][1-8])[-x]?([a-h][1-8])([qrbn])?$/);
+  if(cm){
+    var from=C.parseSq(cm[1]), to=C.parseSq(cm[2]);
+    var cand=legal.filter(function(x){return x.from===from && x.to===to;});
+    if(cm[3]) cand=cand.filter(function(x){return x.promo && x.promo===cm[3].toUpperCase();});
+    if(cand.length) return {move:cand[0]};
+  }
+  return matchLoose(t);
+}
+
+function setHeard(html, isErr){
+  var el=$('heard'); el.innerHTML=html; el.classList.toggle('err', !!isErr);
+}
+
+function submitText(text, spoken){
+  if(G.gameOver){ setHeard('Game over — start a new game.', true); return; }
+  if(G.state.turn!==G.human){ setHeard('Not your move yet.', true); return; }
+  var res = spoken ? (function(){
+      // spoken: show what we heard first
+      var r=matchLoose(text);
+      return r;
+    })() : matchTyped(text);
+  if(res.move){ $('movein').value=''; humanMove(res.move); }
+  else {
+    var pre = spoken ? ('Heard “'+text+'” — ') : '';
+    setHeard(pre+'<b>'+(res.error||'move not understood')+'</b>', true);
+    if(spoken) say('sorry, say again');
+  }
+}
+
+/* ---------- voice input ---------- */
+var recog=null, recogOn=false;
+function initRecog(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ return null; }
+  var r=new SR();
+  r.lang='en-US'; r.interimResults=false; r.maxAlternatives=5; r.continuous=false;
+  r.onresult=function(e){
+    var alts=e.results[0];
+    // try each alternative, take the first that yields a legal move
+    var best=null, firstText=alts[0].transcript;
+    for(var i=0;i<alts.length;i++){
+      var txt=alts[i].transcript;
+      var res=matchLoose(txt);
+      if(res.move){ best={txt:txt,move:res.move}; break; }
+    }
+    if(best){ setHeard('Heard <b>'+best.txt+'</b>', false); $('movein').value=''; humanMove(best.move); }
+    else { setHeard('Heard “'+firstText+'” — <b>couldn\'t map it. Say again or type.</b>', true); say('say again'); }
+  };
+  r.onerror=function(e){
+    recogOn=false; $('micbtn').classList.remove('on');
+    if(e.error==='not-allowed'||e.error==='service-not-allowed') setHeard('<b>Mic blocked.</b> Allow microphone access, or type your move.', true);
+    else if(e.error==='no-speech') setHeard('Didn\'t catch that — tap the mic and speak.', true);
+  };
+  r.onend=function(){ recogOn=false; $('micbtn').classList.remove('on'); };
+  return r;
+}
+// On iPhone/iPad the Web Speech API does not work inside an installed PWA,
+// so use the keyboard's built-in dictation: focus the field and let the user
+// tap the 🎤 key. Whatever they dictate is parsed the same way as typing.
+function iosDictate(){
+  var mv=$('movein');
+  mv.focus();
+  try{ mv.setSelectionRange(mv.value.length, mv.value.length); }catch(e){}
+  setHeard('Tap the <b>🎤</b> on your keyboard, say your move, then Return.', false);
+}
+function toggleMic(){
+  if(G.gameOver || G.state.turn!==G.human){ setHeard('Wait for your turn.', true); return; }
+  if(IOS){ iosDictate(); return; }
+  if(!recog) recog=initRecog();
+  if(!recog){ setHeard('<b>Voice not supported here.</b> On iPhone, tap the field and use the keyboard mic; on desktop use Chrome.', true); return; }
+  if(recogOn){ try{recog.stop();}catch(e){} return; }
+  try{
+    // cancel any TTS so it doesn't feed back
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+    recog.start(); recogOn=true; $('micbtn').classList.add('on');
+    setHeard('Listening… say your move', false);
+  }catch(e){ setHeard('Mic busy — try again.', true); }
+}
+
+/* ---------- controls ---------- */
+function newGame(){
+  G.state=C.newGame(); G.sanList=[]; G.gameOver=false; G.thinking=false; G.lastAI=null;
+  var side=$('side').value;
+  G.human = side==='r' ? (Math.random()<0.5?'w':'b') : side;
+  renderBoard(); renderMoves(); updateBoardVisibility(false);
+  setHeard('', false);
+  $('status').innerHTML = 'New game — you are '+(G.human==='w'?'White':'Black')+'.';
+  say('New game. You are '+(G.human==='w'?'white':'black'));
+  if(G.human==='b') setTimeout(aiMove, 500); else setStatus();
+}
+
+var peekTimer=null, peekCount=0;
+function peek(){
+  if(!$('blind').checked){ return; }
+  peekCount++; $('peekpill').textContent='peeks: '+peekCount;
+  renderBoard();
+  updateBoardVisibility(true);
+  clearTimeout(peekTimer);
+  peekTimer=setTimeout(function(){ updateBoardVisibility(false); }, 2500);
+}
+var moveStack=[]; // parallel stack of move objects
+function undoReal(){
+  if(G.thinking) return;
+  if(moveStack.length===0) return;
+  var drop = (G.state.turn===G.human)?2:1;
+  drop=Math.min(drop, moveStack.length);
+  for(var i=0;i<drop;i++){ var u=moveStack.pop().undo; C.unmakeMove(G.state,u); G.sanList.pop(); }
+  G.gameOver=false;
+  renderMoves(); if(!$('blind').checked) renderBoard(); else updateBoardVisibility(false);
+  setHeard('Took back '+drop+' move'+(drop>1?'s':'')+'.', false);
+  setStatus();
+}
+
+function legalPrompt(){
+  var legal=C.legalMoves(G.state);
+  var sans=legal.map(function(m){return C.toSAN(G.state,m,legal);}).sort();
+  setHeard('<b>'+sans.length+'</b> legal moves: '+sans.slice(0,18).join(', ')+(sans.length>18?' …':''), false);
+}
+
+/* wire applyMove to also push move objects for undo */
+var _apply=applyMove;
+applyMove=function(m){
+  var legal=C.legalMoves(G.state);
+  var san=C.toSAN(G.state, m, legal);
+  var undo=C.makeMove(G.state, m);
+  moveStack.push({undo:undo});
+  G.sanList.push(san);
+  renderMoves();
+  if(!$('blind').checked) renderBoard();
+  return san;
+};
+
+/* ---------- events ---------- */
+$('newgame').onclick=newGame;
+$('playbtn').onclick=function(){ submitText($('movein').value, false); };
+$('movein').addEventListener('keydown', function(e){ if(e.key==='Enter'){ submitText($('movein').value, false); } });
+$('micbtn').onclick=toggleMic;
+$('peek').onclick=peek;
+$('undo').onclick=undoReal;
+$('hintbtn').onclick=legalPrompt;
+$('repeat').onclick=function(){ var last=G.sanList[G.sanList.length-1]; if(last) say(sanToWords(last)); };
+$('blind').addEventListener('change', function(){ if(!G.state) return; if(!$('blind').checked) renderBoard(); updateBoardVisibility(false); });
+$('side').addEventListener('change', function(){});
+
+if(IOS){
+  $('micbtn').textContent='🎤';
+  $('micbtn').title='Dictate your move with the keyboard mic';
+} else if(!(window.SpeechRecognition||window.webkitSpeechRecognition)){
+  $('micbtn').title='Voice not supported — use Chrome';
+  $('micbtn').style.opacity=.5;
+}
+$('engpill').textContent = 'engine ready';
+// start a game immediately so it's playable on load
+newGame();
+</script>
+</body></html>
