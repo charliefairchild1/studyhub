@@ -46,7 +46,7 @@ button.mic.on{background:var(--live);border-color:var(--live);color:#fff;animati
 .sqr .co{position:absolute;font-size:9px;color:#00000066;left:2px;top:1px}
 .wp{color:#fbf6ec;text-shadow:0 1px 1px #0008}
 .bp{color:#1a1206;text-shadow:0 1px 0 #ffffff33}
-.hidden{display:none}
+.hidden{display:none !important} /* !important: beats #boardwrap's id-level display:flex */
 .blindnote{text-align:center;color:var(--dim);font-size:13px;padding:26px 10px;border:1px dashed var(--line);border-radius:12px;margin:4px 0}
 .blindnote b{color:var(--gold)}
 /* moves */
